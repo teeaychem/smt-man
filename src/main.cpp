@@ -1,21 +1,22 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
-#include <iostream>
+
 #include <limits>
 #include <random>
 
-#include "utils/utils.hpp"
+#include "anima.hpp"
+#include "utils.hpp"
+
+#include "unethical.hpp"
 
 bool sdl_init();
 bool sdl_load_media();
 void sdl_close();
 
-constexpr int kScreenWidth{480};
-constexpr int kScreenHeight{640};
-constexpr int kScreenFps{60};
-
 SDL_Window *gWindow{nullptr};
+
+SDL_Renderer *gRenderer{nullptr};
 SDL_Surface *gScreenSurface{nullptr};
 SDL_Surface *gHelloWorld{nullptr};
 
@@ -23,7 +24,7 @@ bool sdl_init() {
   bool success{false};
 
   if (SDL_Init(SDL_INIT_VIDEO)) {
-    if (gWindow = SDL_CreateWindow("HiHi", kScreenWidth, kScreenHeight, 0); gWindow != nullptr) {
+    if (SDL_CreateWindowAndRenderer("HiHi", kScreenWidth, kScreenHeight, 0, &gWindow, &gRenderer)) {
       success = true;
       gScreenSurface = SDL_GetWindowSurface(gWindow);
     }
@@ -79,8 +80,12 @@ int main(int argc, char **agrv) {
   if (!sdl_init()) {
     exitCode = 1;
   } else {
+
     bool quit{false};
-    SDLTimer frameCapTimer{};
+
+    NSTimer frameCapTimer{};
+    Anima bonnie{};
+    bonnie.spawn(gRenderer);
 
     SDL_Event event;
     SDL_zero(event);
@@ -93,13 +98,18 @@ int main(int argc, char **agrv) {
         if (event.type == SDL_EVENT_QUIT) {
           quit = true;
         }
+        bonnie.handleEvent(event);
       }
 
-      SDL_FillSurfaceRect(gScreenSurface, nullptr, SDL_MapSurfaceRGB(gScreenSurface, colour[0], colour[1], colour[2]));
+      SDL_SetRenderDrawColor(gRenderer, colour[0], colour[1], colour[2], 0xFF);
+      SDL_RenderClear(gRenderer);
 
       colour.advance();
+      bonnie.move();
+      bonnie.render(gRenderer);
 
-      SDL_UpdateWindowSurface(gWindow);
+      SDL_RenderPresent(gRenderer);
+
       constexpr Uint64 nsPerFrame = 1000000000 / kScreenFps;
       Uint64 frameNS{frameCapTimer.getTicksNS()};
       if (frameNS < nsPerFrame) {
