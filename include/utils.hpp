@@ -2,9 +2,9 @@
 
 #include <SDL3/SDL_main.h>
 
-class SDLTimer {
+class NSTimer {
 public:
-  SDLTimer();
+  NSTimer();
 
   void start();
   void stop();

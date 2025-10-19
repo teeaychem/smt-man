@@ -2,23 +2,23 @@
 
 #include "utils.hpp"
 
-SDLTimer::SDLTimer() : mStartedTicks{0}, mPausedTicks{0}, mPaused{false}, mStarted{false} {};
+NSTimer::NSTimer() : mStartedTicks{0}, mPausedTicks{0}, mPaused{false}, mStarted{false} {};
 
-void SDLTimer::start() {
+void NSTimer::start() {
   this->mStarted = true;
   this->mPaused = false;
   this->mStartedTicks = SDL_GetTicksNS();
   this->mPausedTicks = 0;
 }
 
-void SDLTimer::stop() {
+void NSTimer::stop() {
   this->mStarted = false;
   this->mPaused = false;
   this->mStartedTicks = 0;
   this->mPausedTicks = 0;
 }
 
-void SDLTimer::pause() {
+void NSTimer::pause() {
   if (this->mStarted && !this->mPaused) {
     this->mStarted = false;
     this->mPaused = true;
@@ -27,7 +27,7 @@ void SDLTimer::pause() {
   }
 }
 
-void SDLTimer::unpause() {
+void NSTimer::unpause() {
   if (this->mStarted && this->mPaused) {
     this->mPaused = false;
     this->mStartedTicks = SDL_GetTicksNS() - mPausedTicks;
@@ -35,7 +35,7 @@ void SDLTimer::unpause() {
   }
 }
 
-Uint64 SDLTimer::getTicksNS() {
+Uint64 NSTimer::getTicksNS() {
   Uint64 time{0};
 
   if (this->mStarted) {
@@ -49,10 +49,10 @@ Uint64 SDLTimer::getTicksNS() {
   return time;
 }
 
-bool SDLTimer::isStarted() {
+bool NSTimer::isStarted() {
   return mStarted;
 }
 
-bool SDLTimer::isPaused() {
+bool NSTimer::isPaused() {
   return mPaused && mStarted;
 }
