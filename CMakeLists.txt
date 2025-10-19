@@ -12,7 +12,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(SOURCES src/main.cpp src/anima/deduction.cpp)
+
+set(SOURCES src/main.cpp src/anima/deduction.cpp src/utils/utils.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
