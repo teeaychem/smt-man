@@ -1,59 +1,68 @@
-#include <cvc5/cvc5.h>
-#include <iostream>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
+#include <SDL3/SDL_render.h>
 
-using namespace cvc5;
+bool sdl_init();
+bool sdl_load_media();
+void sdl_close();
+
+constexpr int kScreenWidth{480};
+constexpr int kScreenHeight{640};
+
+SDL_Window *gWindow{nullptr};
+SDL_Surface *gScreenSurface{nullptr};
+SDL_Surface *gHelloWorld{nullptr};
+
+bool sdl_init() {
+  bool success{false};
+
+  if (SDL_Init(SDL_INIT_VIDEO)) {
+    if (gWindow = SDL_CreateWindow("HiHi", kScreenWidth, kScreenHeight, 0); gWindow != nullptr) {
+      success = true;
+      gScreenSurface = SDL_GetWindowSurface(gWindow);
+    }
+  }
+
+  return success;
+}
+
+void sdl_close() {
+  SDL_DestroySurface(gHelloWorld);
+  gHelloWorld = nullptr;
+
+  SDL_DestroyWindow(gWindow);
+  gWindow = nullptr;
+  gScreenSurface = nullptr;
+
+  SDL_Quit();
+}
 
 int main(int argc, char **agrv) {
-  std::cout << "Hello, all" << "\n";
 
-  TermManager tm;
+  int exitCode{0};
 
-  Solver solver(tm);
-  solver.setOption("produce-models", "true");
-  solver.setOption("finite-model-find", "true");
+  if (!sdl_init()) {
+    exitCode = 1;
+  } else {
+    bool quit{false};
 
-  Sort animaSort = tm.mkUninterpretedSort("Anima");
-  Sort animaPredicate = tm.mkFunctionSort({animaSort}, tm.getBooleanSort());
-  Sort directionSort = tm.mkUninterpretedSort("Direction");
+    SDL_Event event;
+    SDL_zero(event);
 
-  Sort facingSort = tm.mkFunctionSort({animaSort, directionSort}, tm.getBooleanSort());
-  Term facingFn = tm.mkConst(facingSort, "Facing");
+    while (!quit) {
+      while (SDL_PollEvent(&event)) {
+        if (event.type == SDL_EVENT_QUIT) {
+          quit = true;
+        }
+      }
 
-  Term blinky = tm.mkConst(animaSort, "blinky");
+      SDL_FillSurfaceRect(gScreenSurface, nullptr, SDL_MapSurfaceRGB(gScreenSurface, 0xFF, 0xFF, 0xAE));
 
-  Term up = tm.mkConst(directionSort, "up");
-  Term right = tm.mkConst(directionSort, "right");
-  Term down = tm.mkConst(directionSort, "down");
-  Term left = tm.mkConst(directionSort, "left");
+      SDL_UpdateWindowSurface(gWindow);
+    }
+  }
 
-  auto bu = tm.mkTerm(Kind::APPLY_UF, {facingFn, blinky, up});
-  auto br = tm.mkTerm(Kind::APPLY_UF, {facingFn, blinky, right});
-  auto bd = tm.mkTerm(Kind::APPLY_UF, {facingFn, blinky, down});
-  auto bl = tm.mkTerm(Kind::APPLY_UF, {facingFn, blinky, left});
+  sdl_close();
 
-  Term some_direction = tm.mkTerm(Kind::OR, {bu, br, bd, bl});
-  Term u_case = tm.mkTerm(Kind::OR, {tm.mkTerm(Kind::NOT, {bu}),
-                                     tm.mkTerm(Kind::NOT, {tm.mkTerm(Kind::OR, {br, bd, bl})})});
-  Term r_case = tm.mkTerm(Kind::OR, {tm.mkTerm(Kind::NOT, {br}),
-                                     tm.mkTerm(Kind::NOT, {tm.mkTerm(Kind::OR, {bu, bd, bl})})});
-  Term d_case = tm.mkTerm(Kind::OR, {tm.mkTerm(Kind::NOT, {bd}),
-                                     tm.mkTerm(Kind::NOT, {tm.mkTerm(Kind::OR, {bu, br, bl})})});
-  Term l_case = tm.mkTerm(Kind::OR, {tm.mkTerm(Kind::NOT, {bd}),
-                                     tm.mkTerm(Kind::NOT, {tm.mkTerm(Kind::OR, {bu, br, bd})})});
-
-  Term exactly_one_direction = tm.mkTerm(Kind::AND, {some_direction, u_case, r_case, d_case, l_case});
-
-  solver.assertFormula(exactly_one_direction);
-  solver.assertFormula(tm.mkTerm(Kind::NOT, {bu}));
-
-  Term helloworld = tm.mkConst(tm.getBooleanSort(), "Hello World!");
-
-  solver.checkSat();
-
-  std::cout << solver.getValue(bu) << " "
-            << solver.getValue(br) << " "
-            << solver.getValue(bd) << " "
-            << solver.getValue(bl);
-
-  return 0;
+  return exitCode;
 }
