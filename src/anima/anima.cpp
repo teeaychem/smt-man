@@ -1,8 +1,8 @@
 #include "anima.hpp"
 #include "unethical.hpp"
 
-Anima::Anima() : mPosX{0},
-                 mPosY{0},
+Anima::Anima() : posC{Position(0, 0)},
+                 posP{Position(0, 0)},
                  mVelX{0},
                  mVelY{0} {
 }
@@ -47,33 +47,35 @@ void Anima::handleEvent(SDL_Event &event) {
 }
 
 void Anima::move() {
-  mPosX += mVelX;
+  posP = posC;
 
-  if ((mPosX < 0) || (mPosX + kAnimaHeight > kScreenWidth)) {
-    mPosX -= mVelX;
+  posC.x += mVelX;
+
+  if ((posC.x < 0) || (posC.x + kAnimaHeight > kScreenWidth)) {
+    posC.x -= mVelX;
   }
 
-  mPosY += mVelY;
+  posC.y += mVelY;
 
-  if ((mPosY < 0) || (mPosY + kAnimaWidth > kScreenHeight)) {
-    mPosY -= mVelY;
+  if ((posC.y < 0) || (posC.y + kAnimaWidth > kScreenHeight)) {
+    posC.y -= mVelY;
   }
 }
 
-void Anima::toBuffer(int *gFrameBuffer) {
+void Anima::toBuffer(int *gFrameBuffer, int colour) {
 
   int row;
   int col;
   int cel = 0;
   int yOffset;
 
-  yOffset = mPosY * kScreenWidth + mPosX;
+  yOffset = posC.y * kScreenWidth + posC.x;
 
   for (row = 0; row < animaSize; ++row) {
     for (col = 0; col < animaSize; ++col, ++cel) {
 
       if (sprite[cel]) {
-        gFrameBuffer[yOffset + col] = 0xff000000;
+        gFrameBuffer[yOffset + col] = colour;
       }
     }
     yOffset += kScreenWidth;

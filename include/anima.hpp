@@ -5,6 +5,7 @@
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
 
+#include "utils.hpp"
 #include "visual/textures.hpp"
 
 class Anima {
@@ -20,14 +21,13 @@ public:
 
   void move();
 
-  void toBuffer(int *gFrameBuffer);
+  void toBuffer(int *gFrameBuffer, int colour);
 
   bool spawn(SDL_Renderer *gRenderer);
 
-
 private:
-  int mPosX;
-  int mPosY;
+  Position posC;
+  Position posP;
 
   int mVelX;
   int mVelY;
@@ -51,7 +51,4 @@ private:
       0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
       0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0};
-
-
-
 };
