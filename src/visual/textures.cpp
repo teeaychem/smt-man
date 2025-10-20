@@ -1,8 +1,9 @@
 #include "visual/textures.hpp"
+#include "unethical.hpp"
 
 AnimaTexture::AnimaTexture() : aTexture{nullptr},
-                               tWidth{0},
-                               tHeight{0} {
+                               tWidth{animaSize},
+                               tHeight{animaSize} {
 }
 
 AnimaTexture::~AnimaTexture() {
