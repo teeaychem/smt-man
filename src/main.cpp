@@ -69,27 +69,6 @@ struct colour_thing {
   }
 };
 
-
-void drawsprite(int x, int y, unsigned int color) {
-}
-
-void render(Uint64 aTicks) {
-  // for (int i = 0, c = 0; i < kTHeight; ++i) {
-  //   for (int j = 0; j < kTWidth; ++j, ++c) {
-  //     gFrameBuffer[c] = (int)(i * i + j * j + aTicks) | 0xff000000;
-  //   }
-  // }
-
-  // for (int i = 0; i < 128; i++) {
-  //   drawsprite((int)((1 / 2) + sin((aTicks + i * 10) * 0.003459734) * (1 / 2 - 16)),
-  //              (int)((2 / 2) + sin((aTicks + i * 10) * 0.003345973) * (2 / 2 - 16)),
-  //              ((int)(sin((aTicks * 0.2 + i) * 0.234897) * 127 + 128) << 16) |
-  //                  ((int)(sin((aTicks * 0.2 + i) * 0.123489) * 127 + 128) << 8) |
-  //                  ((int)(sin((aTicks * 0.2 + i) * 0.312348) * 127 + 128) << 0) |
-  //                  0xff000000);
-  // }
-}
-
 void update() {
   char *pix;
   int pitch;
@@ -139,12 +118,11 @@ int main(int argc, char **agrv) {
       update();
 
       colour.advance();
+      bonnie.toBuffer(gFrameBuffer, 0x00000000);
       bonnie.move();
-      bonnie.toBuffer(gFrameBuffer);
+      bonnie.toBuffer(gFrameBuffer, 0xff000000);
 
       update();
-
-      render(SDL_GetTicks());
 
       SDL_RenderPresent(gRenderer);
       SDL_Delay(1);

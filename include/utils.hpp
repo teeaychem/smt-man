@@ -2,6 +2,14 @@
 
 #include <SDL3/SDL_main.h>
 
+class Position {
+public:
+  int x;
+  int y;
+
+  Position(int x, int y) : x(x), y(y) {};
+};
+
 class NSTimer {
 public:
   NSTimer();
