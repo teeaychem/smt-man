@@ -60,10 +60,26 @@ void Anima::move() {
   }
 }
 
-void Anima::render(SDL_Renderer *gRenderer) {
-  gAnimaTexture.render(gRenderer, mPosX, mPosY);
+void Anima::toBuffer(int *gFrameBuffer) {
+
+  int row;
+  int col;
+  int cel = 0;
+  int yOffset;
+
+  yOffset = mPosY * kScreenWidth + mPosX;
+
+  for (row = 0; row < animaSize; ++row) {
+    for (col = 0; col < animaSize; ++col, ++cel) {
+
+      if (sprite[cel]) {
+        gFrameBuffer[yOffset + col] = 0xff000000;
+      }
+    }
+    yOffset += kScreenWidth;
+  }
 }
 
 bool Anima::spawn(SDL_Renderer *gRenderer) {
-  return gAnimaTexture.mkRectangle(gRenderer, kAnimaWidth, kAnimaHeight);
+  return true;
 }
