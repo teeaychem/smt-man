@@ -16,8 +16,8 @@ SDL_Renderer *gRenderer{nullptr};
 int *gFrameBuffer;
 SDL_Texture *gTexture{nullptr};
 
-constexpr int kTWidth{480 / 2};
-constexpr int kTHeight{640 / 2};
+constexpr int kTWidth{480};
+constexpr int kTHeight{640};
 
 bool sdl_init() {
   bool success{false};

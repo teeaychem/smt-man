@@ -2,6 +2,13 @@
 
 #include <SDL3/SDL_main.h>
 
+enum Direction {
+  up,
+  right,
+  down,
+  left,
+};
+
 class Position {
 public:
   int x;

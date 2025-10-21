@@ -2,8 +2,8 @@
 #include "unethical.hpp"
 
 AnimaTexture::AnimaTexture() : aTexture{nullptr},
-                               tWidth{animaSize},
-                               tHeight{animaSize} {
+                               tWidth{tileSize},
+                               tHeight{tileSize} {
 }
 
 AnimaTexture::~AnimaTexture() {
