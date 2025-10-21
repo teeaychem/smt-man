@@ -25,8 +25,8 @@ bool sdl_init() {
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
     gWindow = SDL_CreateWindow("HiHi", kScreenWidth, kScreenHeight, 0);
     gRenderer = SDL_CreateRenderer(gWindow, NULL);
-    gFrameBuffer = new int[kScreenWidth * kScreenHeight];
-    gTexture = SDL_CreateTexture(gRenderer, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STREAMING, kScreenWidth, kScreenHeight);
+    gFrameBuffer = new int[kGridWidthPixels * kGridHeightPixels];
+    gTexture = SDL_CreateTexture(gRenderer, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STREAMING, kGridWidthPixels, kGridHeightPixels);
 
     success = true;
   }
@@ -74,8 +74,8 @@ void update() {
   int pitch;
 
   SDL_LockTexture(gTexture, NULL, (void **)&pix, &pitch);
-  for (int i = 0, sp = 0, dp = 0; i < kScreenHeight; i++, dp += kScreenWidth, sp += pitch) {
-    memcpy(pix + sp, gFrameBuffer + dp, kScreenWidth * 4);
+  for (int i = 0, sp = 0, dp = 0; i < kGridHeightPixels; i++, dp += kGridWidthPixels, sp += pitch) {
+    memcpy(pix + sp, gFrameBuffer + dp, kGridWidthPixels * 4);
   }
   SDL_UnlockTexture(gTexture);
   SDL_RenderTexture(gRenderer, gTexture, NULL, NULL);
@@ -113,12 +113,16 @@ int main(int argc, char **agrv) {
 
       SDL_RenderClear(gRenderer);
 
+
+      bonnie.toBuffer(gFrameBuffer, 0x00000000);
+
       SDL_SetRenderDrawColor(gRenderer, colour[0], colour[1], colour[2], 0xFF);
 
       update();
 
+
       colour.advance();
-      bonnie.toBuffer(gFrameBuffer, 0x00000000);
+
       bonnie.move();
       bonnie.toBuffer(gFrameBuffer, 0xff000000);
 
