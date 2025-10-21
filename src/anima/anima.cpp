@@ -76,16 +76,16 @@ void Anima::toBuffer(int *gFrameBuffer, int colour) {
   int cel = 0;
   int yOffset;
 
-  yOffset = posC.y * kScreenWidth + posC.x;
+  yOffset = posC.y * kGridWidthPixels + posC.x;
 
-  for (row = 0; row < tileSize; ++row) {
-    for (col = 0; col < tileSize; ++col, ++cel) {
+  for (row = 0; row < kTileSize; ++row) {
+    for (col = 0; col < kTileSize; ++col, ++cel) {
 
       if (sprite[cel]) {
         gFrameBuffer[yOffset + col] = colour;
       }
     }
-    yOffset += kScreenWidth;
+    yOffset += kGridWidthPixels;
   }
 }
 

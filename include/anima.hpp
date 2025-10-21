@@ -36,7 +36,7 @@ private:
 
   AnimaTexture gAnimaTexture;
 
-  const unsigned char sprite[16 * 16]{
+  const uint8_t sprite[16 * 16]{
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,
