@@ -76,7 +76,7 @@ void Anima::toBuffer(int *gFrameBuffer, int colour) {
   int cel = 0;
   int yOffset;
 
-  yOffset = posC.y * kGridWidthPixels + posC.x;
+  yOffset = posC.y * dPixels.w + posC.x;
 
   for (row = 0; row < kTileSize; ++row) {
     for (col = 0; col < kTileSize; ++col, ++cel) {
@@ -85,7 +85,7 @@ void Anima::toBuffer(int *gFrameBuffer, int colour) {
         gFrameBuffer[yOffset + col] = colour;
       }
     }
-    yOffset += kGridWidthPixels;
+    yOffset += dPixels.w;
   }
 }
 

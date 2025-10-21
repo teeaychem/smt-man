@@ -1,17 +1,12 @@
 #pragma once
 
-constexpr int kTileSize{16};
+#include "utils.hpp"
+#include <cstdint>
+constexpr int32_t kTileSize{16};
+constexpr int kGridScale{10};
 
-constexpr int kGridHeight{15};
-constexpr int kGridWidth{14};
+constexpr Size dMaze{14, 15};
+constexpr Size dPixels{dMaze.scale(kTileSize)};
+constexpr Size dScreen{dPixels.scale(kGridScale)};
 
-constexpr int kGridHeightPixels{kGridHeight * kTileSize};
-constexpr int kGridWidthPixels{kGridWidth * kTileSize};
-
-constexpr int kGridScale{6};
-
-constexpr int kScreenWidth{kGridWidthPixels * kGridScale};
-constexpr int kScreenHeight{kGridHeightPixels * kGridScale};
 constexpr int kScreenFps{30};
-
-constexpr int tileSize{16};
