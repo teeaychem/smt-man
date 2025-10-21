@@ -1,5 +1,6 @@
 #pragma once
 
+#include "utils.hpp"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
@@ -14,23 +15,17 @@ public:
 
   ~AnimaTexture();
 
-  bool mkRectangle(SDL_Renderer *renderer, int w, int h);
-
   void destroy();
 
   void setColor(Uint8 r, Uint8 g, Uint8 b);
 
   void setAlpha(Uint8 alpha);
 
-  void render(SDL_Renderer *gRenderer, float x, float y, float width = kOriginalSize, float height = kOriginalSize);
-
-  int getWidth();
-  int getHeight();
-  bool isLoaded();
+  Size getSize() const;
+  bool isLoaded() const;
 
 private:
   SDL_Texture *aTexture;
 
-  int tWidth;
-  int tHeight;
+  Size size;
 };
