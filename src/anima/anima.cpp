@@ -1,10 +1,12 @@
 #include "anima.hpp"
 #include "unethical.hpp"
+#include "utils.hpp"
 
 Anima::Anima() : posC{Position(0, 0)},
                  posP{Position(0, 0)},
-                 mVelX{0},
-                 mVelY{0} {
+                 intent{Direction::down},
+                 momentum{Direction::down},
+                 mVel{1} {
 }
 
 void Anima::handleEvent(SDL_Event &event) {
@@ -13,34 +15,16 @@ void Anima::handleEvent(SDL_Event &event) {
 
     switch (event.key.key) {
     case SDLK_UP:
-      mVelY -= kAnimaVelocity;
+      intent = Direction::up;
       break;
     case SDLK_DOWN:
-      mVelY += kAnimaVelocity;
+      intent = Direction::down;
       break;
     case SDLK_LEFT:
-      mVelX -= kAnimaVelocity;
+      intent = Direction::left;
       break;
     case SDLK_RIGHT:
-      mVelX += kAnimaVelocity;
-      break;
-    }
-  }
-
-  else if (event.type == SDL_EVENT_KEY_UP && !event.key.repeat) {
-
-    switch (event.key.key) {
-    case SDLK_UP:
-      mVelY += kAnimaVelocity;
-      break;
-    case SDLK_DOWN:
-      mVelY -= kAnimaVelocity;
-      break;
-    case SDLK_LEFT:
-      mVelX += kAnimaVelocity;
-      break;
-    case SDLK_RIGHT:
-      mVelX -= kAnimaVelocity;
+      intent = Direction::right;
       break;
     }
   }
@@ -49,17 +33,40 @@ void Anima::handleEvent(SDL_Event &event) {
 void Anima::move() {
   posP = posC;
 
-  posC.x += mVelX;
-
-  if ((posC.x < 0) || (posC.x + kAnimaHeight > kScreenWidth)) {
-    posC.x -= mVelX;
+  if (posC.x % 16 == 0 && posC.y % 16 == 0) {
+    momentum = intent;
   }
 
-  posC.y += mVelY;
-
-  if ((posC.y < 0) || (posC.y + kAnimaWidth > kScreenHeight)) {
-    posC.y -= mVelY;
+  switch (momentum) {
+  case up: {
+    posC.y -= mVel;
+    break;
   }
+  case right: {
+    posC.x += mVel;
+    break;
+  }
+  case down: {
+    posC.y += mVel;
+    break;
+  }
+  case left: {
+    posC.x -= mVel;
+    break;
+  }
+  }
+
+  // posC.x += mVelX;
+
+  // if ((posC.x < 0) || (posC.x + kAnimaHeight > kScreenWidth)) {
+  //   posC.x -= mVelX;
+  // }
+
+  // posC.y += mVelY;
+
+  // if ((posC.y < 0) || (posC.y + kAnimaWidth > kScreenHeight)) {
+  //   posC.y -= mVelY;
+  // }
 }
 
 void Anima::toBuffer(int *gFrameBuffer, int colour) {
@@ -71,8 +78,8 @@ void Anima::toBuffer(int *gFrameBuffer, int colour) {
 
   yOffset = posC.y * kScreenWidth + posC.x;
 
-  for (row = 0; row < animaSize; ++row) {
-    for (col = 0; col < animaSize; ++col, ++cel) {
+  for (row = 0; row < tileSize; ++row) {
+    for (col = 0; col < tileSize; ++col, ++cel) {
 
       if (sprite[cel]) {
         gFrameBuffer[yOffset + col] = colour;
