@@ -5,6 +5,7 @@
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
 
+#include "unethical.hpp"
 #include "utils.hpp"
 #include "visual/textures.hpp"
 
@@ -21,13 +22,14 @@ public:
 
   void move();
 
-  void toBuffer(int *gFrameBuffer, int colour);
-
   bool spawn(SDL_Renderer *gRenderer);
+
+  const SpritePixels *pixels() const { return &this->sprite; }
+
+  const Position *position() const { return &this->posC; }
 
 private:
   Position posC;
-  Position posP;
 
   Direction intent;
   Direction momentum;
@@ -36,7 +38,7 @@ private:
 
   AnimaTexture gAnimaTexture;
 
-  const uint8_t sprite[16 * 16]{
+  const SpritePixels sprite{
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,
