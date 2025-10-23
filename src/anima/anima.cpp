@@ -1,7 +1,9 @@
 #include "anima.hpp"
+#include "unethical.hpp"
 #include "utils.hpp"
+#include <iostream>
 
-Anima::Anima() : posC{Position(0, 0)},
+Anima::Anima() : posC{Position(6 * kTileSize, 16 * kTileSize)},
 
                  intent{Direction::down},
                  momentum{Direction::down},
@@ -65,8 +67,4 @@ void Anima::move() {
   // if ((posC.y < 0) || (posC.y + kAnimaWidth > kScreenHeight)) {
   //   posC.y -= mVelY;
   // }
-}
-
-bool Anima::spawn(SDL_Renderer *gRenderer) {
-  return true;
 }

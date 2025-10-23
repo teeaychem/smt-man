@@ -2,12 +2,12 @@
 
 #include "utils.hpp"
 #include <cstdint>
-constexpr int32_t kTileSize{16};
+constexpr uint32_t kTileSize{16};
 constexpr int32_t kSpritePixelCount{kTileSize * kTileSize};
 
-constexpr int kGridScale{10};
+constexpr int kGridScale{2};
 
-constexpr Size dMaze{14, 15};
+constexpr Size dMaze{28, 31};
 constexpr Size dPixels{dMaze.scale(kTileSize)};
 constexpr Size dScreen{dPixels.scale(kGridScale)};
 
