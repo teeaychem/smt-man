@@ -3,6 +3,7 @@
 #include <SDL3/SDL_main.h>
 #include <cstdint>
 
+
 enum Direction {
   up,
   right,
@@ -17,6 +18,8 @@ public:
 
   Position(uint32_t x, uint32_t y) : x(x), y(y) {};
 };
+
+
 
 struct Size {
 

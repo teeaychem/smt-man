@@ -4,14 +4,21 @@
 
 #include <cstdint>
 #include <cstring>
+#include <iostream>
 
 #include "anima.hpp"
+#include "maze.hpp"
 #include "toys.hpp"
+#include "unethical.hpp"
 #include "utils.hpp"
 
 #include "unethical.hpp"
 
 SDL_Window *gWindow{nullptr};
+
+std::ostream &operator<<(std::ostream &os, Position p) {
+  return os << "(" << p.x << "," << p.y << ")";
+}
 
 struct Renderer {
 
@@ -45,10 +52,21 @@ struct Renderer {
 
     for (int32_t row = 0; row < kTileSize; ++row) {
       for (int32_t col = 0; col < kTileSize; ++col, ++cell) {
-
         if ((*pixels)[cell]) {
           this->frameBuffer[yOffset + col] = colour;
         }
+      }
+      yOffset += dPixels.w;
+    }
+  }
+
+  void fill_tile(Position const *position, int32_t colour) {
+
+    int32_t yOffset = position->y * dPixels.w + position->x;
+
+    for (int32_t row = 0; row < kTileSize; ++row) {
+      for (int32_t col = 0; col < kTileSize; ++col) {
+        this->frameBuffer[yOffset + col] = colour;
       }
       yOffset += dPixels.w;
     }
@@ -80,6 +98,9 @@ void sdl_close() {
 
 int main(int argc, char **agrv) {
 
+  Maze maze{};
+  std::cout << maze.as_string() << "\n";
+
   int exitCode{0};
 
   colour_thing colour;
@@ -92,7 +113,6 @@ int main(int argc, char **agrv) {
 
     NSTimer frameCapTimer{};
     Anima bonnie{};
-    bonnie.spawn(gRenderer.renderer);
 
     SDL_Event event;
     SDL_zero(event);
@@ -102,6 +122,16 @@ int main(int argc, char **agrv) {
       frameCapTimer.start();
 
       SDL_RenderClear(gRenderer.renderer);
+
+      for (uint32_t y{0}; y < maze.size.h; ++y) {
+        for (uint32_t x{0}; x < maze.size.w; ++x) {
+          if (maze.tiles[y][x] != '#') {
+            Position p{x * kTileSize, y * kTileSize};
+            gRenderer.fill_tile(&p, 0xff0000ff);
+          }
+        }
+      }
+
       gRenderer.drawSprite(bonnie.pixels(), bonnie.position(), 0x00000000);
 
       colour.advance();

@@ -11,9 +11,6 @@
 
 class Anima {
 public:
-  static constexpr int kAnimaHeight = 16;
-  static constexpr int kAnimaWidth = 16;
-
   static constexpr int kAnimaVelocity = 2;
 
   Anima();
@@ -21,8 +18,6 @@ public:
   void handleEvent(SDL_Event &event);
 
   void move();
-
-  bool spawn(SDL_Renderer *gRenderer);
 
   const SpritePixels *pixels() const { return &this->sprite; }
 
