@@ -38,7 +38,7 @@ struct Renderer {
   Renderer(SDL_Window *window) {
     renderer = SDL_CreateRenderer(gWindow, NULL);
     frameBuffer = new int32_t[dPixels.area()];
-    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, dPixels.W, dPixels.H);
+    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, dPixels.W, dPixels.H);
   }
 
   void update() {
@@ -53,15 +53,13 @@ struct Renderer {
     SDL_RenderTexture(this->renderer, this->texture, NULL, NULL);
   }
 
-  void drawSprite(Sprite const *sprite, Position const *position, int32_t colour) {
+  void drawSprite(Sprite const *sprite, Position const *position) {
     int cell = 0;
     int32_t yOffset = position->y * dPixels.W + position->x;
 
     for (int32_t row = 0; row < sprite->size.H; ++row) {
       for (int32_t col = 0; col < sprite->size.W; ++col, ++cell) {
-        if (sprite->pixels[cell] != 0x00000000) {
-          this->frameBuffer[yOffset + col] = colour;
-        }
+        this->frameBuffer[yOffset + col] = sprite->pixels[cell];
       }
       yOffset += dPixels.W;
     }
@@ -143,7 +141,7 @@ int main(int argc, char **agrv) {
       for (uint32_t x{0}; x < maze.size.W; ++x) {
         if (maze.tiles[y][x] != '#') {
           Position p{x * kTileSize, y * kTileSize};
-          gRenderer.fillTile(&p, 0xff0000ff);
+          gRenderer.fillTile(&p, 0xffffffff);
         }
       }
     }
@@ -154,7 +152,7 @@ int main(int argc, char **agrv) {
 
       SDL_RenderClear(gRenderer.renderer);
 
-      gRenderer.drawSprite(&gottlob.sprite, gottlob.position(), 0xff0000ff);
+      gRenderer.fillTile(&gottlob.posP, 0x000000ff);
 
       colour.advance();
       SDL_SetRenderDrawColor(gRenderer.renderer, colour[0], colour[1], colour[2], 0xFF);
@@ -167,7 +165,7 @@ int main(int argc, char **agrv) {
       }
 
       gottlob.move();
-      gRenderer.drawSprite(&gottlob.sprite, gottlob.position(), 0xffff0000);
+      gRenderer.drawSprite(&gottlob.sprite, gottlob.position());
 
       gRenderer.update();
       SDL_RenderPresent(gRenderer.renderer);
