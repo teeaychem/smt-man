@@ -5,12 +5,13 @@
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
 
+#include "sprite.hpp"
 #include "unethical.hpp"
 #include "utils.hpp"
 #include "visual/textures.hpp"
 
-class Anima {
-public:
+struct Anima {
+
   static constexpr int kAnimaVelocity = 2;
 
   Anima();
@@ -19,35 +20,15 @@ public:
 
   void move();
 
-  const SpritePixels *pixels() const { return &this->sprite; }
+  const Position *position() const { return &this->pos; }
 
-  const Position *position() const { return &this->posC; }
 
-private:
-  Position posC;
+  Position pos;
 
   Direction intent;
   Direction momentum;
 
   int mVel;
 
-  AnimaTexture gAnimaTexture;
-
-  const SpritePixels sprite{
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,
-      0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0,
-      0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
-      0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
-      0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0,
-      0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0,
-      0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-      0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-      0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-      0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-      0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-      0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0,
-      0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  Sprite sprite;
 };

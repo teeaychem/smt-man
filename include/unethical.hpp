@@ -13,6 +13,7 @@ constexpr Size dScreen{dPixels.scale(kGridScale)};
 
 constexpr int kScreenFps{30};
 
+typedef uint8_t PixelInfo;
 typedef uint8_t SpritePixels[kSpritePixelCount];
 
 constexpr Uint64 nsPerFrame = 1000000000 / kScreenFps;
