@@ -20,10 +20,9 @@ struct Anima {
 
   void move();
 
-  const Position *position() const { return &this->posC; }
+  const Position *position() const { return &this->_position; }
 
-  Position posP;
-  Position posC;
+  Position _position;
 
   Direction intent;
   Direction momentum;

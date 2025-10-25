@@ -2,6 +2,7 @@
 
 #include <SDL3/SDL_main.h>
 #include <cstdint>
+#include <string>
 
 enum Direction {
   up,
@@ -16,6 +17,14 @@ public:
   uint32_t y;
 
   Position(uint32_t x, uint32_t y) : x(x), y(y) {};
+
+  std::string toString() {
+    std::string out{};
+    out.append(std::to_string(this->x));
+    out.push_back(',');
+    out.append(std::to_string(this->y));
+    return out;
+  }
 };
 
 struct Size {
