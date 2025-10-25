@@ -3,7 +3,6 @@
 #include <SDL3/SDL_main.h>
 #include <cstdint>
 
-
 enum Direction {
   up,
   right,
@@ -19,22 +18,22 @@ public:
   Position(uint32_t x, uint32_t y) : x(x), y(y) {};
 };
 
-
-
 struct Size {
 
-  uint32_t w;
-  uint32_t h;
+  uint32_t H;
+  uint32_t W;
 
-  constexpr Size(uint32_t w_, uint32_t h_) : w(w_), h(h_) {};
+  constexpr Size(uint32_t w_, uint32_t h_) : W(w_), H(h_) {};
 
   constexpr uint32_t area() const {
-    return w * h;
+    return W * H;
   }
 
   constexpr Size scale(uint32_t value) const {
-    return Size{this->w * value, this->h * value};
+    return Size{this->W * value, this->H * value};
   };
+
+  Size() : H(0), W(0) {}
 };
 
 class NSTimer {
