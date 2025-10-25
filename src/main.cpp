@@ -96,7 +96,6 @@ bool sdl_init() {
 }
 
 void sdl_close() {
-
   SDL_DestroyWindow(gWindow);
   gWindow = nullptr;
 
@@ -121,7 +120,6 @@ int main(int argc, char **agrv) {
   /* end scratch */
 
   Maze maze{};
-  std::cout << maze.as_string() << "\n";
 
   int exitCode{0};
 

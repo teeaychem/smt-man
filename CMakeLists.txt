@@ -3,15 +3,8 @@ project(smtm LANGUAGES C CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# file(CREATE_LINK
-#   "${CMAKE_BINARY_DIR}/compile_commands.json"
-#   "${CMAKE_SOURCE_DIR}/compile_commands.json"
-#   SYMBOLIC
-# )
-
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 
 set(CMAKE_C_STANDARD 17)
 
@@ -26,9 +19,6 @@ set(SOURCES
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
-message("Source: ${PROJECT_SOURCE_DIR}")
-message("Buidling to: ${CMAKE_CURRENT_BINARY_DIR}")
-message("Sprites in: ${CMAKE_CURRENT_SOURCE_DIR}/resources/")
 
 add_custom_target(
     copy_sprites
@@ -91,6 +81,5 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(whereami)
-message(${whereami_SOURCE_DIR})
 target_include_directories(${PROJECT_NAME} PRIVATE ${whereami_SOURCE_DIR}/src)
 target_sources(${PROJECT_NAME} PRIVATE ${whereami_SOURCE_DIR}/src/whereami.c)
