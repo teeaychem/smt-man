@@ -15,6 +15,7 @@
 struct Sprite {
 
   Size size{};
+  Position position{0, 0};
   int32_t *pixels{nullptr};
 
   Sprite() {

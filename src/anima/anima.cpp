@@ -3,8 +3,7 @@
 #include "utils.hpp"
 #include <iostream>
 
-Anima::Anima() : posP(0, 0),
-                 posC{Position(6 * kTileSize, 16 * kTileSize)},
+Anima::Anima() : _position{Position(6 * kTileSize, 16 * kTileSize)},
                  intent{Direction::down},
                  momentum{Direction::down},
                  mVel{1} {
@@ -33,27 +32,28 @@ void Anima::handleEvent(SDL_Event &event) {
 
 void Anima::move() {
 
-  if (posC.x % 16 == 0 && posC.y % 16 == 0) {
+  if (this->sprite.position.x % 16 == 0 && this->sprite.position.y % 16 == 0) {
     momentum = intent;
+    this->_position.x = sprite.position.x / 16;
+    this->_position.y = sprite.position.y / 16;
+    std::cout << this->_position.toString() << "\n";
   }
-
-  posP = posC;
 
   switch (momentum) {
   case up: {
-    posC.y -= mVel;
+    this->sprite.position.y -= mVel;
     break;
   }
   case right: {
-    posC.x += mVel;
+    this->sprite.position.x += mVel;
     break;
   }
   case down: {
-    posC.y += mVel;
+    this->sprite.position.y += mVel;
     break;
   }
   case left: {
-    posC.x -= mVel;
+    this->sprite.position.x -= mVel;
     break;
   }
   }

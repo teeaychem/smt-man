@@ -53,9 +53,9 @@ struct Renderer {
     SDL_RenderTexture(this->renderer, this->texture, NULL, NULL);
   }
 
-  void drawSprite(Sprite const *sprite, Position const *position) {
+  void drawSprite(Sprite const *sprite) {
     int cell = 0;
-    int32_t yOffset = position->y * dPixels.W + position->x;
+    int32_t yOffset = sprite->position.y * dPixels.W + sprite->position.x;
 
     for (int32_t row = 0; row < sprite->size.H; ++row) {
       for (int32_t col = 0; col < sprite->size.W; ++col, ++cell) {
@@ -132,6 +132,7 @@ int main(int argc, char **agrv) {
     NSTimer frameCapTimer{};
     Anima gottlob{};
     gottlob.sprite = Sprite(SOURCE_PATH.append("resources/gottlob.png"));
+    gottlob.sprite.position = gottlob._position;
 
     SDL_Event event;
     SDL_zero(event);
@@ -152,7 +153,7 @@ int main(int argc, char **agrv) {
 
       SDL_RenderClear(gRenderer.renderer);
 
-      gRenderer.fillTile(&gottlob.posP, 0x000000ff);
+      gRenderer.fillTile(&gottlob.sprite.position, 0x000000ff);
 
       colour.advance();
       SDL_SetRenderDrawColor(gRenderer.renderer, colour[0], colour[1], colour[2], 0xFF);
@@ -165,7 +166,7 @@ int main(int argc, char **agrv) {
       }
 
       gottlob.move();
-      gRenderer.drawSprite(&gottlob.sprite, gottlob.position());
+      gRenderer.drawSprite(&gottlob.sprite);
 
       gRenderer.update();
       SDL_RenderPresent(gRenderer.renderer);
