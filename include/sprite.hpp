@@ -1,15 +1,15 @@
 #pragma once
 
+#include <cstdint>
+#include <filesystem>
+
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
-#include <cstdint>
-#include <filesystem>
-#include <string>
 
 #include <png.h>
 
-#include "utils.hpp"
+#include "utils/NVec.h"
 
 struct Sprite {
 
@@ -45,18 +45,21 @@ struct Sprite {
     }
   }
 
-  std::string stringProjection() {
-    std::string out{};
+  char *charProjection() {
 
-    for (int x{0}; x < this->size.y(); ++x) {
-      for (int y{0}; y < this->size.x(); ++y) {
-        if ((this->pixels)[x * this->size.x() + y] != 0x00000000) {
-          out.push_back('#');
-        } else {
-          out.push_back(' ');
+    size_t space_required = (this->size.x() * (this->size.y() + 1)) + 1;
+    char *out = (char *)malloc(space_required);
+    memset(out, ' ', space_required);
+    out[space_required - 1] = '\0';
+
+    size_t idx{0};
+    for (int r{0}; r < this->size.y(); ++r) {
+      for (int c{0}; c < this->size.x(); ++c, ++idx) {
+        if ((this->pixels)[r * this->size.x() + c] != 0x00000000) {
+          out[idx] = '#';
         }
       }
-      out.push_back('\n');
+      out[idx++] = '\n';
     }
 
     return out;
