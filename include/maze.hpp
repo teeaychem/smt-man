@@ -5,8 +5,6 @@
 #include <cinttypes>
 #include <cstdint>
 #include <filesystem>
-#include <fstream>
-#include <iostream>
 
 inline void next_line(FILE *file) {
   char c;
@@ -20,11 +18,7 @@ struct Maze {
   Size size{0, 0};
   char *tiles;
 
-  // Maze(Size size, char *tiles) : size(size), tiles(tiles) {}
-
-  ~Maze() {
-
-  };
+  ~Maze() {};
 
   Maze(std::filesystem::path path) {
 
@@ -71,7 +65,9 @@ struct Maze {
       } break;
       }
 
-      next_line(file);
+      if (read != EOF) {
+        next_line(file);
+      }
     }
 
     if (!preambleOk) {
@@ -95,7 +91,7 @@ struct Maze {
       } break;
 
       case '\n': {
-        while (tile_idx % this->size.elements[0] != 0) {
+        while (tile_idx % this->size.elements[0] != 0 || tile_idx == 0) {
           ++tile_idx;
         }
       } break;
@@ -118,17 +114,5 @@ struct Maze {
 
   uint8_t tileAt(Position const &position) {
     return this->tiles[position.y * this->size.x() + position.x];
-  }
-
-  std::string as_string() {
-    std::string maze_string{};
-    for (uint32_t r{0}; r < size.y(); ++r) {
-      for (uint32_t c{0}; c < size.x(); ++c) {
-        maze_string.push_back(this->tiles[r * size.x() + c]);
-      }
-      maze_string.push_back('\n');
-    }
-
-    return maze_string;
   }
 };
