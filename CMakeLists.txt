@@ -74,6 +74,16 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(EnTT)
 target_link_libraries(${PROJECT_NAME} PRIVATE EnTT::EnTT)
 
+# # spdlog
+FetchContent_Declare(
+  spdlog
+    GIT_REPOSITORY https://github.com/gabime/spdlog.git
+    GIT_TAG v1.16.0
+)
+
+FetchContent_MakeAvailable(spdlog)
+target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
+
 # # whereami
 FetchContent_Declare(
     whereami
