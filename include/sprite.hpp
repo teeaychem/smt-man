@@ -5,7 +5,6 @@
 #include <SDL3/SDL_render.h>
 #include <cstdint>
 #include <filesystem>
-#include <iostream>
 #include <string>
 
 #include <png.h>
@@ -22,8 +21,6 @@ struct Sprite {
   }
 
   Sprite(std::filesystem::path path) {
-    std::cout << "Loading from: " << path << "\n";
-
     png_image image;
 
     memset(&image, 0, (sizeof image));

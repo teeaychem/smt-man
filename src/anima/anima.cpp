@@ -1,8 +1,5 @@
-#include <iostream>
-
 #include "anima.hpp"
 #include "sprite.hpp"
-#include "unethical.hpp"
 #include "utils.hpp"
 
 Anima::Anima(Sprite sprite) : _position{Position(1, 1)},
@@ -38,7 +35,6 @@ void Anima::handleEvent(SDL_Event &event) {
 void Anima::moveWithin(Maze &maze) {
 
   if (this->sprite.position.x % this->sprite.size.W == 0 && this->sprite.position.y % this->sprite.size.H == 0) {
-
     this->_position.x = sprite.position.x / 16;
     this->_position.y = sprite.position.y / 16;
 

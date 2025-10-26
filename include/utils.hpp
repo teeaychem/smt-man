@@ -2,7 +2,6 @@
 
 #include <SDL3/SDL_main.h>
 #include <cstdint>
-#include <iostream>
 #include <limits>
 #include <string>
 
@@ -22,7 +21,6 @@ public:
 
   Position inDirection(Direction direction, uint32_t steps) {
     Position todo = *this;
-    std::cout << "iD: " << todo.toString() << " -> ";
 
     switch (direction) {
     case up: {
@@ -39,7 +37,6 @@ public:
     } break;
     }
 
-    std::cout << todo.toString() << "\n";
     return todo;
   }
 
@@ -68,6 +65,14 @@ struct Size {
   };
 
   Size() : H(0), W(0) {}
+
+  std::string toString() {
+    std::string out{};
+    out.append(std::to_string(this->W));
+    out.push_back(',');
+    out.append(std::to_string(this->H));
+    return out;
+  }
 };
 
 class NSTimer {
