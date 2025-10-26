@@ -2,19 +2,16 @@
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
 
-#include <algorithm>
-#include <cinttypes>
 #include <cstddef>
 #include <cstdlib>
 #include <filesystem>
-#include <fstream>
+
 #include <png.h>
 #include <sys/types.h>
 #include <whereami.h>
 
-#include <cstdint>
-#include <cstring>
-#include <iostream>
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
 
 #include "anima.hpp"
 
@@ -113,58 +110,10 @@ void setup() {
   free(path);
 }
 
-Maze readMaze(std::filesystem::path path) {
-  std::ifstream infile(path);
-  if (!infile) {
-    std::cout << "Failed to open maze from path: " << path << "\n";
-    exit(1);
-  }
-
-  std::string line;
-  if (!std::getline(infile, line)) {
-    std::cout << "Failed to read maze information from path: " << path << "\n";
-  }
-
-  Size size{};
-  char *mChars;
-
-  while (std::getline(infile, line) && !line.empty() && line[0] != 'm') {
-    if (line[0] == 'w') {
-      if (!sscanf(line.c_str() + 1, "%" SCNu32, &size.W)) {
-        std::cout << line.c_str() + 1 << "\n";
-        std::cout << "Failed to read width of maze from path: " << path << "\n";
-      };
-    }
-
-    else if (line[0] == 'h') {
-      if (!sscanf(line.c_str() + 1, "%" SCNu32, &size.H)) {
-        std::cout << line.c_str() + 1 << "\n";
-        std::cout << "Failed to read height of maze from path: " << path << "\n";
-      };
-    }
-  }
-
-  mChars = (char *)malloc(size.area());
-  memset(mChars, ' ', size.area());
-
-  for (uint32_t r{0}; r < size.H; ++r) {
-    if (!line.empty() && line[0] == 'm') {
-      for (uint32_t c{1}; c <= std::min((size_t)size.W, line.size()); ++c) {
-        mChars[r * size.W + c - 1] = line[c];
-      }
-    }
-    if (r < size.H - 1 && !std::getline(infile, line)) {
-      std::cout << "Failed to read maze from path: " << path << "\n";
-      std::exit(-1);
-    }
-  }
-
-  infile.close();
-
-  return Maze{size, mChars};
-}
-
 int main(int argc, char **agrv) {
+
+  auto console = spdlog::stdout_color_mt("console");
+  auto err_logger = spdlog::stderr_color_mt("stderr");
 
   setup();
 
@@ -172,7 +121,7 @@ int main(int argc, char **agrv) {
 
   /* end scratch */
 
-  Maze maze = readMaze(SOURCE_PATH / "resources/maze/source.txt");
+  Maze maze{SOURCE_PATH / "resources/maze/source.txt"};
 
   Anima gottlob{Sprite(SOURCE_PATH / "resources/gottlob.png")};
 
