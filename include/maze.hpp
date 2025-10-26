@@ -1,7 +1,7 @@
 #pragma once
 
 #include "stumpless/log.h"
-#include "utils.hpp"
+#include "utils/NVec.h"
 #include <cinttypes>
 #include <cstdint>
 #include <filesystem>
