@@ -1,12 +1,17 @@
-#include "anima.hpp"
-#include "unethical.hpp"
-#include "utils.hpp"
 #include <iostream>
 
-Anima::Anima() : _position{Position(6 * kTileSize, 16 * kTileSize)},
-                 intent{Direction::down},
-                 momentum{Direction::down},
-                 mVel{1} {
+#include "anima.hpp"
+#include "sprite.hpp"
+#include "unethical.hpp"
+#include "utils.hpp"
+
+Anima::Anima(Sprite sprite) : _position{Position(1, 1)},
+                              intent{Direction::down},
+                              momentum{Direction::down},
+                              mVel{1},
+                              sprite(sprite) {
+  this->sprite.position.x = this->_position.x * this->sprite.size.W;
+  this->sprite.position.y = this->_position.x * this->sprite.size.H;
 }
 
 void Anima::handleEvent(SDL_Event &event) {
@@ -30,43 +35,36 @@ void Anima::handleEvent(SDL_Event &event) {
   }
 }
 
-void Anima::move() {
+void Anima::moveWithin(Maze &maze) {
 
-  if (this->sprite.position.x % 16 == 0 && this->sprite.position.y % 16 == 0) {
-    momentum = intent;
+  if (this->sprite.position.x % this->sprite.size.W == 0 && this->sprite.position.y % this->sprite.size.H == 0) {
+
     this->_position.x = sprite.position.x / 16;
     this->_position.y = sprite.position.y / 16;
-    std::cout << this->_position.toString() << "\n";
+
+    momentum = intent;
+
+    auto next = this->_position.inDirection(momentum, 1);
+
+    if (maze.isOpen(next)) {
+      this->mVel = 1;
+    } else {
+      this->mVel = 0;
+    }
   }
 
   switch (momentum) {
   case up: {
     this->sprite.position.y -= mVel;
-    break;
-  }
+  } break;
   case right: {
     this->sprite.position.x += mVel;
-    break;
-  }
+  } break;
   case down: {
     this->sprite.position.y += mVel;
-    break;
-  }
+  } break;
   case left: {
     this->sprite.position.x -= mVel;
-    break;
+  } break;
   }
-  }
-
-  // posC.x += mVelX;
-
-  // if ((posC.x < 0) || (posC.x + kAnimaHeight > kScreenWidth)) {
-  //   posC.x -= mVelX;
-  // }
-
-  // posC.y += mVelY;
-
-  // if ((posC.y < 0) || (posC.y + kAnimaWidth > kScreenHeight)) {
-  //   posC.y -= mVelY;
-  // }
 }

@@ -5,6 +5,7 @@
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
 
+#include "maze.hpp"
 #include "sprite.hpp"
 #include "unethical.hpp"
 #include "utils.hpp"
@@ -18,7 +19,7 @@ struct Anima {
 
   void handleEvent(SDL_Event &event);
 
-  void move();
+  void moveWithin(Maze &maze);
 
   const Position *position() const { return &this->_position; }
 
@@ -30,4 +31,6 @@ struct Anima {
   int mVel;
 
   Sprite sprite;
+
+  Anima(Sprite sprite);
 };
