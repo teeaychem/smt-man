@@ -7,9 +7,7 @@
 
 #include "maze.hpp"
 #include "sprite.hpp"
-#include "unethical.hpp"
 #include "utils.hpp"
-#include "visual/textures.hpp"
 
 struct Anima {
 
