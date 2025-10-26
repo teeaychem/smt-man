@@ -1,5 +1,6 @@
 #pragma once
 
+#include "stumpless/log.h"
 #include <SDL3/SDL_main.h>
 #include <cstdint>
 #include <limits>
@@ -14,21 +15,22 @@ enum Direction {
   left,
 };
 
-template <typename T>
+typedef uint32_t nvec_t;
+
 struct NVec {
-  std::vector<T> elements;
+  std::vector<nvec_t> elements;
 
   ~NVec() {};
 
-  NVec() { this->elements = std::vector<T>{}; };
+  NVec() { this->elements = std::vector<nvec_t>{}; };
 
-  NVec(T a, T b) { this->elements = std::vector<T>{a, b}; }
+  NVec(nvec_t a, nvec_t b) { this->elements = std::vector<nvec_t>{a, b}; }
 
-  NVec(const NVec<T> &other) { this->elements = other.elements; }
+  NVec(const NVec &other) { this->elements = other.elements; }
 
-  NVec(NVec<T> &&other) : elements(std::move(other.elements)) {}
+  NVec(NVec &&other) : elements(std::move(other.elements)) {}
 
-  T elem(size_t index) const {
+  nvec_t elem(size_t index) const {
     if (index < this->elements.size()) {
       return this->elements[index];
     } else {
@@ -37,24 +39,26 @@ struct NVec {
     }
   }
 
-  T x() const { return this->elem(0); }
-  T y() const { return this->elem(1); }
+  nvec_t x() const { return this->elem(0); }
+  nvec_t y() const { return this->elem(1); }
 
-  T area() const {
-    T area{1};
+  nvec_t area() const {
+    nvec_t area{1};
     for (auto &elem : this->elements) {
       area *= elem;
     }
     return area;
   }
 
-  void multiply(T value) {
+  void multiply(nvec_t value) {
     for (size_t idx{0}; idx < this->elements.size(); ++idx) {
       this->elements[idx] *= value;
     }
   }
 
   std::string toString() {
+
+
     std::string out{};
     size_t index = 0;
     for (; index < this->elements.size() - 1; ++index) {
@@ -66,7 +70,7 @@ struct NVec {
   }
 };
 
-typedef NVec<uint32_t> Size;
+typedef NVec Size;
 
 struct Position {
   uint32_t x;
@@ -106,8 +110,7 @@ struct Position {
   }
 };
 
-class NSTimer {
-public:
+struct NSTimer {
   NSTimer();
 
   void start();
@@ -120,9 +123,7 @@ public:
   bool isStarted();
   bool isPaused();
 
-private:
   Uint64 mStartedTicks;
-
   Uint64 mPausedTicks;
 
   bool mPaused;
