@@ -8,8 +8,15 @@
 #include <fstream>
 #include <iostream>
 
-class Maze {
-public:
+inline void next_line(FILE *file) {
+  char c;
+  while (c != EOF && c != '\n') {
+    c = fgetc(file);
+  }
+}
+
+struct Maze {
+
   Size size{0, 0};
   char *tiles;
 
@@ -23,28 +30,48 @@ public:
 
     bool preambleOk = true;
 
-    std::ifstream infile(path);
-    if (!infile) {
+    FILE *file = fopen(path.c_str(), "r");
+    if (file == NULL) {
       stumplog(LOG_ERR, "Failed to open maze");
       preambleOk = false;
     }
 
-    std::string line;
+    char read;
 
-    while (std::getline(infile, line) && !line.empty() && line[0] != 'm') {
-      if (line[0] == 'w') {
-        if (!sscanf(line.c_str() + 1, "%" SCNu32, &this->size.elements[0])) {
+    while (read != EOF) {
+      read = fgetc(file);
+
+      switch (read) {
+      case EOF:
+        break;
+
+      case 'c': {
+      } break;
+
+      case 'w': {
+        if (!fscanf(file, "%" SCNu32, &this->size.elements[0])) {
           stumplog(LOG_ERR, "Failed to read maze width");
           preambleOk = false;
         };
-      }
+      } break;
 
-      else if (line[0] == 'h') {
-        if (!sscanf(line.c_str() + 1, "%" SCNu32, &this->size.elements[1])) {
+      case 'h': {
+        if (!fscanf(file, "%" SCNu32, &this->size.elements[1])) {
           stumplog(LOG_ERR, "Failed to read maze height");
           preambleOk = false;
         };
+      } break;
+
+      case 'm': {
+        ungetc(read, file);
+        read = EOF;
+      } break;
+
+      default: {
+      } break;
       }
+
+      next_line(file);
     }
 
     if (!preambleOk) {
@@ -53,22 +80,32 @@ public:
       exit(1);
     }
 
-    this->tiles = (char *)malloc(size.area());
+    this->tiles = (char *)malloc(this->size.area());
     memset(this->tiles, ' ', size.area());
 
-    for (uint32_t r{0}; r < size.y(); ++r) {
-      if (!line.empty() && line[0] == 'm') {
-        for (uint32_t c{1}; c <= std::min((size_t)size.x(), line.size()); ++c) {
-          this->tiles[r * size.x() + c - 1] = line[c];
+    int32_t tile_idx = 0;
+
+    while ((read = fgetc(file)) != EOF) {
+      switch (read) {
+      case 'c': {
+        next_line(file);
+      } break;
+
+      case 'm': {
+      } break;
+
+      case '\n': {
+        while (tile_idx % this->size.elements[0] != 0) {
+          ++tile_idx;
         }
+      } break;
+
+      default: {
+        this->tiles[tile_idx] = read;
+        ++tile_idx;
       }
-      if (r < size.y() - 1 && !std::getline(infile, line)) {
-        // spdlog::critical(std::format("Failed to read maze line {}", r + 1));
-        std::exit(-1);
       }
     }
-
-    infile.close();
   }
 
   bool isOpen(Position &position) {
