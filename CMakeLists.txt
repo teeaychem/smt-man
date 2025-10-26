@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 4.1.2)
 project(smtm LANGUAGES C CXX)
 
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -13,12 +15,19 @@ set(SOURCES
     src/anima/anima.cpp
     src/anima/deduction.cpp
     src/utils/utils.cpp
-    src/visual/textures.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Werror -g -O0 -DDEBUG)
+target_compile_options(
+    ${PROJECT_NAME}
+    PRIVATE
+    # -Wall
+    # -Werror
+    # -g
+    # -O0
+    # -DDEBUG
+)
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
@@ -67,26 +76,27 @@ target_include_directories(
 include(FetchContent)
 
 # # EnTT
-FetchContent_Declare(
-    EnTT
-    GIT_REPOSITORY https://github.com/skypjack/entt.git
-    GIT_TAG v3.15.0
-)
+# FetchContent_Declare(
+#     EnTT
+#     GIT_REPOSITORY https://github.com/skypjack/entt.git
+#     GIT_TAG v3.15.0
+# )
 
-FetchContent_MakeAvailable(EnTT)
-target_link_libraries(${PROJECT_NAME} PRIVATE EnTT::EnTT)
+# FetchContent_MakeAvailable(EnTT)
+# target_link_libraries(${PROJECT_NAME} PRIVATE EnTT::EnTT)
 
 # # spdlog
 FetchContent_Declare(
-    spdlog
-    GIT_REPOSITORY https://github.com/gabime/spdlog.git
-    GIT_TAG v1.16.0
+    stumpless
+    GIT_REPOSITORY git@github.com:goatshriek/stumpless.git
+    GIT_TAG v2.2.0
 )
 
-FetchContent_MakeAvailable(spdlog)
-target_link_libraries(
+FetchContent_MakeAvailable(stumpless)
+target_link_libraries(${PROJECT_NAME} PRIVATE stumpless)
+target_include_directories(
     ${PROJECT_NAME}
-    PRIVATE spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>
+    PRIVATE ${stumpless_SOURCE_DIR}/include ${stumpless_BINARY_DIR}/include
 )
 
 # # whereami

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "spdlog/spdlog.h"
+#include "stumpless/log.h"
 #include "utils.hpp"
 #include <cinttypes>
 #include <cstdint>
@@ -25,7 +25,7 @@ public:
 
     std::ifstream infile(path);
     if (!infile) {
-      spdlog::error(std::format("Failed to open maze", path.string()));
+      stumplog(LOG_ERR, "Failed to open maze");
       preambleOk = false;
     }
 
@@ -34,21 +34,22 @@ public:
     while (std::getline(infile, line) && !line.empty() && line[0] != 'm') {
       if (line[0] == 'w') {
         if (!sscanf(line.c_str() + 1, "%" SCNu32, &this->size.elements[0])) {
-          spdlog::error("Failed to read maze width");
+          stumplog(LOG_ERR, "Failed to read maze width");
           preambleOk = false;
         };
       }
 
       else if (line[0] == 'h') {
         if (!sscanf(line.c_str() + 1, "%" SCNu32, &this->size.elements[1])) {
-          spdlog::error("Failed to read maze height");
+          stumplog(LOG_ERR, "Failed to read maze height");
           preambleOk = false;
         };
       }
     }
 
     if (!preambleOk) {
-      spdlog::error(std::format("Failed to construct maze from path {}", path.string()));
+      stumplog(LOG_INFO, path.c_str());
+      stumplog(LOG_CRIT, "Failed to construct maze");
       exit(1);
     }
 
@@ -62,7 +63,7 @@ public:
         }
       }
       if (r < size.y() - 1 && !std::getline(infile, line)) {
-        spdlog::critical(std::format("Failed to read maze line {}", r + 1));
+        // spdlog::critical(std::format("Failed to read maze line {}", r + 1));
         std::exit(-1);
       }
     }
