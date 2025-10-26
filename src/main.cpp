@@ -10,16 +10,26 @@
 #include <sys/types.h>
 #include <whereami.h>
 
-#include "spdlog/spdlog.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
+#include "spdlog/spdlog.h"
 
 #include "anima.hpp"
 
 #include "maze.hpp"
 #include "sprite.hpp"
 #include "toys.hpp"
-#include "unethical.hpp"
 #include "utils.hpp"
+
+constexpr uint32_t kTileSize{16};
+
+constexpr int kScreenFps{30};
+
+constexpr Uint64 nsPerFrame = 1000000000 / kScreenFps;
+
+constexpr int kGridScale{2};
+Size dMaze{28, 31};
+Size dPixels = {dMaze.x() * kTileSize, dMaze.y() * kTileSize};
+Size dScreen = {dPixels.x() * kGridScale, dPixels.y() * kGridScale};
 
 SDL_Window *gWindow{nullptr};
 std::filesystem::path SOURCE_PATH;
@@ -39,7 +49,7 @@ struct Renderer {
   Renderer(SDL_Window *window) {
     renderer = SDL_CreateRenderer(gWindow, NULL);
     frameBuffer = new int32_t[dPixels.area()];
-    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, dPixels.W, dPixels.H);
+    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, dPixels.x(), dPixels.y());
   }
 
   void update() {
@@ -47,8 +57,8 @@ struct Renderer {
     int pitch;
 
     SDL_LockTexture(this->texture, NULL, (void **)&pix, &pitch);
-    for (int32_t i = 0, sp = 0, dp = 0; i < dPixels.H; i++, dp += dPixels.W, sp += pitch) {
-      memcpy(pix + sp, this->frameBuffer + dp, dPixels.W * 4);
+    for (int32_t i = 0, sp = 0, dp = 0; i < dPixels.y(); i++, dp += dPixels.x(), sp += pitch) {
+      memcpy(pix + sp, this->frameBuffer + dp, dPixels.x() * 4);
     }
     SDL_UnlockTexture(this->texture);
     SDL_RenderTexture(this->renderer, this->texture, NULL, NULL);
@@ -56,25 +66,25 @@ struct Renderer {
 
   void drawSprite(Sprite const *sprite) {
     int cell = 0;
-    int32_t yOffset = sprite->position.y * dPixels.W + sprite->position.x;
+    int32_t yOffset = sprite->position.y * dPixels.x() + sprite->position.x;
 
-    for (int32_t row = 0; row < sprite->size.H; ++row) {
-      for (int32_t col = 0; col < sprite->size.W; ++col, ++cell) {
+    for (int32_t row = 0; row < sprite->size.y(); ++row) {
+      for (int32_t col = 0; col < sprite->size.x(); ++col, ++cell) {
         this->frameBuffer[yOffset + col] = sprite->pixels[cell];
       }
-      yOffset += dPixels.W;
+      yOffset += dPixels.x();
     }
   }
 
   void fillTile(Position const *position, int32_t colour) {
 
-    int32_t yOffset = position->y * dPixels.W + position->x;
+    int32_t yOffset = position->y * dPixels.x() + position->x;
 
     for (int32_t row = 0; row < kTileSize; ++row) {
       for (int32_t col = 0; col < kTileSize; ++col) {
         this->frameBuffer[yOffset + col] = colour;
       }
-      yOffset += dPixels.W;
+      yOffset += dPixels.x();
     }
   }
 };
@@ -85,7 +95,7 @@ bool sdl_init() {
   bool success{false};
 
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
-    gWindow = SDL_CreateWindow("Hello", dScreen.W, dScreen.H, 0);
+    gWindow = SDL_CreateWindow("Hello", dScreen.x(), dScreen.y(), 0);
     gRenderer = Renderer(gWindow);
 
     success = true;
@@ -123,7 +133,9 @@ int main(int argc, char **agrv) {
 
   Maze maze{SOURCE_PATH / "resources/maze/source.txt"};
 
-  Anima gottlob{Sprite(SOURCE_PATH / "resources/gottlob.png")};
+  Sprite x = Sprite(SOURCE_PATH / "resources/gottlob.png");
+
+  Anima gottlob{std::move(x)};
 
   int exitCode{0};
 
@@ -140,15 +152,18 @@ int main(int argc, char **agrv) {
     SDL_Event event;
     SDL_zero(event);
 
+    std::cout << &maze.size << "\n";
     // Draw the maze only once...
-    for (uint32_t y{0}; y < maze.size.H; ++y) {
-      for (uint32_t x{0}; x < maze.size.W; ++x) {
+    for (uint32_t y{0}; y < maze.size.y(); ++y) {
+      for (uint32_t x{0}; x < maze.size.x(); ++x) {
+        // std::cout << std::format("Maze x/y: {}/{} {}/{}", x, y, maze.size.x(), maze.size.y()) << "\n";
         if (maze.tileAt(Position{x, y}) != '#') {
           Position p{x * kTileSize, y * kTileSize};
           gRenderer.fillTile(&p, 0xffffffff);
         }
       }
     }
+
 
     while (!quit) {
 
@@ -159,7 +174,7 @@ int main(int argc, char **agrv) {
       gRenderer.fillTile(&gottlob.sprite.position, 0x000000ff);
 
       colour.advance();
-      SDL_SetRenderDrawColor(gRenderer.renderer, colour[0], colour[1], colour[2], 0xFF);
+      SDL_SetRenderDrawColor(gRenderer.renderer, colour[0], colour[1], colour[2], 0x000000ff);
 
       while (SDL_PollEvent(&event)) {
         if (event.type == SDL_EVENT_QUIT) {
@@ -169,6 +184,7 @@ int main(int argc, char **agrv) {
       }
 
       gottlob.moveWithin(maze);
+
       gRenderer.drawSprite(&gottlob.sprite);
 
       gRenderer.update();

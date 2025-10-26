@@ -13,7 +13,11 @@ public:
   Size size{0, 0};
   char *tiles;
 
-  Maze(Size size, char *tiles) : size(size), tiles(tiles) {}
+  // Maze(Size size, char *tiles) : size(size), tiles(tiles) {}
+
+  ~Maze() {
+
+  };
 
   Maze(std::filesystem::path path) {
 
@@ -29,14 +33,14 @@ public:
 
     while (std::getline(infile, line) && !line.empty() && line[0] != 'm') {
       if (line[0] == 'w') {
-        if (!sscanf(line.c_str() + 1, "%" SCNu32, &this->size.W)) {
+        if (!sscanf(line.c_str() + 1, "%" SCNu32, &this->size.elements[0])) {
           spdlog::error("Failed to read maze width");
           preambleOk = false;
         };
       }
 
       else if (line[0] == 'h') {
-        if (!sscanf(line.c_str() + 1, "%" SCNu32, &this->size.H)) {
+        if (!sscanf(line.c_str() + 1, "%" SCNu32, &this->size.elements[1])) {
           spdlog::error("Failed to read maze height");
           preambleOk = false;
         };
@@ -51,14 +55,14 @@ public:
     this->tiles = (char *)malloc(size.area());
     memset(this->tiles, ' ', size.area());
 
-    for (uint32_t r{0}; r < size.H; ++r) {
+    for (uint32_t r{0}; r < size.y(); ++r) {
       if (!line.empty() && line[0] == 'm') {
-        for (uint32_t c{1}; c <= std::min((size_t)size.W, line.size()); ++c) {
-          this->tiles[r * size.W + c - 1] = line[c];
+        for (uint32_t c{1}; c <= std::min((size_t)size.x(), line.size()); ++c) {
+          this->tiles[r * size.x() + c - 1] = line[c];
         }
       }
-      if (r < size.H - 1 && !std::getline(infile, line)) {
-        spdlog::error(std::format("Failed to read maze line {}", r + 1));
+      if (r < size.y() - 1 && !std::getline(infile, line)) {
+        spdlog::critical(std::format("Failed to read maze line {}", r + 1));
         std::exit(-1);
       }
     }
@@ -67,22 +71,22 @@ public:
   }
 
   bool isOpen(Position &position) {
-    bool yOk = 0 <= position.y && position.y < this->size.H;
-    bool xOk = 0 <= position.x && position.x < this->size.W;
+    bool yOk = 0 <= position.y && position.y < this->size.y();
+    bool xOk = 0 <= position.x && position.x < this->size.x();
     bool locationOk = this->tileAt(position) == '#';
 
     return yOk && xOk && locationOk;
   }
 
   uint8_t tileAt(Position const &position) {
-    return this->tiles[position.y * this->size.W + position.x];
+    return this->tiles[position.y * this->size.x() + position.x];
   }
 
   std::string as_string() {
     std::string maze_string{};
-    for (uint32_t r{0}; r < size.H; ++r) {
-      for (uint32_t c{0}; c < size.W; ++c) {
-        maze_string.push_back(this->tiles[r * size.W + c]);
+    for (uint32_t r{0}; r < size.y(); ++r) {
+      for (uint32_t c{0}; c < size.x(); ++c) {
+        maze_string.push_back(this->tiles[r * size.x() + c]);
       }
       maze_string.push_back('\n');
     }
