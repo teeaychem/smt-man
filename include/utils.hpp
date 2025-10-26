@@ -58,7 +58,6 @@ struct NVec {
 
   std::string toString() {
 
-
     std::string out{};
     size_t index = 0;
     for (; index < this->elements.size() - 1; ++index) {
@@ -70,45 +69,29 @@ struct NVec {
   }
 };
 
+inline NVec nvec_direction_steps(NVec nvec, Direction direction, uint32_t steps) {
+  NVec todo = nvec;
+
+  switch (direction) {
+  case up: {
+    todo.elements[1] = (steps <= todo.elements[1]) ? (todo.elements[1] - steps) : 0;
+  } break;
+  case right: {
+    todo.elements[0] = (steps <= (std::numeric_limits<uint32_t>::max() - todo.elements[0])) ? todo.elements[0] + steps : std::numeric_limits<uint32_t>::max();
+  } break;
+  case down: {
+    todo.elements[1] = (steps <= (std::numeric_limits<uint32_t>::max() - todo.elements[1])) ? todo.elements[1] + steps : std::numeric_limits<uint32_t>::max();
+  } break;
+  case left: {
+    todo.elements[0] = (steps <= todo.elements[0]) ? (todo.elements[0] - steps) : 0;
+  } break;
+  }
+
+  return todo;
+}
+
 typedef NVec Size;
-
-struct Position {
-  uint32_t x;
-  uint32_t y;
-
-  ~Position() {};
-
-  Position(uint32_t x, uint32_t y) : x(x), y(y) {};
-
-  Position inDirection(Direction direction, uint32_t steps) {
-    Position todo = *this;
-
-    switch (direction) {
-    case up: {
-      todo.y = (steps <= todo.y) ? (todo.y - steps) : 0;
-    } break;
-    case right: {
-      todo.x = (steps <= (std::numeric_limits<uint32_t>::max() - todo.x)) ? todo.x + steps : std::numeric_limits<uint32_t>::max();
-    } break;
-    case down: {
-      todo.y = (steps <= (std::numeric_limits<uint32_t>::max() - todo.y)) ? todo.y + steps : std::numeric_limits<uint32_t>::max();
-    } break;
-    case left: {
-      todo.x = (steps <= todo.x) ? (todo.x - steps) : 0;
-    } break;
-    }
-
-    return todo;
-  }
-
-  std::string toString() {
-    std::string out{};
-    out.append(std::to_string(this->x));
-    out.push_back(',');
-    out.append(std::to_string(this->y));
-    return out;
-  }
-};
+typedef NVec Position;
 
 struct NSTimer {
   NSTimer();
