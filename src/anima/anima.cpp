@@ -2,7 +2,6 @@
 #include "sprite.hpp"
 #include "utils.hpp"
 
-
 void Anima::handleEvent(SDL_Event &event) {
 
   if (event.type == SDL_EVENT_KEY_DOWN && !event.key.repeat) {
@@ -26,13 +25,13 @@ void Anima::handleEvent(SDL_Event &event) {
 
 void Anima::moveWithin(Maze &maze) {
 
-  if (this->sprite.position.x % this->sprite.size.x() == 0 && this->sprite.position.y % this->sprite.size.y() == 0) {
-    this->_position.x = sprite.position.x / 16;
-    this->_position.y = sprite.position.y / 16;
+  if (this->sprite.position.x() % this->sprite.size.x() == 0 && this->sprite.position.y() % this->sprite.size.y() == 0) {
+    this->_position.elements[0] = sprite.position.x() / 16;
+    this->_position.elements[1] = sprite.position.y() / 16;
 
     momentum = intent;
 
-    auto next = this->_position.inDirection(momentum, 1);
+    auto next = nvec_direction_steps(this->_position, momentum, 1);
 
     if (maze.isOpen(next)) {
       this->mVel = 1;
@@ -43,16 +42,16 @@ void Anima::moveWithin(Maze &maze) {
 
   switch (momentum) {
   case up: {
-    this->sprite.position.y -= mVel;
+    this->sprite.position.elements[1] -= mVel;
   } break;
   case right: {
-    this->sprite.position.x += mVel;
+    this->sprite.position.elements[0] += mVel;
   } break;
   case down: {
-    this->sprite.position.y += mVel;
+    this->sprite.position.elements[1] += mVel;
   } break;
   case left: {
-    this->sprite.position.x -= mVel;
+    this->sprite.position.elements[0] -= mVel;
   } break;
   }
 }

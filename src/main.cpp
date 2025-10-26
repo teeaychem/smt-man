@@ -34,7 +34,7 @@ SDL_Window *gWindow{nullptr};
 std::filesystem::path SOURCE_PATH;
 
 std::ostream &operator<<(std::ostream &os, Position p) {
-  return os << "(" << p.x << "," << p.y << ")";
+  return os << "(" << p.x() << "," << p.y() << ")";
 }
 
 struct Renderer {
@@ -65,7 +65,7 @@ struct Renderer {
 
   void drawSprite(Sprite const *sprite) {
     int cell = 0;
-    int32_t yOffset = sprite->position.y * dPixels.x() + sprite->position.x;
+    int32_t yOffset = sprite->position.y() * dPixels.x() + sprite->position.x();
 
     for (int32_t row = 0; row < sprite->size.y(); ++row) {
       for (int32_t col = 0; col < sprite->size.x(); ++col, ++cell) {
@@ -77,7 +77,7 @@ struct Renderer {
 
   void fillTile(Position const *position, int32_t colour) {
 
-    int32_t yOffset = position->y * dPixels.x() + position->x;
+    int32_t yOffset = position->y() * dPixels.x() + position->x();
 
     for (int32_t row = 0; row < kTileSize; ++row) {
       for (int32_t col = 0; col < kTileSize; ++col) {

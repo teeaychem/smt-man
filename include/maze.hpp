@@ -105,14 +105,14 @@ struct Maze {
   }
 
   bool isOpen(Position &position) {
-    bool yOk = 0 <= position.y && position.y < this->size.y();
-    bool xOk = 0 <= position.x && position.x < this->size.x();
+    bool yOk = 0 <= position.y() && position.y() < this->size.y();
+    bool xOk = 0 <= position.x() && position.x() < this->size.x();
     bool locationOk = this->tileAt(position) == '#';
 
     return yOk && xOk && locationOk;
   }
 
   uint8_t tileAt(Position const &position) {
-    return this->tiles[position.y * this->size.x() + position.x];
+    return this->tiles[position.y() * this->size.x() + position.x()];
   }
 };
