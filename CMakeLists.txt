@@ -75,16 +75,6 @@ target_include_directories(
 
 include(FetchContent)
 
-# # EnTT
-# FetchContent_Declare(
-#     EnTT
-#     GIT_REPOSITORY https://github.com/skypjack/entt.git
-#     GIT_TAG v3.15.0
-# )
-
-# FetchContent_MakeAvailable(EnTT)
-# target_link_libraries(${PROJECT_NAME} PRIVATE EnTT::EnTT)
-
 # # spdlog
 FetchContent_Declare(
     stumpless
