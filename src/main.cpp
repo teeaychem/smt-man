@@ -7,11 +7,10 @@
 #include <filesystem>
 
 #include <png.h>
+#include <stumpless.h>
+#include <sys/syslog.h>
 #include <sys/types.h>
 #include <whereami.h>
-
-#include "spdlog/sinks/stdout_color_sinks.h"
-#include "spdlog/spdlog.h"
 
 #include "anima.hpp"
 
@@ -122,12 +121,12 @@ void setup() {
 
 int main(int argc, char **agrv) {
 
-  auto console = spdlog::stdout_color_mt("console");
-  auto err_logger = spdlog::stderr_color_mt("stderr");
-
   setup();
 
   /* begin scratch */
+
+  struct stumpless_target *target;
+  target = stumpless_open_stdout_target("SMTMlog");
 
   /* end scratch */
 
@@ -152,7 +151,6 @@ int main(int argc, char **agrv) {
     SDL_Event event;
     SDL_zero(event);
 
-    std::cout << &maze.size << "\n";
     // Draw the maze only once...
     for (uint32_t y{0}; y < maze.size.y(); ++y) {
       for (uint32_t x{0}; x < maze.size.x(); ++x) {
@@ -163,7 +161,6 @@ int main(int argc, char **agrv) {
         }
       }
     }
-
 
     while (!quit) {
 

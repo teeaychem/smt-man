@@ -1,10 +1,10 @@
 #pragma once
 
-#include "spdlog/spdlog.h"
 #include <SDL3/SDL_main.h>
 #include <cstdint>
 #include <limits>
 #include <string>
+#include <sys/syslog.h>
 #include <vector>
 
 enum Direction {
@@ -32,7 +32,7 @@ struct NVec {
     if (index < this->elements.size()) {
       return this->elements[index];
     } else {
-      spdlog::critical("Bad NVec element index {} of {}", index, this->elements.size());
+      stumplog(LOG_CRIT, "Bad NVec element index {} of {}", index, this->elements.size());
       exit(-1);
     }
   }
