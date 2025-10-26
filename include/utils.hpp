@@ -2,6 +2,8 @@
 
 #include <SDL3/SDL_main.h>
 #include <cstdint>
+#include <iostream>
+#include <limits>
 #include <string>
 
 enum Direction {
@@ -17,6 +19,29 @@ public:
   uint32_t y;
 
   Position(uint32_t x, uint32_t y) : x(x), y(y) {};
+
+  Position inDirection(Direction direction, uint32_t steps) {
+    Position todo = *this;
+    std::cout << "iD: " << todo.toString() << " -> ";
+
+    switch (direction) {
+    case up: {
+      todo.y = (steps <= todo.y) ? (todo.y - steps) : 0;
+    } break;
+    case right: {
+      todo.x = (steps <= (std::numeric_limits<uint32_t>::max() - todo.x)) ? todo.x + steps : std::numeric_limits<uint32_t>::max();
+    } break;
+    case down: {
+      todo.y = (steps <= (std::numeric_limits<uint32_t>::max() - todo.y)) ? todo.y + steps : std::numeric_limits<uint32_t>::max();
+    } break;
+    case left: {
+      todo.x = (steps <= todo.x) ? (todo.x - steps) : 0;
+    } break;
+    }
+
+    std::cout << todo.toString() << "\n";
+    return todo;
+  }
 
   std::string toString() {
     std::string out{};

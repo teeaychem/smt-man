@@ -130,9 +130,7 @@ int main(int argc, char **agrv) {
     bool quit{false};
 
     NSTimer frameCapTimer{};
-    Anima gottlob{};
-    gottlob.sprite = Sprite(SOURCE_PATH.append("resources/gottlob.png"));
-    gottlob.sprite.position = gottlob._position;
+    Anima gottlob{Sprite(SOURCE_PATH.append("resources/gottlob.png"))};
 
     SDL_Event event;
     SDL_zero(event);
@@ -165,7 +163,7 @@ int main(int argc, char **agrv) {
         gottlob.handleEvent(event);
       }
 
-      gottlob.move();
+      gottlob.moveWithin(maze);
       gRenderer.drawSprite(&gottlob.sprite);
 
       gRenderer.update();
