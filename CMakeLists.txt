@@ -18,6 +18,8 @@ set(SOURCES
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
+target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Werror -g -O0 -DDEBUG)
+
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 add_custom_target(
@@ -76,13 +78,16 @@ target_link_libraries(${PROJECT_NAME} PRIVATE EnTT::EnTT)
 
 # # spdlog
 FetchContent_Declare(
-  spdlog
+    spdlog
     GIT_REPOSITORY https://github.com/gabime/spdlog.git
     GIT_TAG v1.16.0
 )
 
 FetchContent_MakeAvailable(spdlog)
-target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
+target_link_libraries(
+    ${PROJECT_NAME}
+    PRIVATE spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>
+)
 
 # # whereami
 FetchContent_Declare(
