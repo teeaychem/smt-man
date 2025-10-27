@@ -75,6 +75,17 @@ target_include_directories(
 
 include(FetchContent)
 
+# # cwalk
+FetchContent_Declare(
+    cwalk
+    GIT_REPOSITORY https://github.com/likle/cwalk.git
+    GIT_TAG v1.2.9
+)
+
+FetchContent_MakeAvailable(cwalk)
+target_include_directories(${PROJECT_NAME} PRIVATE ${cwalk_SOURCE_DIR}/include)
+target_sources(${PROJECT_NAME} PRIVATE ${cwalk_SOURCE_DIR}/src/cwalk.c)
+
 # # spdlog
 FetchContent_Declare(
     stumpless

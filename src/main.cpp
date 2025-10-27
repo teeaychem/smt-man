@@ -4,8 +4,10 @@
 
 #include <cstddef>
 #include <cstdlib>
-#include <filesystem>
 
+#include "cwalk.h"
+
+#include <iostream>
 #include <png.h>
 #include <stumpless.h>
 #include <sys/syslog.h>
@@ -31,7 +33,8 @@ Size dPixels = {dMaze.x() * kTileSize, dMaze.y() * kTileSize};
 Size dScreen = {dPixels.x() * kGridScale, dPixels.y() * kGridScale};
 
 SDL_Window *gWindow{nullptr};
-std::filesystem::path SOURCE_PATH;
+char *SOURCE_PATH;
+char PATH_BUFFER[FILENAME_MAX];
 
 std::ostream &operator<<(std::ostream &os, Position p) {
   return os << "(" << p.x() << "," << p.y() << ")";
@@ -113,10 +116,10 @@ void sdl_close() {
 void setup() {
   // Set the source path for resources, etc.
   size_t wai_length = wai_getExecutablePath(NULL, 0, NULL);
-  char *path = (char *)malloc((wai_length + 1));
-  wai_getExecutablePath(path, wai_length, NULL);
-  SOURCE_PATH = std::filesystem::path(path).parent_path();
-  free(path);
+  SOURCE_PATH = (char *)malloc((wai_length + 1));
+  int dirname_length;
+  wai_getExecutablePath(SOURCE_PATH, wai_length, &dirname_length);
+  SOURCE_PATH[dirname_length] = '\0';
 }
 
 int main(int argc, char **agrv) {
@@ -130,9 +133,11 @@ int main(int argc, char **agrv) {
 
   /* end scratch */
 
-  Maze maze{SOURCE_PATH / "resources/maze/source.txt"};
+  cwk_path_join(SOURCE_PATH, "resources/maze/source.txt", PATH_BUFFER, FILENAME_MAX);
+  Maze maze{PATH_BUFFER};
 
-  Sprite x = Sprite(SOURCE_PATH / "resources/gottlob.png");
+  cwk_path_join(SOURCE_PATH, "resources/gottlob.png", PATH_BUFFER, FILENAME_MAX);
+  Sprite x = Sprite(PATH_BUFFER);
 
   Anima gottlob{std::move(x)};
 

@@ -4,7 +4,6 @@
 #include "utils/NVec.h"
 #include <cinttypes>
 #include <cstdint>
-#include <filesystem>
 
 inline void next_line(FILE *file) {
   char c;
@@ -20,11 +19,11 @@ struct Maze {
 
   ~Maze() {};
 
-  Maze(std::filesystem::path path) {
+  Maze(char* path) {
 
     bool preambleOk = true;
 
-    FILE *file = fopen(path.c_str(), "r");
+    FILE *file = fopen(path, "r");
     if (file == NULL) {
       stumplog(LOG_ERR, "Failed to open maze");
       preambleOk = false;
@@ -71,7 +70,7 @@ struct Maze {
     }
 
     if (!preambleOk) {
-      stumplog(LOG_INFO, path.c_str());
+      stumplog(LOG_INFO, path);
       stumplog(LOG_CRIT, "Failed to construct maze");
       exit(1);
     }

@@ -26,7 +26,7 @@ struct NVec {
     if (index < this->elements.size()) {
       return this->elements[index];
     } else {
-      stumplog(LOG_CRIT, "Bad NVec element index {} of {}", index, this->elements.size());
+      stumplog(LOG_CRIT, "NVec overrun %d/%d", index, this->elements.size());
       exit(-1);
     }
   }

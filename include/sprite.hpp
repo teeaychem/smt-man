@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <filesystem>
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
@@ -13,23 +12,25 @@
 
 struct Sprite {
 
-  Size size;
+  Size size{0, 0};
   Position position{0, 0};
   int32_t *pixels{nullptr};
 
   ~Sprite() {}
 
-  Sprite(std::filesystem::path path) {
+  Sprite(char *path) {
+
     png_image image;
 
     memset(&image, 0, (sizeof image));
     image.version = PNG_IMAGE_VERSION;
 
-    if (png_image_begin_read_from_file(&image, path.c_str()) != 0) {
+    if (png_image_begin_read_from_file(&image, path) != 0) {
       image.format = PNG_FORMAT_RGBA;
 
-      this->size.elements.push_back(image.width);
-      this->size.elements.push_back(image.height);
+      this->size.elements[0] = image.width;
+      this->size.elements[1] = image.height;
+      printf("x: %d%d", this->size.elements[0], this->size.elements[1]);
 
       pixels = (int32_t *)malloc(PNG_IMAGE_SIZE(image));
 
