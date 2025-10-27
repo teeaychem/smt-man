@@ -14,6 +14,7 @@ set(SOURCES
     src/main.cpp
     src/anima/anima.cpp
     src/anima/deduction.cpp
+    src/core/sprite.c
     src/utils/utils.cpp
 )
 

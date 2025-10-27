@@ -17,7 +17,7 @@
 #include "anima.hpp"
 
 #include "maze.hpp"
-#include "sprite.hpp"
+#include "sprite.h"
 #include "toys.hpp"
 #include "utils.hpp"
 
@@ -68,19 +68,19 @@ struct Renderer {
 
   void drawSprite(Sprite const *sprite) {
     int cell = 0;
-    int32_t yOffset = sprite->position.y() * dPixels.x() + sprite->position.x();
+    int32_t yOffset = sprite->pos_y * dPixels.x() + sprite->pos_x;
 
-    for (int32_t row = 0; row < sprite->size.y(); ++row) {
-      for (int32_t col = 0; col < sprite->size.x(); ++col, ++cell) {
+    for (int32_t row = 0; row < sprite->size_h; ++row) {
+      for (int32_t col = 0; col < sprite->size_w; ++col, ++cell) {
         this->frameBuffer[yOffset + col] = sprite->pixels[cell];
       }
       yOffset += dPixels.x();
     }
   }
 
-  void fillTile(Position const *position, int32_t colour) {
+  void fillTile(int32_t pos_x, int32_t pos_y, int32_t colour) {
 
-    int32_t yOffset = position->y() * dPixels.x() + position->x();
+    int32_t yOffset = pos_y * dPixels.x() + pos_x;
 
     for (int32_t row = 0; row < kTileSize; ++row) {
       for (int32_t col = 0; col < kTileSize; ++col) {
@@ -137,9 +137,9 @@ int main(int argc, char **agrv) {
   Maze maze{PATH_BUFFER};
 
   cwk_path_join(SOURCE_PATH, "resources/gottlob.png", PATH_BUFFER, FILENAME_MAX);
-  Sprite x = Sprite(PATH_BUFFER);
+  Sprite *x = Sprite_create(PATH_BUFFER);
 
-  Anima gottlob{std::move(x)};
+  Anima gottlob{x};
 
   int exitCode{0};
 
@@ -162,7 +162,7 @@ int main(int argc, char **agrv) {
         // std::cout << std::format("Maze x/y: {}/{} {}/{}", x, y, maze.size.x(), maze.size.y()) << "\n";
         if (maze.tileAt(Position{x, y}) != '#') {
           Position p{x * kTileSize, y * kTileSize};
-          gRenderer.fillTile(&p, 0xffffffff);
+          gRenderer.fillTile(p.x(), p.y(), 0xffffffff);
         }
       }
     }
@@ -173,7 +173,7 @@ int main(int argc, char **agrv) {
 
       SDL_RenderClear(gRenderer.renderer);
 
-      gRenderer.fillTile(&gottlob.sprite.position, 0x000000ff);
+      gRenderer.fillTile(gottlob.sprite->pos_x, gottlob.sprite->pos_y, 0x000000ff);
 
       colour.advance();
       SDL_SetRenderDrawColor(gRenderer.renderer, colour[0], colour[1], colour[2], 0x000000ff);
@@ -187,7 +187,7 @@ int main(int argc, char **agrv) {
 
       gottlob.moveWithin(maze);
 
-      gRenderer.drawSprite(&gottlob.sprite);
+      gRenderer.drawSprite(gottlob.sprite);
 
       gRenderer.update();
       SDL_RenderPresent(gRenderer.renderer);
