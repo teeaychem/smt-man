@@ -17,7 +17,7 @@
 
 #include "maze.h"
 #include "sprite.h"
-#include "toys.hpp"
+#include "toys.h"
 
 #include "utils/NSTimer.h"
 #include "utils/NVec.h"
@@ -140,7 +140,7 @@ int main(int argc, char **agrv) {
 
   int exitCode{0};
 
-  colour_thing colour;
+  rgbVM colour;
 
   if (!sdl_init()) {
     exitCode = 1;
@@ -171,8 +171,8 @@ int main(int argc, char **agrv) {
 
       gRenderer.fillTile(gottlob.sprite.pos_x, gottlob.sprite.pos_y, 0x000000ff);
 
-      colour.advance();
-      SDL_SetRenderDrawColor(gRenderer.renderer, colour[0], colour[1], colour[2], 0x000000ff);
+      rgbVM_advance(&colour);
+      SDL_SetRenderDrawColor(gRenderer.renderer, colour.state[0].value, colour.state[1].value, colour.state[2].value, 0x000000ff);
 
       while (SDL_PollEvent(&event)) {
         if (event.type == SDL_EVENT_QUIT) {
