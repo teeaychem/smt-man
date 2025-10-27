@@ -51,7 +51,7 @@ void Anima_moveWithin(Anima *self, Maze *maze) {
     int32_t step_x;
     int32_t step_y;
 
-    nvec_direction_steps(self->pos_x, self->pos_y, self->momentum, 1, &step_x, &step_y);
+    steps_in_direction(self->pos_x, self->pos_y, self->momentum, 1, &step_x, &step_y);
 
     if (Maze_isOpen(maze, step_x, step_y)) {
       self->mVel = 1;
