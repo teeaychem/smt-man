@@ -4,8 +4,6 @@
 #include <vector>
 
 #include "stumpless/log.h"
-#include "utils.h"
-
 
 
 typedef uint32_t nvec_t;
@@ -50,26 +48,5 @@ struct NVec {
   }
 };
 
-inline NVec nvec_direction_steps(NVec nvec, Direction direction, uint32_t steps) {
-  NVec todo = nvec;
-
-  switch (direction) {
-  case up: {
-    todo.elements[1] = (steps <= todo.elements[1]) ? (todo.elements[1] - steps) : 0;
-  } break;
-  case right: {
-    todo.elements[0] = (steps <= (std::numeric_limits<uint32_t>::max() - todo.elements[0])) ? todo.elements[0] + steps : std::numeric_limits<uint32_t>::max();
-  } break;
-  case down: {
-    todo.elements[1] = (steps <= (std::numeric_limits<uint32_t>::max() - todo.elements[1])) ? todo.elements[1] + steps : std::numeric_limits<uint32_t>::max();
-  } break;
-  case left: {
-    todo.elements[0] = (steps <= todo.elements[0]) ? (todo.elements[0] - steps) : 0;
-  } break;
-  }
-
-  return todo;
-}
 
 typedef NVec Size;
-typedef NVec Position;

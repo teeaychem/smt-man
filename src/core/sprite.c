@@ -32,6 +32,10 @@ Sprite Sprite_create(char *path) {
   return sprite;
 }
 
+void Sprite_destroy(Sprite *self) {
+  free(self->pixels);
+}
+
 int Sprite_char_projection(Sprite *sprite, char *dest, size_t *len) {
 
   int return_value = 1;
