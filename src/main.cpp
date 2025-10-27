@@ -19,7 +19,8 @@
 #include "maze.hpp"
 #include "sprite.h"
 #include "toys.hpp"
-#include "utils.hpp"
+#include "utils.h"
+#include "utils/NSTimer.h"
 
 constexpr uint32_t kTileSize{16};
 
@@ -151,7 +152,7 @@ int main(int argc, char **agrv) {
 
     bool quit{false};
 
-    NSTimer frameCapTimer{};
+    NSTimer frameCapTimer = NSTimer_default();
 
     SDL_Event event;
     SDL_zero(event);
@@ -169,7 +170,7 @@ int main(int argc, char **agrv) {
 
     while (!quit) {
 
-      frameCapTimer.start();
+      NSTimer_start(&frameCapTimer);
 
       SDL_RenderClear(gRenderer.renderer);
 
@@ -193,7 +194,7 @@ int main(int argc, char **agrv) {
       SDL_RenderPresent(gRenderer.renderer);
       SDL_Delay(1);
 
-      Uint64 frameNS{frameCapTimer.getTicksNS()};
+      Uint64 frameNS{NSTimer_getTicksNS(&frameCapTimer)};
       if (frameNS < nsPerFrame) {
         SDL_DelayNS(nsPerFrame - frameNS);
       }
