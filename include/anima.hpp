@@ -8,7 +8,6 @@
 #include "maze.hpp"
 #include "sprite.h"
 
-
 struct Anima {
 
   Position _position{1, 1};
@@ -18,21 +17,21 @@ struct Anima {
 
   int mVel;
 
-  Sprite *sprite;
+  Sprite sprite;
 
   static constexpr int kAnimaVelocity = 2;
 
   ~Anima() {
-    free(sprite);
+    free(sprite.pixels);
   };
 
-  Anima(Sprite *sprite) : _position{Position(1, 1)},
+  Anima(Sprite sprite) : _position{Position(1, 1)},
                           intent{Direction::down},
                           momentum{Direction::down},
                           mVel{1},
                           sprite(sprite) {
-    this->sprite->pos_x = this->_position.x() * this->sprite->size_w;
-    this->sprite->pos_y = this->_position.x() * this->sprite->size_h;
+    this->sprite.pos_x = this->_position.x() * this->sprite.size_w;
+    this->sprite.pos_y = this->_position.x() * this->sprite.size_h;
   }
 
   void handleEvent(SDL_Event &event);
