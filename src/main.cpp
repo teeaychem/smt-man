@@ -7,20 +7,20 @@
 
 #include "cwalk.h"
 
-#include <iostream>
 #include <png.h>
 #include <stumpless.h>
 #include <sys/syslog.h>
 #include <sys/types.h>
 #include <whereami.h>
 
-#include "anima.hpp"
+#include "anima.h"
 
-#include "maze.hpp"
+#include "maze.h"
 #include "sprite.h"
 #include "toys.hpp"
 
 #include "utils/NSTimer.h"
+#include "utils/NVec.h"
 
 constexpr uint32_t kTileSize{16};
 
@@ -36,10 +36,6 @@ Size dScreen = {dPixels.x() * kGridScale, dPixels.y() * kGridScale};
 SDL_Window *gWindow{nullptr};
 char *SOURCE_PATH;
 char PATH_BUFFER[FILENAME_MAX];
-
-std::ostream &operator<<(std::ostream &os, Position p) {
-  return os << "(" << p.x() << "," << p.y() << ")";
-}
 
 struct Renderer {
 
@@ -135,12 +131,12 @@ int main(int argc, char **agrv) {
   /* end scratch */
 
   cwk_path_join(SOURCE_PATH, "resources/maze/source.txt", PATH_BUFFER, FILENAME_MAX);
-  Maze maze{PATH_BUFFER};
+  Maze maze = Maze_create(PATH_BUFFER);
 
   cwk_path_join(SOURCE_PATH, "resources/gottlob.png", PATH_BUFFER, FILENAME_MAX);
   Sprite x = Sprite_create(PATH_BUFFER);
 
-  Anima gottlob{x};
+  Anima gottlob = Anima_default(x);
 
   int exitCode{0};
 
@@ -158,12 +154,11 @@ int main(int argc, char **agrv) {
     SDL_zero(event);
 
     // Draw the maze only once...
-    for (uint32_t y{0}; y < maze.size.y(); ++y) {
-      for (uint32_t x{0}; x < maze.size.x(); ++x) {
+    for (uint32_t y{0}; y < maze.size_y; ++y) {
+      for (uint32_t x{0}; x < maze.size_x; ++x) {
         // std::cout << std::format("Maze x/y: {}/{} {}/{}", x, y, maze.size.x(), maze.size.y()) << "\n";
-        if (maze.tileAt(Position{x, y}) != '#') {
-          Position p{x * kTileSize, y * kTileSize};
-          gRenderer.fillTile(p.x(), p.y(), 0xffffffff);
+        if (Maze_tileAt(&maze, x, y) != '#') {
+          gRenderer.fillTile(x * kTileSize, y * kTileSize, 0xffffffff);
         }
       }
     }
@@ -183,10 +178,10 @@ int main(int argc, char **agrv) {
         if (event.type == SDL_EVENT_QUIT) {
           quit = true;
         }
-        gottlob.handleEvent(event);
+        Anima_handleEvent(&gottlob, &event);
       }
 
-      gottlob.moveWithin(maze);
+      Anima_moveWithin(&gottlob, &maze);
 
       gRenderer.drawSprite(&gottlob.sprite);
 

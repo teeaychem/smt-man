@@ -12,10 +12,12 @@ set(CMAKE_C_STANDARD 17)
 
 set(SOURCES
     src/main.cpp
-    src/anima/anima.cpp
+    src/anima/anima.c
     src/anima/deduction.cpp
+    src/core/maze.c
     src/core/sprite.c
     src/utils/NSTimer.c
+    src/utils/etc.c
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
