@@ -15,7 +15,7 @@ set(SOURCES
     src/anima/anima.cpp
     src/anima/deduction.cpp
     src/core/sprite.c
-    src/utils/utils.cpp
+    src/utils/NSTimer.c
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})

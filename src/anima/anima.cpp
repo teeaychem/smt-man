@@ -1,6 +1,6 @@
 #include "anima.hpp"
 #include "sprite.h"
-#include "utils.hpp"
+#include "utils.h"
 
 void Anima::handleEvent(SDL_Event &event) {
 

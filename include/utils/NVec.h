@@ -4,8 +4,9 @@
 #include <vector>
 
 #include "stumpless/log.h"
+#include "utils.h"
 
-#include "utils.hpp"
+
 
 typedef uint32_t nvec_t;
 
