@@ -19,7 +19,7 @@
 #include "maze.hpp"
 #include "sprite.h"
 #include "toys.hpp"
-#include "utils.h"
+
 #include "utils/NSTimer.h"
 
 constexpr uint32_t kTileSize{16};
@@ -138,7 +138,7 @@ int main(int argc, char **agrv) {
   Maze maze{PATH_BUFFER};
 
   cwk_path_join(SOURCE_PATH, "resources/gottlob.png", PATH_BUFFER, FILENAME_MAX);
-  Sprite *x = Sprite_create(PATH_BUFFER);
+  Sprite x = Sprite_create(PATH_BUFFER);
 
   Anima gottlob{x};
 
@@ -174,7 +174,7 @@ int main(int argc, char **agrv) {
 
       SDL_RenderClear(gRenderer.renderer);
 
-      gRenderer.fillTile(gottlob.sprite->pos_x, gottlob.sprite->pos_y, 0x000000ff);
+      gRenderer.fillTile(gottlob.sprite.pos_x, gottlob.sprite.pos_y, 0x000000ff);
 
       colour.advance();
       SDL_SetRenderDrawColor(gRenderer.renderer, colour[0], colour[1], colour[2], 0x000000ff);
@@ -188,7 +188,7 @@ int main(int argc, char **agrv) {
 
       gottlob.moveWithin(maze);
 
-      gRenderer.drawSprite(gottlob.sprite);
+      gRenderer.drawSprite(&gottlob.sprite);
 
       gRenderer.update();
       SDL_RenderPresent(gRenderer.renderer);

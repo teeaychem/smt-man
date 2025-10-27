@@ -22,7 +22,7 @@ typedef struct sprite_t Sprite;
 extern "C" {
 #endif
 
-Sprite *Sprite_create(char *path);
+Sprite Sprite_create(char *path);
 void Sprite_destroy(Sprite *path);
 
 int Sprite_char_projection(Sprite *sprite, char *dest, size_t *len);

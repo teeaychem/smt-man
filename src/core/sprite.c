@@ -1,9 +1,9 @@
 #include "sprite.h"
 #include <stdlib.h>
 
-Sprite *Sprite_create(char *path) {
+Sprite Sprite_create(char *path) {
 
-  Sprite *sprite = (Sprite *)malloc(sizeof(Sprite));
+  Sprite sprite;
 
   png_image image;
 
@@ -13,18 +13,18 @@ Sprite *Sprite_create(char *path) {
   if (png_image_begin_read_from_file(&image, path) != 0) {
     image.format = PNG_FORMAT_RGBA;
 
-    sprite->size_w = image.width;
-    sprite->size_h = image.height;
+    sprite.size_w = image.width;
+    sprite.size_h = image.height;
 
-    sprite->pixels = (int32_t *)malloc(PNG_IMAGE_SIZE(image));
+    sprite.pixels = (int32_t *)malloc(PNG_IMAGE_SIZE(image));
 
-    if (sprite->pixels != NULL &&
-        png_image_finish_read(&image, NULL, sprite->pixels, 0, NULL) != 0) {
+    if (sprite.pixels != NULL &&
+        png_image_finish_read(&image, NULL, sprite.pixels, 0, NULL) != 0) {
     } else {
-      if (sprite->pixels == NULL)
+      if (sprite.pixels == NULL)
         png_image_free(&image);
       else {
-        free(sprite->pixels);
+        free(sprite.pixels);
       }
     }
   }
