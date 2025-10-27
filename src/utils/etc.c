@@ -1,6 +1,6 @@
 #include "utils.h"
 
-void nvec_direction_steps(int32_t origin_x, int32_t origin_y, Direction direction, int32_t steps, int32_t *step_x, int32_t *step_y) {
+void steps_in_direction(int32_t origin_x, int32_t origin_y, Direction direction, int32_t steps, int32_t *step_x, int32_t *step_y) {
 
   *step_x = origin_x;
   *step_y = origin_y;
