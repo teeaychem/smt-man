@@ -1,5 +1,5 @@
 #include "anima.hpp"
-#include "sprite.hpp"
+#include "sprite.h"
 #include "utils.hpp"
 
 void Anima::handleEvent(SDL_Event &event) {
@@ -25,9 +25,9 @@ void Anima::handleEvent(SDL_Event &event) {
 
 void Anima::moveWithin(Maze &maze) {
 
-  if (this->sprite.position.x() % this->sprite.size.x() == 0 && this->sprite.position.y() % this->sprite.size.y() == 0) {
-    this->_position.elements[0] = sprite.position.x() / 16;
-    this->_position.elements[1] = sprite.position.y() / 16;
+  if (this->sprite->pos_x % this->sprite->size_w == 0 && this->sprite->pos_y % this->sprite->size_h == 0) {
+    this->_position.elements[0] = sprite->pos_x / 16;
+    this->_position.elements[1] = sprite->pos_y / 16;
 
     momentum = intent;
 
@@ -42,16 +42,16 @@ void Anima::moveWithin(Maze &maze) {
 
   switch (momentum) {
   case up: {
-    this->sprite.position.elements[1] -= mVel;
+    this->sprite->pos_y -= mVel;
   } break;
   case right: {
-    this->sprite.position.elements[0] += mVel;
+    this->sprite->pos_x += mVel;
   } break;
   case down: {
-    this->sprite.position.elements[1] += mVel;
+    this->sprite->pos_y += mVel;
   } break;
   case left: {
-    this->sprite.position.elements[0] -= mVel;
+    this->sprite->pos_x -= mVel;
   } break;
   }
 }

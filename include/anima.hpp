@@ -6,7 +6,7 @@
 #include <SDL3/SDL_render.h>
 
 #include "maze.hpp"
-#include "sprite.hpp"
+#include "sprite.h"
 #include "utils.hpp"
 
 struct Anima {
@@ -18,19 +18,21 @@ struct Anima {
 
   int mVel;
 
-  Sprite sprite;
+  Sprite *sprite;
 
   static constexpr int kAnimaVelocity = 2;
 
-  Anima();
+  ~Anima() {
+    free(sprite);
+  };
 
-  Anima(Sprite &&sprite) : _position{Position(1, 1)},
-                           intent{Direction::down},
-                           momentum{Direction::down},
-                           mVel{1},
-                           sprite(std::move(sprite)) {
-    this->sprite.position.elements[0] = this->_position.x() * this->sprite.size.x();
-    this->sprite.position.elements[1] = this->_position.x() * this->sprite.size.y();
+  Anima(Sprite *sprite) : _position{Position(1, 1)},
+                          intent{Direction::down},
+                          momentum{Direction::down},
+                          mVel{1},
+                          sprite(sprite) {
+    this->sprite->pos_x = this->_position.x() * this->sprite->size_w;
+    this->sprite->pos_y = this->_position.x() * this->sprite->size_h;
   }
 
   void handleEvent(SDL_Event &event);
