@@ -1,50 +1,32 @@
-#include <SDL3/SDL.h>
-#include <SDL3/SDL_main.h>
-#include <SDL3/SDL_render.h>
-
-#include <stddef.h>
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "cwalk.h"
 
-#include <png.h>
-#include <stddef.h>
 #include <stumpless.h>
 #include <sys/syslog.h>
 #include <sys/types.h>
 #include <whereami.h>
 
 #include "anima.h"
-
 #include "maze.h"
+#include "render/constants.h"
 #include "render/render.h"
+#include "render/NSTimer.h"
 #include "sprite.h"
 #include "toys.h"
 
-#include "utils/NSTimer.h"
 #include "utils/pairs.h"
 
-int kScreenFps = 30;
-
-Uint64 nsPerFrame;
-
-int kGridScale = 2;
-
-PairI32 dPixels;
-PairI32 dScreen;
+Renderer gRenderer;
 
 SDL_Window *gWindow = NULL;
-char *SOURCE_PATH;
-char PATH_BUFFER[FILENAME_MAX];
+char *SOURCE_PATH = NULL;
 
-Renderer gRenderer;
+char PATH_BUFFER[FILENAME_MAX];
 
 bool sdl_init(PairI32 dPixels) {
   bool success = false;
 
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
-    gWindow = SDL_CreateWindow("Hello", dScreen.x, dScreen.y, 0);
+    gWindow = SDL_CreateWindow("Hello", dPixels.x * kScale, dPixels.y * kScale, 0);
     gRenderer = Renderer_create(gWindow, dPixels);
 
     success = true;
@@ -61,11 +43,6 @@ void sdl_close() {
 }
 
 void setup() {
-  PairI32 dMaze = PairI32_create(28, 31);
-  dPixels = PairI32_create(dMaze.x * 16, dMaze.y * 16);
-  dScreen = PairI32_create(dPixels.x * kGridScale, dPixels.y * kGridScale);
-  nsPerFrame = 1000000000 / kScreenFps;
-
   // Set the source path for resources, etc.
   size_t wai_length = wai_getExecutablePath(NULL, 0, NULL);
   SOURCE_PATH = (char *)malloc((wai_length + 1));
