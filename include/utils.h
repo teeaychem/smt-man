@@ -19,10 +19,6 @@ extern "C" {
 
 void steps_in_direction(PairI32 *origin, Direction direction, int32_t steps, PairI32 *destination);
 
-inline int random_in_range(int min, int max) {
-  return min + rand() / (RAND_MAX / (max - min + 1) + 1);
-}
-
 #ifdef __cplusplus
 }
 #endif
