@@ -20,7 +20,7 @@
 #include "toys.h"
 
 #include "utils/NSTimer.h"
-#include "utils/NVec.h"
+#include "utils/pairs.h"
 
 constexpr uint32_t kTileSize{16};
 
@@ -29,9 +29,9 @@ constexpr int kScreenFps{30};
 constexpr Uint64 nsPerFrame = 1000000000 / kScreenFps;
 
 constexpr int kGridScale{2};
-Size dMaze{28, 31};
-Size dPixels = {dMaze.x() * kTileSize, dMaze.y() * kTileSize};
-Size dScreen = {dPixels.x() * kGridScale, dPixels.y() * kGridScale};
+PairI32 dMaze = PairI32_create(28, 31);
+PairI32 dPixels = PairI32_create(dMaze.x * kTileSize, dMaze.y *kTileSize);
+PairI32 dScreen = PairI32_create(dPixels.x * kGridScale, dPixels.y *kGridScale);
 
 SDL_Window *gWindow{nullptr};
 char *SOURCE_PATH;
@@ -47,8 +47,8 @@ struct Renderer {
 
   Renderer(SDL_Window *window) {
     renderer = SDL_CreateRenderer(gWindow, NULL);
-    frameBuffer = new int32_t[dPixels.area()];
-    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, dPixels.x(), dPixels.y());
+    frameBuffer = new int32_t[PairI32_area(&dPixels)];
+    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, dPixels.x, dPixels.y);
   }
 
   void update() {
@@ -56,8 +56,8 @@ struct Renderer {
     int pitch;
 
     SDL_LockTexture(this->texture, NULL, (void **)&pix, &pitch);
-    for (int32_t i = 0, sp = 0, dp = 0; i < dPixels.y(); i++, dp += dPixels.x(), sp += pitch) {
-      memcpy(pix + sp, this->frameBuffer + dp, dPixels.x() * 4);
+    for (int32_t i = 0, sp = 0, dp = 0; i < dPixels.y; i++, dp += dPixels.x, sp += pitch) {
+      memcpy(pix + sp, this->frameBuffer + dp, dPixels.x * 4);
     }
     SDL_UnlockTexture(this->texture);
     SDL_RenderTexture(this->renderer, this->texture, NULL, NULL);
@@ -65,25 +65,25 @@ struct Renderer {
 
   void drawSprite(Sprite const *sprite) {
     int cell = 0;
-    int32_t yOffset = sprite->pos_y * dPixels.x() + sprite->pos_x;
+    int32_t yOffset = sprite->pos_y * dPixels.x + sprite->pos_x;
 
     for (int32_t row = 0; row < sprite->size_h; ++row) {
       for (int32_t col = 0; col < sprite->size_w; ++col, ++cell) {
         this->frameBuffer[yOffset + col] = sprite->pixels[cell];
       }
-      yOffset += dPixels.x();
+      yOffset += dPixels.x;
     }
   }
 
   void fillTile(int32_t pos_x, int32_t pos_y, int32_t colour) {
 
-    int32_t yOffset = pos_y * dPixels.x() + pos_x;
+    int32_t yOffset = pos_y * dPixels.x + pos_x;
 
     for (int32_t row = 0; row < kTileSize; ++row) {
       for (int32_t col = 0; col < kTileSize; ++col) {
         this->frameBuffer[yOffset + col] = colour;
       }
-      yOffset += dPixels.x();
+      yOffset += dPixels.x;
     }
   }
 };
@@ -94,7 +94,7 @@ bool sdl_init() {
   bool success{false};
 
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
-    gWindow = SDL_CreateWindow("Hello", dScreen.x(), dScreen.y(), 0);
+    gWindow = SDL_CreateWindow("Hello", dScreen.x, dScreen.y, 0);
     gRenderer = Renderer(gWindow);
 
     success = true;
