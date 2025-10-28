@@ -23,10 +23,6 @@ struct anima_t {
 
 typedef struct anima_t Anima;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 Anima Anima_default(Sprite sprite);
 
 Anima Anima_create(PairI32 pos, Direction intent, Direction momentum, Sprite sprite);
@@ -36,6 +32,3 @@ void Anima_destory(Anima *self);
 void Anima_handleEvent(Anima *self, SDL_Event *event);
 
 void Anima_moveWithin(Anima *self, Maze *maze);
-#ifdef __cplusplus
-}
-#endif

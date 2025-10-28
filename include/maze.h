@@ -16,10 +16,6 @@ struct maze_t {
 
 typedef struct maze_t Maze;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 Maze Maze_create(char *path);
 
 void Maze_destroy(Maze *self);
@@ -27,7 +23,3 @@ void Maze_destroy(Maze *self);
 bool Maze_isOpen(Maze *self, PairI32 *tile);
 
 uint8_t Maze_tileAt(Maze *self, PairI32 *tile);
-
-#ifdef __cplusplus
-}
-#endif
