@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 4.1.2)
-project(smtm LANGUAGES C CXX)
+project(smtm LANGUAGES C)
 
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 
@@ -10,12 +10,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_C_STANDARD 17)
 
-set(SOURCES src/main.cpp src/anima/anima.c src/anima/deduction.cpp)
+set(SOURCES src/main.c src/anima/anima.c)
 
 file(GLOB CORE src/core/*.c)
+file(GLOB RENDER src/render/*.c)
 file(GLOB UTILS src/utils/*.c)
 
-add_executable(${PROJECT_NAME} ${SOURCES} ${CORE} ${UTILS})
+add_executable(${PROJECT_NAME} ${SOURCES} ${CORE} ${RENDER} ${UTILS})
 
 target_compile_options(
     ${PROJECT_NAME}

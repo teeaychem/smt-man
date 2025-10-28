@@ -1,36 +1,21 @@
 #pragma once
 
-#include "utils.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
 
-#include <cstdint>
-#include <cstring>
+#include <stdint.h>
+#include <string.h>
+
+struct ValueMomentum {
+  Uint8 value;
+  bool momentum;
+};
 
 struct rgbVM_t {
-  struct ValueMomentum {
-    Uint8 value;
-    bool momentum;
-  };
-
   struct ValueMomentum state[3];
 };
 
 typedef struct rgbVM_t rgbVM;
 
-inline void rgbVM_advance(rgbVM *self) {
-  auto current = random_in_range(0, 2);
-
-  if (self->state[current].value == UINT8_MAX) {
-    self->state[current].momentum = false;
-  } else if (self->state[current].value == 0) {
-    self->state[current].momentum = true;
-  }
-
-  if (self->state[current].momentum) {
-    self->state[current].value = (self->state[current].value + 1);
-  } else {
-    self->state[current].value = (self->state[current].value - 1);
-  }
-}
+void rgbVM_advance(rgbVM *self);
