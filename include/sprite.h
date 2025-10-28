@@ -1,5 +1,6 @@
 #pragma once
 
+#include "utils/pairs.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
@@ -7,11 +8,8 @@
 #include <png.h>
 
 struct sprite_t {
-  int32_t size_w;
-  int32_t size_h;
-
-  int32_t pos_x;
-  int32_t pos_y;
+  PairI32 size;
+  PairI32 pos;
 
   int32_t *pixels;
 };

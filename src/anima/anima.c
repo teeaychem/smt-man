@@ -2,17 +2,17 @@
 #include "maze.h"
 #include "sprite.h"
 #include "utils.h"
+#include "utils/pairs.h"
 
 Anima Anima_default(Sprite sprite) {
-  return Anima_create(1, 1, down, down, sprite);
+  return Anima_create(PairI32_create(1, 1), down, down, sprite);
 }
 
-Anima Anima_create(int32_t pos_x, int32_t pos_y, Direction intent, Direction momentum, Sprite sprite) {
-  Anima creature = {.pos_x = pos_x, .pos_y = pos_y, .intent = intent, .momentum = momentum, .mVel = 1, .sprite = sprite, .kAnimaVelocity = 2};
-  creature.sprite.pos_x = creature.pos_x * sprite.size_w;
-  creature.sprite.pos_y = creature.pos_y * sprite.size_h;
+Anima Anima_create(PairI32 pos, Direction intent, Direction momentum, Sprite sprite) {
+  Anima self = {.pos = pos, .intent = intent, .momentum = momentum, .mVel = 2, .sprite = sprite};
+  self.sprite.pos = PairI32_create(self.pos.x * sprite.size.x, self.pos.y * sprite.size.y);
 
-  return creature;
+  return self;
 }
 
 void Anima_destory(Anima *self) {
@@ -42,18 +42,17 @@ void Anima_handleEvent(Anima *self, SDL_Event *event) {
 
 void Anima_moveWithin(Anima *self, Maze *maze) {
 
-  if (self->sprite.pos_x % self->sprite.size_w == 0 && self->sprite.pos_y % self->sprite.size_h == 0) {
-    self->pos_x = self->sprite.pos_x / 16;
-    self->pos_y = self->sprite.pos_y / 16;
+  if (self->sprite.pos.x % self->sprite.size.x == 0 && self->sprite.pos.y % self->sprite.size.y == 0) {
+    self->pos.x = self->sprite.pos.x / 16;
+    self->pos.y = self->sprite.pos.y / 16;
 
     self->momentum = self->intent;
 
-    int32_t step_x;
-    int32_t step_y;
+    PairI32 destination;
 
-    steps_in_direction(self->pos_x, self->pos_y, self->momentum, 1, &step_x, &step_y);
+    steps_in_direction(&self->pos, self->momentum, 1, &destination);
 
-    if (Maze_isOpen(maze, step_x, step_y)) {
+    if (Maze_isOpen(maze, &destination)) {
       self->mVel = 1;
     } else {
       self->mVel = 0;
@@ -62,16 +61,16 @@ void Anima_moveWithin(Anima *self, Maze *maze) {
 
   switch (self->momentum) {
   case up: {
-    self->sprite.pos_y -= self->mVel;
+    self->sprite.pos.y -= self->mVel;
   } break;
   case right: {
-    self->sprite.pos_x += self->mVel;
+    self->sprite.pos.x += self->mVel;
   } break;
   case down: {
-    self->sprite.pos_y += self->mVel;
+    self->sprite.pos.y += self->mVel;
   } break;
   case left: {
-    self->sprite.pos_x -= self->mVel;
+    self->sprite.pos.x -= self->mVel;
   } break;
   }
 }

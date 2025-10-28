@@ -3,11 +3,13 @@
 #include <SDL3/SDL_render.h>
 
 #include <cstddef>
+#include <cstdio>
 #include <cstdlib>
 
 #include "cwalk.h"
 
 #include <png.h>
+#include <stddef.h>
 #include <stumpless.h>
 #include <sys/syslog.h>
 #include <sys/types.h>
@@ -22,7 +24,7 @@
 #include "utils/NSTimer.h"
 #include "utils/pairs.h"
 
-constexpr uint32_t kTileSize{16};
+constexpr int32_t kTileSize{16};
 
 constexpr int kScreenFps{30};
 
@@ -65,19 +67,19 @@ struct Renderer {
 
   void drawSprite(Sprite const *sprite) {
     int cell = 0;
-    int32_t yOffset = sprite->pos_y * dPixels.x + sprite->pos_x;
+    int32_t yOffset = sprite->pos.y * dPixels.x + sprite->pos.x;
 
-    for (int32_t row = 0; row < sprite->size_h; ++row) {
-      for (int32_t col = 0; col < sprite->size_w; ++col, ++cell) {
+    for (int32_t row = 0; row < sprite->size.y; ++row) {
+      for (int32_t col = 0; col < sprite->size.x; ++col, ++cell) {
         this->frameBuffer[yOffset + col] = sprite->pixels[cell];
       }
       yOffset += dPixels.x;
     }
   }
 
-  void fillTile(int32_t pos_x, int32_t pos_y, int32_t colour) {
+  void fillTile(PairI32 pos, int32_t colour) {
 
-    int32_t yOffset = pos_y * dPixels.x + pos_x;
+    int32_t yOffset = pos.y * dPixels.x + pos.x;
 
     for (int32_t row = 0; row < kTileSize; ++row) {
       for (int32_t col = 0; col < kTileSize; ++col) {
@@ -154,11 +156,12 @@ int main(int argc, char **agrv) {
     SDL_zero(event);
 
     // Draw the maze only once...
-    for (uint32_t y{0}; y < maze.size_y; ++y) {
-      for (uint32_t x{0}; x < maze.size_x; ++x) {
+    for (int32_t y{0}; y < maze.size.y; ++y) {
+      for (int32_t x{0}; x < maze.size.x; ++x) {
         // std::cout << std::format("Maze x/y: {}/{} {}/{}", x, y, maze.size.x(), maze.size.y()) << "\n";
-        if (Maze_tileAt(&maze, x, y) != '#') {
-          gRenderer.fillTile(x * kTileSize, y * kTileSize, 0xffffffff);
+        auto z = PairI32_create(x, y);
+        if (Maze_tileAt(&maze, &z) != '#') {
+          gRenderer.fillTile(PairI32_create(x * kTileSize, y * kTileSize), 0xffffffff);
         }
       }
     }
@@ -169,7 +172,7 @@ int main(int argc, char **agrv) {
 
       SDL_RenderClear(gRenderer.renderer);
 
-      gRenderer.fillTile(gottlob.sprite.pos_x, gottlob.sprite.pos_y, 0x000000ff);
+      gRenderer.fillTile(gottlob.sprite.pos, 0x000000ff);
 
       rgbVM_advance(&colour);
       SDL_SetRenderDrawColor(gRenderer.renderer, colour.state[0].value, colour.state[1].value, colour.state[2].value, 0x000000ff);

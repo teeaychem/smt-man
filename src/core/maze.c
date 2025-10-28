@@ -1,5 +1,10 @@
+
+#include <inttypes.h>
+#include <string.h>
+
 #include "maze.h"
 #include "stumpless/log.h"
+#include "utils/pairs.h"
 
 void next_line(FILE *file) {
   char c;
@@ -10,7 +15,7 @@ void next_line(FILE *file) {
 
 Maze Maze_create(char *path) {
 
-  Maze self = {.size_x = 0, .size_y = 0, .tiles = NULL};
+  Maze self = {.size.x = 0, .size.y = 0, .tiles = NULL};
 
   bool preambleOk = true;
 
@@ -33,14 +38,14 @@ Maze Maze_create(char *path) {
     } break;
 
     case 'w': {
-      if (!fscanf(file, "%" SCNu32, &self.size_x)) {
+      if (!fscanf(file, "%" SCNu32, &(self.size.x))) {
         stumplog(LOG_ERR, "Failed to read maze width");
         preambleOk = false;
       };
     } break;
 
     case 'h': {
-      if (!fscanf(file, "%" SCNu32, &self.size_y)) {
+      if (!fscanf(file, "%" SCNu32, &(self.size.y))) {
         stumplog(LOG_ERR, "Failed to read maze height");
         preambleOk = false;
       };
@@ -66,8 +71,8 @@ Maze Maze_create(char *path) {
     exit(1);
   }
 
-  self.tiles = (char *)malloc(self.size_x * self.size_y);
-  memset(self.tiles, '\0', self.size_x * self.size_y);
+  self.tiles = (char *)malloc(PairI32_area(&self.size));
+  memset(self.tiles, '\0', PairI32_area(&self.size));
 
   int32_t tile_idx = 0;
 
@@ -81,7 +86,7 @@ Maze Maze_create(char *path) {
     } break;
 
     case '\n': {
-      while (tile_idx % self.size_x != 0 || tile_idx == 0) {
+      while (tile_idx % self.size.x != 0 || tile_idx == 0) {
         ++tile_idx;
       }
     } break;
@@ -100,14 +105,14 @@ void Maze_destroy(Maze *self) {
   free(self->tiles);
 }
 
-bool Maze_isOpen(Maze *self, int32_t x, int32_t y) {
-  bool yOk = 0 <= y && y < self->size_y;
-  bool xOk = 0 <= x && x < self->size_x;
-  bool locationOk = Maze_tileAt(self, x, y) == '#';
+bool Maze_isOpen(Maze *self, PairI32 *tile) {
+  bool yOk = 0 <= tile->y && tile->y < self->size.y;
+  bool xOk = 0 <= tile->x && tile->x < self->size.x;
+  bool locationOk = Maze_tileAt(self, tile) == '#';
 
   return yOk && xOk && locationOk;
 }
 
-uint8_t Maze_tileAt(Maze *self, int32_t x, int32_t y) {
-  return self->tiles[y * self->size_x + x];
+uint8_t Maze_tileAt(Maze *self, PairI32 *tile) {
+  return self->tiles[tile->y * self->size.x + tile->x];
 }
