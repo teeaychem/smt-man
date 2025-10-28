@@ -10,17 +10,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_C_STANDARD 17)
 
-set(SOURCES
-    src/main.cpp
-    src/anima/anima.c
-    src/anima/deduction.cpp
-    src/core/maze.c
-    src/core/sprite.c
-    src/utils/NSTimer.c
-    src/utils/etc.c
-)
+set(SOURCES src/main.cpp src/anima/anima.c src/anima/deduction.cpp)
 
-add_executable(${PROJECT_NAME} ${SOURCES})
+file(GLOB CORE src/core/*.c)
+file(GLOB UTILS src/utils/*.c)
+
+add_executable(${PROJECT_NAME} ${SOURCES} ${CORE} ${UTILS})
 
 target_compile_options(
     ${PROJECT_NAME}
