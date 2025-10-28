@@ -5,20 +5,12 @@
 #include <stdlib.h>
 
 enum direction_e {
-  up,
-  right,
-  down,
-  left,
+  UP,
+  RIGHT,
+  DOWN,
+  LEFT,
 };
 
 typedef enum direction_e Direction;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 void steps_in_direction(PairI32 *origin, Direction direction, int32_t steps, PairI32 *destination);
-
-#ifdef __cplusplus
-}
-#endif

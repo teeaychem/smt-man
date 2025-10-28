@@ -10,10 +10,6 @@ struct ns_timer_t {
 
 typedef struct ns_timer_t NSTimer;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 NSTimer NSTimer_default();
 
 void NSTimer_start(NSTimer *self);
@@ -29,7 +25,3 @@ Uint64 NSTimer_getTicksNS(NSTimer *self);
 bool NSTimer_isStarted(NSTimer *self);
 
 bool NSTimer_isPaused(NSTimer *self);
-
-#ifdef __cplusplus
-}
-#endif

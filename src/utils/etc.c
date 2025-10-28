@@ -8,19 +8,19 @@ void steps_in_direction(PairI32 *origin, Direction direction, int32_t steps, Pai
   *destination = *origin;
 
   switch (direction) {
-  case up: {
+  case UP: {
     destination->y = (steps <= origin->y) ? (origin->y - steps) : 0;
   } break;
 
-  case right: {
+  case RIGHT: {
     destination->x = (steps <= (INT32_MAX - origin->x)) ? origin->x + steps : INT32_MAX;
   } break;
 
-  case down: {
+  case DOWN: {
     destination->y = (steps <= (INT32_MAX - origin->y)) ? origin->y + steps : INT32_MAX;
   } break;
 
-  case left: {
+  case LEFT: {
     destination->x = (steps <= origin->x) ? (origin->x - steps) : 0;
   } break;
   }

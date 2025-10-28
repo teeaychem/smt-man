@@ -5,7 +5,7 @@
 #include "utils/pairs.h"
 
 Anima Anima_default(Sprite sprite) {
-  return Anima_create(PairI32_create(1, 1), down, down, sprite);
+  return Anima_create(PairI32_create(1, 1), DOWN, DOWN, sprite);
 }
 
 Anima Anima_create(PairI32 pos, Direction intent, Direction momentum, Sprite sprite) {
@@ -25,16 +25,16 @@ void Anima_handleEvent(Anima *self, SDL_Event *event) {
 
     switch (event->key.key) {
     case SDLK_UP:
-      self->intent = up;
+      self->intent = UP;
       break;
     case SDLK_DOWN:
-      self->intent = down;
+      self->intent = DOWN;
       break;
     case SDLK_LEFT:
-      self->intent = left;
+      self->intent = LEFT;
       break;
     case SDLK_RIGHT:
-      self->intent = right;
+      self->intent = RIGHT;
       break;
     }
   }
@@ -60,16 +60,16 @@ void Anima_moveWithin(Anima *self, Maze *maze) {
   }
 
   switch (self->momentum) {
-  case up: {
+  case UP: {
     self->sprite.pos.y -= self->mVel;
   } break;
-  case right: {
+  case RIGHT: {
     self->sprite.pos.x += self->mVel;
   } break;
-  case down: {
+  case DOWN: {
     self->sprite.pos.y += self->mVel;
   } break;
-  case left: {
+  case LEFT: {
     self->sprite.pos.x -= self->mVel;
   } break;
   }
