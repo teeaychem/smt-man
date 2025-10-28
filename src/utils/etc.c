@@ -1,25 +1,26 @@
 #include "utils.h"
+#include "utils/pairs.h"
+#include <stdio.h>
 
-void steps_in_direction(int32_t origin_x, int32_t origin_y, Direction direction, int32_t steps, int32_t *step_x, int32_t *step_y) {
+void steps_in_direction(PairI32 *origin, Direction direction, int32_t steps, PairI32 *destination) {
 
-  *step_x = origin_x;
-  *step_y = origin_y;
+  *destination = *origin;
 
   switch (direction) {
   case up: {
-    *step_y = (steps <= origin_y) ? (origin_y - steps) : 0;
+    destination->y = (steps <= origin->y) ? (origin->y - steps) : 0;
   } break;
 
   case right: {
-    *step_x = (steps <= (INT32_MAX - origin_x)) ? origin_x + steps : INT32_MAX;
+    destination->x = (steps <= (INT32_MAX - origin->x)) ? origin->x + steps : INT32_MAX;
   } break;
 
   case down: {
-    *step_y = (steps <= (INT32_MAX - origin_y)) ? origin_y + steps : INT32_MAX;
+    destination->y = (steps <= (INT32_MAX - origin->y)) ? origin->y + steps : INT32_MAX;
   } break;
 
   case left: {
-    *step_x = (steps <= origin_x) ? (origin_x - steps) : 0;
+    destination->x = (steps <= origin->x) ? (origin->x - steps) : 0;
   } break;
   }
 }

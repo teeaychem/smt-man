@@ -1,5 +1,6 @@
 #pragma once
 
+#include "utils/pairs.h"
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -16,7 +17,7 @@ typedef enum direction_e Direction;
 extern "C" {
 #endif
 
-void steps_in_direction(int32_t origin_x, int32_t origin_y, Direction direction, int32_t steps, int32_t *step_x, int32_t *step_y);
+void steps_in_direction(PairI32 *origin, Direction direction, int32_t steps, PairI32 *destination);
 
 inline int random_in_range(int min, int max) {
   return min + rand() / (RAND_MAX / (max - min + 1) + 1);

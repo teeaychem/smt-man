@@ -13,8 +13,8 @@ Sprite Sprite_create(char *path) {
   if (png_image_begin_read_from_file(&image, path) != 0) {
     image.format = PNG_FORMAT_RGBA;
 
-    sprite.size_w = image.width;
-    sprite.size_h = image.height;
+    sprite.size.x = image.width;
+    sprite.size.y = image.height;
 
     sprite.pixels = (int32_t *)malloc(PNG_IMAGE_SIZE(image));
 
@@ -40,7 +40,7 @@ int Sprite_char_projection(Sprite *sprite, char *dest, size_t *len) {
 
   int return_value = 1;
 
-  size_t size = (sprite->size_w * (sprite->size_h + 1)) + 1;
+  size_t size = (sprite->size.x * (sprite->size.y + 1)) + 1;
   *len = size;
 
   dest = (char *)malloc(size);
@@ -48,9 +48,9 @@ int Sprite_char_projection(Sprite *sprite, char *dest, size_t *len) {
   dest[size - 1] = '\0';
 
   size_t idx = 0;
-  for (int r = 0; r < sprite->size_h; ++r) {
-    for (int c = 0; c < sprite->size_w; ++c, ++idx) {
-      if ((sprite->pixels)[r * sprite->size_w + c] != 0x00000000) {
+  for (int r = 0; r < sprite->size.y; ++r) {
+    for (int c = 0; c < sprite->size.x; ++c, ++idx) {
+      if ((sprite->pixels)[r * sprite->size.x + c] != 0x00000000) {
         dest[idx] = '#';
       }
     }

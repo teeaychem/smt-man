@@ -11,8 +11,7 @@
 
 struct anima_t {
 
-  int32_t pos_x;
-  int32_t pos_y;
+  PairI32 pos;
 
   Direction intent;
   Direction momentum;
@@ -20,8 +19,6 @@ struct anima_t {
   int mVel;
 
   Sprite sprite;
-
-  int kAnimaVelocity;
 };
 
 typedef struct anima_t Anima;
@@ -32,7 +29,7 @@ extern "C" {
 
 Anima Anima_default(Sprite sprite);
 
-Anima Anima_create(int32_t pos_x, int32_t pos_y, Direction intent, Direction momentum, Sprite sprite);
+Anima Anima_create(PairI32 pos, Direction intent, Direction momentum, Sprite sprite);
 
 void Anima_destory(Anima *self);
 
