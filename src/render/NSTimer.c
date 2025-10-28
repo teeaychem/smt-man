@@ -1,4 +1,4 @@
-#include "utils/NSTimer.h"
+#include "render/NSTimer.h"
 #include <SDL3/SDL.h>
 
 NSTimer NSTimer_default() {
