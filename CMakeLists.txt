@@ -19,10 +19,10 @@ add_executable(${PROJECT_NAME} ${SOURCES} ${CORE} ${RENDER} ${UTILS})
 target_compile_options(
     ${PROJECT_NAME}
     PRIVATE
-    # -Wall
-    # -Werror
-    # -g
-    # -O0
+     # -Wall
+     -Werror
+     -g
+     -O0
     # -DDEBUG
 )
 
