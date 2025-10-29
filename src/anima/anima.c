@@ -1,4 +1,5 @@
 #include "anima.h"
+#include "logic.h"
 #include "maze.h"
 #include "sprite.h"
 #include "utils.h"
@@ -9,7 +10,13 @@ Anima Anima_default(Sprite sprite) {
 }
 
 Anima Anima_create(PairI32 pos, Direction intent, Direction momentum, Sprite sprite) {
-  Anima self = {.pos = pos, .intent = intent, .momentum = momentum, .mVel = 2, .sprite = sprite};
+  Anima self = {.pos = pos,
+                .intent = intent,
+                .momentum = momentum,
+                .mVel = 2,
+                .sprite = sprite,
+                .mind = cvc5_mind_default()};
+
   self.sprite.pos = PairI32_create(self.pos.x * sprite.size.x, self.pos.y * sprite.size.y);
 
   return self;

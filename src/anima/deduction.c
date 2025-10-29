@@ -1,13 +1,9 @@
 
+#include "anima.h"
 #include "logic.h"
 #include <stdio.h>
 
-void Anima_deduction_scratch() {
-
-  Cvc5 *slv = cvc5_new(l_tm);
-
-  cvc5_set_option(slv, "produce-models", "true");
-  cvc5_set_option(slv, "finite-model-find", "true");
+void Anima_deduction_scratch(Anima *self) {
 
   Cvc5Term facingFn = cvc5_mk_const(l_tm, llang.sorts.is_anima_facing, "Facing");
   Cvc5Term blinky = cvc5_mk_const(l_tm, llang.sorts.anima, "blinky");
@@ -29,13 +25,13 @@ void Anima_deduction_scratch() {
 
   Cvc5Term not_up = cvc5_mk_term(l_tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){bu});
 
-  cvc5_assert_formula(slv, some_direction);
-  cvc5_assert_formula(slv, not_up);
+  cvc5_assert_formula(self->mind, some_direction);
+  cvc5_assert_formula(self->mind, not_up);
 
-  cvc5_check_sat(slv);
+  cvc5_check_sat(self->mind);
 
-  printf("%s ", cvc5_term_to_string(cvc5_get_value(slv, bu)));
-  printf("%s ", cvc5_term_to_string(cvc5_get_value(slv, br)));
-  printf("%s ", cvc5_term_to_string(cvc5_get_value(slv, bd)));
-  printf("%s\n", cvc5_term_to_string(cvc5_get_value(slv, bl)));
+  printf("%s ", cvc5_term_to_string(cvc5_get_value(self->mind, bu)));
+  printf("%s ", cvc5_term_to_string(cvc5_get_value(self->mind, br)));
+  printf("%s ", cvc5_term_to_string(cvc5_get_value(self->mind, bd)));
+  printf("%s\n", cvc5_term_to_string(cvc5_get_value(self->mind, bl)));
 }
