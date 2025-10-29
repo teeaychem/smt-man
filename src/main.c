@@ -6,6 +6,7 @@
 #include <whereami.h>
 
 #include "anima.h"
+#include "logic.h"
 #include "maze.h"
 #include "render/NSTimer.h"
 #include "render/constants.h"
@@ -52,6 +53,7 @@ void setup() {
 }
 
 int main(int argc, char **agrv) {
+  setup_logic();
 
   setup();
 

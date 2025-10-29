@@ -8,7 +8,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-set(SOURCES src/main.c src/anima/anima.c src/anima/deduction.c)
+set(SOURCES src/main.c src/anima/anima.c src/anima/deduction.c src/logic/core.c)
 
 file(GLOB CORE src/core/*.c)
 file(GLOB RENDER src/render/*.c)
@@ -19,10 +19,10 @@ add_executable(${PROJECT_NAME} ${SOURCES} ${CORE} ${RENDER} ${UTILS})
 target_compile_options(
     ${PROJECT_NAME}
     PRIVATE
-     # -Wall
-     -Werror
-     -g
-     -O0
+        # -Wall
+        -Werror
+        -g
+        -O0
     # -DDEBUG
 )
 
