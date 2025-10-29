@@ -32,3 +32,5 @@ void Anima_destory(Anima *self);
 void Anima_handleEvent(Anima *self, SDL_Event *event);
 
 void Anima_moveWithin(Anima *self, Maze *maze);
+
+void Anima_deduction_scratch();

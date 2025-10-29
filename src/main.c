@@ -7,9 +7,9 @@
 
 #include "anima.h"
 #include "maze.h"
+#include "render/NSTimer.h"
 #include "render/constants.h"
 #include "render/render.h"
-#include "render/NSTimer.h"
 #include "sprite.h"
 #include "toys.h"
 
@@ -56,6 +56,8 @@ int main(int argc, char **agrv) {
   setup();
 
   /* begin scratch */
+
+  Anima_deduction_scratch();
 
   struct stumpless_target *target;
   target = stumpless_open_stdout_target("SMTMlog");

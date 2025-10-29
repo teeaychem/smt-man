@@ -5,12 +5,10 @@ set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_C_STANDARD 23)
+set(CMAKE_C_STANDARD_REQUIRED ON)
 
-set(CMAKE_C_STANDARD 17)
-
-set(SOURCES src/main.c src/anima/anima.c)
+set(SOURCES src/main.c src/anima/anima.c src/anima/deduction.c)
 
 file(GLOB CORE src/core/*.c)
 file(GLOB RENDER src/render/*.c)
