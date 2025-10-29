@@ -59,7 +59,7 @@ int main(int argc, char **agrv) {
 
   /* begin scratch */
 
-  Anima_deduction_scratch();
+
 
   struct stumpless_target *target;
   target = stumpless_open_stdout_target("SMTMlog");
@@ -73,6 +73,7 @@ int main(int argc, char **agrv) {
   Sprite x = Sprite_create(PATH_BUFFER);
 
   Anima gottlob = Anima_default(x);
+  Anima_deduction_scratch(&gottlob);
 
   int exitCode = 0;
 

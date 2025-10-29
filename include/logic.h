@@ -22,3 +22,5 @@ extern Cvc5TermManager *l_tm;
 extern struct language_t llang;
 
 void setup_logic();
+
+Cvc5 *cvc5_mind_default();
