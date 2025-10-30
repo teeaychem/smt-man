@@ -59,8 +59,6 @@ int main(int argc, char **agrv) {
 
   /* begin scratch */
 
-
-
   struct stumpless_target *target;
   target = stumpless_open_stdout_target("SMTMlog");
 
@@ -72,8 +70,8 @@ int main(int argc, char **agrv) {
   cwk_path_join(SOURCE_PATH, "resources/gottlob.png", PATH_BUFFER, FILENAME_MAX);
   Sprite x = Sprite_create(PATH_BUFFER);
 
-  Anima gottlob = Anima_default(x);
-  Anima_deduction_scratch(&gottlob);
+  Anima gottlob = Anima_default("gottlob", x);
+  Anima_deduction_known(&gottlob);
 
   int exitCode = 0;
 
@@ -118,6 +116,7 @@ int main(int argc, char **agrv) {
         }
         Anima_handleEvent(&gottlob, &event);
       }
+      Anima_deduct(&gottlob);
 
       Anima_moveWithin(&gottlob, &maze);
 
