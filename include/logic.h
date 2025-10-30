@@ -2,6 +2,13 @@
 
 #include "cvc5/c/cvc5.h"
 
+struct l_direction_t {
+  Cvc5Term up;
+  Cvc5Term right;
+  Cvc5Term down;
+  Cvc5Term left;
+};
+
 struct sorts_t {
   Cvc5Sort anima;
   Cvc5Sort direction;
@@ -15,6 +22,10 @@ struct sorts_t {
 
 struct language_t {
   struct sorts_t sorts;
+
+  struct l_direction_t direction;
+
+  Cvc5Term pFacing;
 };
 
 extern Cvc5TermManager *l_tm;

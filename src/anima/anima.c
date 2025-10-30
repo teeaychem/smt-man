@@ -1,21 +1,31 @@
 #include "anima.h"
+#include "cvc5/c/cvc5.h"
 #include "logic.h"
 #include "maze.h"
 #include "sprite.h"
 #include "utils.h"
 #include "utils/pairs.h"
+#include <stdio.h>
 
-Anima Anima_default(Sprite sprite) {
-  return Anima_create(PairI32_create(1, 1), DOWN, DOWN, sprite);
+Anima Anima_default(char *name, Sprite sprite) {
+  return Anima_create(name, PairI32_create(1, 1), DOWN, DOWN, sprite);
 }
 
-Anima Anima_create(PairI32 pos, Direction intent, Direction momentum, Sprite sprite) {
-  Anima self = {.pos = pos,
+Anima Anima_create(char *name, PairI32 pos, Direction intent, Direction momentum, Sprite sprite) {
+  Anima self = {.name = name,
+                .pos = pos,
                 .intent = intent,
                 .momentum = momentum,
                 .mVel = 2,
                 .sprite = sprite,
                 .mind = cvc5_mind_default()};
+
+  self.term = cvc5_mk_const(l_tm, llang.sorts.anima, self.name);
+
+  self.terms.facing_u = cvc5_mk_term(l_tm, CVC5_KIND_APPLY_UF, 3, (Cvc5Term[3]){llang.pFacing, self.term, llang.direction.up});
+  self.terms.facing_r = cvc5_mk_term(l_tm, CVC5_KIND_APPLY_UF, 3, (Cvc5Term[3]){llang.pFacing, self.term, llang.direction.right});
+  self.terms.facing_d = cvc5_mk_term(l_tm, CVC5_KIND_APPLY_UF, 3, (Cvc5Term[3]){llang.pFacing, self.term, llang.direction.down});
+  self.terms.facing_l = cvc5_mk_term(l_tm, CVC5_KIND_APPLY_UF, 3, (Cvc5Term[3]){llang.pFacing, self.term, llang.direction.left});
 
   self.sprite.pos = PairI32_create(self.pos.x * sprite.size.x, self.pos.y * sprite.size.y);
 
@@ -81,3 +91,53 @@ void Anima_moveWithin(Anima *self, Maze *maze) {
   } break;
   }
 }
+
+void Anima_deduct(Anima *self) {
+
+  cvc5_push(self->mind, 1);
+
+  int tmp_direction = random_in_range(1, 4);
+
+  switch (tmp_direction) {
+  case 1: {
+    cvc5_assert_formula(self->mind, cvc5_mk_term(l_tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){self->terms.facing_r}));
+    cvc5_assert_formula(self->mind, cvc5_mk_term(l_tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){self->terms.facing_d}));
+    cvc5_assert_formula(self->mind, cvc5_mk_term(l_tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){self->terms.facing_l}));
+  } break;
+
+  case 2: {
+    cvc5_assert_formula(self->mind, cvc5_mk_term(l_tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){self->terms.facing_u}));
+    cvc5_assert_formula(self->mind, cvc5_mk_term(l_tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){self->terms.facing_d}));
+    cvc5_assert_formula(self->mind, cvc5_mk_term(l_tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){self->terms.facing_l}));
+  } break;
+
+  case 3: {
+    cvc5_assert_formula(self->mind, cvc5_mk_term(l_tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){self->terms.facing_u}));
+    cvc5_assert_formula(self->mind, cvc5_mk_term(l_tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){self->terms.facing_r}));
+    cvc5_assert_formula(self->mind, cvc5_mk_term(l_tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){self->terms.facing_l}));
+  } break;
+
+  case 4: {
+    cvc5_assert_formula(self->mind, cvc5_mk_term(l_tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){self->terms.facing_u}));
+    cvc5_assert_formula(self->mind, cvc5_mk_term(l_tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){self->terms.facing_r}));
+    cvc5_assert_formula(self->mind, cvc5_mk_term(l_tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){self->terms.facing_d}));
+  } break;
+  }
+
+  cvc5_check_sat(self->mind);
+
+  if (cvc5_term_get_boolean_value(cvc5_get_value(self->mind, self->terms.facing_u))) {
+    self->intent = UP;
+
+  } else if (cvc5_term_get_boolean_value(cvc5_get_value(self->mind, self->terms.facing_r))) {
+    self->intent = RIGHT;
+
+  } else if (cvc5_term_get_boolean_value(cvc5_get_value(self->mind, self->terms.facing_d))) {
+    self->intent = DOWN;
+
+  } else if (cvc5_term_get_boolean_value(cvc5_get_value(self->mind, self->terms.facing_l))) {
+    self->intent = LEFT;
+  }
+
+  cvc5_pop(self->mind, 1);
+};

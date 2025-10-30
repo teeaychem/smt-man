@@ -10,7 +10,20 @@
 #include "sprite.h"
 #include "utils.h"
 
+
+struct l_local {
+  Cvc5Term facing_u;
+  Cvc5Term facing_r;
+  Cvc5Term facing_d;
+  Cvc5Term facing_l;
+};
+
 struct anima_t {
+
+  char *name;
+
+  Cvc5Term term;
+  struct l_local terms;
 
   PairI32 pos;
 
@@ -26,9 +39,9 @@ struct anima_t {
 
 typedef struct anima_t Anima;
 
-Anima Anima_default(Sprite sprite);
+Anima Anima_default(char* name, Sprite sprite);
 
-Anima Anima_create(PairI32 pos, Direction intent, Direction momentum, Sprite sprite);
+Anima Anima_create(char* name, PairI32 pos, Direction intent, Direction momentum, Sprite sprite);
 
 void Anima_destory(Anima *self);
 
@@ -36,4 +49,6 @@ void Anima_handleEvent(Anima *self, SDL_Event *event);
 
 void Anima_moveWithin(Anima *self, Maze *maze);
 
-void Anima_deduction_scratch(Anima *self);
+void Anima_deduction_known(Anima *self);
+
+void Anima_deduct(Anima *self);
