@@ -45,9 +45,9 @@ Anima Anima_create(char* name, PairI32 pos, Direction intent, Direction momentum
 
 void Anima_destory(Anima *self);
 
-void Anima_handleEvent(Anima *self, SDL_Event *event);
+void Anima_handle_event(Anima *self, SDL_Event *event);
 
-void Anima_moveWithin(Anima *self, Maze *maze);
+void Anima_move_within(Anima *self, Maze *maze);
 
 void Anima_deduction_known(Anima *self);
 

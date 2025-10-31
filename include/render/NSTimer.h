@@ -20,8 +20,8 @@ void NSTimer_pause(NSTimer *self);
 
 void NSTimer_unpause(NSTimer *self);
 
-Uint64 NSTimer_getTicksNS(NSTimer *self);
+Uint64 NSTimer_get_ticks(NSTimer *self);
 
-bool NSTimer_isStarted(NSTimer *self);
+bool NSTimer_is_started(NSTimer *self);
 
-bool NSTimer_isPaused(NSTimer *self);
+bool NSTimer_is_paused(NSTimer *self);

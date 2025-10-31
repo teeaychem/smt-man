@@ -105,14 +105,14 @@ void Maze_destroy(Maze *self) {
   free(self->tiles);
 }
 
-bool Maze_isOpen(Maze *self, PairI32 *tile) {
+bool Maze_is_open(Maze *self, PairI32 *tile) {
   bool yOk = 0 <= tile->y && tile->y < self->size.y;
   bool xOk = 0 <= tile->x && tile->x < self->size.x;
-  bool locationOk = Maze_tileAt(self, tile) == '#';
+  bool locationOk = Maze_tile_at(self, tile) == '#';
 
   return yOk && xOk && locationOk;
 }
 
-uint8_t Maze_tileAt(Maze *self, PairI32 *tile) {
+uint8_t Maze_tile_at(Maze *self, PairI32 *tile) {
   return self->tiles[tile->y * self->size.x + tile->x];
 }
