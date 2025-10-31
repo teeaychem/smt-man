@@ -23,6 +23,6 @@ Renderer Renderer_create(SDL_Window *window, PairI32 dPixels);
 
 void Renderer_update(Renderer *self);
 
-void Renderer_drawSprite(Renderer *self, Sprite const *sprite);
+void Renderer_draw_sprite(Renderer *self, Sprite const *sprite);
 
-void Renderer_fillTile(Renderer *self, PairI32 pos, int32_t colour);
+void Renderer_fill_tile(Renderer *self, PairI32 pos, int32_t colour);

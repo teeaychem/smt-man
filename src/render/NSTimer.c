@@ -37,7 +37,7 @@ void NSTimer_unpause(NSTimer *self) {
   }
 }
 
-Uint64 NSTimer_getTicksNS(NSTimer *self) {
+Uint64 NSTimer_get_ticks(NSTimer *self) {
   Uint64 time = 0;
 
   if (self->mStarted) {
@@ -51,10 +51,10 @@ Uint64 NSTimer_getTicksNS(NSTimer *self) {
   return time;
 }
 
-bool NSTimer_isStarted(NSTimer *self) {
+bool NSTimer_is_started(NSTimer *self) {
   return self->mStarted;
 }
 
-bool NSTimer_isPaused(NSTimer *self) {
+bool NSTimer_is_paused(NSTimer *self) {
   return self->mPaused && self->mStarted;
 }

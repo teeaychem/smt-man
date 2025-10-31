@@ -27,7 +27,7 @@ bool sdl_init(PairI32 dPixels) {
   bool success = false;
 
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
-    gWindow = SDL_CreateWindow("Hello", dPixels.x * kScale, dPixels.y * kScale, 0);
+    gWindow = SDL_CreateWindow("Hello", dPixels.x * kSCALE, dPixels.y * kSCALE, 0);
     gRenderer = Renderer_create(gWindow, dPixels);
 
     success = true;
@@ -77,7 +77,7 @@ int main(int argc, char **agrv) {
 
   rgbVM colour;
 
-  if (!sdl_init(dPixels)) {
+  if (!sdl_init(kPIXELS)) {
     exitCode = 1;
   } else {
 
@@ -93,8 +93,8 @@ int main(int argc, char **agrv) {
       for (int32_t x = 0; x < maze.size.x; ++x) {
         // std::cout << std::format("Maze x/y: {}/{} {}/{}", x, y, maze.size.x(), maze.size.y()) << "\n";
         PairI32 z = PairI32_create(x, y);
-        if (Maze_tileAt(&maze, &z) != '#') {
-          Renderer_fillTile(&gRenderer, PairI32_create(x * gRenderer.kTileSize, y * gRenderer.kTileSize), 0xffffffff);
+        if (Maze_tile_at(&maze, &z) != '#') {
+          Renderer_fill_tile(&gRenderer, PairI32_create(x * gRenderer.kTileSize, y * gRenderer.kTileSize), 0xffffffff);
         }
       }
     }
@@ -114,21 +114,21 @@ int main(int argc, char **agrv) {
         if (event.type == SDL_EVENT_QUIT) {
           quit = true;
         }
-        Anima_handleEvent(&gottlob, &event);
+        Anima_handle_event(&gottlob, &event);
       }
       Anima_deduct(&gottlob);
 
-      Anima_moveWithin(&gottlob, &maze);
+      Anima_move_within(&gottlob, &maze);
 
-      Renderer_drawSprite(&gRenderer, &gottlob.sprite);
+      Renderer_draw_sprite(&gRenderer, &gottlob.sprite);
 
       Renderer_update(&gRenderer);
       SDL_RenderPresent(gRenderer.renderer);
       SDL_Delay(1);
 
-      Uint64 frameNS = NSTimer_getTicksNS(&frameCapTimer);
-      if (frameNS < nsPerFrame) {
-        SDL_DelayNS(nsPerFrame - frameNS);
+      Uint64 frameNS = NSTimer_get_ticks(&frameCapTimer);
+      if (frameNS < kNS_PER_FRAME) {
+        SDL_DelayNS(kNS_PER_FRAME - frameNS);
       }
     }
   }

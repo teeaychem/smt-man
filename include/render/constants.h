@@ -2,11 +2,11 @@
 #include <SDL3/SDL_render.h>
 #include <stdint.h>
 
-const int32_t kTile = 16;
-const PairI32 dTiles = {.x = 28, .y = 36};
-const PairI32 dPixels = {.x = dTiles.x * kTile, .y = dTiles.y * kTile};
+const int32_t kTILE = 16;
+const PairI32 kTILES = {.x = 28, .y = 36};
+const PairI32 kPIXELS = {.x = kTILES.x * kTILE, .y = kTILES.y * kTILE};
 
-const int kScale = 2;
-const int kScreenFps = 30;
+const int kSCALE = 2;
+const int kSCREEN_FPS = 30;
 
-const Uint64 nsPerFrame = 1000000000 / kScreenFps;
+const Uint64 kNS_PER_FRAME = 1000000000 / kSCREEN_FPS;

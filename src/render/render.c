@@ -25,7 +25,7 @@ void Renderer_update(Renderer *self) {
   SDL_RenderTexture(self->renderer, self->texture, NULL, NULL);
 }
 
-void Renderer_drawSprite(Renderer *self, Sprite const *sprite) {
+void Renderer_draw_sprite(Renderer *self, Sprite const *sprite) {
   int cell = 0;
   int32_t yOffset = sprite->pos.y * self->dPixels.x + sprite->pos.x;
 
@@ -37,7 +37,7 @@ void Renderer_drawSprite(Renderer *self, Sprite const *sprite) {
   }
 }
 
-void Renderer_fillTile(Renderer *self, PairI32 pos, int32_t colour) {
+void Renderer_fill_tile(Renderer *self, PairI32 pos, int32_t colour) {
 
   int32_t yOffset = pos.y * self->dPixels.x + pos.x;
 

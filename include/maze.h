@@ -20,6 +20,6 @@ Maze Maze_create(char *path);
 
 void Maze_destroy(Maze *self);
 
-bool Maze_isOpen(Maze *self, PairI32 *tile);
+bool Maze_is_open(Maze *self, PairI32 *tile);
 
-uint8_t Maze_tileAt(Maze *self, PairI32 *tile);
+uint8_t Maze_tile_at(Maze *self, PairI32 *tile);

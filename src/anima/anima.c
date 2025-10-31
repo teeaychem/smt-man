@@ -36,7 +36,7 @@ void Anima_destory(Anima *self) {
   Sprite_destroy(&self->sprite);
 }
 
-void Anima_handleEvent(Anima *self, SDL_Event *event) {
+void Anima_handle_event(Anima *self, SDL_Event *event) {
 
   if (event->type == SDL_EVENT_KEY_DOWN && !event->key.repeat) {
 
@@ -57,7 +57,7 @@ void Anima_handleEvent(Anima *self, SDL_Event *event) {
   }
 }
 
-void Anima_moveWithin(Anima *self, Maze *maze) {
+void Anima_move_within(Anima *self, Maze *maze) {
 
   if (self->sprite.pos.x % self->sprite.size.x == 0 && self->sprite.pos.y % self->sprite.size.y == 0) {
     self->pos.x = self->sprite.pos.x / 16;
@@ -69,7 +69,7 @@ void Anima_moveWithin(Anima *self, Maze *maze) {
 
     steps_in_direction(&self->pos, self->momentum, 1, &destination);
 
-    if (Maze_isOpen(maze, &destination)) {
+    if (Maze_is_open(maze, &destination)) {
       self->mVel = 1;
     } else {
       self->mVel = 0;
