@@ -1,10 +1,15 @@
 #pragma once
 
 #include "cvc5/c/cvc5.h"
+#include "cvc5/c/cvc5_parser.h"
+
+
+const Cvc5InputLanguage CVC5_LANG = CVC5_INPUT_LANGUAGE_SMT_LIB_2_6;
 
 extern Cvc5TermManager *l_tm;
 
 const char *cvc5_error_msg;
+Cvc5Command cvc5_cmd;
 
 struct anima_terms_t {
   Cvc5Term facing_up;
