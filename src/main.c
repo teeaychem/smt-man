@@ -71,7 +71,7 @@ int main(int argc, char **agrv) {
   Sprite x = Sprite_create(PATH_BUFFER);
 
   Anima gottlob = Anima_default("gottlob", x);
-  Anima_deduction_known(&gottlob);
+  Anima_deduction_setup(&gottlob);
 
   int exitCode = 0;
 
