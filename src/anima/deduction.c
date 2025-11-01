@@ -6,6 +6,8 @@
 
 void Anima_mind_innate(Anima *self) {
 
+
+
   cvc5_parser_set_str_input(
       self->parser,
       CVC5_LANG,
@@ -13,6 +15,7 @@ void Anima_mind_innate(Anima *self) {
       "(declare-sort Direction 0)"
 
       "(declare-const gottlob Anima)"
+      "(declare-const bertrand Anima)"
 
       "(declare-const up Direction)"
       "(declare-const right Direction)"

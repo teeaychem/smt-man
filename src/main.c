@@ -69,8 +69,11 @@ int main(int argc, char **agrv) {
 
   cwk_path_join(SOURCE_PATH, "resources/gottlob.png", PATH_BUFFER, FILENAME_MAX);
   Sprite sprite_gottlob = Sprite_create(PATH_BUFFER);
+  cwk_path_join(SOURCE_PATH, "resources/bertrand.png", PATH_BUFFER, FILENAME_MAX);
+  Sprite sprite_bertrand = Sprite_create(PATH_BUFFER);
 
-  Anima gottlob = Anima_default("gottlob", sprite_gottlob);
+  Anima gottlob = Anima_default("gottlob", PairI32_create(6, 1), sprite_gottlob);
+  Anima bertrand = Anima_default("bertrand", PairI32_create(10, 1), sprite_bertrand);
 
   int exitCode = 0;
 
@@ -114,12 +117,16 @@ int main(int argc, char **agrv) {
           quit = true;
         }
         Anima_handle_event(&gottlob, &event);
+        Anima_handle_event(&bertrand, &event);
       }
       Anima_deduct(&gottlob);
+      Anima_deduct(&bertrand);
 
       Anima_move_within(&gottlob, &maze);
+      Anima_move_within(&bertrand, &maze);
 
       Renderer_draw_sprite(&gRenderer, &gottlob.sprite);
+      Renderer_draw_sprite(&gRenderer, &bertrand.sprite);
 
       Renderer_update(&gRenderer);
       SDL_RenderPresent(gRenderer.renderer);

@@ -43,7 +43,7 @@ struct anima_t {
 
 typedef struct anima_t Anima;
 
-Anima Anima_default(char *name, Sprite sprite);
+Anima Anima_default(char *name, PairI32 position,  Sprite sprite);
 
 Anima Anima_create(char *name, PairI32 pos, Direction intent, Direction momentum, Sprite sprite);
 
