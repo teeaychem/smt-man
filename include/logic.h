@@ -3,13 +3,13 @@
 #include "cvc5/c/cvc5.h"
 #include "cvc5/c/cvc5_parser.h"
 
-
-const Cvc5InputLanguage CVC5_LANG = CVC5_INPUT_LANGUAGE_SMT_LIB_2_6;
+static const Cvc5InputLanguage CVC5_LANG = CVC5_INPUT_LANGUAGE_SMT_LIB_2_6;
 
 extern Cvc5TermManager *l_tm;
 
 const char *cvc5_error_msg;
 Cvc5Command cvc5_cmd;
+extern char cvc5_input_buffer[1024];
 
 struct anima_terms_t {
   Cvc5Term facing_up;
@@ -25,9 +25,9 @@ void logic_init();
 void logic_setup_common();
 
 static inline Cvc5Term Logic_not(const Cvc5Term term) {
-    return cvc5_mk_term(l_tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){term});
+  return cvc5_mk_term(l_tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){term});
 };
 
 static inline Cvc5Term Logic_or(size_t size, const Cvc5Term children[]) {
-   return cvc5_mk_term(l_tm, CVC5_KIND_OR, size, children);
+  return cvc5_mk_term(l_tm, CVC5_KIND_OR, size, children);
 };
