@@ -9,8 +9,8 @@
 #include <assert.h>
 #include <stdio.h>
 
-Anima Anima_default(char *name, Sprite sprite) {
-  return Anima_create(name, PairI32_create(1, 1), DOWN, DOWN, sprite);
+Anima Anima_default(char *name, PairI32 position,  Sprite sprite) {
+  return Anima_create(name, position, DOWN, DOWN, sprite);
 }
 
 Anima Anima_create(char *name, PairI32 pos, Direction intent, Direction momentum, Sprite sprite) {
