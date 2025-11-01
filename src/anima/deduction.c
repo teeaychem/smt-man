@@ -7,7 +7,7 @@
 void Anima_mind_innate(Anima *self) {
 
   cvc5_parser_set_str_input(
-      self->reader,
+      self->parser,
       CVC5_LANG,
       "(declare-sort Anima 0)"
       "(declare-sort Direction 0)"
@@ -28,7 +28,7 @@ void Anima_mind_innate(Anima *self) {
 
 
   do {
-    cvc5_cmd = cvc5_parser_next_command(self->reader, &cvc5_error_msg);
+    cvc5_cmd = cvc5_parser_next_command(self->parser, &cvc5_error_msg);
     if (cvc5_error_msg) {
       printf("%s", cvc5_error_msg), exit(-1);
     }

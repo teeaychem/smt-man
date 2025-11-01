@@ -35,7 +35,7 @@ struct anima_t {
   Sprite sprite;
 
   Cvc5 *mind;
-  Cvc5InputParser *reader;
+  Cvc5InputParser *parser;
   Cvc5SymbolManager *symbols;
 
   AnimaTerms terms;
