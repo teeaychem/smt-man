@@ -28,7 +28,7 @@ void logic_setup_symbols() {
 
       "(declare-const gottlob Anima)"
       "(declare-const bertrand Anima)"
-      "(declare-const a Anima)"
+      "(declare-const anima Anima)"
 
       "(declare-const up    Direction)"
       "(declare-const right Direction)"

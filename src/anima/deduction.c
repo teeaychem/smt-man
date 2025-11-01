@@ -9,7 +9,7 @@ void Anima_mind_innate(Anima *self) {
   cvc5_parser_set_str_input(
       self->parser,
       CVC5_LANG,
-      "(assert (forall ((a Anima)) (xor (is_facing a up) (xor (is_facing a right) (xor (is_facing a down) (is_facing a left))))))",
+      "(assert (forall ((anima Anima)) (xor (is_facing anima up) (xor (is_facing anima right) (xor (is_facing anima down) (is_facing anima left))))))",
       "anima_innate");
   do {
     cvc5_cmd = cvc5_parser_next_command(self->parser, &cvc5_error_msg);
