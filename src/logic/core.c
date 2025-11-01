@@ -6,10 +6,10 @@
 
 Cvc5TermManager *l_tm;
 
+inline Cvc5Term Logic_not(const Cvc5Term term);
+
+inline Cvc5Term Logic_or(size_t size, const Cvc5Term children[]);
+
 void setup_logic() {
   l_tm = cvc5_term_manager_new();
 }
-
-Cvc5Term Logic_not(const Cvc5Term term) {
-  return cvc5_mk_term(l_tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){term});
-};

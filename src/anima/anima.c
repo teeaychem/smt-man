@@ -162,45 +162,41 @@ void Anima_deduct(Anima *self) {
   case 1: {
     cvc5_assert_formula(self->mind,
                         Logic_not(
-                            cvc5_mk_term(l_tm,
-                                         CVC5_KIND_OR,
-                                         3,
-                                         (Cvc5Term[3]){self->terms.facing_right,
-                                                       self->terms.facing_down,
-                                                       self->terms.facing_left})));
+                            Logic_or(
+                                3,
+                                (Cvc5Term[3]){self->terms.facing_right,
+                                              self->terms.facing_down,
+                                              self->terms.facing_left})));
   } break;
 
   case 2: {
     cvc5_assert_formula(self->mind,
                         Logic_not(
-                            cvc5_mk_term(l_tm,
-                                         CVC5_KIND_OR,
-                                         3,
-                                         (Cvc5Term[3]){self->terms.facing_up,
-                                                       self->terms.facing_down,
-                                                       self->terms.facing_left})));
+                            Logic_or(
+                                3,
+                                (Cvc5Term[3]){self->terms.facing_up,
+                                              self->terms.facing_down,
+                                              self->terms.facing_left})));
   } break;
 
   case 3: {
     cvc5_assert_formula(self->mind,
                         Logic_not(
-                            cvc5_mk_term(l_tm,
-                                         CVC5_KIND_OR,
-                                         3,
-                                         (Cvc5Term[3]){self->terms.facing_up,
-                                                       self->terms.facing_right,
-                                                       self->terms.facing_left})));
+                            Logic_or(
+                                3,
+                                (Cvc5Term[3]){self->terms.facing_up,
+                                              self->terms.facing_right,
+                                              self->terms.facing_left})));
   } break;
 
   case 4: {
     cvc5_assert_formula(self->mind,
                         Logic_not(
-                            cvc5_mk_term(l_tm,
-                                         CVC5_KIND_OR,
-                                         3,
-                                         (Cvc5Term[3]){self->terms.facing_up,
-                                                       self->terms.facing_right,
-                                                       self->terms.facing_down})));
+                            Logic_or(
+                                3,
+                                (Cvc5Term[3]){self->terms.facing_up,
+                                              self->terms.facing_right,
+                                              self->terms.facing_down})));
   } break;
   }
 

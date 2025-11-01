@@ -15,4 +15,10 @@ typedef struct anima_terms_t AnimaTerms;
 
 void setup_logic();
 
-Cvc5Term Logic_not(const Cvc5Term term);
+static inline Cvc5Term Logic_not(const Cvc5Term term) {
+    return cvc5_mk_term(l_tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){term});
+};
+
+static inline Cvc5Term Logic_or(size_t size, const Cvc5Term children[]) {
+   return cvc5_mk_term(l_tm, CVC5_KIND_OR, size, children);
+};
