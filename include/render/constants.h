@@ -1,12 +1,16 @@
-#include "utils/pairs.h"
-#include <SDL3/SDL_render.h>
+#pragma once
+
 #include <stdint.h>
 
-const int32_t kTILE = 16;
-const PairI32 kTILES = {.x = 28, .y = 36};
-const PairI32 kPIXELS = {.x = kTILES.x * kTILE, .y = kTILES.y * kTILE};
+#include <SDL3/SDL_render.h>
 
-const int kSCALE = 2;
-const int kSCREEN_FPS = 30;
+#include "utils/pairs.h"
 
-const Uint64 kNS_PER_FRAME = 1000000000 / kSCREEN_FPS;
+static const int32_t kTILE = 16;
+static const PairI32 kTILES = {.x = 28, .y = 36};
+static const PairI32 kPIXELS = {.x = kTILES.x * kTILE, .y = kTILES.y * kTILE};
+
+static const int kSCALE = 2;
+static const int kSCREEN_FPS = 30;
+
+static const Uint64 kNS_PER_FRAME = 1000000000 / kSCREEN_FPS;

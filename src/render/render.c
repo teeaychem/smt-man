@@ -1,14 +1,16 @@
-#include "render/render.h"
-#include "utils/pairs.h"
 #include <stdlib.h>
+
+#include "render/render.h"
+#include "render/constants.h"
+#include "utils/pairs.h"
+
 
 Renderer Renderer_create(SDL_Window *window, PairI32 dPixels) {
   Renderer self;
   self.dPixels = dPixels;
-  self.kTileSize = 16;
 
   self.renderer = SDL_CreateRenderer(window, NULL);
-  self.frameBuffer = malloc(PairI32_area(&dPixels) * 16);
+  self.frameBuffer = malloc(PairI32_area(&dPixels) * kTILE);
   self.texture = SDL_CreateTexture(self.renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, dPixels.x, dPixels.y);
   return self;
 }

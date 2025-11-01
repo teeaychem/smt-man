@@ -1,14 +1,19 @@
-#include "anima.h"
-#include "cvc5/c/cvc5.h"
-#include "cvc5/c/cvc5_parser.h"
-#include "logic.h"
-#include "maze.h"
-#include "sprite.h"
-#include "stumpless/log.h"
-#include "utils.h"
-#include "utils/pairs.h"
 #include <assert.h>
 #include <stdio.h>
+
+#include "cvc5/c/cvc5.h"
+#include "cvc5/c/cvc5_parser.h"
+
+#include "stumpless/log.h"
+
+#include "anima.h"
+#include "logic.h"
+#include "maze.h"
+#include "render/constants.h"
+#include "sprite.h"
+#include "utils.h"
+#include "utils/pairs.h"
+
 
 Anima Anima_default(char *name, PairI32 position, Sprite sprite) {
   return Anima_create(name, position, DOWN, DOWN, sprite);
@@ -93,8 +98,8 @@ void Anima_handle_event(Anima *self, SDL_Event *event) {
 void Anima_move_within(Anima *self, Maze *maze) {
 
   if (self->sprite.pos.x % self->sprite.size.x == 0 && self->sprite.pos.y % self->sprite.size.y == 0) {
-    self->pos.x = self->sprite.pos.x / 16;
-    self->pos.y = self->sprite.pos.y / 16;
+    self->pos.x = self->sprite.pos.x / kTILE;
+    self->pos.y = self->sprite.pos.y / kTILE;
 
     self->momentum = self->intent;
 
