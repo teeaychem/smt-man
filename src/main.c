@@ -68,10 +68,9 @@ int main(int argc, char **agrv) {
   Maze maze = Maze_create(PATH_BUFFER);
 
   cwk_path_join(SOURCE_PATH, "resources/gottlob.png", PATH_BUFFER, FILENAME_MAX);
-  Sprite x = Sprite_create(PATH_BUFFER);
+  Sprite sprite_gottlob = Sprite_create(PATH_BUFFER);
 
-  Anima gottlob = Anima_default("gottlob", x);
-  Anima_deduction_setup(&gottlob);
+  Anima gottlob = Anima_default("gottlob", sprite_gottlob);
 
   int exitCode = 0;
 

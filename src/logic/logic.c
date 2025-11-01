@@ -6,10 +6,6 @@
 
 Cvc5TermManager *l_tm;
 
-inline Cvc5Term Logic_not(const Cvc5Term term);
-
-inline Cvc5Term Logic_or(size_t size, const Cvc5Term children[]);
-
-void setup_logic() {
+void logic_init() {
   l_tm = cvc5_term_manager_new();
 }
