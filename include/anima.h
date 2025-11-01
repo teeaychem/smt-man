@@ -6,10 +6,11 @@
 #include <SDL3/SDL_render.h>
 
 #include "cvc5/c/cvc5.h"
+#include "cvc5/c/cvc5_parser.h"
+#include "logic.h"
 #include "maze.h"
 #include "sprite.h"
 #include "utils.h"
-
 
 struct l_local {
   Cvc5Term facing_u;
@@ -23,7 +24,6 @@ struct anima_t {
   char *name;
 
   Cvc5Term term;
-  struct l_local terms;
 
   PairI32 pos;
 
@@ -35,13 +35,17 @@ struct anima_t {
   Sprite sprite;
 
   Cvc5 *mind;
+  Cvc5InputParser *reader;
+  Cvc5SymbolManager *symbols;
+
+  AnimaTerms terms;
 };
 
 typedef struct anima_t Anima;
 
-Anima Anima_default(char* name, Sprite sprite);
+Anima Anima_default(char *name, Sprite sprite);
 
-Anima Anima_create(char* name, PairI32 pos, Direction intent, Direction momentum, Sprite sprite);
+Anima Anima_create(char *name, PairI32 pos, Direction intent, Direction momentum, Sprite sprite);
 
 void Anima_destory(Anima *self);
 
@@ -49,6 +53,6 @@ void Anima_handle_event(Anima *self, SDL_Event *event);
 
 void Anima_move_within(Anima *self, Maze *maze);
 
-void Anima_deduction_known(Anima *self);
+void Anima_deduction_setup(Anima *self);
 
 void Anima_deduct(Anima *self);

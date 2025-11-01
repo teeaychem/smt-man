@@ -23,6 +23,10 @@
                             (xor (is_facing a down)
                                  (is_facing a left))))))
 
+(assert (not (is_facing gottlob right)))
+(assert (not (is_facing gottlob down)))
+(assert (not (is_facing gottlob up)))
+
 (check-sat)
 (get-model)
 (get-value ((is_facing gottlob up)))
