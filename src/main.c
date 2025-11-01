@@ -53,7 +53,7 @@ void setup() {
 }
 
 int main(int argc, char **agrv) {
-  setup_logic();
+  logic_init();
 
   setup();
 

@@ -53,6 +53,6 @@ void Anima_handle_event(Anima *self, SDL_Event *event);
 
 void Anima_move_within(Anima *self, Maze *maze);
 
-void Anima_deduction_setup(Anima *self);
+void Anima_mind_innate(Anima *self);
 
 void Anima_deduct(Anima *self);

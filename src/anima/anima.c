@@ -21,56 +21,14 @@ Anima Anima_create(char *name, PairI32 pos, Direction intent, Direction momentum
   auto reader = cvc5_parser_new(mind, NULL);
   auto symbols = cvc5_parser_get_sm(reader);
 
-  cvc5_set_logic(mind, "UF");
+  cvc5_set_logic(mind, "UFLIA");
 
   cvc5_set_option(mind, "produce-models", "true");
   cvc5_set_option(mind, "finite-model-find", "true");
   cvc5_set_option(mind, "model-var-elim-uneval", "false");
   cvc5_set_option(mind, "print-success", "true");
 
-  cvc5_parser_set_str_input(
-      reader,
-      CVC5_INPUT_LANGUAGE_SMT_LIB_2_6,
-      "(declare-sort Anima 0)"
-      "(declare-const gottlob Anima)"
-      "(declare-const a Anima)"
-
-      "(declare-sort Direction 0)"
-
-      "(declare-const up Direction)"
-      "(declare-const right Direction)"
-      "(declare-const down Direction)"
-      "(declare-const left Direction)"
-
-      "(assert (distinct up right down left))"
-
-      "(declare-fun is_facing (Anima Direction) Bool)",
-      "anima_create");
-
-  const char *error_msg;
-  Cvc5Command cmd;
-  do {
-    cmd = cvc5_parser_next_command(reader, &error_msg);
-    if (error_msg) {
-      printf("%s", error_msg), exit(-1);
-    }
-    if (cmd) {
-      cvc5_cmd_invoke(cmd, mind, symbols);
-    }
-  } while (cmd);
-
   AnimaTerms terms = {};
-  cvc5_parser_set_str_input(reader, CVC5_INPUT_LANGUAGE_SMT_LIB_2_6, "(is_facing a up)", "");
-  terms.facing_up = cvc5_parser_next_term(reader, &error_msg);
-
-  cvc5_parser_set_str_input(reader, CVC5_INPUT_LANGUAGE_SMT_LIB_2_6, "(is_facing a right)", "");
-  terms.facing_right = cvc5_parser_next_term(reader, &error_msg);
-
-  cvc5_parser_set_str_input(reader, CVC5_INPUT_LANGUAGE_SMT_LIB_2_6, "(is_facing a down)", "");
-  terms.facing_down = cvc5_parser_next_term(reader, &error_msg);
-
-  cvc5_parser_set_str_input(reader, CVC5_INPUT_LANGUAGE_SMT_LIB_2_6, "(is_facing a left)", "");
-  terms.facing_left = cvc5_parser_next_term(reader, &error_msg);
 
   Anima self = {.name = name,
                 .pos = pos,
@@ -83,7 +41,19 @@ Anima Anima_create(char *name, PairI32 pos, Direction intent, Direction momentum
                 .symbols = symbols,
                 .terms = terms};
 
-  printf("A self\n");
+  Anima_mind_innate(&self);
+
+  cvc5_parser_set_str_input(self.reader, CVC5_INPUT_LANGUAGE_SMT_LIB_2_6, "(is_facing gottlob up)", "");
+  self.terms.facing_up = cvc5_parser_next_term(self.reader, &cvc5_error_msg);
+
+  cvc5_parser_set_str_input(self.reader, CVC5_INPUT_LANGUAGE_SMT_LIB_2_6, "(is_facing gottlob right)", "");
+  self.terms.facing_right = cvc5_parser_next_term(self.reader, &cvc5_error_msg);
+
+  cvc5_parser_set_str_input(self.reader, CVC5_INPUT_LANGUAGE_SMT_LIB_2_6, "(is_facing gottlob down)", "");
+  self.terms.facing_down = cvc5_parser_next_term(self.reader, &cvc5_error_msg);
+
+  cvc5_parser_set_str_input(self.reader, CVC5_INPUT_LANGUAGE_SMT_LIB_2_6, "(is_facing gottlob left)", "");
+  self.terms.facing_left = cvc5_parser_next_term(self.reader, &cvc5_error_msg);
 
   self.sprite.pos = PairI32_create(self.pos.x * sprite.size.x, self.pos.y * sprite.size.y);
 
@@ -200,18 +170,6 @@ void Anima_deduct(Anima *self) {
   } break;
   }
 
-  const char *error_msg;
-  do {
-    cmd = cvc5_parser_next_command(self->reader, &error_msg);
-    if (error_msg != NULL) {
-      printf("%s", error_msg), exit(-1);
-    }
-
-    if (cmd) {
-      cvc5_cmd_invoke(cmd, self->mind, self->symbols);
-    }
-  } while (cmd);
-
   cvc5_check_sat(self->mind);
 
   if (cvc5_term_get_boolean_value(cvc5_get_value(self->mind, self->terms.facing_up))) {
@@ -225,6 +183,8 @@ void Anima_deduct(Anima *self) {
 
   } else if (cvc5_term_get_boolean_value(cvc5_get_value(self->mind, self->terms.facing_left))) {
     self->intent = LEFT;
+  } else {
+    printf("No direction..."), exit(-1);
   }
 
   cvc5_pop(self->mind, 1);

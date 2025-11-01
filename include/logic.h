@@ -4,6 +4,8 @@
 
 extern Cvc5TermManager *l_tm;
 
+const char *cvc5_error_msg;
+
 struct anima_terms_t {
   Cvc5Term facing_up;
   Cvc5Term facing_right;
@@ -13,7 +15,9 @@ struct anima_terms_t {
 
 typedef struct anima_terms_t AnimaTerms;
 
-void setup_logic();
+void logic_init();
+
+void logic_setup_common();
 
 static inline Cvc5Term Logic_not(const Cvc5Term term) {
     return cvc5_mk_term(l_tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){term});
