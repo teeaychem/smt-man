@@ -4,25 +4,25 @@
 #include "logic.h"
 #include "maze.h"
 #include "sprite.h"
+#include "stumpless/log.h"
 #include "utils.h"
 #include "utils/pairs.h"
 #include <assert.h>
 #include <stdio.h>
 
-Anima Anima_default(char *name, PairI32 position,  Sprite sprite) {
+Anima Anima_default(char *name, PairI32 position, Sprite sprite) {
   return Anima_create(name, position, DOWN, DOWN, sprite);
 }
 
 Anima Anima_create(char *name, PairI32 pos, Direction intent, Direction momentum, Sprite sprite) {
+  stumplog(LOG_INFO, "Creating anima: %s", name);
 
   Cvc5TermManager *tm = cvc5_term_manager_new();
 
   Cvc5 *mind = cvc5_new(l_tm);
-  auto symbols = cvc5_symbol_manager_new(l_tm);
-  auto parser = cvc5_parser_new(mind, symbols);
+  auto parser = cvc5_parser_new(mind, l_symbols);
 
-
-  cvc5_set_logic(mind, "UFLIA");
+  cvc5_set_logic(mind, CVC5_LOGIC);
 
   cvc5_set_option(mind, "produce-models", "true");
   cvc5_set_option(mind, "finite-model-find", "true");
@@ -39,9 +39,9 @@ Anima Anima_create(char *name, PairI32 pos, Direction intent, Direction momentum
                 .sprite = sprite,
                 .mind = mind,
                 .parser = parser,
-                .symbols = symbols,
                 .terms = terms};
 
+  logic_setup_foundation(self.mind, self.parser);
   Anima_mind_innate(&self);
 
   sprintf(cvc5_input_buffer, "(is_facing %s up)", self.name);
@@ -187,7 +187,7 @@ void Anima_deduct(Anima *self) {
   } else if (cvc5_term_get_boolean_value(cvc5_get_value(self->mind, self->terms.facing_left))) {
     self->intent = LEFT;
   } else {
-    printf("No direction..."), exit(-1);
+    stumplog(LOG_ERR, "No direction"), exit(-1);
   }
 
   cvc5_pop(self->mind, 1);
