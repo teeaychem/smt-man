@@ -1,4 +1,4 @@
-(set-logic UF)
+(set-logic UFLIA)
 
 (set-option :produce-models true)
 (set-option :finite-model-find true)
@@ -23,9 +23,12 @@
                             (xor (is_facing a down)
                                  (is_facing a left))))))
 
-(assert (not (is_facing gottlob right)))
-(assert (not (is_facing gottlob down)))
-(assert (not (is_facing gottlob up)))
+(declare-const r Int)
+(declare-const c Int)
+
+(declare-fun is_passage (Int Int) Bool)
+
+(assert (forall ((r Int) (c Int)) (= (is_passage r c) (and (= r 1)(= c 1)))))
 
 (check-sat)
 (get-model)
@@ -33,4 +36,5 @@
 (get-value ((is_facing gottlob right)))
 (get-value ((is_facing gottlob down)))
 (get-value ((is_facing gottlob left)))
+(get-value ((is_passage 1 1)))
 (exit)

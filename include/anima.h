@@ -36,7 +36,6 @@ struct anima_t {
 
   Cvc5 *mind;
   Cvc5InputParser *parser;
-  Cvc5SymbolManager *symbols;
 
   AnimaTerms terms;
 };

@@ -72,6 +72,7 @@ int main(int argc, char **agrv) {
   cwk_path_join(SOURCE_PATH, "resources/bertrand.png", PATH_BUFFER, FILENAME_MAX);
   Sprite sprite_bertrand = Sprite_create(PATH_BUFFER);
 
+  logic_setup_symbols();
   Anima gottlob = Anima_default("gottlob", PairI32_create(6, 1), sprite_gottlob);
   Anima bertrand = Anima_default("bertrand", PairI32_create(10, 1), sprite_bertrand);
 
