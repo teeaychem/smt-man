@@ -43,16 +43,20 @@ Anima Anima_create(char *name, PairI32 pos, Direction intent, Direction momentum
 
   Anima_mind_innate(&self);
 
-  cvc5_parser_set_str_input(self.reader, CVC5_LANG, "(is_facing gottlob up)", "");
+  sprintf(cvc5_input_buffer, "(is_facing %s up)", self.name);
+  cvc5_parser_set_str_input(self.reader, CVC5_LANG, cvc5_input_buffer, "");
   self.terms.facing_up = cvc5_parser_next_term(self.reader, &cvc5_error_msg);
 
-  cvc5_parser_set_str_input(self.reader, CVC5_LANG, "(is_facing gottlob right)", "");
+  sprintf(cvc5_input_buffer, "(is_facing %s right)", self.name);
+  cvc5_parser_set_str_input(self.reader, CVC5_LANG, cvc5_input_buffer, "");
   self.terms.facing_right = cvc5_parser_next_term(self.reader, &cvc5_error_msg);
 
-  cvc5_parser_set_str_input(self.reader, CVC5_LANG, "(is_facing gottlob down)", "");
+  sprintf(cvc5_input_buffer, "(is_facing %s down)", self.name);
+  cvc5_parser_set_str_input(self.reader, CVC5_LANG, cvc5_input_buffer, "");
   self.terms.facing_down = cvc5_parser_next_term(self.reader, &cvc5_error_msg);
 
-  cvc5_parser_set_str_input(self.reader, CVC5_LANG, "(is_facing gottlob left)", "");
+  sprintf(cvc5_input_buffer, "(is_facing %s left)", self.name);
+  cvc5_parser_set_str_input(self.reader, CVC5_LANG, cvc5_input_buffer, "");
   self.terms.facing_left = cvc5_parser_next_term(self.reader, &cvc5_error_msg);
 
   self.sprite.pos = PairI32_create(self.pos.x * sprite.size.x, self.pos.y * sprite.size.y);
