@@ -15,8 +15,11 @@ void next_line(FILE *file) {
 
 Maze Maze_create(char *path) {
 
-  Maze self = {.size.x = 0, .size.y = 0, .tiles = NULL};
+  Maze self = {.size.x = 0,
+               .size.y = 0,
+               .tiles = NULL};
 
+  size_t tile_count = 0;
   bool preambleOk = true;
 
   FILE *file = fopen(path, "r");
@@ -94,9 +97,14 @@ Maze Maze_create(char *path) {
     default: {
       self.tiles[tile_idx] = read;
       ++tile_idx;
+      if (read == '#') {
+        ++tile_count;
+      }
     }
     }
   }
+
+  stumplog(LOG_CRIT, "Constructed maze %dx%d (%d)", self.size.x, self.size.y, tile_count);
 
   return self;
 }
@@ -108,11 +116,11 @@ void Maze_destroy(Maze *self) {
 bool Maze_is_open(Maze *self, PairI32 *tile) {
   bool yOk = 0 <= tile->y && tile->y < self->size.y;
   bool xOk = 0 <= tile->x && tile->x < self->size.x;
-  bool locationOk = Maze_tile_at(self, tile) == '#';
+  bool locationOk = Maze_tile_at(self, *tile) == '#';
 
   return yOk && xOk && locationOk;
 }
 
-uint8_t Maze_tile_at(Maze *self, PairI32 *tile) {
-  return self->tiles[tile->y * self->size.x + tile->x];
+uint8_t Maze_tile_at(Maze *self, PairI32 tile) {
+  return self->tiles[tile.y * self->size.x + tile.x];
 }

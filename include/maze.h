@@ -22,4 +22,4 @@ void Maze_destroy(Maze *self);
 
 bool Maze_is_open(Maze *self, PairI32 *tile);
 
-uint8_t Maze_tile_at(Maze *self, PairI32 *tile);
+uint8_t Maze_tile_at(Maze *self, PairI32 tile);

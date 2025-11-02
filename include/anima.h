@@ -17,6 +17,8 @@ struct mind_t {
   Cvc5TermManager *tm;
   Cvc5SymbolManager *sm;
   Cvc5InputParser *parser;
+
+  AnimaTerms terms;
 };
 
 typedef struct mind_t Mind;
@@ -32,22 +34,18 @@ struct l_local {
 
 struct anima_t {
 
-  char *name;
-
-  Cvc5Term term;
+  _Atomic(char *) name;
 
   PairI32 pos;
 
-  Direction intent;
-  Direction momentum;
+  _Atomic Direction intent;
+  _Atomic Direction momentum;
 
   int mVel;
 
   Sprite sprite;
 
   Mind mind;
-
-  AnimaTerms terms;
 };
 
 typedef struct anima_t Anima;
@@ -57,6 +55,8 @@ Anima Anima_default(char *name, PairI32 position, Sprite sprite);
 Anima Anima_create(char *name, PairI32 pos, Direction intent, Direction momentum, Sprite sprite);
 
 void Anima_destory(Anima *self);
+
+void Anima_touch(Anima *self);
 
 void Anima_handle_event(Anima *self, SDL_Event *event);
 

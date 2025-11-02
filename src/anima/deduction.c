@@ -6,6 +6,9 @@
 
 void Anima_mind_innate(Anima *self) {
 
+  Cvc5Command cvc5_cmd;
+  const char *cvc5_error_msg;
+
   cvc5_parser_set_str_input(
       self->mind.parser,
       CVC5_LANG,
