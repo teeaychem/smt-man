@@ -12,6 +12,17 @@
 #include "sprite.h"
 #include "utils.h"
 
+struct mind_t {
+  Cvc5 *solver;
+  Cvc5TermManager *tm;
+  Cvc5SymbolManager *sm;
+  Cvc5InputParser *parser;
+};
+
+typedef struct mind_t Mind;
+
+Mind Mind_default();
+
 struct l_local {
   Cvc5Term facing_u;
   Cvc5Term facing_r;
@@ -34,10 +45,7 @@ struct anima_t {
 
   Sprite sprite;
 
-  Cvc5 *mind;
-  Cvc5TermManager *l_tm;
-  Cvc5SymbolManager *l_symbols;
-  Cvc5InputParser *parser;
+  Mind mind;
 
   AnimaTerms terms;
 };
