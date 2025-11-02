@@ -108,6 +108,8 @@ int main(int argc, char **agrv) {
   Anima gottlob = Anima_default("gottlob", PairI32_create(6, 1), sprite_gottlob);
   pthread_create(&thread_gottlob, NULL, spirit, (void *)&gottlob);
 
+  sleep(1);
+
   cwk_path_join(SOURCE_PATH, "resources/bertrand.png", PATH_BUFFER, FILENAME_MAX);
   Sprite sprite_bertrand = Sprite_create(PATH_BUFFER);
 
@@ -177,16 +179,16 @@ int main(int argc, char **agrv) {
           quit = true;
         }
         Anima_handle_event(&gottlob, &event);
-        /* Anima_handle_event(&bertrand, &event); */
+        Anima_handle_event(&bertrand, &event);
       }
 
       /* Anima_deduct(&bertrand); */
 
       Anima_move_within(&gottlob, &maze);
-      /* Anima_move_within(&bertrand, &maze); */
+      Anima_move_within(&bertrand, &maze);
 
       Renderer_draw_sprite(&gRenderer, &gottlob.sprite);
-      /* Renderer_draw_sprite(&gRenderer, &bertrand.sprite); */
+      Renderer_draw_sprite(&gRenderer, &bertrand.sprite);
 
       Renderer_update(&gRenderer);
       /* Renderer_project(&gRenderer); */
