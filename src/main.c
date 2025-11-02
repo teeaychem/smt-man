@@ -6,7 +6,6 @@
 #include <whereami.h>
 
 #include "anima.h"
-#include "logic.h"
 #include "maze.h"
 #include "render/NSTimer.h"
 #include "render/constants.h"
@@ -20,8 +19,6 @@ Renderer gRenderer;
 
 SDL_Window *gWindow = NULL;
 char *SOURCE_PATH = NULL;
-
-char PATH_BUFFER[FILENAME_MAX];
 
 bool sdl_init(PairI32 dPixels) {
   bool success = false;
@@ -53,14 +50,18 @@ void setup() {
 }
 
 int main(int argc, char **agrv) {
+  struct stumpless_target *target;
+  target = stumpless_open_stdout_target("smt-man-log");
+
   setup();
 
   /* begin scratch */
 
-  struct stumpless_target *target;
-  target = stumpless_open_stdout_target("SMTMlog");
-
   /* end scratch */
+
+  // Things are prepared...
+
+  char PATH_BUFFER[FILENAME_MAX];
 
   cwk_path_join(SOURCE_PATH, "resources/maze/source.txt", PATH_BUFFER, FILENAME_MAX);
   Maze maze = Maze_create(PATH_BUFFER);
@@ -72,6 +73,8 @@ int main(int argc, char **agrv) {
 
   Anima gottlob = Anima_default("gottlob", PairI32_create(6, 1), sprite_gottlob);
   Anima bertrand = Anima_default("bertrand", PairI32_create(10, 1), sprite_bertrand);
+
+  // Things happen...
 
   int exitCode = 0;
 
@@ -117,6 +120,7 @@ int main(int argc, char **agrv) {
         Anima_handle_event(&gottlob, &event);
         Anima_handle_event(&bertrand, &event);
       }
+
       Anima_deduct(&gottlob);
       Anima_deduct(&bertrand);
 
