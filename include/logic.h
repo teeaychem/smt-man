@@ -8,7 +8,6 @@ static const char *CVC5_LOGIC = "UFLIA";
 
 const char *cvc5_error_msg;
 Cvc5Command cvc5_cmd;
-extern char cvc5_input_buffer[1024];
 
 struct anima_terms_t {
   Cvc5Term facing_up;
@@ -18,5 +17,3 @@ struct anima_terms_t {
 };
 
 typedef struct anima_terms_t AnimaTerms;
-
-void logic_init();
