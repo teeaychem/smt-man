@@ -14,7 +14,6 @@
 #include "utils.h"
 #include "utils/pairs.h"
 
-
 Anima Anima_default(char *name, PairI32 position, Sprite sprite) {
   return Anima_create(name, position, DOWN, DOWN, sprite);
 }
@@ -22,7 +21,8 @@ Anima Anima_default(char *name, PairI32 position, Sprite sprite) {
 Anima Anima_create(char *name, PairI32 pos, Direction intent, Direction momentum, Sprite sprite) {
   stumplog(LOG_INFO, "Creating anima: %s", name);
 
-  Cvc5TermManager *tm = cvc5_term_manager_new();
+  Cvc5TermManager *l_tm = cvc5_term_manager_new();
+  Cvc5SymbolManager *l_symbols = cvc5_symbol_manager_new(l_tm);
 
   Cvc5 *mind = cvc5_new(l_tm);
   auto parser = cvc5_parser_new(mind, l_symbols);
@@ -43,10 +43,11 @@ Anima Anima_create(char *name, PairI32 pos, Direction intent, Direction momentum
                 .mVel = 2,
                 .sprite = sprite,
                 .mind = mind,
+                .l_tm = l_tm,
+                .l_symbols = l_symbols,
                 .parser = parser,
                 .terms = terms};
 
-  logic_setup_foundation(self.mind, self.parser);
   Anima_mind_innate(&self);
 
   sprintf(cvc5_input_buffer, "(is_facing %s up)", self.name);
@@ -138,43 +139,19 @@ void Anima_deduct(Anima *self) {
 
   switch (tmp_direction) {
   case 1: {
-    cvc5_assert_formula(self->mind,
-                        Logic_not(
-                            Logic_or(
-                                3,
-                                (Cvc5Term[3]){self->terms.facing_right,
-                                              self->terms.facing_down,
-                                              self->terms.facing_left})));
+    cvc5_assert_formula(self->mind, cvc5_mk_term(self->l_tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){cvc5_mk_term(self->l_tm, CVC5_KIND_OR, 3, (Cvc5Term[3]){self->terms.facing_right, self->terms.facing_down, self->terms.facing_left})}));
   } break;
 
   case 2: {
-    cvc5_assert_formula(self->mind,
-                        Logic_not(
-                            Logic_or(
-                                3,
-                                (Cvc5Term[3]){self->terms.facing_up,
-                                              self->terms.facing_down,
-                                              self->terms.facing_left})));
+    cvc5_assert_formula(self->mind, cvc5_mk_term(self->l_tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){cvc5_mk_term(self->l_tm, CVC5_KIND_OR, 3, (Cvc5Term[3]){self->terms.facing_up, self->terms.facing_down, self->terms.facing_left})}));
   } break;
 
   case 3: {
-    cvc5_assert_formula(self->mind,
-                        Logic_not(
-                            Logic_or(
-                                3,
-                                (Cvc5Term[3]){self->terms.facing_up,
-                                              self->terms.facing_right,
-                                              self->terms.facing_left})));
+    cvc5_assert_formula(self->mind, cvc5_mk_term(self->l_tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){cvc5_mk_term(self->l_tm, CVC5_KIND_OR, 3, (Cvc5Term[3]){self->terms.facing_up, self->terms.facing_right, self->terms.facing_left})}));
   } break;
 
   case 4: {
-    cvc5_assert_formula(self->mind,
-                        Logic_not(
-                            Logic_or(
-                                3,
-                                (Cvc5Term[3]){self->terms.facing_up,
-                                              self->terms.facing_right,
-                                              self->terms.facing_down})));
+    cvc5_assert_formula(self->mind, cvc5_mk_term(self->l_tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){cvc5_mk_term(self->l_tm, CVC5_KIND_OR, 3, (Cvc5Term[3]){self->terms.facing_up, self->terms.facing_right, self->terms.facing_down})}));
   } break;
   }
 
