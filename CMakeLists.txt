@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 4.1.2)
-project(smtm LANGUAGES C)
+project(smt-man LANGUAGES C)
 
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 
