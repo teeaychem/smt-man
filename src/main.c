@@ -1,5 +1,8 @@
-#include "cwalk.h"
+#include <pthread.h>
+#include <stdio.h>
+#include <unistd.h>
 
+#include "cwalk.h"
 #include <stumpless.h>
 #include <sys/syslog.h>
 #include <sys/types.h>
@@ -16,6 +19,35 @@
 #include "utils/pairs.h"
 
 Renderer gRenderer;
+
+pthread_cond_t cond_resume;
+pthread_mutex_t mtx_suspend;
+bool flag_suspend = true;
+pthread_t thread_gottlob;
+pthread_t thread_bertrand;
+
+void *spirit(void *_anima) {
+
+  Anima *anima = _anima;
+
+  Anima_touch(anima);
+
+  pthread_mutex_lock(&mtx_suspend);
+  flag_suspend = true;
+  pthread_mutex_unlock(&mtx_suspend);
+
+  while (true) {
+    pthread_mutex_lock(&mtx_suspend);
+    if (!flag_suspend) {
+      Anima_deduct(anima);
+      flag_suspend = true;
+      sleep(1);
+    }
+    pthread_cond_wait(&cond_resume, &mtx_suspend);
+    pthread_mutex_unlock(&mtx_suspend);
+  }
+  return 0;
+};
 
 SDL_Window *gWindow = NULL;
 char *SOURCE_PATH = NULL;
@@ -57,6 +89,10 @@ int main(int argc, char **agrv) {
 
   /* begin scratch */
 
+  pthread_mutex_lock(&mtx_suspend);
+  flag_suspend = true;
+  pthread_mutex_unlock(&mtx_suspend);
+
   /* end scratch */
 
   // Things are prepared...
@@ -68,17 +104,34 @@ int main(int argc, char **agrv) {
 
   cwk_path_join(SOURCE_PATH, "resources/gottlob.png", PATH_BUFFER, FILENAME_MAX);
   Sprite sprite_gottlob = Sprite_create(PATH_BUFFER);
+
+  Anima gottlob = Anima_default("gottlob", PairI32_create(6, 1), sprite_gottlob);
+  pthread_create(&thread_gottlob, NULL, spirit, (void *)&gottlob);
+
   cwk_path_join(SOURCE_PATH, "resources/bertrand.png", PATH_BUFFER, FILENAME_MAX);
   Sprite sprite_bertrand = Sprite_create(PATH_BUFFER);
 
-  Anima gottlob = Anima_default("gottlob", PairI32_create(6, 1), sprite_gottlob);
   Anima bertrand = Anima_default("bertrand", PairI32_create(10, 1), sprite_bertrand);
+  pthread_create(&thread_bertrand, NULL, spirit, (void *)&bertrand);
+
+
+
+  pthread_mutex_lock(&mtx_suspend);
+  flag_suspend = false;
+  pthread_mutex_unlock(&mtx_suspend);
+  pthread_cond_broadcast(&cond_resume);
+
+  /* Anima bertrand = Anima_default("bertrand", PairI32_create(10, 1), sprite_bertrand); */
+  /* Anima_touch(&bertrand); */
 
   // Things happen...
 
   int exitCode = 0;
 
   rgbVM colour;
+
+  /* sleep(2); */
+  /* exit(1); */
 
   if (!sdl_init(kPIXELS)) {
     exitCode = 1;
@@ -94,10 +147,8 @@ int main(int argc, char **agrv) {
     // Draw the maze only once...
     for (int32_t y = 0; y < maze.size.y; ++y) {
       for (int32_t x = 0; x < maze.size.x; ++x) {
-        // std::cout << std::format("Maze x/y: {}/{} {}/{}", x, y, maze.size.x(), maze.size.y()) << "\n";
-        PairI32 z = PairI32_create(x, y);
-        if (Maze_tile_at(&maze, &z) != '#') {
-          Renderer_fill_tile(&gRenderer, PairI32_create(x * gRenderer.kTileSize, y * gRenderer.kTileSize), 0xffffffff);
+        if (Maze_tile_at(&maze, PairI32_create(x, y)) != '#') {
+          Renderer_fill_tile(&gRenderer, PairI32_create(x * kTILE, y * kTILE), 0xffffffff);
         }
       }
     }
@@ -105,6 +156,14 @@ int main(int argc, char **agrv) {
     while (!quit) {
 
       NSTimer_start(&frameCapTimer);
+
+      if (flag_suspend) {
+        pthread_mutex_lock(&mtx_suspend);
+        flag_suspend = false;
+        pthread_mutex_unlock(&mtx_suspend);
+        pthread_cond_broadcast(&cond_resume);
+        /* pthread_cond_signal(&cond_resume); */
+      }
 
       SDL_RenderClear(gRenderer.renderer);
 
@@ -118,19 +177,19 @@ int main(int argc, char **agrv) {
           quit = true;
         }
         Anima_handle_event(&gottlob, &event);
-        Anima_handle_event(&bertrand, &event);
+        /* Anima_handle_event(&bertrand, &event); */
       }
 
-      Anima_deduct(&gottlob);
-      Anima_deduct(&bertrand);
+      /* Anima_deduct(&bertrand); */
 
       Anima_move_within(&gottlob, &maze);
-      Anima_move_within(&bertrand, &maze);
+      /* Anima_move_within(&bertrand, &maze); */
 
       Renderer_draw_sprite(&gRenderer, &gottlob.sprite);
-      Renderer_draw_sprite(&gRenderer, &bertrand.sprite);
+      /* Renderer_draw_sprite(&gRenderer, &bertrand.sprite); */
 
       Renderer_update(&gRenderer);
+      /* Renderer_project(&gRenderer); */
       SDL_RenderPresent(gRenderer.renderer);
       SDL_Delay(1);
 

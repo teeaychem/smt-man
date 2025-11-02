@@ -50,6 +50,15 @@ add_dependencies(${PROJECT_NAME} copy_sprites)
 
 # # External
 
+# # # Threads
+
+set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+find_package(Threads)
+target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
+message(": ${CMAKE_THREAD_LIBS_INIT}" )
+
+
 # # # SDL3
 
 find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)

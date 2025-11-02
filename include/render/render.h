@@ -10,7 +10,6 @@
 
 struct renderer_t {
   PairI32 dPixels;
-  int32_t kTileSize;
 
   SDL_Renderer *renderer;
   int32_t *frameBuffer;

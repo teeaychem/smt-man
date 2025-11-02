@@ -1,9 +1,9 @@
+#include <stdio.h>
 #include <stdlib.h>
 
-#include "render/render.h"
 #include "render/constants.h"
+#include "render/render.h"
 #include "utils/pairs.h"
-
 
 Renderer Renderer_create(SDL_Window *window, PairI32 dPixels) {
   Renderer self;
@@ -43,8 +43,8 @@ void Renderer_fill_tile(Renderer *self, PairI32 pos, int32_t colour) {
 
   int32_t yOffset = pos.y * self->dPixels.x + pos.x;
 
-  for (int32_t row = 0; row < self->kTileSize; ++row) {
-    for (int32_t col = 0; col < self->kTileSize; ++col) {
+  for (int32_t row = 0; row < kTILE; ++row) {
+    for (int32_t col = 0; col < kTILE; ++col) {
       self->frameBuffer[yOffset + col] = colour;
     }
     yOffset += self->dPixels.x;
