@@ -1,4 +1,5 @@
 #include <pthread.h>
+#include <stdatomic.h>
 #include <stdio.h>
 #include <unistd.h>
 
@@ -20,12 +21,7 @@
 
 Renderer gRenderer;
 
-pthread_cond_t cond_resume = PTHREAD_COND_INITIALIZER;
-
-pthread_mutex_t mtx_suspend = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t mtx_cvc5 = PTHREAD_MUTEX_INITIALIZER;
-
-bool flag_suspend = true;
 
 pthread_t thread_gottlob;
 pthread_t thread_bertrand;
@@ -39,19 +35,18 @@ void *spirit(void *_anima) {
   Anima_touch(anima, &mind);
   pthread_mutex_unlock(&mtx_cvc5);
 
-  pthread_mutex_lock(&mtx_suspend);
-  flag_suspend = true;
-  pthread_mutex_unlock(&mtx_suspend);
+  atomic_store(&anima->flag_suspend, true);
 
   while (true) {
-    pthread_mutex_lock(&mtx_suspend);
-    if (!flag_suspend) {
+    pthread_mutex_lock(&anima->mtx_suspend);
+    if (!atomic_load(&anima->flag_suspend)) {
       Anima_deduct(anima, &mind);
-      flag_suspend = true;
-      sleep(1);
+
+      sleep(2);
+      atomic_store(&anima->flag_suspend, true);
     }
-    pthread_cond_wait(&cond_resume, &mtx_suspend);
-    pthread_mutex_unlock(&mtx_suspend);
+    pthread_cond_wait(&anima->cond_resume, &anima->mtx_suspend);
+    pthread_mutex_unlock(&anima->mtx_suspend);
   }
   return 0;
 };
@@ -63,7 +58,7 @@ bool sdl_init(PairI32 dPixels) {
   bool success = false;
 
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
-    gWindow = SDL_CreateWindow("Hello", dPixels.x * kSCALE, dPixels.y * kSCALE, 0);
+    gWindow = SDL_CreateWindow("smt-man", dPixels.x * kSCALE, dPixels.y * kSCALE, 0);
     gRenderer = Renderer_create(gWindow, dPixels);
 
     success = true;
@@ -96,10 +91,6 @@ int main(int argc, char **agrv) {
 
   /* begin scratch */
 
-  pthread_mutex_lock(&mtx_suspend);
-  flag_suspend = true;
-  pthread_mutex_unlock(&mtx_suspend);
-
   /* end scratch */
 
   // Things are prepared...
@@ -121,10 +112,9 @@ int main(int argc, char **agrv) {
   Anima bertrand = Anima_default("bertrand", PairI32_create(10, 1), sprite_bertrand);
   pthread_create(&thread_bertrand, NULL, spirit, (void *)&bertrand);
 
-  pthread_mutex_lock(&mtx_suspend);
-  flag_suspend = false;
-  pthread_mutex_unlock(&mtx_suspend);
-  pthread_cond_broadcast(&cond_resume);
+  if (pthread_equal(thread_gottlob, thread_bertrand)) {
+    exit(1);
+  }
 
   /* Anima bertrand = Anima_default("bertrand", PairI32_create(10, 1), sprite_bertrand); */
   /* Anima_touch(&bertrand); */
@@ -159,15 +149,16 @@ int main(int argc, char **agrv) {
     }
 
     while (!quit) {
-
       NSTimer_start(&frameCapTimer);
 
-      if (flag_suspend) {
-        pthread_mutex_lock(&mtx_suspend);
-        flag_suspend = false;
-        pthread_mutex_unlock(&mtx_suspend);
-        pthread_cond_broadcast(&cond_resume);
-        /* pthread_cond_signal(&cond_resume); */
+      if (atomic_load(&gottlob.flag_suspend)) {
+        atomic_store(&gottlob.flag_suspend, false);
+        pthread_cond_broadcast(&gottlob.cond_resume);
+      }
+
+      if (atomic_load(&bertrand.flag_suspend)) {
+        atomic_store(&bertrand.flag_suspend, false);
+        pthread_cond_broadcast(&bertrand.cond_resume);
       }
 
       SDL_RenderClear(gRenderer.renderer);
@@ -185,7 +176,15 @@ int main(int argc, char **agrv) {
         Anima_handle_event(&bertrand, &event);
       }
 
-      /* Anima_deduct(&bertrand); */
+      if (atomic_load(&gottlob.flag_suspend)) {
+        atomic_store(&gottlob.flag_suspend, false);
+        pthread_cond_broadcast(&gottlob.cond_resume);
+      }
+
+      if (atomic_load(&bertrand.flag_suspend)) {
+        atomic_store(&bertrand.flag_suspend, false);
+        pthread_cond_broadcast(&bertrand.cond_resume);
+      }
 
       Anima_move_within(&gottlob, &maze);
       Anima_move_within(&bertrand, &maze);
@@ -194,9 +193,8 @@ int main(int argc, char **agrv) {
       Renderer_draw_sprite(&gRenderer, &bertrand.sprite);
 
       Renderer_update(&gRenderer);
-      /* Renderer_project(&gRenderer); */
+
       SDL_RenderPresent(gRenderer.renderer);
-      SDL_Delay(1);
 
       Uint64 frameNS = NSTimer_get_ticks(&frameCapTimer);
       if (frameNS < kNS_PER_FRAME) {
@@ -206,6 +204,7 @@ int main(int argc, char **agrv) {
   }
 
   sdl_close();
+
   pthread_cancel(thread_gottlob);
   pthread_cancel(thread_bertrand);
 

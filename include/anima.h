@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <pthread.h>
+
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
@@ -44,6 +46,10 @@ struct anima_t {
   int mVel;
 
   Sprite sprite;
+
+  pthread_mutex_t mtx_suspend;
+  _Atomic bool flag_suspend;
+  pthread_cond_t cond_resume;
 };
 
 typedef struct anima_t Anima;
