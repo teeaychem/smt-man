@@ -44,8 +44,6 @@ struct anima_t {
   int mVel;
 
   Sprite sprite;
-
-  Mind mind;
 };
 
 typedef struct anima_t Anima;
@@ -56,12 +54,12 @@ Anima Anima_create(char *name, PairI32 pos, Direction intent, Direction momentum
 
 void Anima_destory(Anima *self);
 
-void Anima_touch(Anima *self);
+void Anima_touch(Anima *self, Mind *mind);
 
 void Anima_handle_event(Anima *self, SDL_Event *event);
 
 void Anima_move_within(Anima *self, Maze *maze);
 
-void Anima_mind_innate(Anima *self);
+void Anima_mind_innate(Anima *self, Mind *mind);
 
-void Anima_deduct(Anima *self);
+void Anima_deduct(Anima *self, Mind *mind);
