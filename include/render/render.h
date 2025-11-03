@@ -24,4 +24,6 @@ void Renderer_update(Renderer *self);
 
 void Renderer_draw_sprite(Renderer *self, Sprite const *sprite);
 
+void Renderer_erase_sprite(Renderer *self, Sprite const *sprite);
+
 void Renderer_fill_tile(Renderer *self, PairI32 pos, int32_t colour);
