@@ -83,7 +83,7 @@ void setup() {
   SOURCE_PATH[dirname_length] = '\0';
 }
 
-int main(int argc, char **agrv) {
+int main(int argc, char **argv) {
   struct stumpless_target *target;
   target = stumpless_open_stdout_target("smt-man-log");
 

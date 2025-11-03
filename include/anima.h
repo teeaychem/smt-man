@@ -60,7 +60,7 @@ Anima Anima_default(char *name, PairI32 position, Sprite sprite);
 
 Anima Anima_create(char *name, PairI32 pos, Direction intent, Direction momentum, Sprite sprite);
 
-void Anima_destory(Anima *self);
+void Anima_destroy(Anima *self);
 
 void Anima_touch(Anima *self, Mind *mind);
 

@@ -31,7 +31,7 @@ Anima Anima_create(char *name, PairI32 pos, Direction intent, Direction momentum
   return self;
 }
 
-void Anima_destory(Anima *self) {
+void Anima_destroy(Anima *self) {
   Sprite_destroy(&self->sprite);
 }
 
