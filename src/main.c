@@ -161,6 +161,8 @@ int main(int argc, char **agrv) {
         pthread_cond_broadcast(&bertrand.cond_resume);
       }
 
+      Renderer_erase_sprite(&gRenderer, &gottlob.sprite);
+      Renderer_erase_sprite(&gRenderer, &bertrand.sprite);
       SDL_RenderClear(gRenderer.renderer);
 
       /* Renderer_fillTile(&gRenderer, gottlob.sprite.pos, 0x000000ff); */
