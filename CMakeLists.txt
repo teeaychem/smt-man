@@ -8,7 +8,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-set(SOURCES src/main.c src/anima/anima.c src/anima/deduction.c)
+set(SOURCES src/main.c src/anima/anima.c)
 
 file(GLOB CORE src/core/*.c)
 file(GLOB LOGIC src/logic/*.c)

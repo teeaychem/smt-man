@@ -20,17 +20,24 @@
 
 Renderer gRenderer;
 
-pthread_cond_t cond_resume;
-pthread_mutex_t mtx_suspend;
+pthread_cond_t cond_resume = PTHREAD_COND_INITIALIZER;
+
+pthread_mutex_t mtx_suspend = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mtx_cvc5 = PTHREAD_MUTEX_INITIALIZER;
+
 bool flag_suspend = true;
+
 pthread_t thread_gottlob;
 pthread_t thread_bertrand;
 
 void *spirit(void *_anima) {
 
   Anima *anima = _anima;
+  Mind mind = Mind_default();
 
-  Anima_touch(anima);
+  pthread_mutex_lock(&mtx_cvc5);
+  Anima_touch(anima, &mind);
+  pthread_mutex_unlock(&mtx_cvc5);
 
   pthread_mutex_lock(&mtx_suspend);
   flag_suspend = true;
@@ -39,7 +46,7 @@ void *spirit(void *_anima) {
   while (true) {
     pthread_mutex_lock(&mtx_suspend);
     if (!flag_suspend) {
-      Anima_deduct(anima);
+      Anima_deduct(anima, &mind);
       flag_suspend = true;
       sleep(1);
     }
@@ -108,15 +115,11 @@ int main(int argc, char **agrv) {
   Anima gottlob = Anima_default("gottlob", PairI32_create(6, 1), sprite_gottlob);
   pthread_create(&thread_gottlob, NULL, spirit, (void *)&gottlob);
 
-  sleep(1);
-
   cwk_path_join(SOURCE_PATH, "resources/bertrand.png", PATH_BUFFER, FILENAME_MAX);
   Sprite sprite_bertrand = Sprite_create(PATH_BUFFER);
 
   Anima bertrand = Anima_default("bertrand", PairI32_create(10, 1), sprite_bertrand);
   pthread_create(&thread_bertrand, NULL, spirit, (void *)&bertrand);
-
-
 
   pthread_mutex_lock(&mtx_suspend);
   flag_suspend = false;
@@ -203,6 +206,13 @@ int main(int argc, char **agrv) {
   }
 
   sdl_close();
+  pthread_cancel(thread_gottlob);
+  pthread_cancel(thread_bertrand);
+
+  pthread_join(thread_gottlob, NULL);
+  pthread_join(thread_bertrand, NULL);
+
+  printf("good-bye\n");
 
   return exitCode;
 }
