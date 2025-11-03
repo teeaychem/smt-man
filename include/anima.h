@@ -1,18 +1,20 @@
-
 #pragma once
 
 #include <pthread.h>
+#include <stdatomic.h>
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
 
-#include "cvc5/c/cvc5.h"
-#include "cvc5/c/cvc5_parser.h"
-#include "logic.h"
 #include "maze.h"
 #include "sprite.h"
 #include "utils.h"
+
+#include "cvc5/c/cvc5.h"
+#include "cvc5/c/cvc5_parser.h"
+
+#include "logic.h"
 
 struct mind_t {
   Cvc5 *solver;

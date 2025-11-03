@@ -1,43 +1,9 @@
-#include <assert.h>
-#include <stdatomic.h>
-#include <stdio.h>
-
-#include "cvc5/c/cvc5.h"
-#include "cvc5/c/cvc5_parser.h"
-
 #include "stumpless/log.h"
 
 #include "anima.h"
 #include "logic.h"
-#include "maze.h"
+
 #include "render/constants.h"
-#include "sprite.h"
-#include "utils.h"
-#include "utils/pairs.h"
-
-Mind Mind_default() {
-
-  Cvc5TermManager *tm = cvc5_term_manager_new();
-  Cvc5SymbolManager *symbols = cvc5_symbol_manager_new(tm);
-  Cvc5 *solver = cvc5_new(tm);
-  Cvc5InputParser *parser = cvc5_parser_new(solver, symbols);
-
-  cvc5_set_logic(solver, CVC5_LOGIC);
-
-  cvc5_set_option(solver, "produce-models", "true");
-  cvc5_set_option(solver, "finite-model-find", "true");
-  cvc5_set_option(solver, "model-var-elim-uneval", "false");
-  cvc5_set_option(solver, "print-success", "true");
-
-  Mind mind = {
-      .parser = parser,
-      .sm = symbols,
-      .solver = solver,
-      .tm = tm,
-      .terms = {}};
-
-  return mind;
-}
 
 Anima Anima_default(char *name, PairI32 position, Sprite sprite) {
   return Anima_create(name, position, DOWN, DOWN, sprite);
@@ -60,7 +26,6 @@ Anima Anima_create(char *name, PairI32 pos, Direction intent, Direction momentum
   atomic_init(&self.intent, intent);
   atomic_init(&self.flag_suspend, false);
 
-
   self.sprite.pos = PairI32_create(self.pos.x * sprite.size.x, self.pos.y * sprite.size.y);
 
   return self;
@@ -71,11 +36,8 @@ void Anima_destory(Anima *self) {
 }
 
 void Anima_touch(Anima *self, Mind *mind) {
-  printf("mind touching...");
 
   Anima_mind_innate(self, mind);
-
-  printf(" ... ");
 
   {
     char cvc5_input_buffer[1024];
@@ -97,8 +59,6 @@ void Anima_touch(Anima *self, Mind *mind) {
     cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
     mind->terms.facing_left = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
   }
-
-  printf("touched");
 };
 
 void Anima_handle_event(Anima *self, SDL_Event *event) {
