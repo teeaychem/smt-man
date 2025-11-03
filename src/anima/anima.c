@@ -51,12 +51,15 @@ Anima Anima_create(char *name, PairI32 pos, Direction intent, Direction momentum
       .pos = pos,
       .mVel = 2,
       .sprite = sprite,
-
+      .mtx_suspend = PTHREAD_MUTEX_INITIALIZER,
+      .cond_resume = PTHREAD_COND_INITIALIZER,
   };
 
   atomic_init(&self.name, name);
   atomic_init(&self.momentum, momentum);
   atomic_init(&self.intent, intent);
+  atomic_init(&self.flag_suspend, false);
+
 
   self.sprite.pos = PairI32_create(self.pos.x * sprite.size.x, self.pos.y * sprite.size.y);
 
@@ -189,7 +192,6 @@ void Anima_mind_innate(Anima *self, Mind *mind) {
     }
   } while (cvc5_cmd);
 }
-
 
 void Anima_deduct(Anima *self, Mind *mind) {
 
