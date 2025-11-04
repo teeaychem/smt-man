@@ -23,8 +23,8 @@ Renderer gRenderer;
 
 pthread_mutex_t mtx_cvc5 = PTHREAD_MUTEX_INITIALIZER;
 
-pthread_t thread_gottlob;
-pthread_t thread_bertrand;
+constexpr size_t kANIMAS = 2;
+pthread_t ANIMA_THREADS[kANIMAS];
 
 void *spirit(void *_anima) {
 
@@ -104,29 +104,19 @@ int main(int argc, char **argv) {
   Sprite sprite_gottlob = Sprite_create(PATH_BUFFER);
 
   Anima gottlob = Anima_default("gottlob", PairI32_create(6, 1), sprite_gottlob);
-  pthread_create(&thread_gottlob, NULL, spirit, (void *)&gottlob);
+  pthread_create(&ANIMA_THREADS[0], NULL, spirit, (void *)&gottlob);
 
   cwk_path_join(SOURCE_PATH, "resources/bertrand.png", PATH_BUFFER, FILENAME_MAX);
   Sprite sprite_bertrand = Sprite_create(PATH_BUFFER);
 
   Anima bertrand = Anima_default("bertrand", PairI32_create(10, 1), sprite_bertrand);
-  pthread_create(&thread_bertrand, NULL, spirit, (void *)&bertrand);
-
-  if (pthread_equal(thread_gottlob, thread_bertrand)) {
-    exit(1);
-  }
-
-  /* Anima bertrand = Anima_default("bertrand", PairI32_create(10, 1), sprite_bertrand); */
-  /* Anima_touch(&bertrand); */
+  pthread_create(&ANIMA_THREADS[1], NULL, spirit, (void *)&bertrand);
 
   // Things happen...
 
   int exitCode = 0;
 
   rgbVM colour;
-
-  /* sleep(2); */
-  /* exit(1); */
 
   if (!sdl_init(kPIXELS)) {
     exitCode = 1;
@@ -207,11 +197,10 @@ int main(int argc, char **argv) {
 
   sdl_close();
 
-  pthread_cancel(thread_gottlob);
-  pthread_cancel(thread_bertrand);
-
-  pthread_join(thread_gottlob, NULL);
-  pthread_join(thread_bertrand, NULL);
+  for (size_t idx = 0; idx < kANIMAS; ++idx) {
+    pthread_cancel(ANIMA_THREADS[idx]);
+    pthread_join(ANIMA_THREADS[idx], NULL);
+  }
 
   printf("good-bye\n");
 
