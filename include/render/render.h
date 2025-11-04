@@ -9,7 +9,7 @@
 #include <stddef.h>
 
 struct renderer_t {
-  PairI32 dPixels;
+  SDL_Window *gWindow;
 
   SDL_Renderer *renderer;
   int32_t *frameBuffer;
@@ -18,7 +18,9 @@ struct renderer_t {
 
 typedef struct renderer_t Renderer;
 
-Renderer Renderer_create(SDL_Window *window, PairI32 dPixels);
+Renderer Renderer_create();
+
+void Renderer_destroy(Renderer *self);
 
 void Renderer_update(Renderer *self);
 

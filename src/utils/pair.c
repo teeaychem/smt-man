@@ -5,6 +5,6 @@ PairI32 PairI32_create(int32_t x, int32_t y) {
   return pair;
 }
 
-int32_t PairI32_area(PairI32 *self) {
+int32_t PairI32_area(const PairI32 *self)  {
   return self->x * self->y;
 }

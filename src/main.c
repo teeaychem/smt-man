@@ -11,9 +11,11 @@
 
 #include "anima.h"
 #include "maze.h"
+
 #include "render/NSTimer.h"
 #include "render/constants.h"
 #include "render/render.h"
+
 #include "sprite.h"
 #include "toys.h"
 
@@ -55,26 +57,6 @@ void *spirit(void *_anima) {
 
 SDL_Window *gWindow = NULL;
 char *SOURCE_PATH = NULL;
-
-bool sdl_init(PairI32 dPixels) {
-  bool success = false;
-
-  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
-    gWindow = SDL_CreateWindow("smt-man", dPixels.x * kSCALE, dPixels.y * kSCALE, 0);
-    gRenderer = Renderer_create(gWindow, dPixels);
-
-    success = true;
-  }
-
-  return success;
-}
-
-void sdl_close() {
-  SDL_DestroyWindow(gWindow);
-  gWindow = NULL;
-
-  SDL_Quit();
-}
 
 void setup() {
   // Set the source path for resources, etc.
@@ -120,9 +102,11 @@ int main(int argc, char **argv) {
 
   rgbVM colour;
 
-  if (!sdl_init(kPIXELS)) {
+  if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
     exitCode = 1;
   } else {
+
+    gRenderer = Renderer_create();
 
     bool quit = false;
 
@@ -184,7 +168,8 @@ int main(int argc, char **argv) {
     }
   }
 
-  sdl_close();
+  Renderer_destroy(&gRenderer);
+  SDL_Quit();
 
   for (size_t idx = 0; idx < kANIMAS; ++idx) {
     pthread_cancel(ANIMA_THREADS[idx]);
