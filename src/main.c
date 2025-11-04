@@ -24,6 +24,8 @@ Renderer gRenderer;
 pthread_mutex_t mtx_cvc5 = PTHREAD_MUTEX_INITIALIZER;
 
 constexpr size_t kANIMAS = 2;
+
+Anima ANIMAS[kANIMAS];
 pthread_t ANIMA_THREADS[kANIMAS];
 
 void *spirit(void *_anima) {
@@ -103,14 +105,14 @@ int main(int argc, char **argv) {
   cwk_path_join(SOURCE_PATH, "resources/gottlob.png", PATH_BUFFER, FILENAME_MAX);
   Sprite sprite_gottlob = Sprite_create(PATH_BUFFER);
 
-  Anima gottlob = Anima_default("gottlob", PairI32_create(6, 1), sprite_gottlob);
-  pthread_create(&ANIMA_THREADS[0], NULL, spirit, (void *)&gottlob);
+  ANIMAS[0] = Anima_default("gottlob", PairI32_create(6, 1), sprite_gottlob);
+  pthread_create(&ANIMA_THREADS[0], NULL, spirit, (void *)&ANIMAS[0]);
 
   cwk_path_join(SOURCE_PATH, "resources/bertrand.png", PATH_BUFFER, FILENAME_MAX);
   Sprite sprite_bertrand = Sprite_create(PATH_BUFFER);
 
-  Anima bertrand = Anima_default("bertrand", PairI32_create(10, 1), sprite_bertrand);
-  pthread_create(&ANIMA_THREADS[1], NULL, spirit, (void *)&bertrand);
+  ANIMAS[1] = Anima_default("bertrand", PairI32_create(10, 1), sprite_bertrand);
+  pthread_create(&ANIMA_THREADS[1], NULL, spirit, (void *)&ANIMAS[1]);
 
   // Things happen...
 
@@ -141,48 +143,35 @@ int main(int argc, char **argv) {
     while (!quit) {
       NSTimer_start(&frameCapTimer);
 
-      if (atomic_load(&gottlob.flag_suspend)) {
-        atomic_store(&gottlob.flag_suspend, false);
-        pthread_cond_broadcast(&gottlob.cond_resume);
+      for (size_t idx = 0; idx < kANIMAS; ++idx) {
+        if (atomic_load(&ANIMAS[idx].flag_suspend)) {
+          atomic_store(&ANIMAS[idx].flag_suspend, false);
+          pthread_cond_broadcast(&ANIMAS[idx].cond_resume);
+        }
+
+        Renderer_erase_sprite(&gRenderer, &ANIMAS[idx].sprite);
       }
 
-      if (atomic_load(&bertrand.flag_suspend)) {
-        atomic_store(&bertrand.flag_suspend, false);
-        pthread_cond_broadcast(&bertrand.cond_resume);
-      }
-
-      Renderer_erase_sprite(&gRenderer, &gottlob.sprite);
-      Renderer_erase_sprite(&gRenderer, &bertrand.sprite);
       SDL_RenderClear(gRenderer.renderer);
 
-      /* Renderer_fillTile(&gRenderer, gottlob.sprite.pos, 0x000000ff); */
-
       rgbVM_advance(&colour);
-      SDL_SetRenderDrawColor(gRenderer.renderer, colour.state[0].value, colour.state[1].value, colour.state[2].value, 0x000000ff);
+      SDL_SetRenderDrawColor(gRenderer.renderer,
+                             colour.state[0].value,
+                             colour.state[1].value,
+                             colour.state[2].value,
+                             0x000000ff);
 
       while (SDL_PollEvent(&event)) {
         if (event.type == SDL_EVENT_QUIT) {
           quit = true;
         }
-        Anima_handle_event(&gottlob, &event);
-        Anima_handle_event(&bertrand, &event);
+        Anima_handle_event(&ANIMAS[0], &event);
       }
 
-      if (atomic_load(&gottlob.flag_suspend)) {
-        atomic_store(&gottlob.flag_suspend, false);
-        pthread_cond_broadcast(&gottlob.cond_resume);
+      for (size_t idx = 0; idx < kANIMAS; ++idx) {
+        Anima_move_within(&ANIMAS[idx], &maze);
+        Renderer_draw_sprite(&gRenderer, &ANIMAS[idx].sprite);
       }
-
-      if (atomic_load(&bertrand.flag_suspend)) {
-        atomic_store(&bertrand.flag_suspend, false);
-        pthread_cond_broadcast(&bertrand.cond_resume);
-      }
-
-      Anima_move_within(&gottlob, &maze);
-      Anima_move_within(&bertrand, &maze);
-
-      Renderer_draw_sprite(&gRenderer, &gottlob.sprite);
-      Renderer_draw_sprite(&gRenderer, &bertrand.sprite);
 
       Renderer_update(&gRenderer);
 
