@@ -196,3 +196,6 @@ void Anima_deduct(Anima *self, Mind *mind) {
 
   cvc5_pop(mind->solver, 1);
 };
+
+void Anima_instinct(Anima *self) {
+}

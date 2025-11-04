@@ -70,4 +70,7 @@ void Anima_move_within(Anima *self, Maze *maze);
 
 void Anima_mind_innate(Anima *self, Mind *mind);
 
+// Called on each tick.
+void Anima_instinct(Anima *self);
+
 void Anima_deduct(Anima *self, Mind *mind);

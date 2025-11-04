@@ -46,7 +46,7 @@ void *spirit(void *_anima) {
     if (!atomic_load(&anima->flag_suspend)) {
       Anima_deduct(anima, &mind);
 
-      sleep(2);
+      sleep(1);
       atomic_store(&anima->flag_suspend, true);
     }
     pthread_cond_wait(&anima->cond_resume, &anima->mtx_suspend);
@@ -153,6 +153,7 @@ int main(int argc, char **argv) {
       }
 
       for (size_t idx = 0; idx < kANIMAS; ++idx) {
+        Anima_instinct(&ANIMAS[idx]);
         Anima_move_within(&ANIMAS[idx], &maze);
         Renderer_draw_sprite(&gRenderer, &ANIMAS[idx].sprite);
       }
