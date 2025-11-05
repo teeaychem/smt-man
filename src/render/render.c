@@ -11,7 +11,7 @@ Renderer Renderer_create() {
   self.gWindow = SDL_CreateWindow("smt-man", kPIXELS.x * kSCALE, kPIXELS.y * kSCALE, 0);
 
   self.renderer = SDL_CreateRenderer(self.gWindow, NULL);
-  self.frameBuffer = malloc(PairI32_area(&kPIXELS) * kTILE);
+  self.frameBuffer = malloc(PairI32_area(&kPIXELS) * kSPRITE);
   self.texture = SDL_CreateTexture(self.renderer,
                                    SDL_PIXELFORMAT_RGBA32,
                                    SDL_TEXTUREACCESS_STREAMING,
@@ -36,9 +36,9 @@ void Renderer_update(Renderer *self) {
   SDL_RenderTexture(self->renderer, self->texture, NULL, NULL);
 }
 
-void Renderer_draw_sprite(Renderer *self, Sprite const *sprite) {
+void Renderer_draw_sprite(Renderer *self, Sprite const *sprite, PairI32 const *location) {
   size_t cell = 0;
-  int32_t yOffset = sprite->pos.y * kPIXELS.x + sprite->pos.x;
+  int32_t yOffset = location->y * kPIXELS.x + location->x;
 
   for (size_t row = 0; row < sprite->size.y; ++row) {
     for (size_t col = 0; col < sprite->size.x; ++col, ++cell) {
@@ -50,9 +50,9 @@ void Renderer_draw_sprite(Renderer *self, Sprite const *sprite) {
   }
 }
 
-void Renderer_erase_sprite(Renderer *self, Sprite const *sprite) {
+void Renderer_erase_sprite(Renderer *self, Sprite const *sprite, PairI32 const *location) {
   size_t cell = 0;
-  int32_t yOffset = sprite->pos.y * kPIXELS.x + sprite->pos.x;
+  int32_t yOffset = location->y * kPIXELS.x + location->x;
 
   for (size_t row = 0; row < sprite->size.y; ++row) {
     for (size_t col = 0; col < sprite->size.x; ++col, ++cell) {
@@ -68,8 +68,8 @@ void Renderer_fill_tile(Renderer *self, PairI32 pos, int32_t colour) {
 
   int32_t yOffset = pos.y * kPIXELS.x + pos.x;
 
-  for (size_t row = 0; row < kTILE; ++row) {
-    for (size_t col = 0; col < kTILE; ++col) {
+  for (size_t row = 0; row < kSPRITE; ++row) {
+    for (size_t col = 0; col < kSPRITE; ++col) {
       if ((self->frameBuffer[yOffset + col] | 0x00000000) == 0x00000000) {
         self->frameBuffer[yOffset + col] = colour;
       }

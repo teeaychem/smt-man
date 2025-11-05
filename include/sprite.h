@@ -9,7 +9,6 @@
 
 struct sprite_t {
   PairI32 size;
-  PairI32 pos;
 
   int32_t *pixels;
 };

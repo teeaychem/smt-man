@@ -1,8 +1,11 @@
 
 #include <inttypes.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 
 #include "maze.h"
+#include "render/constants.h"
 #include "stumpless/log.h"
 #include "utils/pairs.h"
 
@@ -15,12 +18,13 @@ void next_line(FILE *file) {
 
 Maze Maze_create(char *path) {
 
-  Maze self = {.size.x = 0,
-               .size.y = 0,
-               .tiles = NULL};
+  Maze self = {.size = {.x = 0, .y = 0},
+               .pixels = NULL};
 
   size_t tile_count = 0;
   bool preambleOk = true;
+
+  PairI32 base;
 
   FILE *file = fopen(path, "r");
   if (file == NULL) {
@@ -41,14 +45,14 @@ Maze Maze_create(char *path) {
     } break;
 
     case 'w': {
-      if (!fscanf(file, "%" SCNu32, &(self.size.x))) {
+      if (!fscanf(file, "%" SCNu32, &(base.x))) {
         stumplog(LOG_ERR, "Failed to read maze width");
         preambleOk = false;
       };
     } break;
 
     case 'h': {
-      if (!fscanf(file, "%" SCNu32, &(self.size.y))) {
+      if (!fscanf(file, "%" SCNu32, &(base.y))) {
         stumplog(LOG_ERR, "Failed to read maze height");
         preambleOk = false;
       };
@@ -68,14 +72,28 @@ Maze Maze_create(char *path) {
     }
   }
 
+  if (base.x % kTILES.x != 0 | base.y % kTILES.y != 0) {
+    stumplog(LOG_ERR,
+             "Maze dimension %dx%d is not an integer scale of %dx%d",
+             base.x, base.y,
+             kTILES.x, kTILES.y);
+    preambleOk = false;
+  }
+
   if (!preambleOk) {
     stumplog(LOG_INFO, path);
     stumplog(LOG_CRIT, "Failed to construct maze");
     exit(1);
   }
 
-  self.tiles = (char *)malloc(PairI32_area(&self.size));
-  memset(self.tiles, '\0', PairI32_area(&self.size));
+  self.pixels = (char *)malloc(PairI32_area(&kPIXELS));
+  memset(self.pixels, '\0', PairI32_area(&kPIXELS));
+
+  int32_t y_scale = kPIXELS.y / base.y;
+  int32_t x_scale = kPIXELS.x / base.x;
+
+  int32_t pos_x = 0;
+  int32_t pos_y = 0;
 
   int32_t tile_idx = 0;
 
@@ -86,17 +104,25 @@ Maze Maze_create(char *path) {
     } break;
 
     case 'm': {
+      pos_x = 0;
     } break;
 
     case '\n': {
-      while (tile_idx % self.size.x != 0 || tile_idx == 0) {
-        ++tile_idx;
+      if (pos_x != base.x) {
+        printf("x_x"), exit(-1);
       }
+      pos_y += 1;
     } break;
 
     default: {
-      self.tiles[tile_idx] = read;
-      ++tile_idx;
+      for (size_t pxl_y = 0; pxl_y < 16; ++pxl_y) {
+        for (size_t pxl_x = 0; pxl_x < 16; ++pxl_x) {
+          self.pixels[(((pos_y * 16) + pxl_y) * kPIXELS.x) + pxl_x + (pos_x * 16)] = read;
+        }
+      }
+
+      pos_x += 1;
+
       if (read == '#') {
         ++tile_count;
       }
@@ -104,23 +130,39 @@ Maze Maze_create(char *path) {
     }
   }
 
-  stumplog(LOG_CRIT, "Constructed maze %dx%d (%d)", self.size.x, self.size.y, tile_count);
+  if (pos_y != base.y) {
+    printf("y_y"), exit(-1);
+  }
+
+  stumplog(LOG_CRIT, "Constructed maze %dx%d (%d)", base.x, base.y, tile_count);
 
   return self;
 }
 
 void Maze_destroy(Maze *self) {
-  free(self->tiles);
+  free(self->pixels);
 }
 
-bool Maze_is_open(Maze *self, PairI32 *tile) {
-  bool yOk = 0 <= tile->y && tile->y < self->size.y;
-  bool xOk = 0 <= tile->x && tile->x < self->size.x;
-  bool locationOk = Maze_tile_at(self, *tile) == '#';
+bool Maze_is_open(Maze *self, PairI32 *point) {
+  bool yOk = 0 <= point->y && point->y < kPIXELS.y;
+  bool xOk = 0 <= point->x && point->x < kPIXELS.x;
+  bool locationOk = Maze_at_point(self, *point) == '#';
 
   return yOk && xOk && locationOk;
 }
 
-uint8_t Maze_tile_at(Maze *self, PairI32 tile) {
-  return self->tiles[tile.y * self->size.x + tile.x];
+uint8_t Maze_at_point(Maze *self, PairI32 point) {
+  return self->pixels[(point.y * kPIXELS.x) + point.x];
+}
+
+void Maze_stdout(Maze *self) {
+  for (size_t y = 0; y < kPIXELS.y; ++y) {
+    for (size_t x = 0; x < kPIXELS.x; ++x) {
+      printf("%c", self->pixels[(y * kPIXELS.x) + x]);
+    }
+
+    if (y + 16 < kPIXELS.y) {
+      printf("\n");
+    }
+  }
 }

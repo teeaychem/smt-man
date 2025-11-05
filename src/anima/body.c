@@ -15,7 +15,7 @@ Anima Anima_create(char *name, PairI32 pos, Direction intent, Direction momentum
   Anima self = {
       .name = NULL,
       .pos = pos,
-      .mVel = 2,
+      .mVel = 1,
       .sprite = sprite,
       .mtx_suspend = PTHREAD_MUTEX_INITIALIZER,
       .cond_resume = PTHREAD_COND_INITIALIZER,
@@ -25,8 +25,6 @@ Anima Anima_create(char *name, PairI32 pos, Direction intent, Direction momentum
   atomic_init(&self.momentum, momentum);
   atomic_init(&self.intent, intent);
   atomic_init(&self.flag_suspend, false);
-
-  self.sprite.pos = PairI32_create(self.pos.x * sprite.size.x, self.pos.y * sprite.size.y);
 
   return self;
 }
@@ -84,14 +82,10 @@ void Anima_handle_event(Anima *self, SDL_Event *event) {
 
 void Anima_move_within(Anima *self, Maze *maze) {
 
-  if (self->sprite.pos.x % self->sprite.size.x == 0 && self->sprite.pos.y % self->sprite.size.y == 0) {
-    self->pos.x = self->sprite.pos.x / kTILE;
-    self->pos.y = self->sprite.pos.y / kTILE;
-
+  if (self->pos.x % kSPRITE == 0 && self->pos.y % kSPRITE == 0) {
     atomic_store(&self->momentum, atomic_load(&self->intent));
 
     PairI32 destination;
-
     steps_in_direction(&self->pos, atomic_load(&self->momentum), 1, &destination);
 
     if (Maze_is_open(maze, &destination)) {
@@ -103,16 +97,16 @@ void Anima_move_within(Anima *self, Maze *maze) {
 
   switch (atomic_load(&self->momentum)) {
   case UP: {
-    self->sprite.pos.y -= self->mVel;
+    self->pos.y -= self->mVel;
   } break;
   case RIGHT: {
-    self->sprite.pos.x += self->mVel;
+    self->pos.x += self->mVel;
   } break;
   case DOWN: {
-    self->sprite.pos.y += self->mVel;
+    self->pos.y += self->mVel;
   } break;
   case LEFT: {
-    self->sprite.pos.x -= self->mVel;
+    self->pos.x -= self->mVel;
   } break;
   }
 }

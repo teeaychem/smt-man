@@ -71,6 +71,8 @@ int main(int argc, char **argv) {
   struct stumpless_target *target;
   target = stumpless_open_stdout_target("smt-man-log");
 
+  char PATH_BUFFER[FILENAME_MAX];
+
   setup();
 
   /* begin scratch */
@@ -79,21 +81,19 @@ int main(int argc, char **argv) {
 
   // Things are prepared...
 
-  char PATH_BUFFER[FILENAME_MAX];
-
   cwk_path_join(SOURCE_PATH, "resources/maze/source.txt", PATH_BUFFER, FILENAME_MAX);
   Maze maze = Maze_create(PATH_BUFFER);
 
   cwk_path_join(SOURCE_PATH, "resources/gottlob.png", PATH_BUFFER, FILENAME_MAX);
   Sprite sprite_gottlob = Sprite_create(PATH_BUFFER);
 
-  ANIMAS[0] = Anima_default("gottlob", PairI32_create(6, 1), sprite_gottlob);
+  ANIMAS[0] = Anima_default("gottlob", PairI32_create(16, 16), sprite_gottlob);
   pthread_create(&ANIMA_THREADS[0], NULL, spirit, (void *)&ANIMAS[0]);
 
   cwk_path_join(SOURCE_PATH, "resources/bertrand.png", PATH_BUFFER, FILENAME_MAX);
   Sprite sprite_bertrand = Sprite_create(PATH_BUFFER);
 
-  ANIMAS[1] = Anima_default("bertrand", PairI32_create(10, 1), sprite_bertrand);
+  ANIMAS[1] = Anima_default("bertrand", PairI32_create(32, 16), sprite_bertrand);
   pthread_create(&ANIMA_THREADS[1], NULL, spirit, (void *)&ANIMAS[1]);
 
   // Things happen...
@@ -110,16 +110,25 @@ int main(int argc, char **argv) {
 
     bool quit = false;
 
+    SDL_Event event;
+    Uint64 frameNS;
     NSTimer frameCapTimer = NSTimer_default();
 
-    SDL_Event event;
     SDL_zero(event);
 
     // Draw the maze only once...
+    for (size_t pxl = 0; pxl < PairI32_area(&kPIXELS); ++pxl) {
+      if (maze.pixels[pxl] != '#') {
+        gRenderer.frameBuffer[pxl] = 0xffffffff;
+
+        }
+    }
+
+
     for (int32_t y = 0; y < maze.size.y; ++y) {
       for (int32_t x = 0; x < maze.size.x; ++x) {
-        if (Maze_tile_at(&maze, PairI32_create(x, y)) != '#') {
-          Renderer_fill_tile(&gRenderer, PairI32_create(x * kTILE, y * kTILE), 0xffffffff);
+        if (Maze_at_point(&maze, PairI32_create(x, y)) != '#') {
+          Renderer_fill_tile(&gRenderer, PairI32_create(x * kSPRITE, y * kSPRITE), 0xffffffff);
         }
       }
     }
@@ -133,7 +142,7 @@ int main(int argc, char **argv) {
           pthread_cond_broadcast(&ANIMAS[idx].cond_resume);
         }
 
-        Renderer_erase_sprite(&gRenderer, &ANIMAS[idx].sprite);
+        Renderer_erase_sprite(&gRenderer, &ANIMAS[idx].sprite, &ANIMAS[idx].pos);
       }
 
       SDL_RenderClear(gRenderer.renderer);
@@ -155,14 +164,14 @@ int main(int argc, char **argv) {
       for (size_t idx = 0; idx < kANIMAS; ++idx) {
         Anima_instinct(&ANIMAS[idx]);
         Anima_move_within(&ANIMAS[idx], &maze);
-        Renderer_draw_sprite(&gRenderer, &ANIMAS[idx].sprite);
+        Renderer_draw_sprite(&gRenderer, &ANIMAS[idx].sprite, &ANIMAS[idx].pos);
       }
 
       Renderer_update(&gRenderer);
 
       SDL_RenderPresent(gRenderer.renderer);
 
-      Uint64 frameNS = NSTimer_get_ticks(&frameCapTimer);
+      frameNS = NSTimer_get_ticks(&frameCapTimer);
       if (frameNS < kNS_PER_FRAME) {
         SDL_DelayNS(kNS_PER_FRAME - frameNS);
       }
