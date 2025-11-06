@@ -163,7 +163,7 @@ int main(int argc, char **argv) {
 
       for (size_t idx = 0; idx < kANIMAS; ++idx) {
         Anima_instinct(&ANIMAS[idx]);
-        Anima_move_within(&ANIMAS[idx], &maze);
+        Anima_move(&ANIMAS[idx], &maze);
         Renderer_draw_sprite(&gRenderer, &ANIMAS[idx].sprite, &ANIMAS[idx].pos);
       }
 

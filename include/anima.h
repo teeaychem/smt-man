@@ -66,7 +66,7 @@ void Anima_touch(Anima *self, Mind *mind);
 
 void Anima_handle_event(Anima *self, SDL_Event *event);
 
-void Anima_move_within(Anima *self, Maze *maze);
+void Anima_move(Anima *self, Maze *maze);
 
 void Anima_mind_innate(Anima *self, Mind *mind);
 

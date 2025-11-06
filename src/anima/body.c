@@ -4,6 +4,7 @@
 #include "logic.h"
 
 #include "render/constants.h"
+#include "utils.h"
 
 Anima Anima_default(char *name, PairI32 position, Sprite sprite) {
   return Anima_create(name, position, DOWN, DOWN, sprite);
@@ -80,13 +81,24 @@ void Anima_handle_event(Anima *self, SDL_Event *event) {
   }
 }
 
-void Anima_move_within(Anima *self, Maze *maze) {
+void Anima_move(Anima *self, Maze *maze) {
+
+  Direction momentum = atomic_load(&self->momentum);
 
   if (self->pos.x % kSPRITE == 0 && self->pos.y % kSPRITE == 0) {
-    atomic_store(&self->momentum, atomic_load(&self->intent));
+    momentum = atomic_load(&self->intent);
+    atomic_store(&self->momentum, momentum);
 
     PairI32 destination;
-    steps_in_direction(&self->pos, atomic_load(&self->momentum), 1, &destination);
+
+    PairI32 boundry_pixel = self->pos;
+
+    if (momentum == RIGHT || momentum == DOWN) {
+      boundry_pixel.x += self->sprite.size.x - 1;
+      boundry_pixel.y += self->sprite.size.y - 1;
+    }
+
+    steps_in_direction(&boundry_pixel, momentum, 1, &destination);
 
     if (Maze_is_open(maze, &destination)) {
       self->mVel = 1;
@@ -95,7 +107,7 @@ void Anima_move_within(Anima *self, Maze *maze) {
     }
   }
 
-  switch (atomic_load(&self->momentum)) {
+  switch (momentum) {
   case UP: {
     self->pos.y -= self->mVel;
   } break;
