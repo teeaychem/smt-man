@@ -8,7 +8,7 @@
 #include <SDL3/SDL_render.h>
 
 #include "maze.h"
-#include "sprite.h"
+#include "surface.h"
 #include "utils.h"
 
 #include "cvc5/c/cvc5.h"
@@ -47,7 +47,7 @@ struct anima_t {
 
   int mVel;
 
-  Sprite sprite;
+  Surface surface;
 
   pthread_mutex_t mtx_suspend;
   _Atomic bool flag_suspend;
@@ -56,9 +56,9 @@ struct anima_t {
 
 typedef struct anima_t Anima;
 
-Anima Anima_default(char *name, PairI32 position, Sprite sprite);
+Anima Anima_default(char *name, PairI32 position, Surface surface);
 
-Anima Anima_create(char *name, PairI32 pos, Direction intent, Direction momentum, Sprite sprite);
+Anima Anima_create(char *name, PairI32 pos, Direction intent, Direction momentum, Surface surface);
 
 void Anima_destroy(Anima *self);
 

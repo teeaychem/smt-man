@@ -36,21 +36,21 @@ void Renderer_update(Renderer *self) {
   SDL_RenderTexture(self->renderer, self->texture, NULL, NULL);
 }
 
-void Renderer_draw_sprite(Renderer *self, Sprite const *sprite, PairI32 const *location) {
+void Renderer_draw_surface(Renderer *self, Surface const *surface, PairI32 const *location) {
   size_t cell = 0;
   int32_t yOffset = location->y * kPIXELS.x + location->x;
 
-  for (size_t row = 0; row < sprite->size.y; ++row) {
-    for (size_t col = 0; col < sprite->size.x; ++col, ++cell) {
+  for (size_t row = 0; row < surface->size.y; ++row) {
+    for (size_t col = 0; col < surface->size.x; ++col, ++cell) {
       if ((self->frameBuffer[yOffset + col] | 0x00000000) == 0x00000000) {
-        self->frameBuffer[yOffset + col] = sprite->pixels[cell];
+        self->frameBuffer[yOffset + col] = surface->pixels[cell];
       }
     }
     yOffset += kPIXELS.x;
   }
 }
 
-void Renderer_erase_sprite(Renderer *self, Sprite const *sprite, PairI32 const *location) {
+void Renderer_erase_surface(Renderer *self, Surface const *sprite, PairI32 const *location) {
   size_t cell = 0;
   int32_t yOffset = location->y * kPIXELS.x + location->x;
 

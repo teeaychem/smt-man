@@ -16,7 +16,7 @@
 #include "render/constants.h"
 #include "render/render.h"
 
-#include "sprite.h"
+#include "surface.h"
 #include "toys.h"
 
 #include "utils/pairs.h"
@@ -85,15 +85,15 @@ int main(int argc, char **argv) {
   Maze maze = Maze_create(PATH_BUFFER);
 
   cwk_path_join(SOURCE_PATH, "resources/gottlob.png", PATH_BUFFER, FILENAME_MAX);
-  Sprite sprite_gottlob = Sprite_create(PATH_BUFFER);
+  Surface surface_gottlob = Surface_from_path(PATH_BUFFER);
 
-  ANIMAS[0] = Anima_default("gottlob", PairI32_create(16, 16), sprite_gottlob);
+  ANIMAS[0] = Anima_default("gottlob", PairI32_create(16, 16), surface_gottlob);
   pthread_create(&ANIMA_THREADS[0], NULL, spirit, (void *)&ANIMAS[0]);
 
   cwk_path_join(SOURCE_PATH, "resources/bertrand.png", PATH_BUFFER, FILENAME_MAX);
-  Sprite sprite_bertrand = Sprite_create(PATH_BUFFER);
+  Surface surface_bertrand = Surface_from_path(PATH_BUFFER);
 
-  ANIMAS[1] = Anima_default("bertrand", PairI32_create(32, 16), sprite_bertrand);
+  ANIMAS[1] = Anima_default("bertrand", PairI32_create(32, 16), surface_bertrand);
   pthread_create(&ANIMA_THREADS[1], NULL, spirit, (void *)&ANIMAS[1]);
 
   // Things happen...
@@ -120,10 +120,8 @@ int main(int argc, char **argv) {
     for (size_t pxl = 0; pxl < PairI32_area(&kPIXELS); ++pxl) {
       if (maze.pixels[pxl] != '#') {
         gRenderer.frameBuffer[pxl] = 0xffffffff;
-
-        }
+      }
     }
-
 
     for (int32_t y = 0; y < maze.size.y; ++y) {
       for (int32_t x = 0; x < maze.size.x; ++x) {
@@ -142,7 +140,7 @@ int main(int argc, char **argv) {
           pthread_cond_broadcast(&ANIMAS[idx].cond_resume);
         }
 
-        Renderer_erase_sprite(&gRenderer, &ANIMAS[idx].sprite, &ANIMAS[idx].pos);
+        Renderer_erase_surface(&gRenderer, &ANIMAS[idx].surface, &ANIMAS[idx].pos);
       }
 
       SDL_RenderClear(gRenderer.renderer);
@@ -164,7 +162,7 @@ int main(int argc, char **argv) {
       for (size_t idx = 0; idx < kANIMAS; ++idx) {
         Anima_instinct(&ANIMAS[idx]);
         Anima_move(&ANIMAS[idx], &maze);
-        Renderer_draw_sprite(&gRenderer, &ANIMAS[idx].sprite, &ANIMAS[idx].pos);
+        Renderer_draw_surface(&gRenderer, &ANIMAS[idx].surface, &ANIMAS[idx].pos);
       }
 
       Renderer_update(&gRenderer);

@@ -39,14 +39,14 @@ target_compile_options(
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 add_custom_target(
-    copy_sprites
+    copy_data
     COMMAND
         ${CMAKE_COMMAND} -E copy_directory_if_different
         "${CMAKE_CURRENT_SOURCE_DIR}/resources/"
         "${CMAKE_CURRENT_BINARY_DIR}/resources/"
     COMMENT "Copying data"
 )
-add_dependencies(${PROJECT_NAME} copy_sprites)
+add_dependencies(${PROJECT_NAME} copy_data)
 
 # Libraries
 
