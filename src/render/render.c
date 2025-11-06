@@ -36,44 +36,44 @@ void Renderer_update(Renderer *self) {
   SDL_RenderTexture(self->renderer, self->texture, NULL, NULL);
 }
 
-void Renderer_draw_surface(Renderer *self, Surface const *surface, PairI32 const *location) {
-  size_t cell = 0;
-  int32_t yOffset = location->y * kPIXELS.x + location->x;
-
-  for (size_t row = 0; row < surface->size.y; ++row) {
-    for (size_t col = 0; col < surface->size.x; ++col, ++cell) {
-      if ((self->frameBuffer[yOffset + col] | 0x00000000) == 0x00000000) {
-        self->frameBuffer[yOffset + col] = surface->pixels[cell];
+void Renderer_draw_surface(Renderer *self,
+                           PairI32 const *position,
+                           Surface const *surface,
+                           PairI32 const *origin, PairI32 const *size) {
+  for (size_t row = 0; row < size->y; ++row) {
+    for (size_t col = 0; col < size->x; ++col) {
+      size_t pixel_fb = (position->y + col) * kPIXELS.x + position->x + row;
+      if ((self->frameBuffer[pixel_fb] | 0x00000000) == 0x00000000) {
+        size_t pixel_s = (origin->y + col) * surface->size.x + origin->x + row;
+        self->frameBuffer[pixel_fb] = surface->pixels[pixel_s];
       }
     }
-    yOffset += kPIXELS.x;
   }
 }
 
-void Renderer_erase_surface(Renderer *self, Surface const *sprite, PairI32 const *location) {
-  size_t cell = 0;
-  int32_t yOffset = location->y * kPIXELS.x + location->x;
-
-  for (size_t row = 0; row < sprite->size.y; ++row) {
-    for (size_t col = 0; col < sprite->size.x; ++col, ++cell) {
-      if (self->frameBuffer[yOffset + col] == sprite->pixels[cell]) {
-        self->frameBuffer[yOffset + col] = 0x00000000;
+void Renderer_erase_surface(Renderer *self,
+                           PairI32 const *position,
+                           Surface const *surface,
+                           PairI32 const *origin, PairI32 const *size) {
+  for (size_t row = 0; row < size->y; ++row) {
+    for (size_t col = 0; col < size->x; ++col) {
+      size_t pixel_fb = (position->y + col) * kPIXELS.x + position->x + row;
+      size_t pixel_s = (origin->y + col) * surface->size.x + origin->x + row;
+      if (self->frameBuffer[pixel_fb] == surface->pixels[pixel_s]) {
+        self->frameBuffer[pixel_fb] = 0x00000000;
       }
     }
-    yOffset += kPIXELS.x;
   }
 }
 
-void Renderer_fill_tile(Renderer *self, PairI32 pos, int32_t colour) {
-
-  int32_t yOffset = pos.y * kPIXELS.x + pos.x;
+void Renderer_fill_tile(Renderer *self, PairI32 origin, int32_t colour) {
 
   for (size_t row = 0; row < kSPRITE; ++row) {
     for (size_t col = 0; col < kSPRITE; ++col) {
-      if ((self->frameBuffer[yOffset + col] | 0x00000000) == 0x00000000) {
-        self->frameBuffer[yOffset + col] = colour;
+      size_t pixel = (origin.y + col) * origin.x + row;
+      if ((self->frameBuffer[pixel] | 0x00000000) == 0x00000000) {
+        self->frameBuffer[pixel] = colour;
       }
     }
-    yOffset += kPIXELS.x;
   }
 }

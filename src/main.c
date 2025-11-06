@@ -116,6 +116,8 @@ int main(int argc, char **argv) {
 
     SDL_zero(event);
 
+    auto p_zero = PairI32_create(16, 0);
+
     // Draw the maze only once...
     for (size_t pxl = 0; pxl < PairI32_area(&kPIXELS); ++pxl) {
       if (maze.pixels[pxl] != '#') {
@@ -140,7 +142,11 @@ int main(int argc, char **argv) {
           pthread_cond_broadcast(&ANIMAS[idx].cond_resume);
         }
 
-        Renderer_erase_surface(&gRenderer, &ANIMAS[idx].surface, &ANIMAS[idx].pos);
+        Renderer_erase_surface(&gRenderer,
+                              &ANIMAS[idx].pos,
+                              &ANIMAS[idx].surface, &p_zero, &ANIMAS[idx].size);
+
+
       }
 
       SDL_RenderClear(gRenderer.renderer);
@@ -159,10 +165,14 @@ int main(int argc, char **argv) {
         Anima_handle_event(&ANIMAS[0], &event);
       }
 
+
+
       for (size_t idx = 0; idx < kANIMAS; ++idx) {
         Anima_instinct(&ANIMAS[idx]);
         Anima_move(&ANIMAS[idx], &maze);
-        Renderer_draw_surface(&gRenderer, &ANIMAS[idx].surface, &ANIMAS[idx].pos);
+        Renderer_draw_surface(&gRenderer,
+                              &ANIMAS[idx].pos,
+                              &ANIMAS[idx].surface, &p_zero, &ANIMAS[idx].size);
       }
 
       Renderer_update(&gRenderer);

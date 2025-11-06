@@ -41,6 +41,7 @@ struct anima_t {
   _Atomic(char *) name;
 
   PairI32 pos;
+  PairI32 size;
 
   _Atomic Direction intent;
   _Atomic Direction momentum;

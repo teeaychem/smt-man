@@ -5,6 +5,7 @@
 
 #include "render/constants.h"
 #include "utils.h"
+#include "utils/pairs.h"
 
 Anima Anima_default(char *name, PairI32 position, Surface surface) {
   return Anima_create(name, position, DOWN, DOWN, surface);
@@ -16,6 +17,7 @@ Anima Anima_create(char *name, PairI32 pos, Direction intent, Direction momentum
   Anima self = {
       .name = NULL,
       .pos = pos,
+      .size = PairI32_create(16, 16),
       .mVel = 1,
       .surface = surface,
       .mtx_suspend = PTHREAD_MUTEX_INITIALIZER,
@@ -94,8 +96,8 @@ void Anima_move(Anima *self, Maze *maze) {
     PairI32 boundry_pixel = self->pos;
 
     if (momentum == RIGHT || momentum == DOWN) {
-      boundry_pixel.x += self->surface.size.x - 1;
-      boundry_pixel.y += self->surface.size.y - 1;
+      boundry_pixel.x += self->size.x - 1;
+      boundry_pixel.y += self->size.y - 1;
     }
 
     steps_in_direction(&boundry_pixel, momentum, 1, &destination);

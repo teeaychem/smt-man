@@ -24,8 +24,14 @@ void Renderer_destroy(Renderer *self);
 
 void Renderer_update(Renderer *self);
 
-void Renderer_draw_surface(Renderer *self, Surface const *sprite, PairI32 const *location);
+void Renderer_draw_surface(Renderer *self,
+                           PairI32 const *position,
+                           Surface const *surface,
+                           PairI32 const *origin, PairI32 const *size);
 
-void Renderer_erase_surface(Renderer *self, Surface const *sprite, PairI32 const *location);
+void Renderer_erase_surface(Renderer *self,
+                           PairI32 const *position,
+                           Surface const *surface,
+                           PairI32 const *origin, PairI32 const *size);
 
 void Renderer_fill_tile(Renderer *self, PairI32 pos, int32_t colour);
