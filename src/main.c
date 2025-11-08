@@ -56,15 +56,20 @@ void *spirit(void *_anima) {
 };
 
 SDL_Window *gWindow = NULL;
+
+size_t SOURCE_PATH_SIZE;
 char *SOURCE_PATH = NULL;
 
 void setup() {
   // Set the source path for resources, etc.
-  size_t wai_length = wai_getExecutablePath(NULL, 0, NULL);
-  SOURCE_PATH = (char *)malloc((wai_length + 1));
-  int dirname_length;
-  wai_getExecutablePath(SOURCE_PATH, wai_length, &dirname_length);
-  SOURCE_PATH[dirname_length] = '\0';
+  SOURCE_PATH_SIZE = wai_getExecutablePath(NULL, 0, NULL) + 1;
+  SOURCE_PATH = malloc(SOURCE_PATH_SIZE * sizeof(*SOURCE_PATH));
+  int source_path_len;
+  wai_getExecutablePath(SOURCE_PATH, SOURCE_PATH_SIZE - 1, &source_path_len);
+  SOURCE_PATH[source_path_len] = '\0';
+}
+
+void setup_animas() {
 }
 
 int main(int argc, char **argv) {
@@ -143,10 +148,8 @@ int main(int argc, char **argv) {
         }
 
         Renderer_erase_surface(&gRenderer,
-                              &ANIMAS[idx].pos,
-                              &ANIMAS[idx].surface, &p_zero, &ANIMAS[idx].size);
-
-
+                               &ANIMAS[idx].pos,
+                               &ANIMAS[idx].surface, &p_zero, &ANIMAS[idx].size);
       }
 
       SDL_RenderClear(gRenderer.renderer);
@@ -164,8 +167,6 @@ int main(int argc, char **argv) {
         }
         Anima_handle_event(&ANIMAS[0], &event);
       }
-
-
 
       for (size_t idx = 0; idx < kANIMAS; ++idx) {
         Anima_instinct(&ANIMAS[idx]);

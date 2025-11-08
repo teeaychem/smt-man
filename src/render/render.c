@@ -52,9 +52,9 @@ void Renderer_draw_surface(Renderer *self,
 }
 
 void Renderer_erase_surface(Renderer *self,
-                           PairI32 const *position,
-                           Surface const *surface,
-                           PairI32 const *origin, PairI32 const *size) {
+                            PairI32 const *position,
+                            Surface const *surface,
+                            PairI32 const *origin, PairI32 const *size) {
   for (size_t row = 0; row < size->y; ++row) {
     for (size_t col = 0; col < size->x; ++col) {
       size_t pixel_fb = (position->y + col) * kPIXELS.x + position->x + row;
