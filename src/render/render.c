@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -11,7 +12,7 @@ Renderer Renderer_create() {
   self.gWindow = SDL_CreateWindow("smt-man", kPIXELS.x * kSCALE, kPIXELS.y * kSCALE, 0);
 
   self.renderer = SDL_CreateRenderer(self.gWindow, NULL);
-  self.frameBuffer = malloc(PairI32_area(&kPIXELS) * kSPRITE);
+  self.frameBuffer = malloc(PairI32_area(&kPIXELS) * sizeof(*self.frameBuffer));
   self.texture = SDL_CreateTexture(self.renderer,
                                    SDL_PIXELFORMAT_RGBA32,
                                    SDL_TEXTUREACCESS_STREAMING,

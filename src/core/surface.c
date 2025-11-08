@@ -1,4 +1,5 @@
 #include "surface.h"
+#include <stdint.h>
 #include <stdlib.h>
 
 Surface Surface_from_path(char *path) {
@@ -7,7 +8,7 @@ Surface Surface_from_path(char *path) {
 
   png_image image;
 
-  memset(&image, 0, (sizeof image));
+  memset(&image, 0, sizeof(image));
   image.version = PNG_IMAGE_VERSION;
 
   if (png_image_begin_read_from_file(&image, path) != 0) {
@@ -16,7 +17,7 @@ Surface Surface_from_path(char *path) {
     surface.size.x = image.width;
     surface.size.y = image.height;
 
-    surface.pixels = (int32_t *)malloc(PNG_IMAGE_SIZE(image));
+    surface.pixels = malloc(PNG_IMAGE_SIZE(image) * sizeof(*surface.pixels));
 
     if (surface.pixels != NULL &&
         png_image_finish_read(&image, NULL, surface.pixels, 0, NULL) != 0) {
@@ -43,7 +44,7 @@ int Surface_char_projection(Surface *surface, char *dest, size_t *len) {
   size_t size = (surface->size.x * (surface->size.y + 1)) + 1;
   *len = size;
 
-  dest = (char *)malloc(size);
+  dest = malloc(size * sizeof(*dest));
   memset(dest, ' ', size);
   dest[size - 1] = '\0';
 

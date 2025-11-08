@@ -86,7 +86,7 @@ Maze Maze_create(char *path) {
     exit(1);
   }
 
-  self.pixels = (char *)malloc(PairI32_area(&kPIXELS));
+  self.pixels = malloc(PairI32_area(&kPIXELS) * sizeof(*self.pixels));
   memset(self.pixels, '\0', PairI32_area(&kPIXELS));
 
   int32_t y_scale = kPIXELS.y / base.y;
