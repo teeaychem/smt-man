@@ -29,6 +29,8 @@ pthread_mutex_t mtx_cvc5 = PTHREAD_MUTEX_INITIALIZER;
 Anima ANIMAS[kANIMAS];
 pthread_t ANIMA_THREADS[kANIMAS];
 
+struct smt_world_t WORLD = {};
+
 void *spirit(void *_anima) {
 
   Anima *anima = _anima;
@@ -141,16 +143,11 @@ int main(int argc, char **argv) {
       NSTimer_start(&frameCapTimer);
 
       for (size_t idx = 0; idx < kANIMAS; ++idx) {
-        if (atomic_load(&ANIMAS[idx].sync.flag_suspend)) {
-          atomic_store(&ANIMAS[idx].sync.flag_suspend, false);
-          pthread_cond_broadcast(&ANIMAS[idx].sync.cond_resume);
-        }
+        /* WORLD.anima[idx].momentum = ANIMAS[idx].pov.anima[idx].momentum; */
 
-        Renderer_erase_surface(&gRenderer,
-                               &ANIMAS[idx].location,
-                               &ANIMAS[idx].sprite.surface,
-                               &ANIMAS[idx].sprite.surface_offset,
-                               &ANIMAS[idx].sprite.size);
+        Renderer_erase_sprite(&gRenderer,
+                              &ANIMAS[idx].location,
+                              &ANIMAS[idx].sprite);
       }
 
       SDL_RenderClear(gRenderer.renderer);
@@ -175,16 +172,21 @@ int main(int argc, char **argv) {
         Anima_update_surface_offset(&ANIMAS[idx]);
         Anima_move(&ANIMAS[idx], &maze);
 
-        Renderer_draw_surface(&gRenderer,
-                              &ANIMAS[idx].location,
-                              &ANIMAS[idx].sprite.surface,
-                              &ANIMAS[idx].sprite.surface_offset,
-                              &ANIMAS[idx].sprite.size);
+        Renderer_draw_sprite(&gRenderer,
+                             &ANIMAS[idx].location,
+                             &ANIMAS[idx].sprite);
       }
 
       Renderer_update(&gRenderer);
 
       SDL_RenderPresent(gRenderer.renderer);
+
+      for (size_t idx = 0; idx < kANIMAS; ++idx) {
+        if (atomic_load(&ANIMAS[idx].sync.flag_suspend)) {
+          atomic_store(&ANIMAS[idx].sync.flag_suspend, false);
+          pthread_cond_broadcast(&ANIMAS[idx].sync.cond_resume);
+        }
+      }
 
       frameNS = NSTimer_get_ticks(&frameCapTimer);
       if (frameNS < kNS_PER_FRAME) {

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "anima.h"
 #include "render/constants.h"
 #include "render/render.h"
 #include "utils/pairs.h"
@@ -37,30 +38,28 @@ void Renderer_update(Renderer *self) {
   SDL_RenderTexture(self->renderer, self->texture, NULL, NULL);
 }
 
-void Renderer_draw_surface(Renderer *self,
-                           PairI32 const *position,
-                           Surface const *surface,
-                           PairI32 const *origin, PairI32 const *size) {
-  for (size_t row = 0; row < size->y; ++row) {
-    for (size_t col = 0; col < size->x; ++col) {
+void Renderer_draw_sprite(Renderer *self,
+                          PairI32 const *position,
+                          SpriteInfo *sprite_info) {
+  for (size_t row = 0; row < sprite_info->size.y; ++row) {
+    for (size_t col = 0; col < sprite_info->size.x; ++col) {
       size_t pixel_fb = (position->y + col) * kPIXELS.x + position->x + row;
       if ((self->frameBuffer[pixel_fb] | 0x00000000) == 0x00000000) {
-        size_t pixel_s = (origin->y + col) * surface->size.x + origin->x + row;
-        self->frameBuffer[pixel_fb] = surface->pixels[pixel_s];
+        size_t pixel_s = (sprite_info->surface_offset.y + col) * sprite_info->surface.size.x + sprite_info->surface_offset.x + row;
+        self->frameBuffer[pixel_fb] = sprite_info->surface.pixels[pixel_s];
       }
     }
   }
 }
 
-void Renderer_erase_surface(Renderer *self,
-                            PairI32 const *position,
-                            Surface const *surface,
-                            PairI32 const *origin, PairI32 const *size) {
-  for (size_t row = 0; row < size->y; ++row) {
-    for (size_t col = 0; col < size->x; ++col) {
+void Renderer_erase_sprite(Renderer *self,
+                           PairI32 const *position,
+                           SpriteInfo *sprite_info) {
+  for (size_t row = 0; row < sprite_info->size.y; ++row) {
+    for (size_t col = 0; col < sprite_info->size.x; ++col) {
       size_t pixel_fb = (position->y + col) * kPIXELS.x + position->x + row;
-      size_t pixel_s = (origin->y + col) * surface->size.x + origin->x + row;
-      if (self->frameBuffer[pixel_fb] == surface->pixels[pixel_s]) {
+      size_t pixel_s = (sprite_info->surface_offset.y + col) * sprite_info->surface.size.x + sprite_info->surface_offset.x + row;
+      if (self->frameBuffer[pixel_fb] == sprite_info->surface.pixels[pixel_s]) {
         self->frameBuffer[pixel_fb] = 0x00000000;
       }
     }
