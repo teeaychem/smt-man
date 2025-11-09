@@ -21,5 +21,5 @@ struct smt_anima_t {
 
 typedef struct smt_lot_t SmtLot;
 struct smt_lot_t {
-  SmtAnima anima;
+  SmtAnima anima[kANIMAS];
 };

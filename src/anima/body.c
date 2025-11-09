@@ -51,19 +51,19 @@ void Anima_touch(Anima *self, Mind *mind) {
 
     sprintf(cvc5_input_buffer, "(is_facing %s up)", atomic_load(&self->name));
     cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
-    mind->lot.anima.facing.up = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
+    mind->lot.anima[self->id].facing.up = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
 
     sprintf(cvc5_input_buffer, "(is_facing %s right)", atomic_load(&self->name));
     cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
-    mind->lot.anima.facing.right = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
+    mind->lot.anima[self->id].facing.right = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
 
     sprintf(cvc5_input_buffer, "(is_facing %s down)", atomic_load(&self->name));
     cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
-    mind->lot.anima.facing.down = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
+    mind->lot.anima[self->id].facing.down = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
 
     sprintf(cvc5_input_buffer, "(is_facing %s left)", atomic_load(&self->name));
     cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
-    mind->lot.anima.facing.left = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
+    mind->lot.anima[self->id].facing.left = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
   }
 };
 
@@ -174,34 +174,34 @@ void Anima_deduct(Anima *self, Mind *mind) {
 
   switch (tmp_direction) {
   case 1: {
-    cvc5_assert_formula(mind->solver, cvc5_mk_term(mind->tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){cvc5_mk_term(mind->tm, CVC5_KIND_OR, 3, (Cvc5Term[3]){mind->lot.anima.facing.right, mind->lot.anima.facing.down, mind->lot.anima.facing.left})}));
+    cvc5_assert_formula(mind->solver, cvc5_mk_term(mind->tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){cvc5_mk_term(mind->tm, CVC5_KIND_OR, 3, (Cvc5Term[3]){mind->lot.anima[self->id].facing.right, mind->lot.anima[self->id].facing.down, mind->lot.anima[self->id].facing.left})}));
   } break;
 
   case 2: {
-    cvc5_assert_formula(mind->solver, cvc5_mk_term(mind->tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){cvc5_mk_term(mind->tm, CVC5_KIND_OR, 3, (Cvc5Term[3]){mind->lot.anima.facing.up, mind->lot.anima.facing.down, mind->lot.anima.facing.left})}));
+    cvc5_assert_formula(mind->solver, cvc5_mk_term(mind->tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){cvc5_mk_term(mind->tm, CVC5_KIND_OR, 3, (Cvc5Term[3]){mind->lot.anima[self->id].facing.up, mind->lot.anima[self->id].facing.down, mind->lot.anima[self->id].facing.left})}));
   } break;
 
   case 3: {
-    cvc5_assert_formula(mind->solver, cvc5_mk_term(mind->tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){cvc5_mk_term(mind->tm, CVC5_KIND_OR, 3, (Cvc5Term[3]){mind->lot.anima.facing.up, mind->lot.anima.facing.right, mind->lot.anima.facing.left})}));
+    cvc5_assert_formula(mind->solver, cvc5_mk_term(mind->tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){cvc5_mk_term(mind->tm, CVC5_KIND_OR, 3, (Cvc5Term[3]){mind->lot.anima[self->id].facing.up, mind->lot.anima[self->id].facing.right, mind->lot.anima[self->id].facing.left})}));
   } break;
 
   case 4: {
-    cvc5_assert_formula(mind->solver, cvc5_mk_term(mind->tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){cvc5_mk_term(mind->tm, CVC5_KIND_OR, 3, (Cvc5Term[3]){mind->lot.anima.facing.up, mind->lot.anima.facing.right, mind->lot.anima.facing.down})}));
+    cvc5_assert_formula(mind->solver, cvc5_mk_term(mind->tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){cvc5_mk_term(mind->tm, CVC5_KIND_OR, 3, (Cvc5Term[3]){mind->lot.anima[self->id].facing.up, mind->lot.anima[self->id].facing.right, mind->lot.anima[self->id].facing.down})}));
   } break;
   }
 
   cvc5_check_sat(mind->solver);
 
-  if (cvc5_term_get_boolean_value(cvc5_get_value(mind->solver, mind->lot.anima.facing.up))) {
+  if (cvc5_term_get_boolean_value(cvc5_get_value(mind->solver, mind->lot.anima[self->id].facing.up))) {
     atomic_store(&self->intent, UP);
 
-  } else if (cvc5_term_get_boolean_value(cvc5_get_value(mind->solver, mind->lot.anima.facing.right))) {
+  } else if (cvc5_term_get_boolean_value(cvc5_get_value(mind->solver, mind->lot.anima[self->id].facing.right))) {
     atomic_store(&self->intent, RIGHT);
 
-  } else if (cvc5_term_get_boolean_value(cvc5_get_value(mind->solver, mind->lot.anima.facing.down))) {
+  } else if (cvc5_term_get_boolean_value(cvc5_get_value(mind->solver, mind->lot.anima[self->id].facing.down))) {
     atomic_store(&self->intent, DOWN);
 
-  } else if (cvc5_term_get_boolean_value(cvc5_get_value(mind->solver, mind->lot.anima.facing.left))) {
+  } else if (cvc5_term_get_boolean_value(cvc5_get_value(mind->solver, mind->lot.anima[self->id].facing.left))) {
     atomic_store(&self->intent, LEFT);
   } else {
     stumplog(LOG_ERR, "No direction"), exit(-1);
