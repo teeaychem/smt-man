@@ -17,32 +17,38 @@
 #include "logic.h"
 #include "utils/pairs.h"
 
+// Minds
+
+typedef struct mind_t Mind;
 struct mind_t {
   Cvc5 *solver;
   Cvc5TermManager *tm;
   Cvc5SymbolManager *sm;
   Cvc5InputParser *parser;
 
-  AnimaTerms terms;
+  SmtLot lot;
 };
-
-typedef struct mind_t Mind;
 
 Mind Mind_default();
 
+// Animas
+
+typedef enum anima_status_t AnimaStatus;
 enum anima_status_t {
   ANIMA_STATUS_SEACH,
 };
 
+typedef struct anima_t Anima;
 struct anima_t {
 
+  _Atomic(uint8_t) id;
   _Atomic(char *) name;
 
   _Atomic(Direction) intent;
   _Atomic(Direction) momentum;
 
   uint32_t status_tick;
-  _Atomic(enum anima_status_t) status;
+  _Atomic(AnimaStatus) status;
 
   PairI32 location;
   PairI32 size;
@@ -57,11 +63,9 @@ struct anima_t {
   pthread_cond_t cond_resume;
 };
 
-typedef struct anima_t Anima;
+Anima Anima_default(uint8_t id, char *name, PairI32 position, Surface surface);
 
-Anima Anima_default(char *name, PairI32 position, Surface surface);
-
-Anima Anima_create(char *name, PairI32 pos, Direction intent, Direction momentum, Surface surface);
+Anima Anima_create(uint8_t id, char *name, PairI32 pos, Direction intent, Direction momentum, Surface surface);
 
 void Anima_destroy(Anima *self);
 

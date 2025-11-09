@@ -19,7 +19,7 @@ Mind Mind_default() {
       .sm = symbols,
       .solver = solver,
       .tm = tm,
-      .terms = {},
+      .lot = {},
   };
 
   return mind;

@@ -6,16 +6,18 @@
 #include "render/constants.h"
 #include "utils.h"
 #include "utils/pairs.h"
+#include <stdint.h>
 
-Anima Anima_default(char *name, PairI32 position, Surface surface) {
-  return Anima_create(name, position, DOWN, DOWN, surface);
+Anima Anima_default(uint8_t id, char *name, PairI32 position, Surface surface) {
+  return Anima_create(id, name, position, DOWN, DOWN, surface);
 }
 
-Anima Anima_create(char *name, PairI32 pos, Direction intent, Direction momentum, Surface surface) {
+Anima Anima_create(uint8_t id, char *name, PairI32 pos, Direction intent, Direction momentum, Surface surface) {
   stumplog(LOG_INFO, "Creating anima: %s", name);
 
   Anima self = {
       .cond_resume = PTHREAD_COND_INITIALIZER,
+      .id = id,
       .location = pos,
       .mVel = 1,
       .mtx_suspend = PTHREAD_MUTEX_INITIALIZER,
@@ -49,19 +51,19 @@ void Anima_touch(Anima *self, Mind *mind) {
 
     sprintf(cvc5_input_buffer, "(is_facing %s up)", atomic_load(&self->name));
     cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
-    mind->terms.facing_up = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
+    mind->lot.anima.facing.up = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
 
     sprintf(cvc5_input_buffer, "(is_facing %s right)", atomic_load(&self->name));
     cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
-    mind->terms.facing_right = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
+    mind->lot.anima.facing.right = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
 
     sprintf(cvc5_input_buffer, "(is_facing %s down)", atomic_load(&self->name));
     cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
-    mind->terms.facing_down = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
+    mind->lot.anima.facing.down = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
 
     sprintf(cvc5_input_buffer, "(is_facing %s left)", atomic_load(&self->name));
     cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
-    mind->terms.facing_left = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
+    mind->lot.anima.facing.left = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
   }
 };
 
@@ -172,34 +174,34 @@ void Anima_deduct(Anima *self, Mind *mind) {
 
   switch (tmp_direction) {
   case 1: {
-    cvc5_assert_formula(mind->solver, cvc5_mk_term(mind->tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){cvc5_mk_term(mind->tm, CVC5_KIND_OR, 3, (Cvc5Term[3]){mind->terms.facing_right, mind->terms.facing_down, mind->terms.facing_left})}));
+    cvc5_assert_formula(mind->solver, cvc5_mk_term(mind->tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){cvc5_mk_term(mind->tm, CVC5_KIND_OR, 3, (Cvc5Term[3]){mind->lot.anima.facing.right, mind->lot.anima.facing.down, mind->lot.anima.facing.left})}));
   } break;
 
   case 2: {
-    cvc5_assert_formula(mind->solver, cvc5_mk_term(mind->tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){cvc5_mk_term(mind->tm, CVC5_KIND_OR, 3, (Cvc5Term[3]){mind->terms.facing_up, mind->terms.facing_down, mind->terms.facing_left})}));
+    cvc5_assert_formula(mind->solver, cvc5_mk_term(mind->tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){cvc5_mk_term(mind->tm, CVC5_KIND_OR, 3, (Cvc5Term[3]){mind->lot.anima.facing.up, mind->lot.anima.facing.down, mind->lot.anima.facing.left})}));
   } break;
 
   case 3: {
-    cvc5_assert_formula(mind->solver, cvc5_mk_term(mind->tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){cvc5_mk_term(mind->tm, CVC5_KIND_OR, 3, (Cvc5Term[3]){mind->terms.facing_up, mind->terms.facing_right, mind->terms.facing_left})}));
+    cvc5_assert_formula(mind->solver, cvc5_mk_term(mind->tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){cvc5_mk_term(mind->tm, CVC5_KIND_OR, 3, (Cvc5Term[3]){mind->lot.anima.facing.up, mind->lot.anima.facing.right, mind->lot.anima.facing.left})}));
   } break;
 
   case 4: {
-    cvc5_assert_formula(mind->solver, cvc5_mk_term(mind->tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){cvc5_mk_term(mind->tm, CVC5_KIND_OR, 3, (Cvc5Term[3]){mind->terms.facing_up, mind->terms.facing_right, mind->terms.facing_down})}));
+    cvc5_assert_formula(mind->solver, cvc5_mk_term(mind->tm, CVC5_KIND_NOT, 1, (Cvc5Term[1]){cvc5_mk_term(mind->tm, CVC5_KIND_OR, 3, (Cvc5Term[3]){mind->lot.anima.facing.up, mind->lot.anima.facing.right, mind->lot.anima.facing.down})}));
   } break;
   }
 
   cvc5_check_sat(mind->solver);
 
-  if (cvc5_term_get_boolean_value(cvc5_get_value(mind->solver, mind->terms.facing_up))) {
+  if (cvc5_term_get_boolean_value(cvc5_get_value(mind->solver, mind->lot.anima.facing.up))) {
     atomic_store(&self->intent, UP);
 
-  } else if (cvc5_term_get_boolean_value(cvc5_get_value(mind->solver, mind->terms.facing_right))) {
+  } else if (cvc5_term_get_boolean_value(cvc5_get_value(mind->solver, mind->lot.anima.facing.right))) {
     atomic_store(&self->intent, RIGHT);
 
-  } else if (cvc5_term_get_boolean_value(cvc5_get_value(mind->solver, mind->terms.facing_down))) {
+  } else if (cvc5_term_get_boolean_value(cvc5_get_value(mind->solver, mind->lot.anima.facing.down))) {
     atomic_store(&self->intent, DOWN);
 
-  } else if (cvc5_term_get_boolean_value(cvc5_get_value(mind->solver, mind->terms.facing_left))) {
+  } else if (cvc5_term_get_boolean_value(cvc5_get_value(mind->solver, mind->lot.anima.facing.left))) {
     atomic_store(&self->intent, LEFT);
   } else {
     stumplog(LOG_ERR, "No direction"), exit(-1);

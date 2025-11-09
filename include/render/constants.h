@@ -6,6 +6,8 @@
 
 #include "utils/pairs.h"
 
+constexpr size_t kANIMAS = 2;
+
 static const int32_t kTILE = 8;
 static const int32_t kSPRITE = kTILE * 2;
 static const PairI32 kTILES = {.x = 28, .y = 31};

@@ -10,6 +10,7 @@
 #include <whereami.h>
 
 #include "anima.h"
+#include "logic.h"
 #include "maze.h"
 
 #include "render/NSTimer.h"
@@ -24,8 +25,6 @@
 Renderer gRenderer;
 
 pthread_mutex_t mtx_cvc5 = PTHREAD_MUTEX_INITIALIZER;
-
-constexpr size_t kANIMAS = 2;
 
 Anima ANIMAS[kANIMAS];
 pthread_t ANIMA_THREADS[kANIMAS];
@@ -92,13 +91,13 @@ int main(int argc, char **argv) {
   cwk_path_join(SOURCE_PATH, "resources/gottlob.png", PATH_BUFFER, FILENAME_MAX);
   Surface surface_gottlob = Surface_from_path(PATH_BUFFER);
 
-  ANIMAS[0] = Anima_default("gottlob", PairI32_create(16, 16), surface_gottlob);
+  ANIMAS[0] = Anima_default(0, "gottlob", PairI32_create(16, 16), surface_gottlob);
   pthread_create(&ANIMA_THREADS[0], NULL, spirit, (void *)&ANIMAS[0]);
 
   cwk_path_join(SOURCE_PATH, "resources/bertrand.png", PATH_BUFFER, FILENAME_MAX);
   Surface surface_bertrand = Surface_from_path(PATH_BUFFER);
 
-  ANIMAS[1] = Anima_default("bertrand", PairI32_create(32, 16), surface_bertrand);
+  ANIMAS[1] = Anima_default(1, "bertrand", PairI32_create(32, 16), surface_bertrand);
   pthread_create(&ANIMA_THREADS[1], NULL, spirit, (void *)&ANIMAS[1]);
 
   // Things happen...
