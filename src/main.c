@@ -74,12 +74,12 @@ void setup() {
 void setup_animas() {
 }
 
-void Anima_update_surface_offset(Anima *self, SpriteInfo *sprite_info) {
+void update_anima_sprite(uint8_t anima_id, SpriteInfo *sprite_info) {
 
-  switch (atomic_load(&self->pov.anima[self->id].status)) {
+  switch (atomic_load(&WORLD.anima[anima_id].status)) {
 
   case ANIMA_STATUS_SEARCH: {
-    if (self->status_tick % 15 == 0) {
+    if (sprite_info->tick % 15 == 0) {
       sprite_info->surface_offset.x = (sprite_info->surface_offset.x + sprite_info->size.x) % sprite_info->surface.size.x;
     }
   } break;
@@ -162,7 +162,7 @@ int main(int argc, char **argv) {
       NSTimer_start(&frameCapTimer);
 
       for (size_t idx = 0; idx < kANIMAS; ++idx) {
-        /* WORLD.anima[idx].momentum = ANIMAS[idx].pov.anima[idx].momentum; */
+        WORLD.anima[idx].location = ANIMAS[idx].pov.anima[idx].location;
 
         Renderer_erase_sprite(&gRenderer,
                               atomic_load(&ANIMAS[idx].pov.anima[idx].location),
@@ -186,9 +186,8 @@ int main(int argc, char **argv) {
       }
 
       for (size_t idx = 0; idx < kANIMAS; ++idx) {
-        Anima_fresh_tick(&ANIMAS[idx]);
         Anima_instinct(&ANIMAS[idx]);
-        Anima_update_surface_offset(&ANIMAS[idx], &ANIMA_SPRITES[idx]);
+        update_anima_sprite(idx, &ANIMA_SPRITES[idx]);
         Anima_move(&ANIMAS[idx], &maze);
 
         Renderer_draw_sprite(&gRenderer,
@@ -201,6 +200,8 @@ int main(int argc, char **argv) {
       SDL_RenderPresent(gRenderer.renderer);
 
       for (size_t idx = 0; idx < kANIMAS; ++idx) {
+        ANIMA_SPRITES[idx].tick += 1;
+
         if (atomic_load(&ANIMAS[idx].sync.flag_suspend)) {
           atomic_store(&ANIMAS[idx].sync.flag_suspend, false);
           pthread_cond_broadcast(&ANIMAS[idx].sync.cond_resume);

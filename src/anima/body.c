@@ -22,7 +22,6 @@ Anima Anima_create(uint8_t id, char *name, PairI32 location, Direction intent, D
       .name = name,
       .pov = {},
       .sprite_size = sprite_size,
-      .status_tick = 0,
 
       .sync = {
           .cond_resume = PTHREAD_COND_INITIALIZER,
@@ -219,8 +218,4 @@ void Anima_deduct(Anima *self, Mind *mind) {
 };
 
 void Anima_instinct(Anima *self) {
-}
-
-void Anima_fresh_tick(Anima *self) {
-  self->status_tick += 1;
 }

@@ -38,6 +38,7 @@ struct sprite_info_t {
   PairI32 size;
   Surface surface;
   PairI32 surface_offset;
+  uint32_t tick;
 };
 
 typedef struct anima_sync_t AnimaSync;
@@ -59,7 +60,6 @@ struct anima_t {
   int velocity;
 
   PairI32 sprite_size;
-  uint32_t status_tick;
 
   AnimaSync sync;
 };
@@ -71,8 +71,6 @@ Anima Anima_create(uint8_t id, char *name, PairI32 location, Direction intent, D
 void Anima_destroy(Anima *self);
 
 void Anima_touch(Anima *self, Mind *mind);
-
-void Anima_fresh_tick(Anima *self);
 
 void Anima_handle_event(Anima *self, SDL_Event *event);
 
