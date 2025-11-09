@@ -40,10 +40,7 @@ struct anima_t {
 
   uint8_t id;
 
-  _Atomic(Direction) intent;
-  _Atomic(Direction) momentum;
-
-  _Atomic(AnimaStatus) status;
+  struct smt_world_t pov;
 
   PairI32 location;
   PairI32 size;

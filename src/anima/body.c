@@ -23,14 +23,16 @@ Anima Anima_create(uint8_t id, char *name, PairI32 pos, Direction intent, Direct
       .mtx_suspend = PTHREAD_MUTEX_INITIALIZER,
       .name = name,
       .size = PairI32_create(16, 16),
-      .status = ANIMA_STATUS_SEARCH,
       .status_tick = 0,
       .surface = surface,
       .surface_offset = PairI32_create(0, 0),
+      .pov = {}
   };
 
-  atomic_init(&self.momentum, momentum);
-  atomic_init(&self.intent, intent);
+
+  atomic_init(&self.pov.anima[self.id].status, ANIMA_STATUS_SEARCH);
+  atomic_init(&self.pov.anima[self.id].momentum, momentum);
+  atomic_init(&self.pov.anima[self.id].intent, intent);
   atomic_init(&self.flag_suspend, false);
 
   return self;
@@ -72,16 +74,16 @@ void Anima_handle_event(Anima *self, SDL_Event *event) {
 
     switch (event->key.key) {
     case SDLK_UP: {
-      atomic_store(&self->intent, UP);
+      atomic_store(&self->pov.anima[self->id].intent, UP);
     } break;
     case SDLK_DOWN: {
-      atomic_store(&self->intent, DOWN);
+      atomic_store(&self->pov.anima[self->id].intent, DOWN);
     } break;
     case SDLK_LEFT: {
-      atomic_store(&self->intent, LEFT);
+      atomic_store(&self->pov.anima[self->id].intent, LEFT);
     } break;
     case SDLK_RIGHT: {
-      atomic_store(&self->intent, RIGHT);
+      atomic_store(&self->pov.anima[self->id].intent, RIGHT);
     } break;
     }
   }
@@ -89,11 +91,11 @@ void Anima_handle_event(Anima *self, SDL_Event *event) {
 
 void Anima_move(Anima *self, Maze *maze) {
 
-  Direction momentum = atomic_load(&self->momentum);
+  Direction momentum = atomic_load(&self->pov.anima[self->id].momentum);
 
   if (self->location.x % kSPRITE == 0 && self->location.y % kSPRITE == 0) {
-    momentum = atomic_load(&self->intent);
-    atomic_store(&self->momentum, momentum);
+    momentum = atomic_load(&self->pov.anima[self->id].intent);
+    atomic_store(&self->pov.anima[self->id].momentum, momentum);
 
     PairI32 destination;
 
@@ -192,16 +194,16 @@ void Anima_deduct(Anima *self, Mind *mind) {
   cvc5_check_sat(mind->solver);
 
   if (cvc5_term_get_boolean_value(cvc5_get_value(mind->solver, mind->lot.anima[self->id].facing.up))) {
-    atomic_store(&self->intent, UP);
+    atomic_store(&self->pov.anima[self->id].intent, UP);
 
   } else if (cvc5_term_get_boolean_value(cvc5_get_value(mind->solver, mind->lot.anima[self->id].facing.right))) {
-    atomic_store(&self->intent, RIGHT);
+    atomic_store(&self->pov.anima[self->id].intent, RIGHT);
 
   } else if (cvc5_term_get_boolean_value(cvc5_get_value(mind->solver, mind->lot.anima[self->id].facing.down))) {
-    atomic_store(&self->intent, DOWN);
+    atomic_store(&self->pov.anima[self->id].intent, DOWN);
 
   } else if (cvc5_term_get_boolean_value(cvc5_get_value(mind->solver, mind->lot.anima[self->id].facing.left))) {
-    atomic_store(&self->intent, LEFT);
+    atomic_store(&self->pov.anima[self->id].intent, LEFT);
   } else {
     stumplog(LOG_ERR, "No direction"), exit(-1);
   }
@@ -214,7 +216,7 @@ void Anima_instinct(Anima *self) {
 
 void Anima_update_surface_offset(Anima *self) {
 
-  switch (self->status) {
+  switch (self->pov.anima[self->id].status) {
 
   case ANIMA_STATUS_SEARCH: {
     if (self->status_tick % 15 == 0) {
