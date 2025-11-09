@@ -39,11 +39,11 @@ void Renderer_update(Renderer *self) {
 }
 
 void Renderer_draw_sprite(Renderer *self,
-                          PairI32 const *position,
+                          PairI32 position,
                           SpriteInfo *sprite_info) {
   for (size_t row = 0; row < sprite_info->size.y; ++row) {
     for (size_t col = 0; col < sprite_info->size.x; ++col) {
-      size_t pixel_fb = (position->y + col) * kPIXELS.x + position->x + row;
+      size_t pixel_fb = (position.y + col) * kPIXELS.x + position.x + row;
       if ((self->frameBuffer[pixel_fb] | 0x00000000) == 0x00000000) {
         size_t pixel_s = (sprite_info->surface_offset.y + col) * sprite_info->surface.size.x + sprite_info->surface_offset.x + row;
         self->frameBuffer[pixel_fb] = sprite_info->surface.pixels[pixel_s];
@@ -53,11 +53,11 @@ void Renderer_draw_sprite(Renderer *self,
 }
 
 void Renderer_erase_sprite(Renderer *self,
-                           PairI32 const *position,
+                           PairI32 position,
                            SpriteInfo *sprite_info) {
   for (size_t row = 0; row < sprite_info->size.y; ++row) {
     for (size_t col = 0; col < sprite_info->size.x; ++col) {
-      size_t pixel_fb = (position->y + col) * kPIXELS.x + position->x + row;
+      size_t pixel_fb = (position.y + col) * kPIXELS.x + position.x + row;
       size_t pixel_s = (sprite_info->surface_offset.y + col) * sprite_info->surface.size.x + sprite_info->surface_offset.x + row;
       if (self->frameBuffer[pixel_fb] == sprite_info->surface.pixels[pixel_s]) {
         self->frameBuffer[pixel_fb] = 0x00000000;

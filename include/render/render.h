@@ -26,11 +26,11 @@ void Renderer_destroy(Renderer *self);
 void Renderer_update(Renderer *self);
 
 void Renderer_draw_sprite(Renderer *self,
-                          PairI32 const *location,
+                          PairI32 location,
                           SpriteInfo *sprite_info);
 
 void Renderer_erase_sprite(Renderer *self,
-                           PairI32 const *location,
+                           PairI32 location,
                            SpriteInfo *sprite_info);
 
 void Renderer_fill_tile(Renderer *self, PairI32 pos, int32_t colour);

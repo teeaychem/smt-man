@@ -56,8 +56,6 @@ struct anima_t {
 
   SmtWorld pov;
 
-  PairI32 location;
-
   int velocity;
 
   SpriteInfo sprite;

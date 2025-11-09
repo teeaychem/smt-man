@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "cvc5/c/cvc5.h"
 #include "render/constants.h"
 #include "utils.h"
@@ -33,12 +32,12 @@ struct smt_lot_t {
 
 // World things
 
-
 typedef struct smt_world_anima_t SmtWorldAnima;
 struct smt_world_anima_t {
-  _Atomic(enum direction_e) intent;
-  _Atomic(enum direction_e) momentum;
-  _Atomic(enum anima_status_t) status;
+  _Atomic(PairI32) location;
+  _Atomic(Direction) intent;
+  _Atomic(Direction) momentum;
+  _Atomic(AnimaStatus) status;
 };
 
 typedef struct smt_world_t SmtWorld;

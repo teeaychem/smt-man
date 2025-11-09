@@ -146,7 +146,7 @@ int main(int argc, char **argv) {
         /* WORLD.anima[idx].momentum = ANIMAS[idx].pov.anima[idx].momentum; */
 
         Renderer_erase_sprite(&gRenderer,
-                              &ANIMAS[idx].location,
+                              atomic_load(&ANIMAS[idx].pov.anima[idx].location),
                               &ANIMAS[idx].sprite);
       }
 
@@ -173,7 +173,7 @@ int main(int argc, char **argv) {
         Anima_move(&ANIMAS[idx], &maze);
 
         Renderer_draw_sprite(&gRenderer,
-                             &ANIMAS[idx].location,
+                             atomic_load(&ANIMAS[idx].pov.anima[idx].location),
                              &ANIMAS[idx].sprite);
       }
 

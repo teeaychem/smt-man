@@ -6,19 +6,19 @@
 #include "render/constants.h"
 #include "utils.h"
 #include "utils/pairs.h"
+#include <stdatomic.h>
 #include <stdint.h>
 
 Anima Anima_default(uint8_t id, char *name, PairI32 position, Surface surface) {
   return Anima_create(id, name, position, DOWN, DOWN, surface);
 }
 
-Anima Anima_create(uint8_t id, char *name, PairI32 pos, Direction intent, Direction momentum, Surface surface) {
+Anima Anima_create(uint8_t id, char *name, PairI32 location, Direction intent, Direction momentum, Surface surface) {
   stumplog(LOG_INFO, "Creating anima: %s", name);
 
   Anima self = {
 
       .id = id,
-      .location = pos,
       .name = name,
       .pov = {},
       .sprite = {
@@ -34,9 +34,11 @@ Anima Anima_create(uint8_t id, char *name, PairI32 pos, Direction intent, Direct
       .velocity = 1,
   };
 
-  atomic_init(&self.pov.anima[self.id].status, ANIMA_STATUS_SEARCH);
-  atomic_init(&self.pov.anima[self.id].momentum, momentum);
   atomic_init(&self.pov.anima[self.id].intent, intent);
+  atomic_init(&self.pov.anima[self.id].momentum, momentum);
+  atomic_init(&self.pov.anima[self.id].location, location);
+  atomic_init(&self.pov.anima[self.id].status, ANIMA_STATUS_SEARCH);
+
   atomic_init(&self.sync.flag_suspend, false);
 
   return self;
@@ -97,13 +99,15 @@ void Anima_move(Anima *self, Maze *maze) {
 
   Direction momentum = atomic_load(&self->pov.anima[self->id].momentum);
 
-  if (self->location.x % kSPRITE == 0 && self->location.y % kSPRITE == 0) {
+  auto current_location = atomic_load(&self->pov.anima[self->id].location);
+
+  if (current_location.x % kSPRITE == 0 && current_location.y % kSPRITE == 0) {
     momentum = atomic_load(&self->pov.anima[self->id].intent);
     atomic_store(&self->pov.anima[self->id].momentum, momentum);
 
     PairI32 destination;
 
-    PairI32 boundry_pixel = self->location;
+    PairI32 boundry_pixel = current_location;
 
     if (momentum == RIGHT || momentum == DOWN) {
       boundry_pixel.x += self->sprite.size.x - 1;
@@ -121,18 +125,20 @@ void Anima_move(Anima *self, Maze *maze) {
 
   switch (momentum) {
   case UP: {
-    self->location.y -= self->velocity;
+    current_location.y -= self->velocity;
   } break;
   case RIGHT: {
-    self->location.x += self->velocity;
+    current_location.x += self->velocity;
   } break;
   case DOWN: {
-    self->location.y += self->velocity;
+    current_location.y += self->velocity;
   } break;
   case LEFT: {
-    self->location.x -= self->velocity;
+    current_location.x -= self->velocity;
   } break;
   }
+
+  atomic_store(&self->pov.anima[self->id].location, current_location);
 }
 
 void Anima_mind_innate(Anima *self, Mind *mind) {
