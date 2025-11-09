@@ -33,6 +33,18 @@ Mind Mind_default();
 
 // Animas
 
+struct sprite_info_t {
+  PairI32 size;
+  Surface surface;
+  PairI32 surface_offset;
+};
+
+struct sprite_sync_t {
+  _Atomic(bool) flag_suspend;
+  pthread_mutex_t mtx_suspend;
+  pthread_cond_t cond_resume;
+};
+
 typedef struct anima_t Anima;
 struct anima_t {
 
@@ -43,18 +55,14 @@ struct anima_t {
   struct smt_world_t pov;
 
   PairI32 location;
-  PairI32 size;
 
-  int mVel;
+  int velocity;
 
-  Surface surface;
-  PairI32 surface_offset;
+  struct sprite_info_t sprite;
 
   uint32_t status_tick;
 
-  _Atomic(bool) flag_suspend;
-  pthread_mutex_t mtx_suspend;
-  pthread_cond_t cond_resume;
+  struct sprite_sync_t sync;
 };
 
 Anima Anima_default(uint8_t id, char *name, PairI32 position, Surface surface);

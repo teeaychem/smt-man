@@ -16,30 +16,34 @@ Anima Anima_create(uint8_t id, char *name, PairI32 pos, Direction intent, Direct
   stumplog(LOG_INFO, "Creating anima: %s", name);
 
   Anima self = {
-      .cond_resume = PTHREAD_COND_INITIALIZER,
+
       .id = id,
       .location = pos,
-      .mVel = 1,
-      .mtx_suspend = PTHREAD_MUTEX_INITIALIZER,
       .name = name,
-      .size = PairI32_create(16, 16),
+      .pov = {},
+      .sprite = {
+          .size = PairI32_create(16, 16),
+          .surface = surface,
+          .surface_offset = PairI32_create(0, 0),
+      },
       .status_tick = 0,
-      .surface = surface,
-      .surface_offset = PairI32_create(0, 0),
-      .pov = {}
+      .sync = {
+          .cond_resume = PTHREAD_COND_INITIALIZER,
+          .mtx_suspend = PTHREAD_MUTEX_INITIALIZER,
+      },
+      .velocity = 1,
   };
-
 
   atomic_init(&self.pov.anima[self.id].status, ANIMA_STATUS_SEARCH);
   atomic_init(&self.pov.anima[self.id].momentum, momentum);
   atomic_init(&self.pov.anima[self.id].intent, intent);
-  atomic_init(&self.flag_suspend, false);
+  atomic_init(&self.sync.flag_suspend, false);
 
   return self;
 }
 
 void Anima_destroy(Anima *self) {
-  Surface_destroy(&self->surface);
+  Surface_destroy(&self->sprite.surface);
 }
 
 void Anima_touch(Anima *self, Mind *mind) {
@@ -102,31 +106,31 @@ void Anima_move(Anima *self, Maze *maze) {
     PairI32 boundry_pixel = self->location;
 
     if (momentum == RIGHT || momentum == DOWN) {
-      boundry_pixel.x += self->size.x - 1;
-      boundry_pixel.y += self->size.y - 1;
+      boundry_pixel.x += self->sprite.size.x - 1;
+      boundry_pixel.y += self->sprite.size.y - 1;
     }
 
     steps_in_direction(&boundry_pixel, momentum, 1, &destination);
 
     if (Maze_is_open(maze, &destination)) {
-      self->mVel = 1;
+      self->velocity = 1;
     } else {
-      self->mVel = 0;
+      self->velocity = 0;
     }
   }
 
   switch (momentum) {
   case UP: {
-    self->location.y -= self->mVel;
+    self->location.y -= self->velocity;
   } break;
   case RIGHT: {
-    self->location.x += self->mVel;
+    self->location.x += self->velocity;
   } break;
   case DOWN: {
-    self->location.y += self->mVel;
+    self->location.y += self->velocity;
   } break;
   case LEFT: {
-    self->location.x -= self->mVel;
+    self->location.x -= self->velocity;
   } break;
   }
 }
@@ -220,7 +224,7 @@ void Anima_update_surface_offset(Anima *self) {
 
   case ANIMA_STATUS_SEARCH: {
     if (self->status_tick % 15 == 0) {
-      self->surface_offset.x = (self->surface_offset.x + self->size.x) % self->surface.size.x;
+      self->sprite.surface_offset.x = (self->sprite.surface_offset.x + self->sprite.size.x) % self->sprite.surface.size.x;
     }
   } break;
   }

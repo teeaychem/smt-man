@@ -38,18 +38,18 @@ void *spirit(void *_anima) {
   Anima_touch(anima, &mind);
   pthread_mutex_unlock(&mtx_cvc5);
 
-  atomic_store(&anima->flag_suspend, true);
+  atomic_store(&anima->sync.flag_suspend, true);
 
   while (true) {
-    pthread_mutex_lock(&anima->mtx_suspend);
-    if (!atomic_load(&anima->flag_suspend)) {
+    pthread_mutex_lock(&anima->sync.mtx_suspend);
+    if (!atomic_load(&anima->sync.flag_suspend)) {
       Anima_deduct(anima, &mind);
 
       sleep(1);
-      atomic_store(&anima->flag_suspend, true);
+      atomic_store(&anima->sync.flag_suspend, true);
     }
-    pthread_cond_wait(&anima->cond_resume, &anima->mtx_suspend);
-    pthread_mutex_unlock(&anima->mtx_suspend);
+    pthread_cond_wait(&anima->sync.cond_resume, &anima->sync.mtx_suspend);
+    pthread_mutex_unlock(&anima->sync.mtx_suspend);
   }
   return 0;
 };
@@ -141,14 +141,16 @@ int main(int argc, char **argv) {
       NSTimer_start(&frameCapTimer);
 
       for (size_t idx = 0; idx < kANIMAS; ++idx) {
-        if (atomic_load(&ANIMAS[idx].flag_suspend)) {
-          atomic_store(&ANIMAS[idx].flag_suspend, false);
-          pthread_cond_broadcast(&ANIMAS[idx].cond_resume);
+        if (atomic_load(&ANIMAS[idx].sync.flag_suspend)) {
+          atomic_store(&ANIMAS[idx].sync.flag_suspend, false);
+          pthread_cond_broadcast(&ANIMAS[idx].sync.cond_resume);
         }
 
         Renderer_erase_surface(&gRenderer,
                                &ANIMAS[idx].location,
-                               &ANIMAS[idx].surface, &ANIMAS[idx].surface_offset, &ANIMAS[idx].size);
+                               &ANIMAS[idx].sprite.surface,
+                               &ANIMAS[idx].sprite.surface_offset,
+                               &ANIMAS[idx].sprite.size);
       }
 
       SDL_RenderClear(gRenderer.renderer);
@@ -175,7 +177,9 @@ int main(int argc, char **argv) {
 
         Renderer_draw_surface(&gRenderer,
                               &ANIMAS[idx].location,
-                              &ANIMAS[idx].surface, &ANIMAS[idx].surface_offset, &ANIMAS[idx].size);
+                              &ANIMAS[idx].sprite.surface,
+                              &ANIMAS[idx].sprite.surface_offset,
+                              &ANIMAS[idx].sprite.size);
       }
 
       Renderer_update(&gRenderer);
