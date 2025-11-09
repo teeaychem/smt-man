@@ -12,7 +12,7 @@ static const int32_t kTILE = 8;
 static const int32_t kSPRITE = kTILE * 2;
 static const PairI32 kTILES = {.x = 28, .y = 31};
 static const PairI32 kPIXELS = {.x = kTILES.x * kSPRITE, .y = kTILES.y * kSPRITE};
-static const PairI32 PairI32_16 = {.x = 16, .y = 16};
+static const PairI32 PAIRI32_16 = {.x = 16, .y = 16};
 
 static const int kSCALE = 2;
 static const uint32_t kSCREEN_FPS = 15;

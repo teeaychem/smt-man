@@ -9,11 +9,11 @@
 #include <stdatomic.h>
 #include <stdint.h>
 
-Anima Anima_default(uint8_t id, char *name, PairI32 position, Surface surface) {
-  return Anima_create(id, name, position, DOWN, DOWN, surface);
+Anima Anima_default(uint8_t id, char *name, PairI32 position, PairI32 sprite_size) {
+  return Anima_create(id, name, position, DOWN, DOWN, sprite_size);
 }
 
-Anima Anima_create(uint8_t id, char *name, PairI32 location, Direction intent, Direction momentum, Surface surface) {
+Anima Anima_create(uint8_t id, char *name, PairI32 location, Direction intent, Direction momentum, PairI32 sprite_size) {
   stumplog(LOG_INFO, "Creating anima: %s", name);
 
   Anima self = {
@@ -21,16 +21,14 @@ Anima Anima_create(uint8_t id, char *name, PairI32 location, Direction intent, D
       .id = id,
       .name = name,
       .pov = {},
-      .sprite = {
-          .size = PairI32_create(16, 16),
-          .surface = surface,
-          .surface_offset = PairI32_create(0, 0),
-      },
+      .sprite_size = sprite_size,
       .status_tick = 0,
+
       .sync = {
           .cond_resume = PTHREAD_COND_INITIALIZER,
           .mtx_suspend = PTHREAD_MUTEX_INITIALIZER,
       },
+
       .velocity = 1,
   };
 
@@ -45,7 +43,6 @@ Anima Anima_create(uint8_t id, char *name, PairI32 location, Direction intent, D
 }
 
 void Anima_destroy(Anima *self) {
-  Surface_destroy(&self->sprite.surface);
 }
 
 void Anima_touch(Anima *self, Mind *mind) {
@@ -110,8 +107,8 @@ void Anima_move(Anima *self, Maze *maze) {
     PairI32 boundry_pixel = current_location;
 
     if (momentum == RIGHT || momentum == DOWN) {
-      boundry_pixel.x += self->sprite.size.x - 1;
-      boundry_pixel.y += self->sprite.size.y - 1;
+      boundry_pixel.x += self->sprite_size.x - 1;
+      boundry_pixel.y += self->sprite_size.y - 1;
     }
 
     steps_in_direction(&boundry_pixel, momentum, 1, &destination);
@@ -222,18 +219,6 @@ void Anima_deduct(Anima *self, Mind *mind) {
 };
 
 void Anima_instinct(Anima *self) {
-}
-
-void Anima_update_surface_offset(Anima *self) {
-
-  switch (self->pov.anima[self->id].status) {
-
-  case ANIMA_STATUS_SEARCH: {
-    if (self->status_tick % 15 == 0) {
-      self->sprite.surface_offset.x = (self->sprite.surface_offset.x + self->sprite.size.x) % self->sprite.surface.size.x;
-    }
-  } break;
-  }
 }
 
 void Anima_fresh_tick(Anima *self) {

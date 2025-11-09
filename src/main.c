@@ -27,6 +27,7 @@ Renderer gRenderer;
 pthread_mutex_t mtx_cvc5 = PTHREAD_MUTEX_INITIALIZER;
 
 Anima ANIMAS[kANIMAS];
+SpriteInfo ANIMA_SPRITES[kANIMAS];
 pthread_t ANIMA_THREADS[kANIMAS];
 
 struct smt_world_t WORLD = {};
@@ -73,6 +74,18 @@ void setup() {
 void setup_animas() {
 }
 
+void Anima_update_surface_offset(Anima *self, SpriteInfo *sprite_info) {
+
+  switch (atomic_load(&self->pov.anima[self->id].status)) {
+
+  case ANIMA_STATUS_SEARCH: {
+    if (self->status_tick % 15 == 0) {
+      sprite_info->surface_offset.x = (sprite_info->surface_offset.x + sprite_info->size.x) % sprite_info->surface.size.x;
+    }
+  } break;
+  }
+}
+
 int main(int argc, char **argv) {
   struct stumpless_target *target;
   target = stumpless_open_stdout_target("smt-man-log");
@@ -91,15 +104,21 @@ int main(int argc, char **argv) {
   Maze maze = Maze_create(PATH_BUFFER);
 
   cwk_path_join(SOURCE_PATH, "resources/gottlob.png", PATH_BUFFER, FILENAME_MAX);
-  Surface surface_gottlob = Surface_from_path(PATH_BUFFER);
-
-  ANIMAS[0] = Anima_default(0, "gottlob", PairI32_create(16, 16), surface_gottlob);
+  ANIMA_SPRITES[0] = (SpriteInfo){
+      .size = PairI32_create(16, 16),
+      .surface = Surface_from_path(PATH_BUFFER),
+      .surface_offset = PairI32_create(0, 0),
+  };
+  ANIMAS[0] = Anima_default(0, "gottlob", PairI32_create(16, 16), PAIRI32_16);
   pthread_create(&ANIMA_THREADS[0], NULL, spirit, (void *)&ANIMAS[0]);
 
   cwk_path_join(SOURCE_PATH, "resources/bertrand.png", PATH_BUFFER, FILENAME_MAX);
-  Surface surface_bertrand = Surface_from_path(PATH_BUFFER);
-
-  ANIMAS[1] = Anima_default(1, "bertrand", PairI32_create(32, 16), surface_bertrand);
+  ANIMA_SPRITES[1] = (SpriteInfo){
+      .size = PairI32_create(16, 16),
+      .surface = Surface_from_path(PATH_BUFFER),
+      .surface_offset = PairI32_create(0, 0),
+  };
+  ANIMAS[1] = Anima_default(1, "bertrand", PairI32_create(32, 16), PAIRI32_16);
   pthread_create(&ANIMA_THREADS[1], NULL, spirit, (void *)&ANIMAS[1]);
 
   // Things happen...
@@ -147,7 +166,7 @@ int main(int argc, char **argv) {
 
         Renderer_erase_sprite(&gRenderer,
                               atomic_load(&ANIMAS[idx].pov.anima[idx].location),
-                              &ANIMAS[idx].sprite);
+                              &ANIMA_SPRITES[idx]);
       }
 
       SDL_RenderClear(gRenderer.renderer);
@@ -169,12 +188,12 @@ int main(int argc, char **argv) {
       for (size_t idx = 0; idx < kANIMAS; ++idx) {
         Anima_fresh_tick(&ANIMAS[idx]);
         Anima_instinct(&ANIMAS[idx]);
-        Anima_update_surface_offset(&ANIMAS[idx]);
+        Anima_update_surface_offset(&ANIMAS[idx], &ANIMA_SPRITES[idx]);
         Anima_move(&ANIMAS[idx], &maze);
 
         Renderer_draw_sprite(&gRenderer,
                              atomic_load(&ANIMAS[idx].pov.anima[idx].location),
-                             &ANIMAS[idx].sprite);
+                             &ANIMA_SPRITES[idx]);
       }
 
       Renderer_update(&gRenderer);
@@ -201,6 +220,7 @@ int main(int argc, char **argv) {
   for (size_t idx = 0; idx < kANIMAS; ++idx) {
     pthread_cancel(ANIMA_THREADS[idx]);
     pthread_join(ANIMA_THREADS[idx], NULL);
+    Surface_destroy(&ANIMA_SPRITES[idx].surface);
   }
 
   printf("good-bye\n");

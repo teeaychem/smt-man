@@ -58,24 +58,21 @@ struct anima_t {
 
   int velocity;
 
-  SpriteInfo sprite;
-
+  PairI32 sprite_size;
   uint32_t status_tick;
 
   AnimaSync sync;
 };
 
-Anima Anima_default(uint8_t id, char *name, PairI32 position, Surface surface);
+Anima Anima_default(uint8_t id, char *name, PairI32 location, PairI32 sprite_size);
 
-Anima Anima_create(uint8_t id, char *name, PairI32 pos, Direction intent, Direction momentum, Surface surface);
+Anima Anima_create(uint8_t id, char *name, PairI32 location, Direction intent, Direction momentum, PairI32 sprite_size);
 
 void Anima_destroy(Anima *self);
 
 void Anima_touch(Anima *self, Mind *mind);
 
 void Anima_fresh_tick(Anima *self);
-
-void Anima_update_surface_offset(Anima *self);
 
 void Anima_handle_event(Anima *self, SDL_Event *event);
 
