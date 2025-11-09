@@ -21,15 +21,14 @@ Anima Anima_create(uint8_t id, char *name, PairI32 pos, Direction intent, Direct
       .location = pos,
       .mVel = 1,
       .mtx_suspend = PTHREAD_MUTEX_INITIALIZER,
+      .name = name,
       .size = PairI32_create(16, 16),
-      .status = ANIMA_STATUS_SEACH,
+      .status = ANIMA_STATUS_SEARCH,
       .status_tick = 0,
       .surface = surface,
       .surface_offset = PairI32_create(0, 0),
-      .name = NULL,
   };
 
-  atomic_init(&self.name, name);
   atomic_init(&self.momentum, momentum);
   atomic_init(&self.intent, intent);
   atomic_init(&self.flag_suspend, false);
@@ -49,19 +48,19 @@ void Anima_touch(Anima *self, Mind *mind) {
     char cvc5_input_buffer[1024];
     const char *cvc5_error_msg;
 
-    sprintf(cvc5_input_buffer, "(is_facing %s up)", atomic_load(&self->name));
+    sprintf(cvc5_input_buffer, "(is_facing %s up)", self->name);
     cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
     mind->lot.anima[self->id].facing.up = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
 
-    sprintf(cvc5_input_buffer, "(is_facing %s right)", atomic_load(&self->name));
+    sprintf(cvc5_input_buffer, "(is_facing %s right)", self->name);
     cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
     mind->lot.anima[self->id].facing.right = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
 
-    sprintf(cvc5_input_buffer, "(is_facing %s down)", atomic_load(&self->name));
+    sprintf(cvc5_input_buffer, "(is_facing %s down)", self->name);
     cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
     mind->lot.anima[self->id].facing.down = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
 
-    sprintf(cvc5_input_buffer, "(is_facing %s left)", atomic_load(&self->name));
+    sprintf(cvc5_input_buffer, "(is_facing %s left)", self->name);
     cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
     mind->lot.anima[self->id].facing.left = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
   }
@@ -217,7 +216,7 @@ void Anima_update_surface_offset(Anima *self) {
 
   switch (self->status) {
 
-  case ANIMA_STATUS_SEACH: {
+  case ANIMA_STATUS_SEARCH: {
     if (self->status_tick % 15 == 0) {
       self->surface_offset.x = (self->surface_offset.x + self->size.x) % self->surface.size.x;
     }

@@ -33,21 +33,16 @@ Mind Mind_default();
 
 // Animas
 
-typedef enum anima_status_t AnimaStatus;
-enum anima_status_t {
-  ANIMA_STATUS_SEACH,
-};
-
 typedef struct anima_t Anima;
 struct anima_t {
 
-  _Atomic(uint8_t) id;
-  _Atomic(char *) name;
+  char *name;
+
+  uint8_t id;
 
   _Atomic(Direction) intent;
   _Atomic(Direction) momentum;
 
-  uint32_t status_tick;
   _Atomic(AnimaStatus) status;
 
   PairI32 location;
@@ -57,6 +52,8 @@ struct anima_t {
 
   Surface surface;
   PairI32 surface_offset;
+
+  uint32_t status_tick;
 
   _Atomic(bool) flag_suspend;
   pthread_mutex_t mtx_suspend;
