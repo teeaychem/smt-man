@@ -15,6 +15,7 @@
 #include "cvc5/c/cvc5_parser.h"
 
 #include "logic.h"
+#include "utils/pairs.h"
 
 struct mind_t {
   Cvc5 *solver;
@@ -29,29 +30,30 @@ typedef struct mind_t Mind;
 
 Mind Mind_default();
 
-struct l_local {
-  Cvc5Term facing_u;
-  Cvc5Term facing_r;
-  Cvc5Term facing_d;
-  Cvc5Term facing_l;
+enum anima_status_t {
+  ANIMA_STATUS_SEACH,
 };
 
 struct anima_t {
 
   _Atomic(char *) name;
 
-  PairI32 pos;
-  PairI32 size;
+  _Atomic(Direction) intent;
+  _Atomic(Direction) momentum;
 
-  _Atomic Direction intent;
-  _Atomic Direction momentum;
+  uint32_t status_tick;
+  _Atomic(enum anima_status_t) status;
+
+  PairI32 location;
+  PairI32 size;
 
   int mVel;
 
   Surface surface;
+  PairI32 surface_offset;
 
+  _Atomic(bool) flag_suspend;
   pthread_mutex_t mtx_suspend;
-  _Atomic bool flag_suspend;
   pthread_cond_t cond_resume;
 };
 
@@ -65,13 +67,16 @@ void Anima_destroy(Anima *self);
 
 void Anima_touch(Anima *self, Mind *mind);
 
+void Anima_fresh_tick(Anima *self);
+
+void Anima_update_surface_offset(Anima *self);
+
 void Anima_handle_event(Anima *self, SDL_Event *event);
 
 void Anima_move(Anima *self, Maze *maze);
 
 void Anima_mind_innate(Anima *self, Mind *mind);
 
-// Called on each tick.
 void Anima_instinct(Anima *self);
 
 void Anima_deduct(Anima *self, Mind *mind);

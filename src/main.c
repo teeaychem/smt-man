@@ -148,8 +148,8 @@ int main(int argc, char **argv) {
         }
 
         Renderer_erase_surface(&gRenderer,
-                               &ANIMAS[idx].pos,
-                               &ANIMAS[idx].surface, &p_zero, &ANIMAS[idx].size);
+                               &ANIMAS[idx].location,
+                               &ANIMAS[idx].surface, &ANIMAS[idx].surface_offset, &ANIMAS[idx].size);
       }
 
       SDL_RenderClear(gRenderer.renderer);
@@ -169,11 +169,14 @@ int main(int argc, char **argv) {
       }
 
       for (size_t idx = 0; idx < kANIMAS; ++idx) {
+        Anima_fresh_tick(&ANIMAS[idx]);
         Anima_instinct(&ANIMAS[idx]);
+        Anima_update_surface_offset(&ANIMAS[idx]);
         Anima_move(&ANIMAS[idx], &maze);
+
         Renderer_draw_surface(&gRenderer,
-                              &ANIMAS[idx].pos,
-                              &ANIMAS[idx].surface, &p_zero, &ANIMAS[idx].size);
+                              &ANIMAS[idx].location,
+                              &ANIMAS[idx].surface, &ANIMAS[idx].surface_offset, &ANIMAS[idx].size);
       }
 
       Renderer_update(&gRenderer);

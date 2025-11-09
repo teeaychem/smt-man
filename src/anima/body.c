@@ -15,13 +15,16 @@ Anima Anima_create(char *name, PairI32 pos, Direction intent, Direction momentum
   stumplog(LOG_INFO, "Creating anima: %s", name);
 
   Anima self = {
-      .name = NULL,
-      .pos = pos,
-      .size = PairI32_create(16, 16),
-      .mVel = 1,
-      .surface = surface,
-      .mtx_suspend = PTHREAD_MUTEX_INITIALIZER,
       .cond_resume = PTHREAD_COND_INITIALIZER,
+      .location = pos,
+      .mVel = 1,
+      .mtx_suspend = PTHREAD_MUTEX_INITIALIZER,
+      .size = PairI32_create(16, 16),
+      .status = ANIMA_STATUS_SEACH,
+      .status_tick = 0,
+      .surface = surface,
+      .surface_offset = PairI32_create(0, 0),
+      .name = NULL,
   };
 
   atomic_init(&self.name, name);
@@ -87,13 +90,13 @@ void Anima_move(Anima *self, Maze *maze) {
 
   Direction momentum = atomic_load(&self->momentum);
 
-  if (self->pos.x % kSPRITE == 0 && self->pos.y % kSPRITE == 0) {
+  if (self->location.x % kSPRITE == 0 && self->location.y % kSPRITE == 0) {
     momentum = atomic_load(&self->intent);
     atomic_store(&self->momentum, momentum);
 
     PairI32 destination;
 
-    PairI32 boundry_pixel = self->pos;
+    PairI32 boundry_pixel = self->location;
 
     if (momentum == RIGHT || momentum == DOWN) {
       boundry_pixel.x += self->size.x - 1;
@@ -111,16 +114,16 @@ void Anima_move(Anima *self, Maze *maze) {
 
   switch (momentum) {
   case UP: {
-    self->pos.y -= self->mVel;
+    self->location.y -= self->mVel;
   } break;
   case RIGHT: {
-    self->pos.x += self->mVel;
+    self->location.x += self->mVel;
   } break;
   case DOWN: {
-    self->pos.y += self->mVel;
+    self->location.y += self->mVel;
   } break;
   case LEFT: {
-    self->pos.x -= self->mVel;
+    self->location.x -= self->mVel;
   } break;
   }
 }
@@ -206,4 +209,20 @@ void Anima_deduct(Anima *self, Mind *mind) {
 };
 
 void Anima_instinct(Anima *self) {
+}
+
+void Anima_update_surface_offset(Anima *self) {
+
+  switch (self->status) {
+
+  case ANIMA_STATUS_SEACH: {
+    if (self->status_tick % 15 == 0) {
+      self->surface_offset.x = (self->surface_offset.x + self->size.x) % self->surface.size.x;
+    }
+  } break;
+  }
+}
+
+void Anima_fresh_tick(Anima *self) {
+  self->status_tick += 1;
 }
