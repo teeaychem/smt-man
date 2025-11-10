@@ -9,11 +9,11 @@
 constexpr size_t ANIMA_COUNT = 2;
 static const char *ANIMA_NAMES[2] = {"gottlob", "bertrand"};
 
-static const int32_t kTILE = 8;
-static const int32_t kSPRITE = kTILE * 2;
+static const int32_t TILE_EDGE_SIZE = 8;
+static const int32_t SPRITE_EDGE_SIZE = TILE_EDGE_SIZE * 2;
 static const PairI32 kTILES = {.x = 28, .y = 31};
-static const PairI32 kPIXELS = {.x = kTILES.x * kSPRITE, .y = kTILES.y * kSPRITE};
-static const PairI32 PAIRI32_16 = {.x = 16, .y = 16};
+static const PairI32 kPIXELS = {.x = kTILES.x * SPRITE_EDGE_SIZE, .y = kTILES.y * SPRITE_EDGE_SIZE};
+static const PairI32 PAIR_SPRITE_EDGE = {.x = SPRITE_EDGE_SIZE, .y = SPRITE_EDGE_SIZE};
 
 static const int kSCALE = 2;
 static const uint32_t kSCREEN_FPS = 15;

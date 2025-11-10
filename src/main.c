@@ -102,20 +102,20 @@ int main(int argc, char **argv) {
 
   cwk_path_join(SOURCE_PATH, "resources/gottlob.png", PATH_BUFFER, FILENAME_MAX);
   ANIMA_SPRITES[0] = (SpriteInfo){
-      .size = PAIRI32_16,
+      .size = PAIR_SPRITE_EDGE,
       .surface = Surface_from_path(PATH_BUFFER),
       .surface_offset = PairI32_create(0, 0),
   };
-  ANIMAS[0] = Anima_default(0, PairI32_create(16, 16), PAIRI32_16);
+  ANIMAS[0] = Anima_default(0, PairI32_create(16, 16), PAIR_SPRITE_EDGE);
   pthread_create(&ANIMA_THREADS[0], NULL, spirit, (void *)&ANIMAS[0]);
 
   cwk_path_join(SOURCE_PATH, "resources/bertrand.png", PATH_BUFFER, FILENAME_MAX);
   ANIMA_SPRITES[1] = (SpriteInfo){
-      .size = PAIRI32_16,
+      .size = PAIR_SPRITE_EDGE,
       .surface = Surface_from_path(PATH_BUFFER),
       .surface_offset = PairI32_create(0, 0),
   };
-  ANIMAS[1] = Anima_default(1, PairI32_create(32, 16), PAIRI32_16);
+  ANIMAS[1] = Anima_default(1, PairI32_create(32, 16), PAIR_SPRITE_EDGE);
   pthread_create(&ANIMA_THREADS[1], NULL, spirit, (void *)&ANIMAS[1]);
 
   // Things happen...
@@ -148,7 +148,7 @@ int main(int argc, char **argv) {
     for (int32_t y = 0; y < maze.size.y; ++y) {
       for (int32_t x = 0; x < maze.size.x; ++x) {
         if (Maze_at_point(&maze, PairI32_create(x, y)) != '#') {
-          Renderer_fill_tile(&gRenderer, PairI32_create(x * kSPRITE, y * kSPRITE), 0xffffffff);
+          Renderer_fill_tile(&gRenderer, PairI32_create(x * SPRITE_EDGE_SIZE, y * SPRITE_EDGE_SIZE), 0xffffffff);
         }
       }
     }

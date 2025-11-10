@@ -68,8 +68,8 @@ void Renderer_erase_sprite(Renderer *self,
 
 void Renderer_fill_tile(Renderer *self, PairI32 origin, int32_t colour) {
 
-  for (size_t row = 0; row < kSPRITE; ++row) {
-    for (size_t col = 0; col < kSPRITE; ++col) {
+  for (size_t row = 0; row < SPRITE_EDGE_SIZE; ++row) {
+    for (size_t col = 0; col < SPRITE_EDGE_SIZE; ++col) {
       size_t pixel = (origin.y + col) * origin.x + row;
       if ((self->frameBuffer[pixel] | 0x00000000) == 0x00000000) {
         self->frameBuffer[pixel] = colour;

@@ -69,7 +69,7 @@ void Anima_move(Anima *self, Maze *maze) {
 
   auto current_location = atomic_load(&self->pov.anima[self->id].location);
 
-  if (current_location.x % kSPRITE == 0 && current_location.y % kSPRITE == 0) {
+  if (current_location.x % SPRITE_EDGE_SIZE == 0 && current_location.y % SPRITE_EDGE_SIZE == 0) {
     momentum = atomic_load(&self->pov.anima[self->id].intent);
     atomic_store(&self->pov.anima[self->id].momentum, momentum);
 
