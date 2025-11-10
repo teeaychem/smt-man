@@ -1,5 +1,9 @@
 #include "anima.h"
+#include "cvc5/c/cvc5_parser.h"
+#include "render/constants.h"
 #include "stumpless/log.h"
+
+constexpr size_t CVC5_INPUT_BUFFER_SIZE = 1024;
 
 Mind Mind_default() {
 
@@ -26,34 +30,30 @@ Mind Mind_default() {
   return mind;
 }
 
-void Anima_touch(Anima *self, Mind *mind) {
+void Anima_build_LoT(Anima *self, Mind *mind) {
+  char cvc5_input_buffer[CVC5_INPUT_BUFFER_SIZE];
+  const char *cvc5_error_msg;
 
-  Anima_mind_innate(self, mind);
+  snprintf(cvc5_input_buffer, CVC5_INPUT_BUFFER_SIZE, "(anima_is_facing %s up)", ANIMA_NAMES[self->id]);
+  cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
+  mind->lot.anima[self->id].facing.up = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
 
-  {
-    char cvc5_input_buffer[1024];
-    const char *cvc5_error_msg;
+  snprintf(cvc5_input_buffer, CVC5_INPUT_BUFFER_SIZE, "(anima_is_facing %s right)", ANIMA_NAMES[self->id]);
+  cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
+  mind->lot.anima[self->id].facing.right = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
 
-    sprintf(cvc5_input_buffer, "(anima_is_facing %s up)", self->name);
-    cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
-    mind->lot.anima[self->id].facing.up = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
+  snprintf(cvc5_input_buffer, CVC5_INPUT_BUFFER_SIZE, "(anima_is_facing %s down)", ANIMA_NAMES[self->id]);
+  cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
+  mind->lot.anima[self->id].facing.down = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
 
-    sprintf(cvc5_input_buffer, "(anima_is_facing %s right)", self->name);
-    cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
-    mind->lot.anima[self->id].facing.right = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
+  snprintf(cvc5_input_buffer, CVC5_INPUT_BUFFER_SIZE, "(anima_is_facing %s left)", ANIMA_NAMES[self->id]);
+  cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
+  mind->lot.anima[self->id].facing.left = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
+}
 
-    sprintf(cvc5_input_buffer, "(anima_is_facing %s down)", self->name);
-    cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
-    mind->lot.anima[self->id].facing.down = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
+void Anima_LoT_animas(Anima *self, Mind *mind) {
 
-    sprintf(cvc5_input_buffer, "(anima_is_facing %s left)", self->name);
-    cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
-    mind->lot.anima[self->id].facing.left = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
-  }
-};
-
-void Anima_mind_innate(Anima *self, Mind *mind) {
-
+  char cvc5_input_buffer[CVC5_INPUT_BUFFER_SIZE];
   Cvc5Command cvc5_cmd;
   const char *cvc5_error_msg;
 
@@ -61,11 +61,35 @@ void Anima_mind_innate(Anima *self, Mind *mind) {
       mind->parser,
       CVC5_LANG,
       "(declare-sort Anima 0)"
-      "(declare-sort Direction 0)"
+      "(declare-const anima Anima)",
+      "animas");
+  do {
+    cvc5_cmd = cvc5_parser_next_command(mind->parser, &cvc5_error_msg);
+    if (cvc5_error_msg) {
+      printf("%s", cvc5_error_msg), exit(-1);
+    }
+    if (cvc5_cmd) {
+      cvc5_cmd_invoke(cvc5_cmd, mind->solver, mind->sm);
+    }
+  } while (cvc5_cmd);
 
-      "(declare-const gottlob Anima)"
-      "(declare-const bertrand Anima)"
-      "(declare-const anima Anima)"
+  for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
+    snprintf(cvc5_input_buffer, CVC5_INPUT_BUFFER_SIZE, "(declare-const %s Anima)", ANIMA_NAMES[idx]);
+    printf("::: %s", cvc5_input_buffer);
+    cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
+    cvc5_cmd_invoke(cvc5_parser_next_command(mind->parser, &cvc5_error_msg), mind->solver, mind->sm);
+  }
+}
+
+void Anima_LoT_direction(Anima *self, Mind *mind) {
+
+  Cvc5Command cvc5_cmd;
+  const char *cvc5_error_msg;
+
+  cvc5_parser_set_str_input(
+      mind->parser,
+      CVC5_LANG,
+      "(declare-sort Direction 0)"
 
       "(declare-const up    Direction)"
       "(declare-const right Direction)"
@@ -87,6 +111,16 @@ void Anima_mind_innate(Anima *self, Mind *mind) {
     }
   } while (cvc5_cmd);
 }
+
+void Anima_touch(Anima *self, Mind *mind) {
+
+  Anima_LoT_animas(self, mind);
+  Anima_LoT_direction(self, mind);
+
+  Anima_build_LoT(self, mind);
+};
+
+// deduction
 
 void Anima_deduct(Anima *self, Mind *mind) {
 

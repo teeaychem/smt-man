@@ -51,8 +51,6 @@ struct anima_sync_t {
 typedef struct anima_t Anima;
 struct anima_t {
 
-  char *name;
-
   uint8_t id;
 
   SmtWorld pov;
@@ -64,9 +62,9 @@ struct anima_t {
   AnimaSync sync;
 };
 
-Anima Anima_default(uint8_t id, char *name, PairI32 location, PairI32 sprite_size);
+Anima Anima_default(uint8_t id, PairI32 location, PairI32 sprite_size);
 
-Anima Anima_create(uint8_t id, char *name, PairI32 location, Direction intent, Direction momentum, PairI32 sprite_size);
+Anima Anima_create(uint8_t id, PairI32 location, Direction intent, Direction momentum, PairI32 sprite_size);
 
 void Anima_destroy(Anima *self);
 
@@ -76,7 +74,7 @@ void Anima_handle_event(Anima *self, SDL_Event *event);
 
 void Anima_move(Anima *self, Maze *maze);
 
-void Anima_mind_innate(Anima *self, Mind *mind);
+void Anima_LoT_direction(Anima *self, Mind *mind);
 
 void Anima_instinct(Anima *self);
 

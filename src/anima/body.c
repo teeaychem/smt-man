@@ -9,17 +9,15 @@
 #include <stdatomic.h>
 #include <stdint.h>
 
-Anima Anima_default(uint8_t id, char *name, PairI32 position, PairI32 sprite_size) {
-  return Anima_create(id, name, position, DOWN, DOWN, sprite_size);
+Anima Anima_default(uint8_t id, PairI32 position, PairI32 sprite_size) {
+  return Anima_create(id, position, DOWN, DOWN, sprite_size);
 }
 
-Anima Anima_create(uint8_t id, char *name, PairI32 location, Direction intent, Direction momentum, PairI32 sprite_size) {
-  stumplog(LOG_INFO, "Creating anima: %s", name);
+Anima Anima_create(uint8_t id, PairI32 location, Direction intent, Direction momentum, PairI32 sprite_size) {
+  stumplog(LOG_INFO, "Creating anima: %s", ANIMA_NAMES[id]);
 
   Anima self = {
-
       .id = id,
-      .name = name,
       .pov = {},
       .sprite_size = sprite_size,
 
@@ -110,7 +108,6 @@ void Anima_move(Anima *self, Maze *maze) {
 
   atomic_store(&self->pov.anima[self->id].location, current_location);
 }
-
 
 void Anima_instinct(Anima *self) {
 }

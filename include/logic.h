@@ -27,7 +27,7 @@ struct smt_anima_t {
 
 typedef struct smt_lot_t SmtLot;
 struct smt_lot_t {
-  SmtAnima anima[kANIMAS];
+  SmtAnima anima[ANIMA_COUNT];
 };
 
 // World things
@@ -42,5 +42,5 @@ struct smt_world_anima_t {
 
 typedef struct smt_world_t SmtWorld;
 struct smt_world_t {
-  SmtWorldAnima anima[kANIMAS];
+  SmtWorldAnima anima[ANIMA_COUNT];
 };

@@ -6,7 +6,8 @@
 
 #include "utils/pairs.h"
 
-constexpr size_t kANIMAS = 2;
+constexpr size_t ANIMA_COUNT = 2;
+static const char *ANIMA_NAMES[2] = {"gottlob", "bertrand"};
 
 static const int32_t kTILE = 8;
 static const int32_t kSPRITE = kTILE * 2;

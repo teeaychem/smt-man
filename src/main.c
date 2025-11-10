@@ -26,9 +26,9 @@ Renderer gRenderer;
 
 pthread_mutex_t mtx_cvc5 = PTHREAD_MUTEX_INITIALIZER;
 
-Anima ANIMAS[kANIMAS];
-SpriteInfo ANIMA_SPRITES[kANIMAS];
-pthread_t ANIMA_THREADS[kANIMAS];
+Anima ANIMAS[ANIMA_COUNT];
+SpriteInfo ANIMA_SPRITES[ANIMA_COUNT];
+pthread_t ANIMA_THREADS[ANIMA_COUNT];
 
 struct smt_world_t WORLD = {};
 
@@ -106,7 +106,7 @@ int main(int argc, char **argv) {
       .surface = Surface_from_path(PATH_BUFFER),
       .surface_offset = PairI32_create(0, 0),
   };
-  ANIMAS[0] = Anima_default(0, "gottlob", PairI32_create(16, 16), PAIRI32_16);
+  ANIMAS[0] = Anima_default(0, PairI32_create(16, 16), PAIRI32_16);
   pthread_create(&ANIMA_THREADS[0], NULL, spirit, (void *)&ANIMAS[0]);
 
   cwk_path_join(SOURCE_PATH, "resources/bertrand.png", PATH_BUFFER, FILENAME_MAX);
@@ -115,7 +115,7 @@ int main(int argc, char **argv) {
       .surface = Surface_from_path(PATH_BUFFER),
       .surface_offset = PairI32_create(0, 0),
   };
-  ANIMAS[1] = Anima_default(1, "bertrand", PairI32_create(32, 16), PAIRI32_16);
+  ANIMAS[1] = Anima_default(1, PairI32_create(32, 16), PAIRI32_16);
   pthread_create(&ANIMA_THREADS[1], NULL, spirit, (void *)&ANIMAS[1]);
 
   // Things happen...
@@ -156,7 +156,7 @@ int main(int argc, char **argv) {
     while (!quit) {
       NSTimer_start(&frameCapTimer);
 
-      for (size_t idx = 0; idx < kANIMAS; ++idx) {
+      for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
         WORLD.anima[idx].location = ANIMAS[idx].pov.anima[idx].location;
 
         Renderer_erase_sprite(&gRenderer,
@@ -180,7 +180,7 @@ int main(int argc, char **argv) {
         Anima_handle_event(&ANIMAS[0], &event);
       }
 
-      for (size_t idx = 0; idx < kANIMAS; ++idx) {
+      for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
         Anima_instinct(&ANIMAS[idx]);
         update_anima_sprite(idx, &ANIMA_SPRITES[idx]);
         Anima_move(&ANIMAS[idx], &maze);
@@ -194,7 +194,7 @@ int main(int argc, char **argv) {
 
       SDL_RenderPresent(gRenderer.renderer);
 
-      for (size_t idx = 0; idx < kANIMAS; ++idx) {
+      for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
         ANIMA_SPRITES[idx].tick += 1;
 
         if (atomic_load(&ANIMAS[idx].sync.flag_suspend)) {
@@ -213,7 +213,7 @@ int main(int argc, char **argv) {
   Renderer_destroy(&gRenderer);
   SDL_Quit();
 
-  for (size_t idx = 0; idx < kANIMAS; ++idx) {
+  for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
     pthread_cancel(ANIMA_THREADS[idx]);
     pthread_join(ANIMA_THREADS[idx], NULL);
     Surface_destroy(&ANIMA_SPRITES[idx].surface);
