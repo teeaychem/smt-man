@@ -75,14 +75,7 @@ void Anima_move(Anima *self, Maze *maze) {
 
     PairI32 destination;
 
-    PairI32 boundry_pixel = current_location;
-
-    if (momentum == RIGHT || momentum == DOWN) {
-      boundry_pixel.x += self->sprite_size.x - 1;
-      boundry_pixel.y += self->sprite_size.y - 1;
-    }
-
-    steps_in_direction(&boundry_pixel, momentum, 1, &destination);
+    steps_in_direction(&current_location, momentum, SPRITE_EDGE_SIZE, &destination);
 
     if (Maze_is_open(maze, &destination)) {
       self->velocity = 1;
