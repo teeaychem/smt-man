@@ -71,9 +71,6 @@ void setup() {
   SOURCE_PATH[source_path_len] = '\0';
 }
 
-void setup_animas() {
-}
-
 void update_anima_sprite(uint8_t anima_id, SpriteInfo *sprite_info) {
 
   switch (atomic_load(&WORLD.anima[anima_id].status)) {
@@ -105,7 +102,7 @@ int main(int argc, char **argv) {
 
   cwk_path_join(SOURCE_PATH, "resources/gottlob.png", PATH_BUFFER, FILENAME_MAX);
   ANIMA_SPRITES[0] = (SpriteInfo){
-      .size = PairI32_create(16, 16),
+      .size = PAIRI32_16,
       .surface = Surface_from_path(PATH_BUFFER),
       .surface_offset = PairI32_create(0, 0),
   };
@@ -114,7 +111,7 @@ int main(int argc, char **argv) {
 
   cwk_path_join(SOURCE_PATH, "resources/bertrand.png", PATH_BUFFER, FILENAME_MAX);
   ANIMA_SPRITES[1] = (SpriteInfo){
-      .size = PairI32_create(16, 16),
+      .size = PAIRI32_16,
       .surface = Surface_from_path(PATH_BUFFER),
       .surface_offset = PairI32_create(0, 0),
   };
@@ -140,8 +137,6 @@ int main(int argc, char **argv) {
     NSTimer frameCapTimer = NSTimer_default();
 
     SDL_zero(event);
-
-    auto p_zero = PairI32_create(16, 0);
 
     // Draw the maze only once...
     for (size_t pxl = 0; pxl < PairI32_area(&kPIXELS); ++pxl) {
