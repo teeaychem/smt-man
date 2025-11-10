@@ -3,8 +3,6 @@
 #include "render/constants.h"
 #include "stumpless/log.h"
 
-constexpr size_t CVC5_INPUT_BUFFER_SIZE = 1024;
-
 Mind Mind_default() {
 
   Cvc5TermManager *tm = cvc5_term_manager_new();
@@ -30,27 +28,27 @@ Mind Mind_default() {
   return mind;
 }
 
-void Anima_LoT_facing_terms(Anima *self, Mind *mind) {
+void Anima_LoT_facing(Anima *self, Mind *mind) {
   char cvc5_input_buffer[CVC5_INPUT_BUFFER_SIZE];
   const char *cvc5_error_msg;
 
   for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
 
-  snprintf(cvc5_input_buffer, CVC5_INPUT_BUFFER_SIZE, "(anima_is_facing %s up)", ANIMA_NAMES[idx]);
-  cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
-  mind->lot.anima[idx].facing.up = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
+    snprintf(cvc5_input_buffer, CVC5_INPUT_BUFFER_SIZE, "(anima_is_facing %s up)", ANIMA_NAMES[idx]);
+    cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
+    mind->lot.anima[idx].facing.up = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
 
-  snprintf(cvc5_input_buffer, CVC5_INPUT_BUFFER_SIZE, "(anima_is_facing %s right)", ANIMA_NAMES[idx]);
-  cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
-  mind->lot.anima[idx].facing.right = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
+    snprintf(cvc5_input_buffer, CVC5_INPUT_BUFFER_SIZE, "(anima_is_facing %s right)", ANIMA_NAMES[idx]);
+    cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
+    mind->lot.anima[idx].facing.right = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
 
-  snprintf(cvc5_input_buffer, CVC5_INPUT_BUFFER_SIZE, "(anima_is_facing %s down)", ANIMA_NAMES[idx]);
-  cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
-  mind->lot.anima[idx].facing.down = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
+    snprintf(cvc5_input_buffer, CVC5_INPUT_BUFFER_SIZE, "(anima_is_facing %s down)", ANIMA_NAMES[idx]);
+    cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
+    mind->lot.anima[idx].facing.down = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
 
-  snprintf(cvc5_input_buffer, CVC5_INPUT_BUFFER_SIZE, "(anima_is_facing %s left)", ANIMA_NAMES[idx]);
-  cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
-  mind->lot.anima[idx].facing.left = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
+    snprintf(cvc5_input_buffer, CVC5_INPUT_BUFFER_SIZE, "(anima_is_facing %s left)", ANIMA_NAMES[idx]);
+    cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
+    mind->lot.anima[idx].facing.left = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
   }
 }
 
@@ -119,7 +117,7 @@ void Anima_touch(Anima *self, Mind *mind) {
   Anima_LoT_animas(self, mind);
   Anima_LoT_direction(self, mind);
 
-  Anima_LoT_facing_terms(self, mind);
+  Anima_LoT_facing(self, mind);
 };
 
 // deduction

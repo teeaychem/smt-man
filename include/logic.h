@@ -4,13 +4,15 @@
 #include "render/constants.h"
 #include "utils.h"
 
+constexpr Cvc5InputLanguage CVC5_LANG = CVC5_INPUT_LANGUAGE_SMT_LIB_2_6;
+static const char *CVC5_LOGIC = "UFLIA";
+
+constexpr size_t CVC5_INPUT_BUFFER_SIZE = 1024;
+
 typedef enum anima_status_t AnimaStatus;
 enum anima_status_t {
   ANIMA_STATUS_SEARCH,
 };
-
-static const Cvc5InputLanguage CVC5_LANG = CVC5_INPUT_LANGUAGE_SMT_LIB_2_6;
-static const char *CVC5_LOGIC = "UFLIA";
 
 typedef struct smt_pov_facing_t SmtPovFacing;
 struct smt_pov_facing_t {
