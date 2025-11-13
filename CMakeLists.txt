@@ -44,7 +44,6 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 
 find_package(PkgConfig REQUIRED)
 
-
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 find_package(Threads)
@@ -55,28 +54,25 @@ find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3 SDL3::Headers)
 target_include_directories(${PROJECT_NAME} PRIVATE ${SDL3_INCLUDE_DIRS})
 
-# add_compile_options(${SDL3_CFLAGS})
-
 # pkg_check_modules(LIBPNG REQUIRED LIBPNG)
-# add_compile_options(${LIBPNG_CFLAGS})
 find_package(PNG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE PNG::PNG)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PNG_INCLUDE_DIRS})
 
+find_package(Criterion REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE criterion)
 
 ## Submodules
 
 ### cvc5
 
 find_package(cvc5)
-
 target_link_libraries(${PROJECT_NAME} PRIVATE cvc5::cvc5 cvc5::cvc5parser)
-
 target_include_directories(
     ${PROJECT_NAME}
     PRIVATE
-        ${PROJECT_SOURCE_DIR}/cvc5/build/include
-        ${PROJECT_SOURCE_DIR}/cvc5/include
+        ${PROJECT_SOURCE_DIR}/deps/cvc5/build/include
+        ${PROJECT_SOURCE_DIR}/deps/cvc5/include
 )
 
 ## FetchContent
@@ -88,11 +84,22 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/likle/cwalk.git
     GIT_TAG v1.2.9
 )
-FetchContent_MakeAvailable(cwalk)
+# FetchContent_MakeAvailable(cwalk)
 target_include_directories(${PROJECT_NAME} PRIVATE ${cwalk_SOURCE_DIR}/include)
 target_sources(${PROJECT_NAME} PRIVATE ${cwalk_SOURCE_DIR}/src/cwalk.c)
 
-### whereami
+FetchContent_Declare(
+    stumpless
+    GIT_REPOSITORY git@github.com:goatshriek/stumpless.git
+    GIT_TAG v2.2.0
+)
+FetchContent_MakeAvailable(stumpless)
+target_link_libraries(${PROJECT_NAME} PRIVATE stumpless)
+target_include_directories(
+    ${PROJECT_NAME}
+    PRIVATE ${stumpless_SOURCE_DIR}/include ${stumpless_BINARY_DIR}/include
+)
+
 FetchContent_Declare(
     whereami
     GIT_REPOSITORY https://github.com/gpakosz/whereami.git
@@ -100,10 +107,6 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(whereami)
 target_include_directories(${PROJECT_NAME} PRIVATE ${whereami_SOURCE_DIR}/src)
 target_sources(${PROJECT_NAME} PRIVATE ${whereami_SOURCE_DIR}/src/whereami.c)
-
-find_package(Criterion REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE criterion)
-
 
 add_custom_target(
     copy_data
@@ -114,6 +117,5 @@ add_custom_target(
     COMMENT "Copying data"
 )
 add_dependencies(${PROJECT_NAME} copy_data)
-
 
 add_subdirectory("tests")

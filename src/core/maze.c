@@ -6,7 +6,7 @@
 
 #include "maze.h"
 #include "render/constants.h"
-/* #include "stumpless/log.h" */
+#include "stumpless/log.h"
 #include "utils/pairs.h"
 
 void next_line(FILE *file) {
@@ -28,7 +28,7 @@ Maze Maze_create(char *path) {
 
   FILE *file = fopen(path, "r");
   if (file == NULL) {
-    /* stumplog(LOG_ERR, "Failed to open maze"); */
+    stumplog(LOG_ERR, "Failed to open maze");
     preambleOk = false;
   }
 
@@ -46,14 +46,14 @@ Maze Maze_create(char *path) {
 
     case 'w': {
       if (!fscanf(file, "%" SCNu32, &(base.x))) {
-        /* stumplog(LOG_ERR, "Failed to read maze width"); */
+        stumplog(LOG_ERR, "Failed to read maze width");
         preambleOk = false;
       };
     } break;
 
     case 'h': {
       if (!fscanf(file, "%" SCNu32, &(base.y))) {
-        /* stumplog(LOG_ERR, "Failed to read maze height"); */
+        stumplog(LOG_ERR, "Failed to read maze height");
         preambleOk = false;
       };
     } break;
@@ -73,16 +73,16 @@ Maze Maze_create(char *path) {
   }
 
   if (base.x % kTILES.x != 0 | base.y % kTILES.y != 0) {
-    /* stumplog(LOG_ERR, */
-    /*          "Maze dimension %dx%d is not an integer scale of %dx%d", */
-    /*          base.x, base.y, */
-    /*          kTILES.x, kTILES.y); */
+    stumplog(LOG_ERR,
+             "Maze dimension %dx%d is not an integer scale of %dx%d",
+             base.x, base.y,
+             kTILES.x, kTILES.y);
     preambleOk = false;
   }
 
   if (!preambleOk) {
-    /* stumplog(LOG_INFO, path); */
-    /* stumplog(LOG_CRIT, "Failed to construct maze"); */
+    stumplog(LOG_INFO, path);
+    stumplog(LOG_CRIT, "Failed to construct maze");
     exit(1);
   }
 
@@ -134,7 +134,7 @@ Maze Maze_create(char *path) {
     printf("y_y"), exit(-1);
   }
 
-  /* stumplog(LOG_CRIT, "Constructed maze %dx%d (%d)", base.x, base.y, tile_count); */
+  stumplog(LOG_CRIT, "Constructed maze %dx%d (%d)", base.x, base.y, tile_count);
 
   return self;
 }
