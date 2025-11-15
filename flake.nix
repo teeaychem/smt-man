@@ -36,6 +36,7 @@
               pkgs.libpng
               pkgs.sdl3
               pkgs.pkg-config
+              pkgs.z3
             ];
             buildInputs = [ ];
           };
