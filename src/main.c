@@ -24,7 +24,7 @@
 
 Renderer gRenderer;
 
-pthread_mutex_t mtx_cvc5 = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mtx_solver = PTHREAD_MUTEX_INITIALIZER;
 
 Anima ANIMAS[ANIMA_COUNT];
 SpriteInfo ANIMA_SPRITES[ANIMA_COUNT];
@@ -37,9 +37,9 @@ void *spirit(void *_anima) {
   Anima *anima = _anima;
   Mind mind = Mind_default();
 
-  pthread_mutex_lock(&mtx_cvc5);
+  pthread_mutex_lock(&mtx_solver);
   Anima_touch(anima, &mind);
-  pthread_mutex_unlock(&mtx_cvc5);
+  pthread_mutex_unlock(&mtx_solver);
 
   atomic_store(&anima->sync.flag_suspend, true);
 
@@ -196,6 +196,9 @@ int main(int argc, char **argv) {
 
       for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
         ANIMA_SPRITES[idx].tick += 1;
+        auto a_l = atomic_load(&ANIMAS[idx].pov.anima[idx].location);
+        auto a_l_s = PairI32_abstract_by(&a_l, 16);
+        stumplog(LOG_INFO, "anima: %d %dx%d, %dx%d", idx,  a_l.x, a_l.y, a_l_s.x, a_l_s.y);
 
         if (atomic_load(&ANIMAS[idx].sync.flag_suspend)) {
           atomic_store(&ANIMAS[idx].sync.flag_suspend, false);
