@@ -37,19 +37,21 @@ def surrounding(x, y):
 
 solver = Optimize()
 
+bit_vec_sort = BitVecSort(8)
 
-bv8_0 = BitVecSort(8).cast(0)
-bv8_1 = BitVecSort(8).cast(1)
 
-bv8_u = z3.Const("u", BitVecSort(8))
-bv8_v = z3.Const("v", BitVecSort(8))
-bv8_w = z3.Const("w", BitVecSort(8))
-bv8_x = z3.Const("x", BitVecSort(8))
-bv8_y = z3.Const("y", BitVecSort(8))
-bv8_z = z3.Const("z", BitVecSort(8))
+bv8_0 = bit_vec_sort.cast(0)
+bv8_1 = bit_vec_sort.cast(1)
+
+bv8_u = z3.Const("u", bit_vec_sort)
+bv8_v = z3.Const("v", bit_vec_sort)
+bv8_w = z3.Const("w", bit_vec_sort)
+bv8_x = z3.Const("x", bit_vec_sort)
+bv8_y = z3.Const("y", bit_vec_sort)
+bv8_z = z3.Const("z", bit_vec_sort)
 
 z3dt_u8_pair = z3.Datatype("u8_pair_t")
-z3dt_u8_pair.declare("u8Pair", ("row", BitVecSort(8)), ("col", BitVecSort(8)))
+z3dt_u8_pair.declare("u8Pair", ("row", bit_vec_sort), ("col", bit_vec_sort))
 z3u8Pair = z3dt_u8_pair.create()
 v_u8p_xy = z3u8Pair.u8Pair(bv8_x, bv8_y)
 v_u8p_uv = z3u8Pair.u8Pair(bv8_u, bv8_v)
@@ -87,9 +89,9 @@ maze_pairs = [[None for _ in range(0, width)] for _ in range(0, height)]
 
 
 for r in range(0, height):
-    bvr = BitVecSort(8).cast(r)
+    bvr = bit_vec_sort.cast(r)
     for c in range(0, width):
-        bvc = BitVecSort(8).cast(c)
+        bvc = bit_vec_sort.cast(c)
         location = z3u8Pair.u8Pair(bvc, bvr)
 
         maze_pairs[r][c] = location
@@ -111,9 +113,9 @@ solver.add(z3f_anima_location(anima_smtman) == maze_pairs[26][3])
 
 
 for r in range(0, height):
-    bvr = BitVecSort(8).cast(r)
+    bvr = bit_vec_sort.cast(r)
     for c in range(0, width):
-        bvc = BitVecSort(8).cast(c)
+        bvc = bit_vec_sort.cast(c)
         loc = z3u8Pair.u8Pair(bvc, bvr)
 
         if maze_chars[r][c] == " ":
@@ -290,9 +292,9 @@ if result == sat:
     print(model.eval(z3f_anima_location(anima_gottlob)))
     print(model.eval(z3_path_e(z3f_anima_location(anima_gottlob))))
     for r in range(0, height):
-        bvr = BitVecSort(8).cast(r)
+        bvr = bit_vec_sort.cast(r)
         for c in range(0, width):
-            bvc = BitVecSort(8).cast(c)
+            bvc = bit_vec_sort.cast(c)
             location = z3u8Pair.u8Pair(bvc, bvr)
             if model.eval(z3_path_e(location) != path_enums[10]):
                 path_tiles.append((c, r, model.eval(z3_path_e(location))))
