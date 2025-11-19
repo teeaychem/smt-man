@@ -76,7 +76,7 @@ l_d = path_enums[8]
 l_u = path_enums[9]
 x_x = path_enums[10]
 
-z3f_path_type = Function("path_type", z3u8Pair, PathEnum)
+z3_path_e = Function("path_type", z3u8Pair, PathEnum)
 
 AnimaSort = z3.DeclareSort("Anima")
 z3f_anima_location = Function("anima_location", AnimaSort, z3u8Pair)
@@ -90,11 +90,11 @@ for r in range(0, height):
     bvr = BitVecSort(8).cast(r)
     for c in range(0, width):
         bvc = BitVecSort(8).cast(c)
-
-        maze_pairs[r][c] = z3u8Pair.u8Pair(c, r)
-
         location = z3u8Pair.u8Pair(bvc, bvr)
-        solver.add_soft(z3f_path_type(location) == x_x, weight=1)
+
+        maze_pairs[r][c] = location
+
+        solver.add_soft(z3_path_e(location) == x_x, weight=1)
 
 solver.assert_exprs(z3.Distinct(sum(maze_pairs, [])))
 
@@ -106,11 +106,6 @@ anima_gottlob = animas[0]
 anima_smtman = animas[1]
 
 
-# for anima in animas:
-#     solver.add(ULT(z3u8Pair.row(z3f_anima_location(anima)), height))
-#     solver.add(ULT(z3u8Pair.col(z3f_anima_location(anima)), width))
-
-
 solver.add(z3f_anima_location(anima_gottlob) == maze_pairs[1][2])
 solver.add(z3f_anima_location(anima_smtman) == maze_pairs[26][3])
 
@@ -119,258 +114,154 @@ for r in range(0, height):
     bvr = BitVecSort(8).cast(r)
     for c in range(0, width):
         bvc = BitVecSort(8).cast(c)
-        location = z3u8Pair.u8Pair(bvc, bvr)
+        loc = z3u8Pair.u8Pair(bvc, bvr)
 
         if maze_chars[r][c] == " ":
-            solver.add(z3f_path_type(location) == x_x)
+            solver.add(z3_path_e(loc) == x_x)
         else:
             if (r == 1 and c == 2) or (r == 26 and c == 3):
                 solver.add(
                     z3.Or(
-                        z3f_path_type(location) == o_u,
-                        z3f_path_type(location) == r_o,
-                        z3f_path_type(location) == o_d,
-                        z3f_path_type(location) == l_o,
+                        z3_path_e(loc) == o_u,
+                        z3_path_e(loc) == r_o,
+                        z3_path_e(loc) == o_d,
+                        z3_path_e(loc) == l_o,
                     )
                 )
             else:
                 solver.add(
                     z3.Or(
-                        z3f_path_type(location) == x_x,
-                        z3f_path_type(location) == u_d,
-                        z3f_path_type(location) == r_l,
-                        z3f_path_type(location) == r_u,
-                        z3f_path_type(location) == r_d,
-                        z3f_path_type(location) == l_d,
-                        z3f_path_type(location) == l_u,
+                        z3_path_e(loc) == x_x,
+                        z3_path_e(loc) == u_d,
+                        z3_path_e(loc) == r_l,
+                        z3_path_e(loc) == r_u,
+                        z3_path_e(loc) == r_d,
+                        z3_path_e(loc) == l_d,
+                        z3_path_e(loc) == l_u,
                     )
                 )
 
-            up_tile = z3u8Pair.u8Pair(bvc, bvr - bv8_1)
-            right_tile = z3u8Pair.u8Pair(bvc + bv8_1, bvr)
-            down_tile = z3u8Pair.u8Pair(bvc, bvr + bv8_1)
-            left_tile = z3u8Pair.u8Pair(bvc - bv8_1, bvr)
+            up_tile = maze_pairs[r - 1][c] if r > 0 else None
+            right_tile = maze_pairs[r][c + 1] if c < width_less_one else None
+            down_tile = maze_pairs[r + 1][c] if r < height_less_one else None
+            left_tile = maze_pairs[r][c - 1] if c > 0 else None
 
-            solver.add(
-                z3.Implies(
-                    z3f_path_type(location) == o_u,
-                    z3.Or(
-                        [
-                            z3f_path_type(up_tile) == o_d,
-                            z3f_path_type(up_tile) == u_d,
-                            z3f_path_type(up_tile) == r_d,
-                            z3f_path_type(up_tile) == l_d,
-                        ]
-                    ),
-                )
+            up_tile_constraint = (
+                [
+                    z3_path_e(up_tile) == o_d,
+                    z3_path_e(up_tile) == u_d,
+                    z3_path_e(up_tile) == r_d,
+                    z3_path_e(up_tile) == l_d,
+                ]
+                if up_tile is not None
+                else None
             )
 
-            solver.add(
-                z3.Implies(
-                    z3f_path_type(location) == r_o,
-                    z3.Or(
-                        [
-                            z3f_path_type(right_tile) == l_o,
-                            z3f_path_type(right_tile) == r_l,
-                            z3f_path_type(right_tile) == l_d,
-                            z3f_path_type(right_tile) == l_u,
-                        ]
-                    ),
-                )
+            rt_tile_constraint = (
+                [
+                    z3_path_e(right_tile) == l_o,
+                    z3_path_e(right_tile) == r_l,
+                    z3_path_e(right_tile) == l_d,
+                    z3_path_e(right_tile) == l_u,
+                ]
+                if right_tile is not None
+                else None
             )
 
-            solver.add(
-                z3.Implies(
-                    z3f_path_type(location) == o_d,
-                    z3.Or(
-                        [
-                            z3f_path_type(down_tile) == o_u,
-                            z3f_path_type(down_tile) == u_d,
-                            z3f_path_type(down_tile) == r_u,
-                            z3f_path_type(down_tile) == l_u,
-                        ]
-                    ),
-                )
+            dn_tile_constraint = (
+                [
+                    z3_path_e(down_tile) == o_u,
+                    z3_path_e(down_tile) == u_d,
+                    z3_path_e(down_tile) == r_u,
+                    z3_path_e(down_tile) == l_u,
+                ]
+                if down_tile is not None
+                else None
             )
 
-            solver.add(
-                z3.Implies(
-                    z3f_path_type(location) == l_o,
-                    z3.Or(
-                        [
-                            z3f_path_type(left_tile) == r_o,
-                            z3f_path_type(left_tile) == r_l,
-                            z3f_path_type(left_tile) == r_u,
-                            z3f_path_type(left_tile) == r_d,
-                        ]
-                    ),
-                )
+            lt_tile_constraint = (
+                [
+                    z3_path_e(left_tile) == r_o,
+                    z3_path_e(left_tile) == r_l,
+                    z3_path_e(left_tile) == r_u,
+                    z3_path_e(left_tile) == r_d,
+                ]
+                if left_tile is not None
+                else None
             )
 
-            solver.add(
-                z3.Implies(
-                    z3f_path_type(location) == u_d,
-                    z3.And(
-                        [
-                            z3.Or(
-                                [
-                                    z3f_path_type(up_tile) == o_d,
-                                    z3f_path_type(up_tile) == u_d,
-                                    z3f_path_type(up_tile) == r_d,
-                                    z3f_path_type(up_tile) == l_d,
-                                ]
-                            ),
-                            z3.Or(
-                                [
-                                    z3f_path_type(down_tile) == o_u,
-                                    z3f_path_type(down_tile) == u_d,
-                                    z3f_path_type(down_tile) == r_u,
-                                    z3f_path_type(down_tile) == l_u,
-                                ]
-                            ),
-                        ]
-                    ),
-                )
-            )
+            if up_tile is not None:
+                up_impl = z3.Implies(z3_path_e(loc) == o_u, z3.Or(up_tile_constraint))
+                solver.add(up_impl)
 
-            solver.add(
-                z3.Implies(
-                    z3f_path_type(location) == r_l,
-                    z3.And(
-                        [
-                            z3.Or(
-                                [
-                                    z3f_path_type(left_tile) == r_o,
-                                    z3f_path_type(left_tile) == r_l,
-                                    z3f_path_type(left_tile) == r_u,
-                                    z3f_path_type(left_tile) == r_d,
-                                ]
-                            ),
-                            z3.Or(
-                                [
-                                    z3f_path_type(right_tile) == l_o,
-                                    z3f_path_type(right_tile) == r_l,
-                                    z3f_path_type(right_tile) == l_d,
-                                    z3f_path_type(right_tile) == l_u,
-                                ]
-                            ),
-                        ]
-                    ),
-                )
-            )
+            if right_tile is not None:
+                rt_impl = z3.Implies(z3_path_e(loc) == r_o, z3.Or(rt_tile_constraint))
+                solver.add(rt_impl)
 
-            solver.add(
-                z3.Implies(
-                    z3f_path_type(location) == r_u,
-                    z3.And(
-                        [
-                            z3.Or(
-                                [
-                                    z3f_path_type(up_tile) == o_d,
-                                    z3f_path_type(up_tile) == u_d,
-                                    z3f_path_type(up_tile) == r_d,
-                                    z3f_path_type(up_tile) == l_d,
-                                ]
-                            ),
-                            z3.Or(
-                                [
-                                    z3f_path_type(right_tile) == l_o,
-                                    z3f_path_type(right_tile) == r_l,
-                                    z3f_path_type(right_tile) == l_d,
-                                    z3f_path_type(right_tile) == l_u,
-                                ]
-                            ),
-                        ]
-                    ),
-                )
-            )
+            if down_tile is not None:
+                dn_impl = z3.Implies(z3_path_e(loc) == o_d, z3.Or(dn_tile_constraint))
+                solver.add(dn_impl)
 
-            solver.add(
-                z3.Implies(
-                    z3f_path_type(location) == r_d,
-                    z3.And(
-                        [
-                            z3.Or(
-                                [
-                                    z3f_path_type(down_tile) == o_u,
-                                    z3f_path_type(down_tile) == u_d,
-                                    z3f_path_type(down_tile) == r_u,
-                                    z3f_path_type(down_tile) == l_u,
-                                ]
-                            ),
-                            z3.Or(
-                                [
-                                    z3f_path_type(right_tile) == l_o,
-                                    z3f_path_type(right_tile) == r_l,
-                                    z3f_path_type(right_tile) == l_d,
-                                    z3f_path_type(right_tile) == l_u,
-                                ]
-                            ),
-                        ]
-                    ),
-                )
-            )
+            if left_tile is not None:
+                lt_impl = z3.Implies(z3_path_e(loc) == l_o, z3.Or(lt_tile_constraint))
+                solver.add(lt_impl)
 
-            solver.add(
-                z3.Implies(
-                    z3f_path_type(location) == l_d,
-                    z3.And(
-                        [
-                            z3.Or(
-                                [
-                                    z3f_path_type(down_tile) == o_u,
-                                    z3f_path_type(down_tile) == u_d,
-                                    z3f_path_type(down_tile) == r_u,
-                                    z3f_path_type(down_tile) == l_u,
-                                ]
-                            ),
-                            z3.Or(
-                                [
-                                    z3f_path_type(left_tile) == r_o,
-                                    z3f_path_type(left_tile) == r_l,
-                                    z3f_path_type(left_tile) == r_u,
-                                    z3f_path_type(left_tile) == r_d,
-                                ]
-                            ),
-                        ]
-                    ),
-                )
-            )
+            u_d_constraint = [
+                z3.Or(up_tile_constraint) if up_tile_constraint is not None else None,
+                z3.Or(dn_tile_constraint) if dn_tile_constraint is not None else None,
+            ]
+            u_d_constraint = [c for c in u_d_constraint if c is not None]
+            u_d_impl = z3.Implies(z3_path_e(loc) == u_d, z3.And(u_d_constraint))
+            solver.add(u_d_impl)
 
-            solver.add(
-                z3.Implies(
-                    z3f_path_type(location) == l_u,
-                    z3.And(
-                        [
-                            z3.Or(
-                                [
-                                    z3f_path_type(up_tile) == o_d,
-                                    z3f_path_type(up_tile) == u_d,
-                                    z3f_path_type(up_tile) == r_d,
-                                    z3f_path_type(up_tile) == l_d,
-                                ]
-                            ),
-                            z3.Or(
-                                [
-                                    z3f_path_type(left_tile) == r_o,
-                                    z3f_path_type(left_tile) == r_l,
-                                    z3f_path_type(left_tile) == r_u,
-                                    z3f_path_type(left_tile) == r_d,
-                                ]
-                            ),
-                        ]
-                    ),
-                )
-            )
+            r_l_constraint = [
+                z3.Or(lt_tile_constraint) if lt_tile_constraint is not None else None,
+                z3.Or(rt_tile_constraint) if rt_tile_constraint is not None else None,
+            ]
+            r_l_constraint = [c for c in r_l_constraint if c is not None]
+            r_l_impl = z3.Implies(z3_path_e(loc) == r_l, z3.And(r_l_constraint))
+            solver.add(r_l_impl)
+
+            r_u_constraint = [
+                z3.Or(up_tile_constraint) if up_tile_constraint is not None else None,
+                z3.Or(rt_tile_constraint) if rt_tile_constraint is not None else None,
+            ]
+            r_u_constraint = [c for c in r_u_constraint if c is not None]
+            r_u_impl = z3.Implies(z3_path_e(loc) == r_u, z3.And(r_u_constraint))
+            solver.add(r_u_impl)
+
+            r_d_constraint = [
+                z3.Or(dn_tile_constraint) if dn_tile_constraint is not None else None,
+                z3.Or(rt_tile_constraint) if rt_tile_constraint is not None else None,
+            ]
+            r_d_constraint = [c for c in r_d_constraint if c is not None]
+            r_d_impl = z3.Implies(z3_path_e(loc) == r_d, z3.And(r_d_constraint))
+            solver.add(r_d_impl)
+
+            l_d_constraint = [
+                z3.Or(dn_tile_constraint) if dn_tile_constraint is not None else None,
+                z3.Or(lt_tile_constraint) if lt_tile_constraint is not None else None,
+            ]
+            l_d_constraint = [c for c in l_d_constraint if c is not None]
+            l_d_impl = z3.Implies(z3_path_e(loc) == l_d, z3.And(l_d_constraint))
+            solver.add(l_d_impl)
+
+            l_u_constraint = [
+                z3.Or(up_tile_constraint) if up_tile_constraint is not None else None,
+                z3.Or(lt_tile_constraint) if lt_tile_constraint is not None else None,
+            ]
+            l_u_constraint = [c for c in l_u_constraint if c is not None]
+            l_u_impl = z3.Implies(z3_path_e(loc) == l_u, z3.And(l_u_constraint))
+            solver.add(l_u_impl)
 
 for anima in animas:
     solver.add(
         z3.Or(
             [
-                z3f_path_type(z3f_anima_location(anima)) == o_u,
-                z3f_path_type(z3f_anima_location(anima)) == r_o,
-                z3f_path_type(z3f_anima_location(anima)) == o_d,
-                z3f_path_type(z3f_anima_location(anima)) == l_o,
+                z3_path_e(z3f_anima_location(anima)) == o_u,
+                z3_path_e(z3f_anima_location(anima)) == r_o,
+                z3_path_e(z3f_anima_location(anima)) == o_d,
+                z3_path_e(z3f_anima_location(anima)) == l_o,
             ]
         )
     )
@@ -391,14 +282,14 @@ if result == sat:
     # print(f"{model}")
     # print(model.eval(z3f_anima_facing(anima_gottlob)))
     print(model.eval(z3f_anima_location(anima_gottlob)))
-    print(model.eval(z3f_path_type(z3f_anima_location(anima_gottlob))))
+    print(model.eval(z3_path_e(z3f_anima_location(anima_gottlob))))
     for r in range(0, height):
         bvr = BitVecSort(8).cast(r)
         for c in range(0, width):
             bvc = BitVecSort(8).cast(c)
             location = z3u8Pair.u8Pair(bvc, bvr)
-            if model.eval(z3f_path_type(location) != path_enums[10]):
-                path_tiles.append((c, r, model.eval(z3f_path_type(location))))
+            if model.eval(z3_path_e(location) != path_enums[10]):
+                path_tiles.append((c, r, model.eval(z3_path_e(location))))
                 print("x", end="")
                 # print(f"{c},{r} = {model.eval(z3f_path_type(z3u8Pair.u8Pair(bvr, bvc)))}")
             else:
