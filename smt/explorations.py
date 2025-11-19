@@ -92,11 +92,14 @@ for r in range(0, height):
     bvr = bit_vec_sort.cast(r)
     for c in range(0, width):
         bvc = bit_vec_sort.cast(c)
-        location = z3u8Pair.u8Pair(bvc, bvr)
+        loc = z3u8Pair.u8Pair(bvc, bvr)
 
-        maze_pairs[r][c] = location
+        maze_pairs[r][c] = loc
 
-        solver.add_soft(z3_path_e(location) == x_x, weight=1)
+        if maze_chars[r][c] != " ":
+            solver.add_soft(z3_path_e(loc) == x_x, weight=1)
+        else:
+            solver.add(z3_path_e(loc) == x_x)
 
 solver.assert_exprs(z3.Distinct(sum(maze_pairs, [])))
 
@@ -118,9 +121,7 @@ for r in range(0, height):
         bvc = bit_vec_sort.cast(c)
         loc = z3u8Pair.u8Pair(bvc, bvr)
 
-        if maze_chars[r][c] == " ":
-            solver.add(z3_path_e(loc) == x_x)
-        else:
+        if maze_chars[r][c] != " ":
             if (r == 1 and c == 2) or (r == 26 and c == 3):
                 solver.add(
                     z3.Or(
