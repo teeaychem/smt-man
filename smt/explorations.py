@@ -48,14 +48,6 @@ bv8_x = z3.Const("x", BitVecSort(8))
 bv8_y = z3.Const("y", BitVecSort(8))
 bv8_z = z3.Const("z", BitVecSort(8))
 
-z3f_path_end = Function("path", BitVecSort(8), BitVecSort(8), BoolSort())
-z3f_path_segment = Function(
-    "path", BitVecSort(8), BitVecSort(8), BitVecSort(8), BitVecSort(8), BoolSort()
-)
-
-# Pairs
-maze_pairs = [[None for _ in range(0, width)] for _ in range(0, height)]
-
 z3dt_u8_pair = z3.Datatype("u8_pair_t")
 z3dt_u8_pair.declare("u8Pair", ("row", BitVecSort(8)), ("col", BitVecSort(8)))
 z3u8Pair = z3dt_u8_pair.create()
@@ -63,44 +55,6 @@ v_u8p_xy = z3u8Pair.u8Pair(bv8_x, bv8_y)
 v_u8p_uv = z3u8Pair.u8Pair(bv8_u, bv8_v)
 v_u8p_cxy = z3.Const("xy", z3u8Pair)
 v_u8p_cuv = z3.Const("uv", z3u8Pair)
-
-
-for r in range(0, height):
-    for c in range(0, width):
-        maze_pairs[r][c] = z3u8Pair.u8Pair(c, r)
-        # solver.add_soft(z3.Not(z3f_path_segment(r, c)), weight=2)
-        # solver.add_soft(z3.Not(z3f_path_end(r, c)), weight=99)
-
-solver.assert_exprs(z3.Distinct(sum(maze_pairs, [])))
-
-# Animas
-AnimaSort = z3.DeclareSort("Anima")
-anima_anima = z3.Const("anima", AnimaSort)
-animas = (z3.Const("gottlob", AnimaSort), z3.Const("smtman", AnimaSort))
-anima_gottlob = animas[0]
-anima_smtman = animas[1]
-
-
-# z3f_anima_facing = Function("anima_facing", AnimaSort, DirectionEnum)
-# solver.add(z3f_anima_facing(anima_gottlob) == direction_down)
-
-z3f_anima_location = Function("anima_location", AnimaSort, z3u8Pair)
-for anima in animas:
-    solver.add(ULT(z3u8Pair.row(z3f_anima_location(anima)), height))
-    solver.add(ULT(z3u8Pair.col(z3f_anima_location(anima)), width))
-
-
-# for r in range(0, height):
-#     for c in range(0, width):
-#         solver.add(z3f_anima_location(anima_gottlob) != maze_pairs[r][c])
-
-# solver.assert_exprs(
-#     z3.Distinct(direction_up, direction_right, direction_down, direction_left)
-# )
-
-
-solver.add(z3f_anima_location(anima_gottlob) == maze_pairs[1][2])
-solver.add(z3f_anima_location(anima_smtman) == maze_pairs[26][3])
 
 PathEnum, path_enums = z3.EnumSort(
     "path_e",
@@ -124,16 +78,52 @@ x_x = path_enums[10]
 
 z3f_path_type = Function("path_type", z3u8Pair, PathEnum)
 
+AnimaSort = z3.DeclareSort("Anima")
+z3f_anima_location = Function("anima_location", AnimaSort, z3u8Pair)
+
+
+# Pairs
+maze_pairs = [[None for _ in range(0, width)] for _ in range(0, height)]
+
+
 for r in range(0, height):
     bvr = BitVecSort(8).cast(r)
     for c in range(0, width):
         bvc = BitVecSort(8).cast(c)
 
-        if maze_chars[r][c] == " ":
-            solver.add(z3f_path_type(z3u8Pair.u8Pair(bvc, bvr)) == x_x)
-        else:
-            location = z3u8Pair.u8Pair(bvc, bvr)
+        maze_pairs[r][c] = z3u8Pair.u8Pair(c, r)
 
+        location = z3u8Pair.u8Pair(bvc, bvr)
+        solver.add_soft(z3f_path_type(location) == x_x, weight=1)
+
+solver.assert_exprs(z3.Distinct(sum(maze_pairs, [])))
+
+# Animas
+
+anima_anima = z3.Const("anima", AnimaSort)
+animas = (z3.Const("gottlob", AnimaSort), z3.Const("smtman", AnimaSort))
+anima_gottlob = animas[0]
+anima_smtman = animas[1]
+
+
+# for anima in animas:
+#     solver.add(ULT(z3u8Pair.row(z3f_anima_location(anima)), height))
+#     solver.add(ULT(z3u8Pair.col(z3f_anima_location(anima)), width))
+
+
+solver.add(z3f_anima_location(anima_gottlob) == maze_pairs[1][2])
+solver.add(z3f_anima_location(anima_smtman) == maze_pairs[26][3])
+
+
+for r in range(0, height):
+    bvr = BitVecSort(8).cast(r)
+    for c in range(0, width):
+        bvc = BitVecSort(8).cast(c)
+        location = z3u8Pair.u8Pair(bvc, bvr)
+
+        if maze_chars[r][c] == " ":
+            solver.add(z3f_path_type(location) == x_x)
+        else:
             if (r == 1 and c == 2) or (r == 26 and c == 3):
                 solver.add(
                     z3.Or(
