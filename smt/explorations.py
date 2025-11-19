@@ -89,10 +89,8 @@ maze_pairs = [[None for _ in range(0, width)] for _ in range(0, height)]
 
 
 for r in range(0, height):
-    bvr = bit_vec_sort.cast(r)
     for c in range(0, width):
-        bvc = bit_vec_sort.cast(c)
-        loc = z3u8Pair.u8Pair(bvc, bvr)
+        loc = z3u8Pair.u8Pair(bit_vec_sort.cast(c), bit_vec_sort.cast(r))
 
         maze_pairs[r][c] = loc
 
@@ -112,7 +110,7 @@ anima_smtman = animas[1]
 
 
 solver.add(z3f_anima_location(anima_gottlob) == maze_pairs[1][2])
-solver.add(z3f_anima_location(anima_smtman) == maze_pairs[26][3])
+solver.add(z3f_anima_location(anima_smtman) == maze_pairs[26][15])
 
 
 for r in range(0, height):
@@ -122,7 +120,7 @@ for r in range(0, height):
         loc = z3u8Pair.u8Pair(bvc, bvr)
 
         if maze_chars[r][c] != " ":
-            if (r == 1 and c == 2) or (r == 26 and c == 3):
+            if (r == 1 and c == 2) or (r == 26 and c == 15):
                 solver.add(
                     z3.Or(
                         z3_path_e(loc) == o_u,
