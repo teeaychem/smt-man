@@ -38,6 +38,25 @@ def surrounding(x, y):
 
 
 solver = Optimize()
+print(solver.help())
+# solver.set("maxres.wmax", True)
+
+solver.set("maxsat_engine", "wmax")
+
+
+# solver.set("maxsat_engine", "maxres")
+# solver.set("maxsat_engine", "pd-maxres")
+# solver.set("maxsat_engine", "rc2")
+# solver.set("maxsat_engine", "maxres-bin")
+
+
+
+
+
+
+
+
+
 
 bit_vec_sort = BitVecSort(8)
 
@@ -94,8 +113,8 @@ for r in range(0, height):
         maze_pairs[r][c] = loc
 
         if maze_chars[r][c] != " ":
-            # solver.add_soft(z3_path_e(loc) == x_x, weight=1)
-            continue
+            solver.add_soft(z3_path_e(loc) == x_x, weight=1)
+            # continue
         else:
             solver.add(z3_path_e(loc) == x_x)
 
@@ -297,6 +316,8 @@ print(f"Result: {result} in {time_solve_end - time_solve_start:0.4f} seconds")
 
 
 if result == sat:
+    print(solver.statistics())
+
     model = solver.model()
 
     time_model_found = time.perf_counter()
