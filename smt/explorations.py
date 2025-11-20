@@ -149,44 +149,83 @@ for r in range(0, height):
                 if up_tile == None
                 else [
                     z3_path_e(up_tile) == o_d,
-                    z3_path_e(up_tile) == u_d,
-                    z3_path_e(up_tile) == r_d,
-                    z3_path_e(up_tile) == l_d,
+                    z3_path_e(up_tile) == u_d
+                    if 0 < r - 1 and maze_chars[r - 2][c] != " "
+                    else None,
+                    z3_path_e(up_tile) == r_d
+                    if c < width_less_one and 0 < r and maze_chars[r - 1][c + 1] != " "
+                    else None,
+                    z3_path_e(up_tile) == l_d
+                    if 0 < c and 0 < r and maze_chars[r - 1][c - 1] != " "
+                    else None,
                 ]
             )
+            if up_tile_req != None:
+                up_tile_req = [req for req in up_tile_req if req != None]
 
             rt_tile_req = (
                 None
                 if rt_tile == None
                 else [
                     z3_path_e(rt_tile) == l_o,
-                    z3_path_e(rt_tile) == r_l,
-                    z3_path_e(rt_tile) == l_d,
-                    z3_path_e(rt_tile) == l_u,
+                    z3_path_e(rt_tile) == r_l
+                    if c + 1 < width_less_one and maze_chars[r][c + 2] != " "
+                    else None,
+                    z3_path_e(rt_tile) == l_d
+                    if r < height_less_one
+                    and c < width_less_one
+                    and maze_chars[r + 1][c + 1] != " "
+                    else None,
+                    z3_path_e(rt_tile) == l_u
+                    if 0 < r and c < width_less_one and maze_chars[r - 1][c + 1] != " "
+                    else None,
                 ]
             )
+            if rt_tile_req != None:
+                rt_tile_req = [req for req in rt_tile_req if req != None]
 
             dn_tile_req = (
                 None
                 if dn_tile == None
                 else [
                     z3_path_e(dn_tile) == o_u,
-                    z3_path_e(dn_tile) == u_d,
-                    z3_path_e(dn_tile) == r_u,
-                    z3_path_e(dn_tile) == l_u,
+                    z3_path_e(dn_tile) == u_d
+                    if r + 1 < height_less_one and maze_chars[r + 2][c] != " "
+                    else None,
+                    z3_path_e(dn_tile) == r_u
+                    if r < height_less_one
+                    and c < width_less_one
+                    and maze_chars[r + 1][c + 1] != " "
+                    else None,
+                    z3_path_e(dn_tile) == l_u
+                    if r < height_less_one and 0 < c and maze_chars[r + 1][c - 1] != " "
+                    else None,
                 ]
             )
+            if dn_tile_req != None:
+                dn_tile_req = [req for req in dn_tile_req if req != None]
 
             lt_tile_req = (
                 None
                 if lt_tile == None
                 else [
                     z3_path_e(lt_tile) == r_o,
-                    z3_path_e(lt_tile) == r_l,
-                    z3_path_e(lt_tile) == r_u,
-                    z3_path_e(lt_tile) == r_d,
+                    z3_path_e(lt_tile) == r_l
+                    if 0 < c - 1 and maze_chars[r][c - 2] != " "
+                    else None,
+                    z3_path_e(lt_tile) == r_u
+                    if 0 < c and 0 < r and maze_chars[r - 1][c - 1] != " "
+                    else None,
+                    z3_path_e(lt_tile) == r_d
+                    if 0 < c and r < height_less_one and maze_chars[r + 1][c - 1] != " "
+                    else None,
                 ]
             )
+            if lt_tile_req != None:
+                lt_tile_req = [req for req in lt_tile_req if req != None]
+
+            # saved = sum(4 - len(a) if a != None else 0 for a in [up_tile_req, rt_tile_req, dn_tile_req, lt_tile_req] )
+            # print(f"Saved: {saved}")
 
             up_tile_or = z3.Or(up_tile_req) if up_tile_req != None else None
             rt_tile_or = z3.Or(rt_tile_req) if rt_tile_req != None else None
