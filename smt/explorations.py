@@ -1,3 +1,5 @@
+import time
+
 from z3 import *  # pyright: ignore[reportMissingTypeStubs, reportWildcardImportFromLibrary]
 
 maze_chars = []
@@ -92,7 +94,8 @@ for r in range(0, height):
         maze_pairs[r][c] = loc
 
         if maze_chars[r][c] != " ":
-            solver.add_soft(z3_path_e(loc) == x_x, weight=1)
+            # solver.add_soft(z3_path_e(loc) == x_x, weight=1)
+            continue
         else:
             solver.add(z3_path_e(loc) == x_x)
 
@@ -150,13 +153,13 @@ for r in range(0, height):
                 else [
                     z3_path_e(up_tile) == o_d,
                     z3_path_e(up_tile) == u_d
-                    if 0 < r - 1 and maze_chars[r - 2][c] != " "
+                    if 0 < r - 1 and maze_chars[r - 2][c] == "#"
                     else None,
                     z3_path_e(up_tile) == r_d
-                    if c < width_less_one and 0 < r and maze_chars[r - 1][c + 1] != " "
+                    if c < width_less_one and 0 < r and maze_chars[r - 1][c + 1] == "#"
                     else None,
                     z3_path_e(up_tile) == l_d
-                    if 0 < c and 0 < r and maze_chars[r - 1][c - 1] != " "
+                    if 0 < c and 0 < r and maze_chars[r - 1][c - 1] == "#"
                     else None,
                 ]
             )
@@ -169,15 +172,15 @@ for r in range(0, height):
                 else [
                     z3_path_e(rt_tile) == l_o,
                     z3_path_e(rt_tile) == r_l
-                    if c + 1 < width_less_one and maze_chars[r][c + 2] != " "
+                    if c + 1 < width_less_one and maze_chars[r][c + 2] == "#"
                     else None,
                     z3_path_e(rt_tile) == l_d
                     if r < height_less_one
                     and c < width_less_one
-                    and maze_chars[r + 1][c + 1] != " "
+                    and maze_chars[r + 1][c + 1] == "#"
                     else None,
                     z3_path_e(rt_tile) == l_u
-                    if 0 < r and c < width_less_one and maze_chars[r - 1][c + 1] != " "
+                    if 0 < r and c < width_less_one and maze_chars[r - 1][c + 1] == "#"
                     else None,
                 ]
             )
@@ -190,15 +193,15 @@ for r in range(0, height):
                 else [
                     z3_path_e(dn_tile) == o_u,
                     z3_path_e(dn_tile) == u_d
-                    if r + 1 < height_less_one and maze_chars[r + 2][c] != " "
+                    if r + 1 < height_less_one and maze_chars[r + 2][c] == "#"
                     else None,
                     z3_path_e(dn_tile) == r_u
                     if r < height_less_one
                     and c < width_less_one
-                    and maze_chars[r + 1][c + 1] != " "
+                    and maze_chars[r + 1][c + 1] == "#"
                     else None,
                     z3_path_e(dn_tile) == l_u
-                    if r < height_less_one and 0 < c and maze_chars[r + 1][c - 1] != " "
+                    if r < height_less_one and 0 < c and maze_chars[r + 1][c - 1] == "#"
                     else None,
                 ]
             )
@@ -211,13 +214,13 @@ for r in range(0, height):
                 else [
                     z3_path_e(lt_tile) == r_o,
                     z3_path_e(lt_tile) == r_l
-                    if 0 < c - 1 and maze_chars[r][c - 2] != " "
+                    if 0 < c - 1 and maze_chars[r][c - 2] == "#"
                     else None,
                     z3_path_e(lt_tile) == r_u
-                    if 0 < c and 0 < r and maze_chars[r - 1][c - 1] != " "
+                    if 0 < c and 0 < r and maze_chars[r - 1][c - 1] == "#"
                     else None,
                     z3_path_e(lt_tile) == r_d
-                    if 0 < c and r < height_less_one and maze_chars[r + 1][c - 1] != " "
+                    if 0 < c and r < height_less_one and maze_chars[r + 1][c - 1] == "#"
                     else None,
                 ]
             )
@@ -286,10 +289,18 @@ for anima in animas:
 # print(f"{x} = ({simplify(z3u8Pair.row(x))}, {simplify(z3u8Pair.col(x))})")
 
 input("Awaiting on input to solve...")
+time_solve_start = time.perf_counter()
+
 result = solver.check()
-print(f"Result: {result}")
+time_solve_end = time.perf_counter()
+print(f"Result: {result} in {time_solve_end - time_solve_start:0.4f} seconds")
+
+
 if result == sat:
     model = solver.model()
+
+    time_model_found = time.perf_counter()
+    print(f"Time to model: {time_model_found - time_solve_start:0.4f} seconds")
 
     path_tiles = []
 
