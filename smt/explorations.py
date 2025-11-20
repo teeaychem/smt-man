@@ -41,13 +41,21 @@ solver = Optimize()
 print(solver.help())
 # solver.set("maxres.wmax", True)
 
-solver.set("maxsat_engine", "wmax")
+# solver.set("priority", "box")
 
+# solver.set("enable_lns", True)
+# solver.set("enable_sat", False)
+# solver.set("enable_sls", True)
+# solver.set("optsmt_engine", "symba")
+# solver.set("pb.compile_equality", True)
+
+solver.set("maxsat_engine", "wmax")
 
 # solver.set("maxsat_engine", "maxres")
 # solver.set("maxsat_engine", "pd-maxres")
 # solver.set("maxsat_engine", "rc2")
 # solver.set("maxsat_engine", "maxres-bin")
+
 
 
 
@@ -306,6 +314,22 @@ for anima in animas:
 # x = z3u8Pair.u8Pair(128, 0)
 # print(x)
 # print(f"{x} = ({simplify(z3u8Pair.row(x))}, {simplify(z3u8Pair.col(x))})")
+
+time_solve_start = 0
+time_model_found = 0
+time_solve_end = 0
+
+def on_model(m):
+    print(solver.statistics())
+    time_model_found = time.perf_counter()
+    print(f"Time to model: {time_model_found - time_solve_start:0.4f} seconds")
+
+solver.set_on_model(on_model)
+
+
+# solver.push()
+# solver.check()
+# solver.pop()
 
 input("Awaiting on input to solve...")
 time_solve_start = time.perf_counter()
