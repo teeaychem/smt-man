@@ -10,7 +10,7 @@ Mind Mind_default() {
   Cvc5 *solver = cvc5_new(tm);
   Cvc5InputParser *parser = cvc5_parser_new(solver, symbols);
 
-  cvc5_set_logic(solver, CVC5_LOGIC);
+  cvc5_set_logic(solver, "UFLIA");
 
   cvc5_set_option(solver, "produce-models", "true");
   cvc5_set_option(solver, "finite-model-find", "true");
@@ -29,34 +29,34 @@ Mind Mind_default() {
 }
 
 void Anima_LoT_facing(Anima *self, Mind *mind) {
-  char cvc5_input_buffer[CVC5_INPUT_BUFFER_SIZE];
-  const char *cvc5_error_msg;
+  char smt_input_buffer[SMT_INPUT_BUFFER_SIZE];
+  const char *smt_error_msg;
 
   for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
 
-    snprintf(cvc5_input_buffer, CVC5_INPUT_BUFFER_SIZE, "(anima_is_facing %s up)", ANIMA_NAMES[idx]);
-    cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
-    mind->lot.anima[idx].facing.up = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
+    snprintf(smt_input_buffer, SMT_INPUT_BUFFER_SIZE, "(anima_is_facing %s up)", ANIMA_NAMES[idx]);
+    cvc5_parser_set_str_input(mind->parser, CVC5_LANG, smt_input_buffer, "");
+    mind->lot.anima[idx].facing.up = cvc5_parser_next_term(mind->parser, &smt_error_msg);
 
-    snprintf(cvc5_input_buffer, CVC5_INPUT_BUFFER_SIZE, "(anima_is_facing %s right)", ANIMA_NAMES[idx]);
-    cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
-    mind->lot.anima[idx].facing.right = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
+    snprintf(smt_input_buffer, SMT_INPUT_BUFFER_SIZE, "(anima_is_facing %s right)", ANIMA_NAMES[idx]);
+    cvc5_parser_set_str_input(mind->parser, CVC5_LANG, smt_input_buffer, "");
+    mind->lot.anima[idx].facing.right = cvc5_parser_next_term(mind->parser, &smt_error_msg);
 
-    snprintf(cvc5_input_buffer, CVC5_INPUT_BUFFER_SIZE, "(anima_is_facing %s down)", ANIMA_NAMES[idx]);
-    cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
-    mind->lot.anima[idx].facing.down = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
+    snprintf(smt_input_buffer, SMT_INPUT_BUFFER_SIZE, "(anima_is_facing %s down)", ANIMA_NAMES[idx]);
+    cvc5_parser_set_str_input(mind->parser, CVC5_LANG, smt_input_buffer, "");
+    mind->lot.anima[idx].facing.down = cvc5_parser_next_term(mind->parser, &smt_error_msg);
 
-    snprintf(cvc5_input_buffer, CVC5_INPUT_BUFFER_SIZE, "(anima_is_facing %s left)", ANIMA_NAMES[idx]);
-    cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
-    mind->lot.anima[idx].facing.left = cvc5_parser_next_term(mind->parser, &cvc5_error_msg);
+    snprintf(smt_input_buffer, SMT_INPUT_BUFFER_SIZE, "(anima_is_facing %s left)", ANIMA_NAMES[idx]);
+    cvc5_parser_set_str_input(mind->parser, CVC5_LANG, smt_input_buffer, "");
+    mind->lot.anima[idx].facing.left = cvc5_parser_next_term(mind->parser, &smt_error_msg);
   }
 }
 
 void Anima_LoT_animas(Anima *self, Mind *mind) {
 
-  char cvc5_input_buffer[CVC5_INPUT_BUFFER_SIZE];
-  Cvc5Command cvc5_cmd;
-  const char *cvc5_error_msg;
+  char smt_input_buffer[SMT_INPUT_BUFFER_SIZE];
+  Cvc5Command smt_cmd;
+  const char *smt_error_msg;
 
   cvc5_parser_set_str_input(
       mind->parser,
@@ -65,26 +65,26 @@ void Anima_LoT_animas(Anima *self, Mind *mind) {
       "(declare-const anima Anima)",
       "animas");
   do {
-    cvc5_cmd = cvc5_parser_next_command(mind->parser, &cvc5_error_msg);
-    if (cvc5_error_msg) {
-      printf("%s", cvc5_error_msg), exit(-1);
+    smt_cmd = cvc5_parser_next_command(mind->parser, &smt_error_msg);
+    if (smt_error_msg) {
+      printf("%s", smt_error_msg), exit(-1);
     }
-    if (cvc5_cmd) {
-      cvc5_cmd_invoke(cvc5_cmd, mind->solver, mind->sm);
+    if (smt_cmd) {
+      cvc5_cmd_invoke(smt_cmd, mind->solver, mind->sm);
     }
-  } while (cvc5_cmd);
+  } while (smt_cmd);
 
   for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
-    snprintf(cvc5_input_buffer, CVC5_INPUT_BUFFER_SIZE, "(declare-const %s Anima)", ANIMA_NAMES[idx]);
-    cvc5_parser_set_str_input(mind->parser, CVC5_LANG, cvc5_input_buffer, "");
-    cvc5_cmd_invoke(cvc5_parser_next_command(mind->parser, &cvc5_error_msg), mind->solver, mind->sm);
+    snprintf(smt_input_buffer, SMT_INPUT_BUFFER_SIZE, "(declare-const %s Anima)", ANIMA_NAMES[idx]);
+    cvc5_parser_set_str_input(mind->parser, CVC5_LANG, smt_input_buffer, "");
+    cvc5_cmd_invoke(cvc5_parser_next_command(mind->parser, &smt_error_msg), mind->solver, mind->sm);
   }
 }
 
 void Anima_LoT_direction(Anima *self, Mind *mind) {
 
-  Cvc5Command cvc5_cmd;
-  const char *cvc5_error_msg;
+  Cvc5Command smt_cmd;
+  const char *smt_error_msg;
 
   cvc5_parser_set_str_input(
       mind->parser,
@@ -102,14 +102,14 @@ void Anima_LoT_direction(Anima *self, Mind *mind) {
       "(assert (forall ((anima Anima)) (xor (anima_is_facing anima up) (xor (anima_is_facing anima right) (xor (anima_is_facing anima down) (anima_is_facing anima left))))))",
       "anima_innate");
   do {
-    cvc5_cmd = cvc5_parser_next_command(mind->parser, &cvc5_error_msg);
-    if (cvc5_error_msg) {
-      printf("%s", cvc5_error_msg), exit(-1);
+    smt_cmd = cvc5_parser_next_command(mind->parser, &smt_error_msg);
+    if (smt_error_msg) {
+      printf("%s", smt_error_msg), exit(-1);
     }
-    if (cvc5_cmd) {
-      cvc5_cmd_invoke(cvc5_cmd, mind->solver, mind->sm);
+    if (smt_cmd) {
+      cvc5_cmd_invoke(smt_cmd, mind->solver, mind->sm);
     }
-  } while (cvc5_cmd);
+  } while (smt_cmd);
 }
 
 void Anima_touch(Anima *self, Mind *mind) {
