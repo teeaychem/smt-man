@@ -22,14 +22,17 @@ Maze Maze_create(char *path) {
                .pixels = NULL};
 
   size_t tile_count = 0;
-  bool preambleOk = true;
+  bool preamble_ok = true;
 
   PairI32 base;
 
+
   FILE *file = fopen(path, "r");
-  if (file == NULL) {
-    stumplog(LOG_ERR, "Failed to open maze");
-    preambleOk = false;
+  if (!file) {
+    printf("%p ? %d", file, file == NULL);
+    printf("%s\n", path);
+    stumplog(LOG_ERR, "Failed to open maze from: %s", path);
+    exit(1);
   }
 
   char read;
@@ -47,14 +50,14 @@ Maze Maze_create(char *path) {
     case 'w': {
       if (!fscanf(file, "%" SCNu32, &(base.x))) {
         stumplog(LOG_ERR, "Failed to read maze width");
-        preambleOk = false;
+        preamble_ok = false;
       };
     } break;
 
     case 'h': {
       if (!fscanf(file, "%" SCNu32, &(base.y))) {
         stumplog(LOG_ERR, "Failed to read maze height");
-        preambleOk = false;
+        preamble_ok = false;
       };
     } break;
 
@@ -77,10 +80,10 @@ Maze Maze_create(char *path) {
              "Maze dimension %dx%d is not an integer scale of %dx%d",
              base.x, base.y,
              kTILES.x, kTILES.y);
-    preambleOk = false;
+    preamble_ok = false;
   }
 
-  if (!preambleOk) {
+  if (!preamble_ok) {
     stumplog(LOG_INFO, path);
     stumplog(LOG_CRIT, "Failed to construct maze");
     exit(1);
