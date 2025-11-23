@@ -11,3 +11,5 @@ typedef struct pair_i32_t PairI32;
 PairI32 PairI32_create(int32_t x, int32_t y);
 
 int32_t PairI32_area(const PairI32 *self);
+
+PairI32 PairI32_abstract_by(const PairI32 *self, const int32_t interval);
