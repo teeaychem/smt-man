@@ -2,7 +2,7 @@
   description = "smt-man flake";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
   };
 
   outputs =
@@ -28,17 +28,33 @@
         in
         {
           default = pkgs.mkShell {
-            nativeBuildInputs = [
+            packages = [
               pkgs.clang-tools
               pkgs.clang
               pkgs.cmake
               pkgs.criterion
+              pkgs.cvc5
+              pkgs.doxygen
               pkgs.libpng
               pkgs.sdl3
               pkgs.pkg-config
               pkgs.z3
             ];
-            buildInputs = [ ];
+          };
+
+          gcc = pkgs.mkShell.override { stdenv = pkgs.gccStdenv; } {
+            packages = [
+              pkgs.clang-tools
+              pkgs.cmake
+              pkgs.criterion
+              pkgs.cvc5
+              pkgs.gcc
+              pkgs.doxygen
+              pkgs.libpng
+              pkgs.sdl3
+              pkgs.pkg-config
+              pkgs.z3
+            ];
           };
         }
       );

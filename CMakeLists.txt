@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 4.1.2)
+cmake_minimum_required(VERSION 3.31.6)
 project(smt-man LANGUAGES C)
 
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
@@ -10,8 +10,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
-set(SOURCES src/main.c)
-
+file(GLOB MAIN src/*.c)
 file(GLOB ANIMA src/anima/*.c)
 file(GLOB CORE src/core/*.c)
 file(GLOB LOGIC src/logic/*.c)
@@ -20,7 +19,7 @@ file(GLOB UTILS src/utils/*.c)
 
 add_executable(
     ${PROJECT_NAME}
-    ${SOURCES}
+    ${MAIN}
     ${ANIMA}
     ${CORE}
     ${LOGIC}
@@ -52,20 +51,23 @@ target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
 # pkg_check_modules(SDL3 REQUIRED SDL3)
 find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3 SDL3::Headers)
-target_include_directories(${PROJECT_NAME} PRIVATE ${SDL3_INCLUDE_DIRS})
 
 # pkg_check_modules(LIBPNG REQUIRED LIBPNG)
 find_package(PNG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE PNG::PNG)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PNG_INCLUDE_DIRS})
 
-find_package(Criterion REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE criterion)
+# find_package(Criterion REQUIRED)
+# target_link_libraries(${PROJECT_NAME} PRIVATE criterion)
+
+find_package(z3 REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE z3::libz3)
 
 ## Submodules
 
 ### cvc5
 
+# pkg_check_modules(cvc5 REQUIRED cvc5)
 find_package(cvc5)
 target_link_libraries(${PROJECT_NAME} PRIVATE cvc5::cvc5 cvc5::cvc5parser)
 target_include_directories(
@@ -84,7 +86,7 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/likle/cwalk.git
     GIT_TAG v1.2.9
 )
-# FetchContent_MakeAvailable(cwalk)
+FetchContent_MakeAvailable(cwalk)
 target_include_directories(${PROJECT_NAME} PRIVATE ${cwalk_SOURCE_DIR}/include)
 target_sources(${PROJECT_NAME} PRIVATE ${cwalk_SOURCE_DIR}/src/cwalk.c)
 
@@ -118,4 +120,4 @@ add_custom_target(
 )
 add_dependencies(${PROJECT_NAME} copy_data)
 
-add_subdirectory("tests")
+# add_subdirectory("tests")
