@@ -12,6 +12,7 @@
 #include "anima.h"
 #include "logic.h"
 #include "maze.h"
+#include "misc.h"
 
 #include "render/NSTimer.h"
 #include "render/constants.h"
@@ -31,6 +32,11 @@ SpriteInfo ANIMA_SPRITES[ANIMA_COUNT];
 pthread_t ANIMA_THREADS[ANIMA_COUNT];
 
 struct smt_world_t WORLD = {};
+
+SDL_Window *gWindow = NULL;
+
+size_t SOURCE_PATH_SIZE;
+char *SOURCE_PATH;
 
 void *spirit(void *_anima) {
 
@@ -57,17 +63,13 @@ void *spirit(void *_anima) {
   return 0;
 };
 
-SDL_Window *gWindow = NULL;
-
-size_t SOURCE_PATH_SIZE;
-char *SOURCE_PATH = NULL;
-
 void setup() {
   // Set the source path for resources, etc.
   SOURCE_PATH_SIZE = wai_getExecutablePath(NULL, 0, NULL) + 1;
   SOURCE_PATH = malloc(SOURCE_PATH_SIZE * sizeof(*SOURCE_PATH));
   int source_path_len;
   wai_getExecutablePath(SOURCE_PATH, SOURCE_PATH_SIZE - 1, &source_path_len);
+  assert(source_path_len < SOURCE_PATH_SIZE);
   SOURCE_PATH[source_path_len] = '\0';
 }
 
@@ -88,10 +90,6 @@ int main(int argc, char **argv) {
   char PATH_BUFFER[FILENAME_MAX];
 
   setup();
-
-  /* begin scratch */
-
-  /* end scratch */
 
   // Things are prepared...
 
@@ -115,6 +113,14 @@ int main(int argc, char **argv) {
   };
   ANIMAS[1] = Anima_default(1, PairI32_create(32, 16), PAIR_SPRITE_EDGE);
   pthread_create(&ANIMA_THREADS[1], NULL, spirit, (void *)&ANIMAS[1]);
+
+  /* begin scratch */
+  printf("scratch begin...\n");
+  z3_tmp();
+
+  printf("scratch end...\n");
+
+  /* end scratch */
 
   // Things happen...
 
