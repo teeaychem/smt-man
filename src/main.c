@@ -1,10 +1,10 @@
+#include <assert.h>
 #include <pthread.h>
 #include <stdatomic.h>
 #include <stdio.h>
 #include <unistd.h>
 
 #include "cwalk.h"
-#include <stumpless.h>
 #include <sys/syslog.h>
 #include <sys/types.h>
 #include <whereami.h>
@@ -84,8 +84,6 @@ void update_anima_sprite(uint8_t anima_id, SpriteInfo *sprite_info) {
 }
 
 int main(int argc, char **argv) {
-  struct stumpless_target *target;
-  target = stumpless_open_stdout_target("smt-man-log");
 
   char PATH_BUFFER[FILENAME_MAX];
 
@@ -198,7 +196,6 @@ int main(int argc, char **argv) {
         ANIMA_SPRITES[idx].tick += 1;
         auto a_l = atomic_load(&ANIMAS[idx].pov.anima[idx].location);
         auto a_l_s = PairI32_abstract_by(&a_l, 16);
-        stumplog(LOG_INFO, "anima: %d %dx%d, %dx%d", idx,  a_l.x, a_l.y, a_l_s.x, a_l_s.y);
 
         if (atomic_load(&ANIMAS[idx].sync.flag_suspend)) {
           atomic_store(&ANIMAS[idx].sync.flag_suspend, false);

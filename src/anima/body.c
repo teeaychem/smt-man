@@ -1,5 +1,3 @@
-#include "stumpless/log.h"
-
 #include "anima.h"
 #include "logic.h"
 
@@ -14,7 +12,7 @@ Anima Anima_default(uint8_t id, PairI32 position, PairI32 sprite_size) {
 }
 
 Anima Anima_create(uint8_t id, PairI32 location, Direction intent, Direction momentum, PairI32 sprite_size) {
-  stumplog(LOG_INFO, "Creating anima: %s", ANIMA_NAMES[id]);
+  printf("Creating anima: %s", ANIMA_NAMES[id]);
 
   Anima self = {
       .id = id,

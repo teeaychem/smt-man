@@ -1,7 +1,6 @@
 #include "anima.h"
 #include "cvc5/c/cvc5_parser.h"
 #include "render/constants.h"
-#include "stumpless/log.h"
 
 Mind Mind_default() {
 
@@ -160,7 +159,7 @@ void Anima_deduct(Anima *self, Mind *mind) {
   } else if (cvc5_term_get_boolean_value(cvc5_get_value(mind->solver, mind->lot.anima[self->id].facing.left))) {
     atomic_store(&self->pov.anima[self->id].intent, LEFT);
   } else {
-    stumplog(LOG_ERR, "No direction"), exit(-1);
+    printf("No direction"), exit(-1);
   }
 
   cvc5_pop(mind->solver, 1);
