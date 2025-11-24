@@ -60,8 +60,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${PNG_INCLUDE_DIRS})
 # find_package(Criterion REQUIRED)
 # target_link_libraries(${PROJECT_NAME} PRIVATE criterion)
 
-find_package(z3 REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE z3::libz3)
+# find_package(z3 REQUIRED CONFIG)
+target_link_libraries(${PROJECT_NAME} PRIVATE z3)
 
 ## Submodules
 
@@ -70,12 +70,12 @@ target_link_libraries(${PROJECT_NAME} PRIVATE z3::libz3)
 # pkg_check_modules(cvc5 REQUIRED cvc5)
 find_package(cvc5)
 target_link_libraries(${PROJECT_NAME} PRIVATE cvc5::cvc5 cvc5::cvc5parser)
-target_include_directories(
-    ${PROJECT_NAME}
-    PRIVATE
-        ${PROJECT_SOURCE_DIR}/deps/cvc5/build/include
-        ${PROJECT_SOURCE_DIR}/deps/cvc5/include
-)
+# target_include_directories(
+#     ${PROJECT_NAME}
+#     PRIVATE
+#         ${PROJECT_SOURCE_DIR}/deps/cvc5/build/include
+#         ${PROJECT_SOURCE_DIR}/deps/cvc5/include
+# )
 
 ## FetchContent
 
@@ -89,18 +89,6 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(cwalk)
 target_include_directories(${PROJECT_NAME} PRIVATE ${cwalk_SOURCE_DIR}/include)
 target_sources(${PROJECT_NAME} PRIVATE ${cwalk_SOURCE_DIR}/src/cwalk.c)
-
-FetchContent_Declare(
-    stumpless
-    GIT_REPOSITORY git@github.com:goatshriek/stumpless.git
-    GIT_TAG v2.2.0
-)
-FetchContent_MakeAvailable(stumpless)
-target_link_libraries(${PROJECT_NAME} PRIVATE stumpless)
-target_include_directories(
-    ${PROJECT_NAME}
-    PRIVATE ${stumpless_SOURCE_DIR}/include ${stumpless_BINARY_DIR}/include
-)
 
 FetchContent_Declare(
     whereami
@@ -121,3 +109,6 @@ add_custom_target(
 add_dependencies(${PROJECT_NAME} copy_data)
 
 # add_subdirectory("tests")
+
+# add_executable(test_c_api hek/test_capi.c)
+# target_link_libraries(test_c_api PRIVATE z3)
