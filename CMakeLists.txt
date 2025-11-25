@@ -34,14 +34,14 @@ target_compile_options(
         -Werror
         -g
         -O0
-        -DDEBUG
+    # -DDEBUG
 )
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 # Libraries
 
-find_package(PkgConfig REQUIRED)
+# find_package(PkgConfig REQUIRED)
 
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
@@ -57,8 +57,8 @@ find_package(PNG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE PNG::PNG)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PNG_INCLUDE_DIRS})
 
-# find_package(Criterion REQUIRED)
-# target_link_libraries(${PROJECT_NAME} PRIVATE criterion)
+find_package(Criterion REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE criterion)
 
 # find_package(z3 REQUIRED CONFIG)
 target_link_libraries(${PROJECT_NAME} PRIVATE z3)
@@ -70,16 +70,25 @@ target_link_libraries(${PROJECT_NAME} PRIVATE z3)
 # pkg_check_modules(cvc5 REQUIRED cvc5)
 find_package(cvc5)
 target_link_libraries(${PROJECT_NAME} PRIVATE cvc5::cvc5 cvc5::cvc5parser)
-# target_include_directories(
-#     ${PROJECT_NAME}
-#     PRIVATE
-#         ${PROJECT_SOURCE_DIR}/deps/cvc5/build/include
-#         ${PROJECT_SOURCE_DIR}/deps/cvc5/include
-# )
+target_include_directories(
+    ${PROJECT_NAME}
+    PRIVATE
+        ${PROJECT_SOURCE_DIR}/deps/cvc5/build/include
+        ${PROJECT_SOURCE_DIR}/deps/cvc5/include
+)
 
 ## FetchContent
 
 include(FetchContent)
+
+FetchContent_Declare(
+    clog
+    GIT_REPOSITORY https://github.com/0xA1M/clog.git
+    GIT_TAG main
+)
+FetchContent_MakeAvailable(clog)
+message("? ${clog_SOURCE_DIR}")
+target_include_directories(${PROJECT_NAME} PRIVATE ${clog_SOURCE_DIR})
 
 FetchContent_Declare(
     cwalk
@@ -109,6 +118,3 @@ add_custom_target(
 add_dependencies(${PROJECT_NAME} copy_data)
 
 # add_subdirectory("tests")
-
-# add_executable(test_c_api hek/test_capi.c)
-# target_link_libraries(test_c_api PRIVATE z3)
