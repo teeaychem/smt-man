@@ -1,3 +1,0 @@
-[submodule "cvc5"]
-	path = deps/cvc5
-	url = https://github.com/cvc5/cvc5.git
