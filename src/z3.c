@@ -1,11 +1,14 @@
 
+#include "maze.h"
 #include "misc.h"
 #include "smt_z3.h"
 
 #include "clog.h"
+#include "utils/pairs.h"
 #include "z3_api.h"
 
 #include <assert.h>
+#include <stddef.h>
 #include <stdio.h>
 
 void prove(Z3_context ctx, Z3_solver solver, Z3_ast statement) {
@@ -133,12 +136,12 @@ void z3_tmp(Maze *maze) {
   Z3_func_decl enum_consts[PATH_VARIANTS];
   Z3_func_decl enum_testers[PATH_VARIANTS];
 
-  Z3_sort fruit = Z3_mk_enumeration_sort(ctx,
-                                         Z3_mk_string_symbol(ctx, "path"),
-                                         PATH_VARIANTS,
-                                         path_e_names,
-                                         enum_consts,
-                                         enum_testers);
+  Z3_sort tile_path_s = Z3_mk_enumeration_sort(ctx,
+                                               Z3_mk_string_symbol(ctx, "path"),
+                                               PATH_VARIANTS,
+                                               path_e_names,
+                                               enum_consts,
+                                               enum_testers);
 
   Z3_ast origin_up = Z3_mk_app(ctx, enum_consts[0], 0, 0);
   Z3_ast origin_right = Z3_mk_app(ctx, enum_consts[1], 0, 0);
@@ -161,6 +164,39 @@ void z3_tmp(Maze *maze) {
   prove(ctx, solver, Z3_mk_not(ctx, z3_mk_unary_app(ctx, enum_testers[3], origin_left)));
 
   //
+  Z3_sort g_domain[1];
+  g_domain[0] = u8_s;
+  Z3_func_decl g = Z3_mk_func_decl(ctx, Z3_mk_string_symbol(ctx, "path_choice"), 1, g_domain, tile_path_s);
+
+  //
+  printf("Creating tiles...\n");
+
+  char r_buff[10] = {};
+  char c_buff[10] = {};
+
+  Z3_ast maze_pairs[maze->size.y][maze->size.x];
+  printf("Creating tiles %d %d...\n", maze->size.x, maze->size.y);
+
+  for (int32_t c = 0; c < maze->size.y; ++c) {
+    sprintf(c_buff, "%d", c);
+    for (int32_t r = 0; r < maze->size.x; ++r) {
+      sprintf(r_buff, "%d", r);
+      maze_pairs[r][c] = z3_mk_binary_app(ctx,
+                                          mk_tuple_decl,
+                                          Z3_mk_numeral(ctx, r_buff, u8_s),
+                                          Z3_mk_numeral(ctx, c_buff, u8_s));
+
+      printf("%c", Maze_abstract_at_xy(maze, r, c));
+    }
+    printf("\n");
+  }
+
+  /* for (size_t c = 0; c < maze->size.y; ++c) { */
+  /*   for (size_t r = 0; r < maze->size.x; ++r) { */
+  /*     printf("assert axiom:\n%s\n", Z3_ast_to_string(ctx, maze_pairs[r][c])); */
+  /*   } */
+  /* } */
+
   Z3_solver_dec_ref(ctx, solver);
   Z3_del_context(ctx);
 }

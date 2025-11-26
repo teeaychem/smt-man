@@ -1,6 +1,7 @@
 #include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "maze.h"
@@ -82,6 +83,7 @@ Maze Maze_create(char *path) {
     exit(1);
   }
 
+  self.abstract = malloc(PairI32_area(&self.size) * sizeof(*self.abstract));
   self.pixels = malloc(PairI32_area(&kPIXELS) * sizeof(*self.pixels));
   memset(self.pixels, '\0', PairI32_area(&kPIXELS));
 
@@ -111,6 +113,7 @@ Maze Maze_create(char *path) {
     } break;
 
     default: {
+      self.abstract[pos_y * self.size.x + pos_x] = read;
       for (size_t pxl_y = 0; pxl_y < 16; ++pxl_y) {
         for (size_t pxl_x = 0; pxl_x < 16; ++pxl_x) {
           self.pixels[(((pos_y * 16) + pxl_y) * kPIXELS.x) + pxl_x + (pos_x * 16)] = read;
@@ -136,22 +139,27 @@ Maze Maze_create(char *path) {
 }
 
 void Maze_destroy(Maze *self) {
+  free(self->abstract);
   free(self->pixels);
 }
 
 bool Maze_is_open(Maze *self, PairI32 *point) {
   bool yOk = 0 <= point->y && point->y < kPIXELS.y;
   bool xOk = 0 <= point->x && point->x < kPIXELS.x;
-  bool locationOk = Maze_at_point(self, *point) == '#';
+  bool locationOk = Maze_pixel_at_point(self, *point) == (uint8_t)'#';
 
   return yOk && xOk && locationOk;
 }
 
-uint8_t Maze_at_point(Maze *self, PairI32 point) {
+uint8_t Maze_pixel_at_point(Maze *self, PairI32 point) {
   return self->pixels[(point.y * kPIXELS.x) + point.x];
 }
 
-void Maze_stdout(Maze *self) {
+char Maze_abstract_at_xy(Maze *self, int32_t x, int32_t y) {
+  return self->abstract[(y * self->size.x) + x];
+}
+
+void Maze_pixel_stdout(Maze *self) {
   for (size_t y = 0; y < kPIXELS.y; ++y) {
     for (size_t x = 0; x < kPIXELS.x; ++x) {
       printf("%c", self->pixels[(y * kPIXELS.x) + x]);
@@ -160,5 +168,14 @@ void Maze_stdout(Maze *self) {
     if (y + 16 < kPIXELS.y) {
       printf("\n");
     }
+  }
+}
+
+void Maze_abstract_stdout(Maze *self) {
+  for (int32_t c = 0; c < self->size.y; ++c) {
+    for (int32_t r = 0; r < self->size.x; ++r) {
+      printf("%c", Maze_abstract_at_xy(self, r, c));
+    }
+    printf("\n");
   }
 }
