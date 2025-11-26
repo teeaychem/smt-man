@@ -149,14 +149,6 @@ int main(int argc, char **argv) {
       }
     }
 
-    for (int32_t y = 0; y < maze.size.y; ++y) {
-      for (int32_t x = 0; x < maze.size.x; ++x) {
-        if (Maze_at_point(&maze, PairI32_create(x, y)) != '#') {
-          Renderer_fill_tile(&gRenderer, PairI32_create(x * SPRITE_EDGE_SIZE, y * SPRITE_EDGE_SIZE), 0xffffffff);
-        }
-      }
-    }
-
     while (!quit) {
       NSTimer_start(&frameCapTimer);
 

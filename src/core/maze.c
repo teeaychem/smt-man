@@ -16,13 +16,11 @@ void next_line(FILE *file) {
 
 Maze Maze_create(char *path) {
 
-  Maze self = {.size = {.x = 0, .y = 0},
+  Maze self = {.size = {},
                .pixels = NULL};
 
   size_t tile_count = 0;
   bool preamble_ok = true;
-
-  PairI32 base;
 
   FILE *file = fopen(path, "r");
   if (!file) {
@@ -45,14 +43,14 @@ Maze Maze_create(char *path) {
     } break;
 
     case 'w': {
-      if (!fscanf(file, "%" SCNu32, &(base.x))) {
+      if (!fscanf(file, "%" SCNu32, &(self.size.x))) {
         printf("Failed to read maze width");
         preamble_ok = false;
       };
     } break;
 
     case 'h': {
-      if (!fscanf(file, "%" SCNu32, &(base.y))) {
+      if (!fscanf(file, "%" SCNu32, &(self.size.y))) {
         printf("Failed to read maze height");
         preamble_ok = false;
       };
@@ -72,9 +70,9 @@ Maze Maze_create(char *path) {
     }
   }
 
-  if (base.x % kTILES.x != 0 | base.y % kTILES.y != 0) {
+  if ((self.size.x % kTILES.x) != 0 | (self.size.y % kTILES.y) != 0) {
     printf("Maze dimension %dx%d is not an integer scale of %dx%d",
-           base.x, base.y,
+           self.size.x, self.size.y,
            kTILES.x, kTILES.y);
     preamble_ok = false;
   }
@@ -87,8 +85,8 @@ Maze Maze_create(char *path) {
   self.pixels = malloc(PairI32_area(&kPIXELS) * sizeof(*self.pixels));
   memset(self.pixels, '\0', PairI32_area(&kPIXELS));
 
-  int32_t y_scale = kPIXELS.y / base.y;
-  int32_t x_scale = kPIXELS.x / base.x;
+  int32_t x_scale = kPIXELS.x / self.size.x;
+  int32_t y_scale = kPIXELS.y / self.size.y;
 
   int32_t pos_x = 0;
   int32_t pos_y = 0;
@@ -106,7 +104,7 @@ Maze Maze_create(char *path) {
     } break;
 
     case '\n': {
-      if (pos_x != base.x) {
+      if (pos_x != self.size.x) {
         printf("x_x"), exit(-1);
       }
       pos_y += 1;
@@ -128,11 +126,11 @@ Maze Maze_create(char *path) {
     }
   }
 
-  if (pos_y != base.y) {
+  if (pos_y != self.size.y) {
     printf("y_y"), exit(-1);
   }
 
-  printf("Constructed maze %dx%d (%zu)", base.x, base.y, tile_count);
+  printf("Constructed maze %dx%d (%zu)", self.size.x, self.size.y, tile_count);
 
   return self;
 }
