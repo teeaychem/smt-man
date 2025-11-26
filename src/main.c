@@ -116,7 +116,7 @@ int main(int argc, char **argv) {
 
   /* begin scratch */
   printf("scratch begin...\n");
-  z3_tmp();
+  z3_tmp(&maze);
 
   printf("scratch end...\n");
 
