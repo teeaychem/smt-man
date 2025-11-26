@@ -3,6 +3,7 @@
 #include "smt_z3.h"
 
 #include "clog.h"
+#include "z3_api.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -107,4 +108,59 @@ void z3_tmp(Maze *maze) {
                              z3_mk_unary_app(ctx, prj_u8p_x, u8p_1_3),
                              z3_mk_unary_app(ctx, prj_u8p_y, u8p_1_3)),
                  u8_1));
+
+  // Paths
+
+  constexpr size_t PATH_VARIANTS = 11;
+
+  Z3_symbol path_e_names[PATH_VARIANTS] = {
+      Z3_mk_string_symbol(ctx, "origin_up"),
+      Z3_mk_string_symbol(ctx, "origin_right"),
+      Z3_mk_string_symbol(ctx, "origin_down"),
+      Z3_mk_string_symbol(ctx, "origin_left"),
+
+      Z3_mk_string_symbol(ctx, "up_down"),
+      Z3_mk_string_symbol(ctx, "right_left"),
+
+      Z3_mk_string_symbol(ctx, "up_right"),
+      Z3_mk_string_symbol(ctx, "down_right"),
+      Z3_mk_string_symbol(ctx, "down_left"),
+      Z3_mk_string_symbol(ctx, "up_left"),
+
+      Z3_mk_string_symbol(ctx, "empty"),
+  };
+
+  Z3_func_decl enum_consts[PATH_VARIANTS];
+  Z3_func_decl enum_testers[PATH_VARIANTS];
+
+  Z3_sort fruit = Z3_mk_enumeration_sort(ctx,
+                                         Z3_mk_string_symbol(ctx, "path"),
+                                         PATH_VARIANTS,
+                                         path_e_names,
+                                         enum_consts,
+                                         enum_testers);
+
+  Z3_ast origin_up = Z3_mk_app(ctx, enum_consts[0], 0, 0);
+  Z3_ast origin_right = Z3_mk_app(ctx, enum_consts[1], 0, 0);
+  Z3_ast origin_down = Z3_mk_app(ctx, enum_consts[2], 0, 0);
+  Z3_ast origin_left = Z3_mk_app(ctx, enum_consts[3], 0, 0);
+
+  Z3_ast up_down = Z3_mk_app(ctx, enum_consts[4], 0, 0);
+  Z3_ast right_left = Z3_mk_app(ctx, enum_consts[5], 0, 0);
+
+  Z3_ast up_right = Z3_mk_app(ctx, enum_consts[6], 0, 0);
+  Z3_ast down_right = Z3_mk_app(ctx, enum_consts[7], 0, 0);
+  Z3_ast down_left = Z3_mk_app(ctx, enum_consts[8], 0, 0);
+  Z3_ast up_left = Z3_mk_app(ctx, enum_consts[9], 0, 0);
+
+  Z3_ast empty = Z3_mk_app(ctx, enum_consts[10], 0, 0);
+
+  prove(ctx, solver, Z3_mk_app(ctx, enum_testers[0], 1, &origin_up));
+
+  prove(ctx, solver, z3_mk_unary_app(ctx, enum_testers[0], origin_left));
+  prove(ctx, solver, Z3_mk_not(ctx, z3_mk_unary_app(ctx, enum_testers[3], origin_left)));
+
+  //
+  Z3_solver_dec_ref(ctx, solver);
+  Z3_del_context(ctx);
 }

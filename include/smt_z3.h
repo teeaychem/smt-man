@@ -7,17 +7,14 @@ static inline void error_handler(Z3_context ctx, Z3_error_code error) {
   exit(3);
 }
 
-static inline Z3_ast z3_mk_var(Z3_context ctx, const char *name, Z3_sort ty) {
-  Z3_symbol symbol = Z3_mk_string_symbol(ctx, name);
-  return Z3_mk_const(ctx, symbol, ty);
+static inline Z3_ast z3_mk_var(Z3_context ctx, const char *name, Z3_sort typ) {
+  return Z3_mk_const(ctx, Z3_mk_string_symbol(ctx, name), typ);
 }
 
 static inline Z3_ast z3_mk_unary_app(Z3_context ctx, Z3_func_decl f, Z3_ast x) {
-  Z3_ast args[1] = {x};
-  return Z3_mk_app(ctx, f, 1, args);
+  return Z3_mk_app(ctx, f, 1, (Z3_ast[1]){x});
 }
 
 static inline Z3_ast z3_mk_binary_app(Z3_context ctx, Z3_func_decl f, Z3_ast x, Z3_ast y) {
-  Z3_ast args[2] = {x, y};
-  return Z3_mk_app(ctx, f, 2, args);
+  return Z3_mk_app(ctx, f, 2, (Z3_ast[2]){x, y});
 }
