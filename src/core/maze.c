@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -156,6 +157,8 @@ uint8_t Maze_pixel_at_point(Maze *self, PairI32 point) {
 }
 
 char Maze_abstract_at_xy(Maze *self, int32_t x, int32_t y) {
+  assert(x < self->size.x);
+  assert(y < self->size.y);
   return self->abstract[(y * self->size.x) + x];
 }
 

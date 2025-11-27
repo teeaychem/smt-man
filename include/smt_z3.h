@@ -2,8 +2,8 @@
 #include "z3.h"
 #include <stdlib.h>
 
-static inline void error_handler(Z3_context ctx, Z3_error_code error) {
-  ERROR("Z3 Error code: %d\n", error);
+static inline void error_handler(Z3_context ctx, Z3_error_code code) {
+  ERROR("Z3 Error (#%d): %s\n", code, Z3_get_error_msg(ctx, code));
   exit(3);
 }
 

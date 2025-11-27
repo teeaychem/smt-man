@@ -164,9 +164,8 @@ void z3_tmp(Maze *maze) {
   prove(ctx, solver, Z3_mk_not(ctx, z3_mk_unary_app(ctx, enum_testers[3], origin_left)));
 
   //
-  Z3_sort g_domain[1];
-  g_domain[0] = u8_s;
-  Z3_func_decl g = Z3_mk_func_decl(ctx, Z3_mk_string_symbol(ctx, "path_choice"), 1, g_domain, tile_path_s);
+
+  Z3_func_decl g = Z3_mk_func_decl(ctx, Z3_mk_string_symbol(ctx, "path_choice"), 1, (Z3_sort[1]){u8p_s}, tile_path_s);
 
   //
   printf("Creating tiles...\n");
@@ -181,21 +180,20 @@ void z3_tmp(Maze *maze) {
     sprintf(c_buff, "%d", c);
     for (int32_t r = 0; r < maze->size.x; ++r) {
       sprintf(r_buff, "%d", r);
+
       maze_pairs[r][c] = z3_mk_binary_app(ctx,
                                           mk_tuple_decl,
                                           Z3_mk_numeral(ctx, r_buff, u8_s),
                                           Z3_mk_numeral(ctx, c_buff, u8_s));
 
+      if (Maze_abstract_at_xy(maze, r, c) != ' ') {
+        Z3_solver_assert(ctx, solver, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, g, maze_pairs[r][c]), empty));
+      }
+
       printf("%c", Maze_abstract_at_xy(maze, r, c));
     }
     printf("\n");
   }
-
-  /* for (size_t c = 0; c < maze->size.y; ++c) { */
-  /*   for (size_t r = 0; r < maze->size.x; ++r) { */
-  /*     printf("assert axiom:\n%s\n", Z3_ast_to_string(ctx, maze_pairs[r][c])); */
-  /*   } */
-  /* } */
 
   Z3_solver_dec_ref(ctx, solver);
   Z3_del_context(ctx);
