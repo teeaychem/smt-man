@@ -133,39 +133,39 @@ void z3_tmp(Maze *maze) {
       Z3_mk_string_symbol(ctx, "empty"),
   };
 
-  Z3_func_decl enum_consts[PATH_VARIANTS];
-  Z3_func_decl enum_testers[PATH_VARIANTS];
+  Z3_func_decl path_e_consts[PATH_VARIANTS];
+  Z3_func_decl path_e_testers[PATH_VARIANTS];
 
   Z3_sort tile_path_s = Z3_mk_enumeration_sort(ctx,
                                                Z3_mk_string_symbol(ctx, "path"),
                                                PATH_VARIANTS,
                                                path_e_names,
-                                               enum_consts,
-                                               enum_testers);
+                                               path_e_consts,
+                                               path_e_testers);
 
-  Z3_ast origin_up = Z3_mk_app(ctx, enum_consts[0], 0, 0);
-  Z3_ast origin_right = Z3_mk_app(ctx, enum_consts[1], 0, 0);
-  Z3_ast origin_down = Z3_mk_app(ctx, enum_consts[2], 0, 0);
-  Z3_ast origin_left = Z3_mk_app(ctx, enum_consts[3], 0, 0);
+  Z3_ast origin_up = Z3_mk_app(ctx, path_e_consts[0], 0, 0);
+  Z3_ast origin_right = Z3_mk_app(ctx, path_e_consts[1], 0, 0);
+  Z3_ast origin_down = Z3_mk_app(ctx, path_e_consts[2], 0, 0);
+  Z3_ast origin_left = Z3_mk_app(ctx, path_e_consts[3], 0, 0);
 
-  Z3_ast up_down = Z3_mk_app(ctx, enum_consts[4], 0, 0);
-  Z3_ast right_left = Z3_mk_app(ctx, enum_consts[5], 0, 0);
+  Z3_ast up_down = Z3_mk_app(ctx, path_e_consts[4], 0, 0);
+  Z3_ast right_left = Z3_mk_app(ctx, path_e_consts[5], 0, 0);
 
-  Z3_ast up_right = Z3_mk_app(ctx, enum_consts[6], 0, 0);
-  Z3_ast down_right = Z3_mk_app(ctx, enum_consts[7], 0, 0);
-  Z3_ast down_left = Z3_mk_app(ctx, enum_consts[8], 0, 0);
-  Z3_ast up_left = Z3_mk_app(ctx, enum_consts[9], 0, 0);
+  Z3_ast up_right = Z3_mk_app(ctx, path_e_consts[6], 0, 0);
+  Z3_ast down_right = Z3_mk_app(ctx, path_e_consts[7], 0, 0);
+  Z3_ast down_left = Z3_mk_app(ctx, path_e_consts[8], 0, 0);
+  Z3_ast up_left = Z3_mk_app(ctx, path_e_consts[9], 0, 0);
 
-  Z3_ast empty = Z3_mk_app(ctx, enum_consts[10], 0, 0);
+  Z3_ast empty = Z3_mk_app(ctx, path_e_consts[10], 0, 0);
 
-  prove(ctx, solver, Z3_mk_app(ctx, enum_testers[0], 1, &origin_up));
+  prove(ctx, solver, Z3_mk_app(ctx, path_e_testers[0], 1, &origin_up));
 
-  prove(ctx, solver, z3_mk_unary_app(ctx, enum_testers[0], origin_left));
-  prove(ctx, solver, Z3_mk_not(ctx, z3_mk_unary_app(ctx, enum_testers[3], origin_left)));
+  prove(ctx, solver, z3_mk_unary_app(ctx, path_e_testers[0], origin_left));
+  prove(ctx, solver, Z3_mk_not(ctx, z3_mk_unary_app(ctx, path_e_testers[3], origin_left)));
 
   //
 
-  Z3_func_decl g = Z3_mk_func_decl(ctx, Z3_mk_string_symbol(ctx, "path_choice"), 1, (Z3_sort[1]){u8p_s}, tile_path_s);
+  Z3_func_decl tile_path_f = Z3_mk_func_decl(ctx, Z3_mk_string_symbol(ctx, "path_choice"), 1, (Z3_sort[1]){u8p_s}, tile_path_s);
 
   //
   printf("Creating tiles...\n");
@@ -173,27 +173,61 @@ void z3_tmp(Maze *maze) {
   char r_buff[10] = {};
   char c_buff[10] = {};
 
-  Z3_ast maze_pairs[maze->size.y][maze->size.x];
+  Z3_ast maze_pairs[PairI32_area(&maze->size)];
+
   printf("Creating tiles %d %d...\n", maze->size.x, maze->size.y);
 
-  for (int32_t c = 0; c < maze->size.y; ++c) {
-    sprintf(c_buff, "%d", c);
-    for (int32_t r = 0; r < maze->size.x; ++r) {
-      sprintf(r_buff, "%d", r);
+  for (int32_t r = 0; r < maze->size.y; ++r) {
+    sprintf(r_buff, "%d", r);
+    for (int32_t c = 0; c < maze->size.x; ++c) {
+      sprintf(c_buff, "%d", c);
 
-      maze_pairs[r][c] = z3_mk_binary_app(ctx,
-                                          mk_tuple_decl,
-                                          Z3_mk_numeral(ctx, r_buff, u8_s),
-                                          Z3_mk_numeral(ctx, c_buff, u8_s));
+      maze_pairs[r * maze->size.x + c] = z3_mk_binary_app(ctx,
+                                                          mk_tuple_decl,
+                                                          Z3_mk_numeral(ctx, c_buff, u8_s),
+                                                          Z3_mk_numeral(ctx, r_buff, u8_s));
 
-      if (Maze_abstract_at_xy(maze, r, c) != ' ') {
-        Z3_solver_assert(ctx, solver, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, g, maze_pairs[r][c]), empty));
+      if (Maze_abstract_at_xy(maze, c, r) != ' ') {
+        Z3_solver_assert(ctx, solver, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, tile_path_f, maze_pairs[r * maze->size.x + c]), empty));
       }
 
-      printf("%c", Maze_abstract_at_xy(maze, r, c));
+      printf("%c", Maze_abstract_at_xy(maze, c, r));
     }
     printf("\n");
   }
+
+  Z3_mk_distinct(ctx, PairI32_area(&maze->size), maze_pairs);
+
+  // Animas
+  constexpr size_t ANIMA_VARIANTS = 3;
+
+  Z3_symbol anima_e_names[ANIMA_VARIANTS] = {
+      Z3_mk_string_symbol(ctx, "gottlob"),
+      Z3_mk_string_symbol(ctx, "bertrand"),
+      Z3_mk_string_symbol(ctx, "smt-man")};
+
+  Z3_func_decl anima_e_consts[ANIMA_VARIANTS];
+  Z3_func_decl anima_e_testers[ANIMA_VARIANTS];
+
+  Z3_sort anima_s = Z3_mk_enumeration_sort(ctx,
+                                           Z3_mk_string_symbol(ctx, "anima"),
+                                           ANIMA_VARIANTS,
+                                           anima_e_names,
+                                           anima_e_consts,
+                                           anima_e_testers);
+
+  Z3_ast anima_gottlob = Z3_mk_app(ctx, anima_e_consts[0], 0, 0);
+  Z3_ast anima_bertrand = Z3_mk_app(ctx, anima_e_consts[1], 0, 0);
+  Z3_ast anima_smtman = Z3_mk_app(ctx, anima_e_consts[2], 0, 0);
+
+  // Anima locations
+
+  Z3_func_decl anima_tile_f = Z3_mk_func_decl(ctx, Z3_mk_string_symbol(ctx, "anima_loc"), 1, (Z3_sort[1]){anima_s}, u8p_s);
+
+  Z3_solver_assert(ctx, solver, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, anima_tile_f, anima_gottlob), maze_pairs[1 * maze->size.x + 2]));
+  Z3_solver_assert(ctx, solver, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, anima_tile_f, anima_gottlob), maze_pairs[26 * maze->size.x + 15]));
+
+  // Cleanup
 
   Z3_solver_dec_ref(ctx, solver);
   Z3_del_context(ctx);
