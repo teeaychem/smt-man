@@ -23,7 +23,7 @@ Maze Maze_create(char *path);
 void Maze_destroy(Maze *self);
 
 static inline uint8_t Maze_pixel_at_point(Maze *self, PairI32 point) {
-  return self->pixels[(point.y * PIXEL_COUNTS.x) + point.x];
+  return self->pixels[(point.y * PIXEL_DIMENSIONS.x) + point.x];
 }
 
 static inline char Maze_abstract_at(Maze *self, int32_t x, int32_t y) {

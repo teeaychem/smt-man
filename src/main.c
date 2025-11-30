@@ -24,7 +24,7 @@
 
 #include "utils/pairs.h"
 
-Renderer gRenderer;
+Renderer renderer;
 
 pthread_mutex_t mtx_solver = PTHREAD_MUTEX_INITIALIZER;
 
@@ -133,7 +133,7 @@ int main(int argc, char **argv) {
     exitCode = 1;
   } else {
 
-    gRenderer = Renderer_create();
+    renderer = Renderer_create();
 
     bool quit = false;
 
@@ -144,27 +144,26 @@ int main(int argc, char **argv) {
     SDL_zero(event);
 
     // Draw the maze only once...
-    for (size_t pxl = 0; pxl < PairI32_area(&PIXEL_COUNTS); ++pxl) {
+    for (size_t pxl = 0; pxl < PairI32_area(&PIXEL_DIMENSIONS); ++pxl) {
       if (maze.pixels[pxl] != '#') {
-        gRenderer.frameBuffer[pxl] = 0xffffffff;
+        renderer.frame_buffer[pxl] = 0xffffffff;
       }
     }
 
     while (!quit) {
       NSTimer_start(&frameCapTimer);
+      SDL_RenderClear(renderer.renderer);
 
       for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
-        WORLD.anima[idx].location = ANIMAS[idx].pov.anima[idx].location;
+        WORLD.anima[idx].abstract_location = ANIMAS[idx].pov.anima[idx].abstract_location;
 
-        Renderer_erase_sprite(&gRenderer,
-                              atomic_load(&ANIMAS[idx].pov.anima[idx].location),
+        Renderer_erase_sprite(&renderer,
+                              ANIMAS[idx].sprite_location,
                               &ANIMA_SPRITES[idx]);
       }
 
-      SDL_RenderClear(gRenderer.renderer);
-
       rgbVM_advance(&colour);
-      SDL_SetRenderDrawColor(gRenderer.renderer,
+      SDL_SetRenderDrawColor(renderer.renderer,
                              colour.state[0].value,
                              colour.state[1].value,
                              colour.state[2].value,
@@ -182,19 +181,15 @@ int main(int argc, char **argv) {
         update_anima_sprite(idx, &ANIMA_SPRITES[idx]);
         Anima_move(&ANIMAS[idx], &maze);
 
-        Renderer_draw_sprite(&gRenderer,
-                             atomic_load(&ANIMAS[idx].pov.anima[idx].location),
+        Renderer_draw_sprite(&renderer,
+                             ANIMAS[idx].sprite_location,
                              &ANIMA_SPRITES[idx]);
       }
 
-      Renderer_update(&gRenderer);
-
-      SDL_RenderPresent(gRenderer.renderer);
+      Renderer_update(&renderer);
 
       for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
         ANIMA_SPRITES[idx].tick += 1;
-        auto a_l = atomic_load(&ANIMAS[idx].pov.anima[idx].location);
-        auto a_l_s = PairI32_abstract_by(&a_l, TILE_SCALE);
 
         if (atomic_load(&ANIMAS[idx].sync.flag_suspend)) {
           atomic_store(&ANIMAS[idx].sync.flag_suspend, false);
@@ -209,7 +204,7 @@ int main(int argc, char **argv) {
     }
   }
 
-  Renderer_destroy(&gRenderer);
+  Renderer_destroy(&renderer);
   SDL_Quit();
 
   for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {

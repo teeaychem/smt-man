@@ -17,7 +17,7 @@ Surface Surface_from_path(char *path) {
     surface.size.x = image.width;
     surface.size.y = image.height;
 
-    surface.pixels = malloc(PNG_IMAGE_SIZE(image) * sizeof(*surface.pixels));
+    surface.pixels = malloc(image.width * image.height * sizeof(*surface.pixels));
 
     if (surface.pixels != NULL &&
         png_image_finish_read(&image, NULL, surface.pixels, 0, NULL) != 0) {

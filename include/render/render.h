@@ -9,15 +9,14 @@
 
 #include <stddef.h>
 
+typedef struct renderer_t Renderer;
 struct renderer_t {
-  SDL_Window *gWindow;
+  SDL_Window *window;
 
   SDL_Renderer *renderer;
-  int32_t *frameBuffer;
+  int32_t *frame_buffer;
   SDL_Texture *texture;
 };
-
-typedef struct renderer_t Renderer;
 
 Renderer Renderer_create();
 
