@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.31.6)
+cmake_minimum_required(VERSION 4.1.2)
 project(smt-man LANGUAGES C)
 
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
@@ -41,14 +41,14 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 
 # Libraries
 
-# find_package(PkgConfig REQUIRED)
+find_package(PkgConfig REQUIRED)
 
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 find_package(Threads)
 target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
 
-# pkg_check_modules(SDL3 REQUIRED SDL3)
+pkg_check_modules(SDL3 REQUIRED SDL3)
 find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3 SDL3::Headers)
 
