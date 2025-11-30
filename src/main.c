@@ -32,7 +32,7 @@ Anima ANIMAS[ANIMA_COUNT];
 SpriteInfo ANIMA_SPRITES[ANIMA_COUNT];
 pthread_t ANIMA_THREADS[ANIMA_COUNT];
 
-struct smt_world_t WORLD = {};
+SmtWorld WORLD = {};
 
 SDL_Window *gWindow = NULL;
 
@@ -117,7 +117,7 @@ int main(int argc, char **argv) {
 
   /* begin scratch */
   printf("scratch begin...\n");
-  z3_tmp(&maze);
+  z3_tmp(&maze, WORLD);
 
   printf("scratch end...\n");
 
