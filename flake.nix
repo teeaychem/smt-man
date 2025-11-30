@@ -1,7 +1,7 @@
 {
   description = "smt-man flake";
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
   };
   outputs =
     {
@@ -31,14 +31,13 @@
               pkgs.criterion
               pkgs.cvc5
               pkgs.doxygen
+              pkgs.glib
               pkgs.libpng
               pkgs.sdl3
               pkgs.z3
             ];
 
             packages = [
-              pkgs.clang
-
               pkgs.clang-tools
               pkgs.cmake
               pkgs.pkg-config
