@@ -14,8 +14,8 @@
 #include "maze.h"
 #include "misc.h"
 
+#include "constants.h"
 #include "render/NSTimer.h"
-#include "render/constants.h"
 #include "render/render.h"
 
 #include "surface.h"
@@ -143,7 +143,7 @@ int main(int argc, char **argv) {
     SDL_zero(event);
 
     // Draw the maze only once...
-    for (size_t pxl = 0; pxl < PairI32_area(&kPIXELS); ++pxl) {
+    for (size_t pxl = 0; pxl < PairI32_area(&PIXEL_COUNTS); ++pxl) {
       if (maze.pixels[pxl] != '#') {
         gRenderer.frameBuffer[pxl] = 0xffffffff;
       }
@@ -202,8 +202,8 @@ int main(int argc, char **argv) {
       }
 
       frameNS = NSTimer_get_ticks(&frameCapTimer);
-      if (frameNS < kNS_PER_FRAME) {
-        SDL_DelayNS(kNS_PER_FRAME - frameNS);
+      if (frameNS < NS_PER_FRAME) {
+        SDL_DelayNS(NS_PER_FRAME - frameNS);
       }
     }
   }

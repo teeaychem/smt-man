@@ -3,21 +3,21 @@
 #include <stdlib.h>
 
 #include "anima.h"
-#include "render/constants.h"
+#include "constants.h"
 #include "render/render.h"
 #include "utils/pairs.h"
 
 Renderer Renderer_create() {
   Renderer self;
 
-  self.gWindow = SDL_CreateWindow("smt-man", kPIXELS.x * kSCALE, kPIXELS.y * kSCALE, 0);
+  self.gWindow = SDL_CreateWindow("smt-man", PIXEL_COUNTS.x * UI_SCALE, PIXEL_COUNTS.y * UI_SCALE, 0);
 
   self.renderer = SDL_CreateRenderer(self.gWindow, NULL);
-  self.frameBuffer = malloc(PairI32_area(&kPIXELS) * sizeof(*self.frameBuffer));
+  self.frameBuffer = malloc(PairI32_area(&PIXEL_COUNTS) * sizeof(*self.frameBuffer));
   self.texture = SDL_CreateTexture(self.renderer,
                                    SDL_PIXELFORMAT_RGBA32,
                                    SDL_TEXTUREACCESS_STREAMING,
-                                   kPIXELS.x, kPIXELS.y);
+                                   PIXEL_COUNTS.x, PIXEL_COUNTS.y);
   return self;
 }
 
@@ -31,8 +31,8 @@ void Renderer_update(Renderer *self) {
   int pitch;
 
   SDL_LockTexture(self->texture, NULL, (void **)&pix, &pitch);
-  for (size_t i = 0, sp = 0, dp = 0; i < kPIXELS.y; i++, dp += kPIXELS.x, sp += pitch) {
-    memcpy(pix + sp, self->frameBuffer + dp, kPIXELS.x * 4);
+  for (size_t i = 0, sp = 0, dp = 0; i < PIXEL_COUNTS.y; i++, dp += PIXEL_COUNTS.x, sp += pitch) {
+    memcpy(pix + sp, self->frameBuffer + dp, PIXEL_COUNTS.x * 4);
   }
   SDL_UnlockTexture(self->texture);
   SDL_RenderTexture(self->renderer, self->texture, NULL, NULL);
@@ -43,7 +43,7 @@ void Renderer_draw_sprite(Renderer *self,
                           SpriteInfo *sprite_info) {
   for (size_t row = 0; row < sprite_info->size.y; ++row) {
     for (size_t col = 0; col < sprite_info->size.x; ++col) {
-      size_t pixel_fb = (position.y + col) * kPIXELS.x + position.x + row;
+      size_t pixel_fb = (position.y + col) * PIXEL_COUNTS.x + position.x + row;
       if ((self->frameBuffer[pixel_fb] | 0x00000000) == 0x00000000) {
         size_t pixel_s = (sprite_info->surface_offset.y + col) * sprite_info->surface.size.x + sprite_info->surface_offset.x + row;
         self->frameBuffer[pixel_fb] = sprite_info->surface.pixels[pixel_s];
@@ -57,7 +57,7 @@ void Renderer_erase_sprite(Renderer *self,
                            SpriteInfo *sprite_info) {
   for (size_t row = 0; row < sprite_info->size.y; ++row) {
     for (size_t col = 0; col < sprite_info->size.x; ++col) {
-      size_t pixel_fb = (position.y + col) * kPIXELS.x + position.x + row;
+      size_t pixel_fb = (position.y + col) * PIXEL_COUNTS.x + position.x + row;
       size_t pixel_s = (sprite_info->surface_offset.y + col) * sprite_info->surface.size.x + sprite_info->surface_offset.x + row;
       if (self->frameBuffer[pixel_fb] == sprite_info->surface.pixels[pixel_s]) {
         self->frameBuffer[pixel_fb] = 0x00000000;
@@ -68,8 +68,8 @@ void Renderer_erase_sprite(Renderer *self,
 
 void Renderer_fill_tile(Renderer *self, PairI32 origin, int32_t colour) {
 
-  for (size_t row = 0; row < SPRITE_EDGE_SIZE; ++row) {
-    for (size_t col = 0; col < SPRITE_EDGE_SIZE; ++col) {
+  for (size_t row = 0; row < TILE_SCALE; ++row) {
+    for (size_t col = 0; col < TILE_SCALE; ++col) {
       size_t pixel = (origin.y + col) * origin.x + row;
       if ((self->frameBuffer[pixel] | 0x00000000) == 0x00000000) {
         self->frameBuffer[pixel] = colour;

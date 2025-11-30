@@ -1,7 +1,7 @@
 #include "anima.h"
 #include "logic.h"
 
-#include "render/constants.h"
+#include "constants.h"
 #include "utils.h"
 #include "utils/pairs.h"
 #include <stdatomic.h>

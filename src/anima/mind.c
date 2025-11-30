@@ -1,6 +1,7 @@
 #include "anima.h"
 #include "cvc5/c/cvc5_parser.h"
-#include "render/constants.h"
+#include "constants.h"
+#include "stdatomic.h"
 
 Mind Mind_default() {
 

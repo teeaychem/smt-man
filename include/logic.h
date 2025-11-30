@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cvc5/c/cvc5.h"
-#include "render/constants.h"
+#include "constants.h"
 #include "utils.h"
 
 constexpr Cvc5InputLanguage CVC5_LANG = CVC5_INPUT_LANGUAGE_SMT_LIB_2_6;

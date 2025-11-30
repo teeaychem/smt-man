@@ -5,8 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "constants.h"
 #include "maze.h"
-#include "render/constants.h"
 #include "utils/pairs.h"
 
 void next_line(FILE *file) {
@@ -72,10 +72,10 @@ Maze Maze_create(char *path) {
     }
   }
 
-  if ((self.size.x % kTILES.x) != 0 | (self.size.y % kTILES.y) != 0) {
+  if ((self.size.x % TILE_COUNTS.x) != 0 | (self.size.y % TILE_COUNTS.y) != 0) {
     printf("Maze dimension %dx%d is not an integer scale of %dx%d",
            self.size.x, self.size.y,
-           kTILES.x, kTILES.y);
+           TILE_COUNTS.x, TILE_COUNTS.y);
     preamble_ok = false;
   }
 
@@ -85,11 +85,11 @@ Maze Maze_create(char *path) {
   }
 
   self.abstract = malloc(PairI32_area(&self.size) * sizeof(*self.abstract));
-  self.pixels = malloc(PairI32_area(&kPIXELS) * sizeof(*self.pixels));
-  memset(self.pixels, '\0', PairI32_area(&kPIXELS));
+  self.pixels = malloc(PairI32_area(&PIXEL_COUNTS) * sizeof(*self.pixels));
+  memset(self.pixels, '\0', PairI32_area(&PIXEL_COUNTS));
 
-  int32_t x_scale = kPIXELS.x / self.size.x;
-  int32_t y_scale = kPIXELS.y / self.size.y;
+  int32_t x_scale = PIXEL_COUNTS.x / self.size.x;
+  int32_t y_scale = PIXEL_COUNTS.y / self.size.y;
 
   int32_t pos_x = 0;
   int32_t pos_y = 0;
@@ -115,9 +115,9 @@ Maze Maze_create(char *path) {
 
     default: {
       self.abstract[pos_y * self.size.x + pos_x] = read;
-      for (size_t pxl_y = 0; pxl_y < 16; ++pxl_y) {
-        for (size_t pxl_x = 0; pxl_x < 16; ++pxl_x) {
-          self.pixels[(((pos_y * 16) + pxl_y) * kPIXELS.x) + pxl_x + (pos_x * 16)] = read;
+      for (size_t pxl_y = 0; pxl_y < TILE_SCALE; ++pxl_y) {
+        for (size_t pxl_x = 0; pxl_x < TILE_SCALE; ++pxl_x) {
+          self.pixels[(((pos_y * TILE_SCALE) + pxl_y) * PIXEL_COUNTS.x) + pxl_x + (pos_x * TILE_SCALE)] = read;
         }
       }
 
@@ -145,30 +145,20 @@ void Maze_destroy(Maze *self) {
 }
 
 bool Maze_is_open(Maze *self, PairI32 *point) {
-  bool yOk = 0 <= point->y && point->y < kPIXELS.y;
-  bool xOk = 0 <= point->x && point->x < kPIXELS.x;
+  bool yOk = 0 <= point->y && point->y < PIXEL_COUNTS.y;
+  bool xOk = 0 <= point->x && point->x < PIXEL_COUNTS.x;
   bool locationOk = Maze_pixel_at_point(self, *point) == (uint8_t)'#';
 
   return yOk && xOk && locationOk;
 }
 
-uint8_t Maze_pixel_at_point(Maze *self, PairI32 point) {
-  return self->pixels[(point.y * kPIXELS.x) + point.x];
-}
-
-char Maze_abstract_at_xy(Maze *self, int32_t x, int32_t y) {
-  assert(x < self->size.x);
-  assert(y < self->size.y);
-  return self->abstract[(y * self->size.x) + x];
-}
-
 void Maze_pixel_stdout(Maze *self) {
-  for (size_t y = 0; y < kPIXELS.y; ++y) {
-    for (size_t x = 0; x < kPIXELS.x; ++x) {
-      printf("%c", self->pixels[(y * kPIXELS.x) + x]);
+  for (size_t y = 0; y < PIXEL_COUNTS.y; ++y) {
+    for (size_t x = 0; x < PIXEL_COUNTS.x; ++x) {
+      printf("%c", self->pixels[(y * PIXEL_COUNTS.x) + x]);
     }
 
-    if (y + 16 < kPIXELS.y) {
+    if (y + TILE_SCALE < PIXEL_COUNTS.y) {
       printf("\n");
     }
   }
@@ -177,7 +167,7 @@ void Maze_pixel_stdout(Maze *self) {
 void Maze_abstract_stdout(Maze *self) {
   for (int32_t c = 0; c < self->size.y; ++c) {
     for (int32_t r = 0; r < self->size.x; ++r) {
-      printf("%c", Maze_abstract_at_xy(self, r, c));
+      printf("%c", Maze_abstract_at(self, r, c));
     }
     printf("\n");
   }
