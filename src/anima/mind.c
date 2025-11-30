@@ -2,6 +2,7 @@
 #include "cvc5/c/cvc5_parser.h"
 #include "constants.h"
 #include "stdatomic.h"
+#include <stdlib.h>
 
 Mind Mind_default() {
 
@@ -34,19 +35,19 @@ void Anima_LoT_facing(Anima *self, Mind *mind) {
 
   for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
 
-    snprintf(smt_input_buffer, SMT_INPUT_BUFFER_SIZE, "(anima_is_facing %s up)", ANIMA_NAMES[idx]);
+    snprintf(smt_input_buffer, SMT_INPUT_BUFFER_SIZE, "(anima_is_facing %s up)", self->name);
     cvc5_parser_set_str_input(mind->parser, CVC5_LANG, smt_input_buffer, "");
     mind->lot.anima[idx].facing.up = cvc5_parser_next_term(mind->parser, &smt_error_msg);
 
-    snprintf(smt_input_buffer, SMT_INPUT_BUFFER_SIZE, "(anima_is_facing %s right)", ANIMA_NAMES[idx]);
+    snprintf(smt_input_buffer, SMT_INPUT_BUFFER_SIZE, "(anima_is_facing %s right)", self->name);
     cvc5_parser_set_str_input(mind->parser, CVC5_LANG, smt_input_buffer, "");
     mind->lot.anima[idx].facing.right = cvc5_parser_next_term(mind->parser, &smt_error_msg);
 
-    snprintf(smt_input_buffer, SMT_INPUT_BUFFER_SIZE, "(anima_is_facing %s down)", ANIMA_NAMES[idx]);
+    snprintf(smt_input_buffer, SMT_INPUT_BUFFER_SIZE, "(anima_is_facing %s down)", self->name);
     cvc5_parser_set_str_input(mind->parser, CVC5_LANG, smt_input_buffer, "");
     mind->lot.anima[idx].facing.down = cvc5_parser_next_term(mind->parser, &smt_error_msg);
 
-    snprintf(smt_input_buffer, SMT_INPUT_BUFFER_SIZE, "(anima_is_facing %s left)", ANIMA_NAMES[idx]);
+    snprintf(smt_input_buffer, SMT_INPUT_BUFFER_SIZE, "(anima_is_facing %s left)", self->name);
     cvc5_parser_set_str_input(mind->parser, CVC5_LANG, smt_input_buffer, "");
     mind->lot.anima[idx].facing.left = cvc5_parser_next_term(mind->parser, &smt_error_msg);
   }

@@ -144,13 +144,6 @@ void Maze_destroy(Maze *self) {
   free(self->pixels);
 }
 
-bool Maze_is_open(Maze *self, PairI32 *point) {
-  bool yOk = 0 <= point->y && point->y < PIXEL_COUNTS.y;
-  bool xOk = 0 <= point->x && point->x < PIXEL_COUNTS.x;
-  bool locationOk = Maze_pixel_at_point(self, *point) == (uint8_t)'#';
-
-  return yOk && xOk && locationOk;
-}
 
 void Maze_pixel_stdout(Maze *self) {
   for (size_t y = 0; y < PIXEL_COUNTS.y; ++y) {

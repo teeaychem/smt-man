@@ -22,8 +22,6 @@ Maze Maze_create(char *path);
 
 void Maze_destroy(Maze *self);
 
-bool Maze_is_open(Maze *self, PairI32 *tile);
-
 static inline uint8_t Maze_pixel_at_point(Maze *self, PairI32 point) {
   return self->pixels[(point.y * PIXEL_COUNTS.x) + point.x];
 }

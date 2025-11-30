@@ -1,7 +1,6 @@
 #pragma once
 
 #include <pthread.h>
-#include <stdatomic.h>
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
@@ -53,16 +52,17 @@ struct anima_t {
 
   uint8_t id;
 
-  SmtWorld pov;
+  char *name;
 
-  int velocity;
+  PairI32 abstract_location;
+  PairI32 sprite_location;
+
+  SmtWorld pov;
 
   PairI32 sprite_size;
 
   AnimaSync sync;
 };
-
-Anima Anima_default(uint8_t id, PairI32 location, PairI32 sprite_size);
 
 Anima Anima_create(uint8_t id, PairI32 location, Direction intent, Direction momentum, PairI32 sprite_size);
 

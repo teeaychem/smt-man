@@ -2,6 +2,7 @@
 #include <pthread.h>
 #include <stdatomic.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 #include "cwalk.h"
@@ -102,7 +103,7 @@ int main(int argc, char **argv) {
       .surface = Surface_from_path(PATH_BUFFER),
       .surface_offset = PairI32_create(0, 0),
   };
-  ANIMAS[0] = Anima_default(0, PairI32_create(16, 16), PAIR_SPRITE_EDGE);
+  ANIMAS[0] = Anima_create(0, PairI32_create(1, 1), DOWN, DOWN, PAIR_SPRITE_EDGE);
   pthread_create(&ANIMA_THREADS[0], NULL, spirit, (void *)&ANIMAS[0]);
 
   cwk_path_join(SOURCE_PATH, "resources/bertrand.png", PATH_BUFFER, FILENAME_MAX);
@@ -111,7 +112,7 @@ int main(int argc, char **argv) {
       .surface = Surface_from_path(PATH_BUFFER),
       .surface_offset = PairI32_create(0, 0),
   };
-  ANIMAS[1] = Anima_default(1, PairI32_create(32, 16), PAIR_SPRITE_EDGE);
+  ANIMAS[1] = Anima_create(1, PairI32_create(15, 26), DOWN, DOWN, PAIR_SPRITE_EDGE);
   pthread_create(&ANIMA_THREADS[1], NULL, spirit, (void *)&ANIMAS[1]);
 
   /* begin scratch */
@@ -193,7 +194,7 @@ int main(int argc, char **argv) {
       for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
         ANIMA_SPRITES[idx].tick += 1;
         auto a_l = atomic_load(&ANIMAS[idx].pov.anima[idx].location);
-        auto a_l_s = PairI32_abstract_by(&a_l, 16);
+        auto a_l_s = PairI32_abstract_by(&a_l, TILE_SCALE);
 
         if (atomic_load(&ANIMAS[idx].sync.flag_suspend)) {
           atomic_store(&ANIMAS[idx].sync.flag_suspend, false);

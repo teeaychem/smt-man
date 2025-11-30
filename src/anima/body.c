@@ -2,35 +2,37 @@
 #include "logic.h"
 
 #include "constants.h"
+#include "maze.h"
 #include "utils.h"
 #include "utils/pairs.h"
 #include <stdatomic.h>
 #include <stdint.h>
-
-Anima Anima_default(uint8_t id, PairI32 position, PairI32 sprite_size) {
-  return Anima_create(id, position, DOWN, DOWN, sprite_size);
-}
+#include <stdio.h>
 
 Anima Anima_create(uint8_t id, PairI32 location, Direction intent, Direction momentum, PairI32 sprite_size) {
+  static char *ANIMA_NAMES[2] = {"gottlob", "bertrand"};
   printf("Creating anima: %s", ANIMA_NAMES[id]);
 
   Anima self = {
       .id = id,
+      .name = ANIMA_NAMES[id],
       .pov = {},
+
       .sprite_size = sprite_size,
+      .sprite_location = PairI32_scale(&location, TILE_SCALE),
 
       .sync = {
           .cond_resume = PTHREAD_COND_INITIALIZER,
           .mtx_suspend = PTHREAD_MUTEX_INITIALIZER,
       },
 
-      .velocity = 1,
   };
 
   atomic_init(&self.pov.anima[self.id].intent, intent);
   atomic_init(&self.pov.anima[self.id].momentum, momentum);
-  atomic_init(&self.pov.anima[self.id].location, location);
+  atomic_init(&self.pov.anima[self.id].abstract_location, location);
   atomic_init(&self.pov.anima[self.id].status, ANIMA_STATUS_SEARCH);
+  atomic_init(&self.pov.anima[self.id].velocity, 1);
 
   atomic_init(&self.sync.flag_suspend, false);
 
@@ -63,41 +65,59 @@ void Anima_handle_event(Anima *self, SDL_Event *event) {
 
 void Anima_move(Anima *self, Maze *maze) {
 
-  Direction momentum = atomic_load(&self->pov.anima[self->id].momentum);
+  auto velocity = atomic_load(&self->pov.anima[self->id].velocity);
 
-  auto current_location = atomic_load(&self->pov.anima[self->id].location);
+  if (self->sprite_location.x % TILE_SCALE == 0 && self->sprite_location.y % TILE_SCALE == 0) {
 
-  if (current_location.x % SPRITE_EDGE_SIZE == 0 && current_location.y % SPRITE_EDGE_SIZE == 0) {
-    momentum = atomic_load(&self->pov.anima[self->id].intent);
-    atomic_store(&self->pov.anima[self->id].momentum, momentum);
+    auto abstract_location = atomic_load(&self->pov.anima[self->id].abstract_location);
+    auto intent = atomic_load(&self->pov.anima[self->id].intent);
 
-    PairI32 destination;
+    atomic_store(&self->pov.anima[self->id].momentum, intent);
 
-    steps_in_direction(&current_location, momentum, SPRITE_EDGE_SIZE, &destination);
+    PairI32 destination = steps_in_direction(&abstract_location, intent, 1);
 
-    if (Maze_is_open(maze, &destination)) {
-      self->velocity = 1;
+    auto path_ok = Maze_abstract_is_path(maze, destination.x, destination.y);
+
+    if (path_ok) {
+      velocity = 1;
     } else {
-      self->velocity = 0;
+      velocity = 0;
     }
+
+    switch (atomic_load(&self->pov.anima[self->id].momentum)) {
+    case UP: {
+      abstract_location.y -= velocity;
+    } break;
+    case RIGHT: {
+      abstract_location.x += velocity;
+    } break;
+    case DOWN: {
+      abstract_location.y += velocity;
+    } break;
+    case LEFT: {
+      abstract_location.x -= velocity;
+    } break;
+    }
+
+    atomic_store(&self->pov.anima[self->id].abstract_location, abstract_location);
   }
 
-  switch (momentum) {
+  switch (atomic_load(&self->pov.anima[self->id].momentum)) {
   case UP: {
-    current_location.y -= self->velocity;
+    self->sprite_location.y -= velocity;
   } break;
   case RIGHT: {
-    current_location.x += self->velocity;
+    self->sprite_location.x += velocity;
   } break;
   case DOWN: {
-    current_location.y += self->velocity;
+    self->sprite_location.y += velocity;
   } break;
   case LEFT: {
-    current_location.x -= self->velocity;
+    self->sprite_location.x -= velocity;
   } break;
   }
 
-  atomic_store(&self->pov.anima[self->id].location, current_location);
+  atomic_store(&self->pov.anima[self->id].velocity, velocity);
 }
 
 void Anima_instinct(Anima *self) {
