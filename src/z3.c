@@ -195,12 +195,12 @@ void z3_tmp(Maze *maze, SmtWorld world) {
                                                           Z3_mk_numeral(ctx, c_buff, u8_s),
                                                           Z3_mk_numeral(ctx, r_buff, u8_s));
 
-      if (Maze_abstract_at(maze, c, r) != ' ') {
-        Z3_optimize_assert(ctx, optimizer, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, tile_path_f, maze_pairs[r * maze->size.x + c]), empty));
-      } else {
+      if (Maze_abstract_is_path(maze, c, r)) {
         Z3_optimize_assert_soft(ctx,
                                 optimizer,
                                 Z3_mk_eq(ctx, z3_mk_unary_app(ctx, tile_path_f, maze_pairs[r * maze->size.x + c]), empty), "1", NULL);
+      } else {
+        Z3_optimize_assert(ctx, optimizer, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, tile_path_f, maze_pairs[r * maze->size.x + c]), empty));
       }
 
       printf("%c", Maze_abstract_at(maze, c, r));
@@ -242,11 +242,9 @@ void z3_tmp(Maze *maze, SmtWorld world) {
   for (int32_t r = 0; r < maze->size.y; r++) {
     sprintf(r_buff, "%d", r);
     for (int32_t c = 0; c < maze->size.x; c++) {
-
-      auto xx = z3_mk_unary_app(ctx, tile_path_f, maze_pairs[r * maze->size.x + c]);
-
-    process_row_col:
       sprintf(c_buff, "%d", c);
+
+      Z3_ast tile_path_value = z3_mk_unary_app(ctx, tile_path_f, maze_pairs[r * maze->size.x + c]);
 
       auto pair = z3_mk_binary_app(ctx,
                                    mk_u8p_decl,
@@ -254,6 +252,7 @@ void z3_tmp(Maze *maze, SmtWorld world) {
                                    Z3_mk_numeral(ctx, r_buff, u8_s));
 
       if (Maze_abstract_is_path(maze, c, r)) {
+
         for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
           auto anima_location = atomic_load(&world.anima[idx].abstract_location);
           if (anima_location.x == c && anima_location.y == r) {
@@ -261,11 +260,11 @@ void z3_tmp(Maze *maze, SmtWorld world) {
                                optimizer,
                                Z3_mk_or(ctx,
                                         4,
-                                        (Z3_ast[4]){Z3_mk_eq(ctx, xx, origin_up),
-                                                    Z3_mk_eq(ctx, xx, origin_right),
-                                                    Z3_mk_eq(ctx, xx, origin_down),
-                                                    Z3_mk_eq(ctx, xx, origin_left)}));
-            goto process_row_col;
+                                        (Z3_ast[4]){Z3_mk_eq(ctx, tile_path_value, origin_up),
+                                                    Z3_mk_eq(ctx, tile_path_value, origin_right),
+                                                    Z3_mk_eq(ctx, tile_path_value, origin_down),
+                                                    Z3_mk_eq(ctx, tile_path_value, origin_left)}));
+            goto surrounding_constraints;
           }
         }
         // Only here if no anima is only the currently tile.
@@ -273,13 +272,140 @@ void z3_tmp(Maze *maze, SmtWorld world) {
                            optimizer,
                            Z3_mk_or(ctx,
                                     7,
-                                    (Z3_ast[7]){Z3_mk_eq(ctx, xx, up_down),
-                                                Z3_mk_eq(ctx, xx, right_left),
-                                                Z3_mk_eq(ctx, xx, up_right),
-                                                Z3_mk_eq(ctx, xx, down_right),
-                                                Z3_mk_eq(ctx, xx, down_left),
-                                                Z3_mk_eq(ctx, xx, up_left),
-                                                Z3_mk_eq(ctx, xx, empty)}));
+                                    (Z3_ast[7]){Z3_mk_eq(ctx, tile_path_value, up_down),
+                                                Z3_mk_eq(ctx, tile_path_value, right_left),
+                                                Z3_mk_eq(ctx, tile_path_value, up_right),
+                                                Z3_mk_eq(ctx, tile_path_value, down_right),
+                                                Z3_mk_eq(ctx, tile_path_value, down_left),
+                                                Z3_mk_eq(ctx, tile_path_value, up_left),
+                                                Z3_mk_eq(ctx, tile_path_value, empty)}));
+
+      surrounding_constraints:
+
+        Z3_ast up_tile = NULL;
+        if (0 < r) {
+          up_tile = maze_pairs[(r - 1) * maze->size.x + c];
+        }
+
+        Z3_ast rt_tile = NULL;
+        if (c + 1 < maze->size.x) {
+          rt_tile = maze_pairs[r * maze->size.x + (c + 1)];
+        }
+
+        Z3_ast dn_tile = NULL;
+        if (r + 1 < maze->size.y) {
+          dn_tile = maze_pairs[(r + 1) * maze->size.x + c];
+        }
+
+        Z3_ast lt_tile = NULL;
+        if (0 < c) {
+          lt_tile = maze_pairs[r * maze->size.x + (c - 1)];
+        }
+
+        size_t up_tile_reqs = 0;
+        Z3_ast up_tile_req[4] = {};
+        if (up_tile != NULL) {
+          up_tile_req[up_tile_reqs++] = Z3_mk_eq(ctx, z3_mk_unary_app(ctx, tile_path_f, up_tile), origin_down);
+          up_tile_req[up_tile_reqs++] = Z3_mk_eq(ctx, z3_mk_unary_app(ctx, tile_path_f, up_tile), up_down);
+          up_tile_req[up_tile_reqs++] = Z3_mk_eq(ctx, z3_mk_unary_app(ctx, tile_path_f, up_tile), down_right);
+          up_tile_req[up_tile_reqs++] = Z3_mk_eq(ctx, z3_mk_unary_app(ctx, tile_path_f, up_tile), down_left);
+        }
+
+        size_t rt_tile_reqs = 0;
+        Z3_ast rt_tile_req[4] = {};
+        if (rt_tile != NULL) {
+          rt_tile_req[rt_tile_reqs++] = Z3_mk_eq(ctx, z3_mk_unary_app(ctx, tile_path_f, rt_tile), origin_left);
+          rt_tile_req[rt_tile_reqs++] = Z3_mk_eq(ctx, z3_mk_unary_app(ctx, tile_path_f, rt_tile), right_left);
+          rt_tile_req[rt_tile_reqs++] = Z3_mk_eq(ctx, z3_mk_unary_app(ctx, tile_path_f, rt_tile), down_left);
+          rt_tile_req[rt_tile_reqs++] = Z3_mk_eq(ctx, z3_mk_unary_app(ctx, tile_path_f, rt_tile), up_left);
+        }
+
+        size_t dn_tile_reqs = 0;
+        Z3_ast dn_tile_req[4] = {};
+        if (dn_tile != NULL) {
+          dn_tile_req[dn_tile_reqs++] = Z3_mk_eq(ctx, z3_mk_unary_app(ctx, tile_path_f, dn_tile), origin_up);
+          dn_tile_req[dn_tile_reqs++] = Z3_mk_eq(ctx, z3_mk_unary_app(ctx, tile_path_f, dn_tile), up_down);
+          dn_tile_req[dn_tile_reqs++] = Z3_mk_eq(ctx, z3_mk_unary_app(ctx, tile_path_f, dn_tile), up_right);
+          dn_tile_req[dn_tile_reqs++] = Z3_mk_eq(ctx, z3_mk_unary_app(ctx, tile_path_f, dn_tile), up_left);
+        }
+
+        size_t lt_tile_reqs = 0;
+        Z3_ast lt_tile_req[4] = {};
+        if (lt_tile != NULL) {
+          lt_tile_req[lt_tile_reqs++] = Z3_mk_eq(ctx, z3_mk_unary_app(ctx, tile_path_f, lt_tile), origin_right);
+          lt_tile_req[lt_tile_reqs++] = Z3_mk_eq(ctx, z3_mk_unary_app(ctx, tile_path_f, lt_tile), right_left);
+          lt_tile_req[lt_tile_reqs++] = Z3_mk_eq(ctx, z3_mk_unary_app(ctx, tile_path_f, lt_tile), down_right);
+          lt_tile_req[lt_tile_reqs++] = Z3_mk_eq(ctx, z3_mk_unary_app(ctx, tile_path_f, lt_tile), up_right);
+        }
+
+        Z3_ast up_tile_or = Z3_mk_or(ctx, up_tile_reqs, up_tile_req);
+        Z3_ast rt_tile_or = Z3_mk_or(ctx, rt_tile_reqs, rt_tile_req);
+        Z3_ast dn_tile_or = Z3_mk_or(ctx, dn_tile_reqs, dn_tile_req);
+        Z3_ast lt_tile_or = Z3_mk_or(ctx, lt_tile_reqs, lt_tile_req);
+
+        if (up_tile_reqs != 0) {
+          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, origin_up), up_tile_or));
+        }
+
+        if (rt_tile_reqs != 0) {
+          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, origin_right), rt_tile_or));
+        }
+
+        if (dn_tile_reqs != 0) {
+          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, origin_down), dn_tile_or));
+        }
+
+        if (lt_tile_reqs != 0) {
+          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, origin_left), lt_tile_or));
+        }
+
+        // up down
+        if (up_tile_reqs != 0) {
+          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, up_down), up_tile_or));
+        }
+        if (dn_tile_reqs != 0) {
+          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, up_down), dn_tile_or));
+        }
+
+        // right left
+        if (lt_tile_reqs != 0) {
+          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, right_left), lt_tile_or));
+        }
+        if (rt_tile_reqs != 0) {
+          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, right_left), rt_tile_or));
+        }
+
+        // up right
+        if (up_tile_reqs != 0) {
+          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, up_right), up_tile_or));
+        }
+        if (rt_tile_reqs != 0) {
+          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, up_right), rt_tile_or));
+        }
+
+        // down right
+        if (dn_tile_reqs != 0) {
+          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, down_right), dn_tile_or));
+        }
+        if (rt_tile_reqs != 0) {
+          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, down_right), rt_tile_or));
+        }
+
+        // up left
+        if (up_tile_reqs != 0) {
+          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, up_left), up_tile_or));
+        }
+        if (lt_tile_reqs != 0) {
+          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, up_left), lt_tile_or));
+        }
+
+        // down left
+        if (dn_tile_reqs != 0) {
+          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, down_left), dn_tile_or));
+        }
+        if (lt_tile_reqs != 0) {
+          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, down_left), lt_tile_or));
+        }
       }
     }
   }

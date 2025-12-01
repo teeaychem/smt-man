@@ -86,6 +86,12 @@ void update_anima_sprite(uint8_t anima_id, SpriteInfo *sprite_info) {
   }
 }
 
+void World_sync_anima() {
+  for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
+    atomic_store(&WORLD.anima[idx].abstract_location, atomic_load(&ANIMAS[idx].pov.anima[idx].abstract_location));
+  }
+}
+
 int main(int argc, char **argv) {
 
   char PATH_BUFFER[FILENAME_MAX];
@@ -112,10 +118,11 @@ int main(int argc, char **argv) {
       .surface = Surface_from_path(PATH_BUFFER),
       .surface_offset = PairI32_create(0, 0),
   };
-  ANIMAS[1] = Anima_create(1, PairI32_create(15, 26), DOWN, DOWN, PAIR_SPRITE_EDGE);
+  ANIMAS[1] = Anima_create(1, PairI32_create(10, 26), DOWN, DOWN, PAIR_SPRITE_EDGE);
   pthread_create(&ANIMA_THREADS[1], NULL, spirit, (void *)&ANIMAS[1]);
 
   /* begin scratch */
+  World_sync_anima();
   printf("scratch begin...\n");
   z3_tmp(&maze, WORLD);
 
@@ -154,9 +161,8 @@ int main(int argc, char **argv) {
       NSTimer_start(&frameCapTimer);
       SDL_RenderClear(renderer.renderer);
 
+      World_sync_anima();
       for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
-        WORLD.anima[idx].abstract_location = ANIMAS[idx].pov.anima[idx].abstract_location;
-
         Renderer_erase_sprite(&renderer,
                               ANIMAS[idx].sprite_location,
                               &ANIMA_SPRITES[idx]);
