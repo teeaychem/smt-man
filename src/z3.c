@@ -178,109 +178,76 @@ void z3_tmp(Maze *maze, SmtWorld world) {
   //
   printf("Creating tiles...\n");
 
-  char r_buff[10] = {};
-  char c_buff[10] = {};
-
   Z3_ast maze_pairs[PairI32_area(&maze->size)];
 
-  printf("Creating tiles %d %d...\n", maze->size.x, maze->size.y);
+  {
+    char r_buff[10] = {};
+    char c_buff[10] = {};
 
-  for (int32_t r = 0; r < maze->size.y; ++r) {
-    sprintf(r_buff, "%d", r);
-    for (int32_t c = 0; c < maze->size.x; ++c) {
-      sprintf(c_buff, "%d", c);
+    printf("Creating tiles %d %d...\n", maze->size.x, maze->size.y);
 
-      maze_pairs[r * maze->size.x + c] = z3_mk_binary_app(ctx,
-                                                          mk_u8p_decl,
-                                                          Z3_mk_numeral(ctx, c_buff, u8_s),
-                                                          Z3_mk_numeral(ctx, r_buff, u8_s));
+    for (int32_t r = 0; r < maze->size.y; ++r) {
+      sprintf(r_buff, "%d", r);
+      for (int32_t c = 0; c < maze->size.x; ++c) {
+        sprintf(c_buff, "%d", c);
 
-      if (Maze_abstract_is_path(maze, c, r)) {
-        Z3_optimize_assert_soft(ctx,
-                                optimizer,
-                                Z3_mk_eq(ctx, z3_mk_unary_app(ctx, tile_path_f, maze_pairs[r * maze->size.x + c]), empty), "1", NULL);
-      } else {
-        Z3_optimize_assert(ctx, optimizer, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, tile_path_f, maze_pairs[r * maze->size.x + c]), empty));
+        maze_pairs[r * maze->size.x + c] = z3_mk_binary_app(ctx,
+                                                            mk_u8p_decl,
+                                                            Z3_mk_numeral(ctx, c_buff, u8_s),
+                                                            Z3_mk_numeral(ctx, r_buff, u8_s));
+
+        if (Maze_abstract_is_path(maze, c, r)) {
+          Z3_optimize_assert_soft(ctx,
+                                  optimizer,
+                                  Z3_mk_eq(ctx, z3_mk_unary_app(ctx, tile_path_f, maze_pairs[r * maze->size.x + c]), empty), "1", NULL);
+        } else {
+          Z3_optimize_assert(ctx, optimizer, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, tile_path_f, maze_pairs[r * maze->size.x + c]), empty));
+        }
+
+        printf("%c", Maze_abstract_at(maze, c, r));
       }
-
-      printf("%c", Maze_abstract_at(maze, c, r));
+      printf("\n");
     }
-    printf("\n");
   }
 
   Z3_mk_distinct(ctx, PairI32_area(&maze->size), maze_pairs);
 
   // Animas
-  constexpr size_t ANIMA_VARIANTS = 3;
 
-  Z3_symbol anima_e_names[ANIMA_VARIANTS] = {
+  Z3_symbol anima_e_names[ANIMA_COUNT] = {
       Z3_mk_string_symbol(ctx, "gottlob"),
       Z3_mk_string_symbol(ctx, "bertrand"),
-      Z3_mk_string_symbol(ctx, "smt-man")};
+      /* Z3_mk_string_symbol(ctx, "smt-man") */
+  };
 
-  Z3_func_decl anima_e_consts[ANIMA_VARIANTS];
-  Z3_func_decl anima_e_testers[ANIMA_VARIANTS];
+  Z3_func_decl anima_e_consts[ANIMA_COUNT];
+  Z3_func_decl anima_e_testers[ANIMA_COUNT];
 
   Z3_sort anima_s = Z3_mk_enumeration_sort(ctx,
                                            Z3_mk_string_symbol(ctx, "anima"),
-                                           ANIMA_VARIANTS,
+                                           ANIMA_COUNT,
                                            anima_e_names,
                                            anima_e_consts,
                                            anima_e_testers);
 
   Z3_ast anima_gottlob = Z3_mk_app(ctx, anima_e_consts[0], 0, 0);
   Z3_ast anima_bertrand = Z3_mk_app(ctx, anima_e_consts[1], 0, 0);
-  Z3_ast anima_smtman = Z3_mk_app(ctx, anima_e_consts[2], 0, 0);
 
   // Anima locations
 
   Z3_func_decl anima_tile_f = Z3_mk_func_decl(ctx, Z3_mk_string_symbol(ctx, "anima_loc"), 1, (Z3_sort[1]){anima_s}, u8p_s);
 
-  Z3_optimize_assert(ctx, optimizer, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, anima_tile_f, anima_gottlob), maze_pairs[1 * maze->size.x + 2]));
-  Z3_optimize_assert(ctx, optimizer, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, anima_tile_f, anima_bertrand), maze_pairs[26 * maze->size.x + 15]));
+  auto gottlob_location = atomic_load(&world.anima[0].abstract_location);
+  Z3_optimize_assert(ctx, optimizer, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, anima_tile_f, anima_gottlob), maze_pairs[gottlob_location.y * maze->size.x + gottlob_location.x]));
+  auto bertrand_location = atomic_load(&world.anima[1].abstract_location);
+  Z3_optimize_assert(ctx, optimizer, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, anima_tile_f, anima_bertrand), maze_pairs[bertrand_location.y * maze->size.x + bertrand_location.x]));
 
   for (int32_t r = 0; r < maze->size.y; r++) {
-    sprintf(r_buff, "%d", r);
     for (int32_t c = 0; c < maze->size.x; c++) {
-      sprintf(c_buff, "%d", c);
 
       Z3_ast tile_path_value = z3_mk_unary_app(ctx, tile_path_f, maze_pairs[r * maze->size.x + c]);
 
-      auto pair = z3_mk_binary_app(ctx,
-                                   mk_u8p_decl,
-                                   Z3_mk_numeral(ctx, c_buff, u8_s),
-                                   Z3_mk_numeral(ctx, r_buff, u8_s));
-
       if (Maze_abstract_is_path(maze, c, r)) {
-
-        for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
-          auto anima_location = atomic_load(&world.anima[idx].abstract_location);
-          if (anima_location.x == c && anima_location.y == r) {
-            Z3_optimize_assert(ctx,
-                               optimizer,
-                               Z3_mk_or(ctx,
-                                        4,
-                                        (Z3_ast[4]){Z3_mk_eq(ctx, tile_path_value, origin_up),
-                                                    Z3_mk_eq(ctx, tile_path_value, origin_right),
-                                                    Z3_mk_eq(ctx, tile_path_value, origin_down),
-                                                    Z3_mk_eq(ctx, tile_path_value, origin_left)}));
-            goto surrounding_constraints;
-          }
-        }
-        // Only here if no anima is only the currently tile.
-        Z3_optimize_assert(ctx,
-                           optimizer,
-                           Z3_mk_or(ctx,
-                                    7,
-                                    (Z3_ast[7]){Z3_mk_eq(ctx, tile_path_value, up_down),
-                                                Z3_mk_eq(ctx, tile_path_value, right_left),
-                                                Z3_mk_eq(ctx, tile_path_value, up_right),
-                                                Z3_mk_eq(ctx, tile_path_value, down_right),
-                                                Z3_mk_eq(ctx, tile_path_value, down_left),
-                                                Z3_mk_eq(ctx, tile_path_value, up_left),
-                                                Z3_mk_eq(ctx, tile_path_value, empty)}));
-
-      surrounding_constraints:
 
         Z3_ast up_tile = NULL;
         if (0 < r) {
@@ -408,6 +375,38 @@ void z3_tmp(Maze *maze, SmtWorld world) {
         }
       }
     }
+  }
+
+  for (int32_t r = 0; r < maze->size.y; r++) {
+    for (int32_t c = 0; c < maze->size.x; c++) {
+
+      Z3_ast tile_path_value = z3_mk_unary_app(ctx, tile_path_f, maze_pairs[r * maze->size.x + c]);
+
+      Z3_ast some_anima_location = Z3_mk_or(ctx,
+                                            2,
+                                            (Z3_ast[2]){
+                                                Z3_mk_eq(ctx, z3_mk_unary_app(ctx, anima_tile_f, anima_gottlob), maze_pairs[r * maze->size.x + c]),
+                                                Z3_mk_eq(ctx, z3_mk_unary_app(ctx, anima_tile_f, anima_bertrand), maze_pairs[r * maze->size.x + c])});
+
+      Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, tile_path_f, maze_pairs[r * maze->size.x + c]), origin_up), some_anima_location));
+      Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, tile_path_f, maze_pairs[r * maze->size.x + c]), origin_right), some_anima_location));
+      Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, tile_path_f, maze_pairs[r * maze->size.x + c]), origin_down), some_anima_location));
+      Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, tile_path_f, maze_pairs[r * maze->size.x + c]), origin_left), some_anima_location));
+    }
+  }
+
+  for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
+    auto anima_location = atomic_load(&world.anima[idx].abstract_location);
+    Z3_ast tile_path_value = z3_mk_unary_app(ctx, tile_path_f, maze_pairs[anima_location.y * maze->size.x + anima_location.x]);
+
+    Z3_optimize_assert(ctx,
+                       optimizer,
+                       Z3_mk_or(ctx,
+                                4,
+                                (Z3_ast[4]){Z3_mk_eq(ctx, tile_path_value, origin_up),
+                                            Z3_mk_eq(ctx, tile_path_value, origin_right),
+                                            Z3_mk_eq(ctx, tile_path_value, origin_down),
+                                            Z3_mk_eq(ctx, tile_path_value, origin_left)}));
   }
 
   // Hm
