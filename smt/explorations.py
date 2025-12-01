@@ -1,10 +1,13 @@
 import time
 
-from z3 import *  # pyright: ignore[reportMissingTypeStubs, reportWildcardImportFromLibrary]
+from z3 import *
 
 maze_chars = []
 width = 0
 height = 0
+
+print(z3.tactics())
+print(z3.main_ctx().param_descrs())
 
 
 # Character representation of the maze
@@ -22,19 +25,6 @@ with open("./resources/maze/source.txt", "r") as file:
 
 width_less_one = width - 1
 height_less_one = height - 1
-
-
-def surrounding(x, y):
-    pairs = []
-    if 0 < x:
-        pairs.append((x - 1, y))
-    if x < width_less_one:
-        pairs.append((x + 1, y))
-    if 0 < y:
-        pairs.append((x, y - 1))
-    if y < height_less_one:
-        pairs.append((x, y + 1))
-    return pairs
 
 
 solver = Optimize()
@@ -56,28 +46,11 @@ solver.set("maxsat_engine", "wmax")
 # solver.set("maxsat_engine", "rc2")
 # solver.set("maxsat_engine", "maxres-bin")
 
-
-
-
-
-
-
-
-
-
-
 bit_vec_sort = BitVecSort(8)
 
 
 bv8_0 = bit_vec_sort.cast(0)
 bv8_1 = bit_vec_sort.cast(1)
-
-bv8_u = z3.Const("u", bit_vec_sort)
-bv8_v = z3.Const("v", bit_vec_sort)
-bv8_w = z3.Const("w", bit_vec_sort)
-bv8_x = z3.Const("x", bit_vec_sort)
-bv8_y = z3.Const("y", bit_vec_sort)
-bv8_z = z3.Const("z", bit_vec_sort)
 
 z3dt_u8_pair = z3.Datatype("u8_pair_t")
 z3dt_u8_pair.declare("u8Pair", ("row", bit_vec_sort), ("col", bit_vec_sort))
@@ -122,7 +95,7 @@ for r in range(0, height):
 
         if maze_chars[r][c] != " ":
             solver.add_soft(z3_path_e(loc) == x_x, weight=1)
-            # continue
+            continue
         else:
             solver.add(z3_path_e(loc) == x_x)
 
@@ -319,19 +292,21 @@ time_solve_start = 0
 time_model_found = 0
 time_solve_end = 0
 
+
 def on_model(m):
     print(solver.statistics())
     time_model_found = time.perf_counter()
     print(f"Time to model: {time_model_found - time_solve_start:0.4f} seconds")
 
-solver.set_on_model(on_model)
+
+# solver.set_on_model(on_model)
 
 
 # solver.push()
 # solver.check()
 # solver.pop()
 
-input("Awaiting on input to solve...")
+# input("Awaiting on input to solve...")
 time_solve_start = time.perf_counter()
 
 result = solver.check()
