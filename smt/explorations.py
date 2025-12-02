@@ -82,9 +82,7 @@ z3f_anima_location_c = Function("anima_location_c", AnimaSort, bit_vec_sort)
 for r in range(0, height):
     for c in range(0, width):
         if maze_chars[r][c] != " ":
-            solver.add_soft(
-                z3_path_e(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == x_x, weight=1
-            )
+            solver.add_soft(z3_path_e(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == x_x, weight=1)
             continue
         else:
             solver.add(z3_path_e(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == x_x)
@@ -112,37 +110,19 @@ for r in range(0, height):
         bvc = bit_vec_sort.cast(c)
 
         if maze_chars[r][c] != " ":
-            up_tile = (
-                [bit_vec_sort.cast(c), bit_vec_sort.cast(r - 1)] if r > 0 else None
-            )
-            rt_tile = (
-                [bit_vec_sort.cast(c + 1), bit_vec_sort.cast(r)]
-                if c < width_less_one
-                else None
-            )
-            dn_tile = (
-                [bit_vec_sort.cast(c), bit_vec_sort.cast(r + 1)]
-                if r < height_less_one
-                else None
-            )
-            lt_tile = (
-                [bit_vec_sort.cast(c - 1), bit_vec_sort.cast(r)] if c > 0 else None
-            )
+            up_tile = [bit_vec_sort.cast(c), bit_vec_sort.cast(r - 1)] if r > 0 else None
+            rt_tile = [bit_vec_sort.cast(c + 1), bit_vec_sort.cast(r)] if c < width_less_one else None
+            dn_tile = [bit_vec_sort.cast(c), bit_vec_sort.cast(r + 1)] if r < height_less_one else None
+            lt_tile = [bit_vec_sort.cast(c - 1), bit_vec_sort.cast(r)] if c > 0 else None
 
             up_tile_req = (
                 None
                 if up_tile == None
                 else [
                     z3_path_e(up_tile) == o_d,
-                    z3_path_e(up_tile) == u_d
-                    if 0 < r - 1 and maze_chars[r - 2][c] == "#"
-                    else None,
-                    z3_path_e(up_tile) == r_d
-                    if c < width_less_one and 0 < r and maze_chars[r - 1][c + 1] == "#"
-                    else None,
-                    z3_path_e(up_tile) == l_d
-                    if 0 < c and 0 < r and maze_chars[r - 1][c - 1] == "#"
-                    else None,
+                    z3_path_e(up_tile) == u_d if 0 < r - 1 and maze_chars[r - 2][c] == "#" else None,
+                    z3_path_e(up_tile) == r_d if c < width_less_one and 0 < r and maze_chars[r - 1][c + 1] == "#" else None,
+                    z3_path_e(up_tile) == l_d if 0 < c and 0 < r and maze_chars[r - 1][c - 1] == "#" else None,
                 ]
             )
             if up_tile_req != None:
@@ -153,17 +133,9 @@ for r in range(0, height):
                 if rt_tile == None
                 else [
                     z3_path_e(rt_tile) == l_o,
-                    z3_path_e(rt_tile) == r_l
-                    if c + 1 < width_less_one and maze_chars[r][c + 2] == "#"
-                    else None,
-                    z3_path_e(rt_tile) == l_d
-                    if r < height_less_one
-                    and c < width_less_one
-                    and maze_chars[r + 1][c + 1] == "#"
-                    else None,
-                    z3_path_e(rt_tile) == l_u
-                    if 0 < r and c < width_less_one and maze_chars[r - 1][c + 1] == "#"
-                    else None,
+                    z3_path_e(rt_tile) == r_l if c + 1 < width_less_one and maze_chars[r][c + 2] == "#" else None,
+                    z3_path_e(rt_tile) == l_d if r < height_less_one and c < width_less_one and maze_chars[r + 1][c + 1] == "#" else None,
+                    z3_path_e(rt_tile) == l_u if 0 < r and c < width_less_one and maze_chars[r - 1][c + 1] == "#" else None,
                 ]
             )
             if rt_tile_req != None:
@@ -174,17 +146,9 @@ for r in range(0, height):
                 if dn_tile == None
                 else [
                     z3_path_e(dn_tile) == o_u,
-                    z3_path_e(dn_tile) == u_d
-                    if r + 1 < height_less_one and maze_chars[r + 2][c] == "#"
-                    else None,
-                    z3_path_e(dn_tile) == r_u
-                    if r < height_less_one
-                    and c < width_less_one
-                    and maze_chars[r + 1][c + 1] == "#"
-                    else None,
-                    z3_path_e(dn_tile) == l_u
-                    if r < height_less_one and 0 < c and maze_chars[r + 1][c - 1] == "#"
-                    else None,
+                    z3_path_e(dn_tile) == u_d if r + 1 < height_less_one and maze_chars[r + 2][c] == "#" else None,
+                    z3_path_e(dn_tile) == r_u if r < height_less_one and c < width_less_one and maze_chars[r + 1][c + 1] == "#" else None,
+                    z3_path_e(dn_tile) == l_u if r < height_less_one and 0 < c and maze_chars[r + 1][c - 1] == "#" else None,
                 ]
             )
             if dn_tile_req != None:
@@ -195,15 +159,9 @@ for r in range(0, height):
                 if lt_tile == None
                 else [
                     z3_path_e(lt_tile) == r_o,
-                    z3_path_e(lt_tile) == r_l
-                    if 0 < c - 1 and maze_chars[r][c - 2] == "#"
-                    else None,
-                    z3_path_e(lt_tile) == r_u
-                    if 0 < c and 0 < r and maze_chars[r - 1][c - 1] == "#"
-                    else None,
-                    z3_path_e(lt_tile) == r_d
-                    if 0 < c and r < height_less_one and maze_chars[r + 1][c - 1] == "#"
-                    else None,
+                    z3_path_e(lt_tile) == r_l if 0 < c - 1 and maze_chars[r][c - 2] == "#" else None,
+                    z3_path_e(lt_tile) == r_u if 0 < c and 0 < r and maze_chars[r - 1][c - 1] == "#" else None,
+                    z3_path_e(lt_tile) == r_d if 0 < c and r < height_less_one and maze_chars[r + 1][c - 1] == "#" else None,
                 ]
             )
             if lt_tile_req != None:
@@ -226,82 +184,37 @@ for r in range(0, height):
                 )
 
             if rt_tile_req != None:
-                solver.add(
-                    z3.Implies(
-                        z3_path_e(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == r_o,
-                        rt_tile_or,
-                    )
-                )
+                solver.add(z3.Implies(z3_path_e(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == r_o, rt_tile_or))
 
             if dn_tile_req != None:
-                solver.add(
-                    z3.Implies(
-                        z3_path_e(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == o_d,
-                        dn_tile_or,
-                    )
-                )
+                solver.add(z3.Implies(z3_path_e(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == o_d, dn_tile_or))
 
             if lt_tile_req != None:
-                solver.add(
-                    z3.Implies(
-                        z3_path_e(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == l_o,
-                        lt_tile_or,
-                    )
-                )
+                solver.add(z3.Implies(z3_path_e(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == l_o, lt_tile_or))
 
             u_d_constraint = [c for c in [up_tile_or, dn_tile_or] if c != None]
             if len(u_d_constraint) > 0:
-                solver.add(
-                    z3.Implies(
-                        z3_path_e(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == u_d,
-                        z3.And(u_d_constraint),
-                    )
-                )
+                solver.add(z3.Implies(z3_path_e(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == u_d, z3.And(u_d_constraint)))
 
             r_l_constraint = [c for c in [lt_tile_or, rt_tile_or] if c != None]
             if len(r_l_constraint) > 0:
-                solver.add(
-                    z3.Implies(
-                        z3_path_e(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == r_l,
-                        z3.And(r_l_constraint),
-                    )
-                )
+                solver.add(z3.Implies(z3_path_e(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == r_l, z3.And(r_l_constraint)))
 
             r_u_constraint = [c for c in [up_tile_or, rt_tile_or] if c != None]
             if len(r_u_constraint) > 0:
-                solver.add(
-                    z3.Implies(
-                        z3_path_e(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == r_u,
-                        z3.And(r_u_constraint),
-                    )
-                )
+                solver.add(z3.Implies(z3_path_e(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == r_u, z3.And(r_u_constraint)))
 
             r_d_constraint = [c for c in [dn_tile_or, rt_tile_or] if c != None]
             if len(r_d_constraint) > 0:
-                solver.add(
-                    z3.Implies(
-                        z3_path_e(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == r_d,
-                        z3.And(r_d_constraint),
-                    )
-                )
+                solver.add(z3.Implies(z3_path_e(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == r_d, z3.And(r_d_constraint)))
 
             l_d_constraint = [c for c in [dn_tile_or, lt_tile_or] if c != None]
             if len(l_d_constraint) > 0:
-                solver.add(
-                    z3.Implies(
-                        z3_path_e(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == l_d,
-                        z3.And(l_d_constraint),
-                    )
-                )
+                solver.add(z3.Implies(z3_path_e(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == l_d, z3.And(l_d_constraint)))
 
             l_u_constraint = [c for c in [up_tile_or, lt_tile_or] if c != None]
             if len(l_u_constraint) > 0:
-                solver.add(
-                    z3.Implies(
-                        z3_path_e(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == l_u,
-                        z3.And(l_u_constraint),
-                    )
-                )
+                solver.add(z3.Implies(z3_path_e(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == l_u, z3.And(l_u_constraint)))
 
 
 for r in range(0, height):
@@ -320,43 +233,19 @@ for r in range(0, height):
             ),
         )
 
-        solver.add(
-            z3.Implies(
-                z3_path_e(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == o_u,
-                some_anima_location,
-            )
-        )
-        solver.add(
-            z3.Implies(
-                z3_path_e(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == r_o,
-                some_anima_location,
-            )
-        )
-        solver.add(
-            z3.Implies(
-                z3_path_e(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == o_d,
-                some_anima_location,
-            )
-        )
-        solver.add(
-            z3.Implies(
-                z3_path_e(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == l_o,
-                some_anima_location,
-            )
-        )
+        solver.add(z3.Implies(z3_path_e(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == o_u, some_anima_location))
+        solver.add(z3.Implies(z3_path_e(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == r_o, some_anima_location))
+        solver.add(z3.Implies(z3_path_e(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == o_d, some_anima_location))
+        solver.add(z3.Implies(z3_path_e(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == l_o, some_anima_location))
 
 for anima in animas:
     solver.add(
         z3.Or(
             [
-                z3_path_e(z3f_anima_location_c(anima), z3f_anima_location_r(anima))
-                == o_u,
-                z3_path_e(z3f_anima_location_c(anima), z3f_anima_location_r(anima))
-                == r_o,
-                z3_path_e(z3f_anima_location_c(anima), z3f_anima_location_r(anima))
-                == o_d,
-                z3_path_e(z3f_anima_location_c(anima), z3f_anima_location_r(anima))
-                == l_o,
+                z3_path_e(z3f_anima_location_c(anima), z3f_anima_location_r(anima)) == o_u,
+                z3_path_e(z3f_anima_location_c(anima), z3f_anima_location_r(anima)) == r_o,
+                z3_path_e(z3f_anima_location_c(anima), z3f_anima_location_r(anima)) == o_d,
+                z3_path_e(z3f_anima_location_c(anima), z3f_anima_location_r(anima)) == l_o,
             ]
         )
     )
