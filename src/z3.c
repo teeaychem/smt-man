@@ -5,7 +5,6 @@
 #include "misc.h"
 #include "smt_z3.h"
 
-#include "clog.h"
 #include "utils/pairs.h"
 #include "z3_api.h"
 #include "z3_optimization.h"
@@ -162,29 +161,19 @@ void z3_tmp(Maze *maze, SmtWorld world) {
   Z3_ast down_left = Z3_mk_app(ctx, path_e_consts[8], 0, 0);
   Z3_ast up_left = Z3_mk_app(ctx, path_e_consts[9], 0, 0);
 
-  Z3_ast empty = Z3_mk_app(ctx, path_e_consts[10], 0, 0);
-
-  /*
-  prove(ctx, solver, Z3_mk_app(ctx, path_e_testers[0], 1, &origin_up));
-
-  prove(ctx, solver, z3_mk_unary_app(ctx, path_e_testers[0], origin_left));
-  prove(ctx, solver, Z3_mk_not(ctx, z3_mk_unary_app(ctx, path_e_testers[3], origin_left)));
-  */
+  Z3_ast no_path = Z3_mk_app(ctx, path_e_consts[10], 0, 0);
 
   //
 
   Z3_func_decl tile_path_f = Z3_mk_func_decl(ctx, Z3_mk_string_symbol(ctx, "path_choice"), 1, (Z3_sort[1]){u8p_s}, tile_path_s);
 
   //
-  printf("Creating tiles...\n");
 
-  Z3_ast maze_pairs[PairI32_area(&maze->size)];
+  Z3_ast maze_pairs[PairI32_area(&maze->size)] = {};
 
   {
-    char r_buff[10] = {};
-    char c_buff[10] = {};
-
-    printf("Creating tiles %d %d...\n", maze->size.x, maze->size.y);
+    char r_buff[20] = {};
+    char c_buff[20] = {};
 
     for (int32_t r = 0; r < maze->size.y; ++r) {
       sprintf(r_buff, "%d", r);
@@ -197,16 +186,11 @@ void z3_tmp(Maze *maze, SmtWorld world) {
                                                             Z3_mk_numeral(ctx, r_buff, u8_s));
 
         if (Maze_abstract_is_path(maze, c, r)) {
-          Z3_optimize_assert_soft(ctx,
-                                  optimizer,
-                                  Z3_mk_eq(ctx, z3_mk_unary_app(ctx, tile_path_f, maze_pairs[r * maze->size.x + c]), empty), "1", NULL);
+          Z3_optimize_assert_soft(ctx, optimizer, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, tile_path_f, maze_pairs[r * maze->size.x + c]), no_path), "1", NULL);
         } else {
-          Z3_optimize_assert(ctx, optimizer, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, tile_path_f, maze_pairs[r * maze->size.x + c]), empty));
+          Z3_optimize_assert(ctx, optimizer, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, tile_path_f, maze_pairs[r * maze->size.x + c]), no_path));
         }
-
-        printf("%c", Maze_abstract_at(maze, c, r));
       }
-      printf("\n");
     }
   }
 
@@ -237,9 +221,9 @@ void z3_tmp(Maze *maze, SmtWorld world) {
 
   Z3_func_decl anima_tile_f = Z3_mk_func_decl(ctx, Z3_mk_string_symbol(ctx, "anima_loc"), 1, (Z3_sort[1]){anima_s}, u8p_s);
 
-  auto gottlob_location = atomic_load(&world.anima[0].abstract_location);
+  PairI32 gottlob_location = atomic_load(&world.anima[0].abstract_location);
   Z3_optimize_assert(ctx, optimizer, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, anima_tile_f, anima_gottlob), maze_pairs[gottlob_location.y * maze->size.x + gottlob_location.x]));
-  auto bertrand_location = atomic_load(&world.anima[1].abstract_location);
+  PairI32 bertrand_location = atomic_load(&world.anima[1].abstract_location);
   Z3_optimize_assert(ctx, optimizer, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, anima_tile_f, anima_bertrand), maze_pairs[bertrand_location.y * maze->size.x + bertrand_location.x]));
 
   for (int32_t r = 0; r < maze->size.y; r++) {
@@ -424,23 +408,22 @@ void z3_tmp(Maze *maze, SmtWorld world) {
   }
 
   auto model = Z3_optimize_get_model(ctx, optimizer);
-
   Z3_model_inc_ref(ctx, model);
 
-  INFO("\nModel:\n%s\n", Z3_model_to_string(ctx, model));
+  /* INFO("\nModel:\n%s\n", Z3_model_to_string(ctx, model)); */
 
   Z3_ast tile_path = NULL;
   for (int32_t r = 0; r < maze->size.y; ++r) {
     for (int32_t c = 0; c < maze->size.x; ++c) {
 
       Z3_model_eval(ctx, model, z3_mk_unary_app(ctx, tile_path_f, maze_pairs[r * maze->size.x + c]), false, &tile_path);
-      if (tile_path == empty) {
-        printf(" ");
-      } else {
-        printf("x");
-      }
+      /* if (tile_path == no_path) { */
+      /*   printf(" "); */
+      /* } else { */
+      /*   printf("x"); */
+      /* } */
     }
-    printf("\n");
+    /* printf("\n"); */
   }
 
   // Cleanup
