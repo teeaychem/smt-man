@@ -12,6 +12,7 @@
 #include <assert.h>
 #include <stdatomic.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
 
 Z3_context z3_mk_anima_ctx() {
@@ -297,45 +298,75 @@ void z3_tmp(Maze *maze, SmtWorld world) {
     }
   }
 
-  for (int32_t r = 0; r < maze->size.y; r++) {
-    sprintf(u8_buff, "%d", r);
-    u8_cr[1] = Z3_mk_numeral(ctx, u8_buff, u8_s);
-    for (int32_t c = 0; c < maze->size.x; c++) {
-      sprintf(u8_buff, "%d", c);
-      u8_cr[0] = Z3_mk_numeral(ctx, u8_buff, u8_s);
+  { // Require a non-origin tile on non-anima tiles
+    for (int32_t r = 0; r < maze->size.y; r++) {
+      sprintf(u8_buff, "%d", r);
+      u8_cr[1] = Z3_mk_numeral(ctx, u8_buff, u8_s);
+      for (int32_t c = 0; c < maze->size.x; c++) {
+        sprintf(u8_buff, "%d", c);
+        u8_cr[0] = Z3_mk_numeral(ctx, u8_buff, u8_s);
 
-      Z3_ast some_anima_location = Z3_mk_or(ctx,
-                                            2,
-                                            (Z3_ast[2]){
-                                                Z3_mk_and(ctx, 2, (Z3_ast[2]){Z3_mk_eq(ctx, z3_mk_unary_app(ctx, anima_tile_col_f, anima_gottlob), u8_cr[0]), Z3_mk_eq(ctx, z3_mk_unary_app(ctx, anima_tile_row_f, anima_gottlob), u8_cr[1])}),
-                                                Z3_mk_and(ctx, 2, (Z3_ast[2]){Z3_mk_eq(ctx, z3_mk_unary_app(ctx, anima_tile_col_f, anima_bertrand), u8_cr[0]), Z3_mk_eq(ctx, z3_mk_unary_app(ctx, anima_tile_row_f, anima_bertrand), u8_cr[1])})});
+        for (size_t anima_idx = 0; anima_idx < ANIMA_COUNT; ++anima_idx) {
+          auto location = atomic_load(&world.anima[anima_idx].abstract_location);
+          if (location.x == c && location.y == r) {
+            goto skip_tile_assertion;
+          }
+        }
 
-      Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, Z3_mk_app(ctx, tile_path_f, 2, u8_cr), origin_up), some_anima_location));
-      Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, Z3_mk_app(ctx, tile_path_f, 2, u8_cr), origin_right), some_anima_location));
-      Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, Z3_mk_app(ctx, tile_path_f, 2, u8_cr), origin_down), some_anima_location));
-      Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, Z3_mk_app(ctx, tile_path_f, 2, u8_cr), origin_left), some_anima_location));
+        Z3_ast tile_path_value = Z3_mk_app(ctx, tile_path_f, 2, u8_cr);
+
+        Z3_optimize_assert(ctx, optimizer, Z3_mk_or(ctx, 7, (Z3_ast[7]){
+                                                                Z3_mk_eq(ctx, tile_path_value, up_down),
+                                                                Z3_mk_eq(ctx, tile_path_value, right_left),
+                                                                Z3_mk_eq(ctx, tile_path_value, up_right),
+                                                                Z3_mk_eq(ctx, tile_path_value, down_right),
+                                                                Z3_mk_eq(ctx, tile_path_value, up_left),
+                                                                Z3_mk_eq(ctx, tile_path_value, down_left),
+                                                                Z3_mk_eq(ctx, tile_path_value, no_path),
+                                                            }));
+      skip_tile_assertion:
+      }
     }
   }
 
-  Z3_ast anima_location_gottlob = Z3_mk_app(ctx, tile_path_f, 2, (Z3_ast[2]){z3_mk_unary_app(ctx, anima_tile_col_f, anima_gottlob), z3_mk_unary_app(ctx, anima_tile_row_f, anima_gottlob)});
-  Z3_optimize_assert(ctx,
-                     optimizer,
-                     Z3_mk_or(ctx,
-                              4,
-                              (Z3_ast[4]){Z3_mk_eq(ctx, anima_location_gottlob, origin_up),
-                                          Z3_mk_eq(ctx, anima_location_gottlob, origin_right),
-                                          Z3_mk_eq(ctx, anima_location_gottlob, origin_down),
-                                          Z3_mk_eq(ctx, anima_location_gottlob, origin_left)}));
+  /*
+  { // Any origin tile must be an anima tile
+    for (int32_t r = 0; r < maze->size.y; r++) {
+      sprintf(u8_buff, "%d", r);
+      u8_cr[1] = Z3_mk_numeral(ctx, u8_buff, u8_s);
+      for (int32_t c = 0; c < maze->size.x; c++) {
+        sprintf(u8_buff, "%d", c);
+        u8_cr[0] = Z3_mk_numeral(ctx, u8_buff, u8_s);
 
-  Z3_ast anima_location_bertrand = Z3_mk_app(ctx, tile_path_f, 2, (Z3_ast[2]){z3_mk_unary_app(ctx, anima_tile_col_f, anima_bertrand), z3_mk_unary_app(ctx, anima_tile_row_f, anima_bertrand)});
-  Z3_optimize_assert(ctx,
-                     optimizer,
-                     Z3_mk_or(ctx,
-                              4,
-                              (Z3_ast[4]){Z3_mk_eq(ctx, anima_location_bertrand, origin_up),
-                                          Z3_mk_eq(ctx, anima_location_bertrand, origin_right),
-                                          Z3_mk_eq(ctx, anima_location_bertrand, origin_down),
-                                          Z3_mk_eq(ctx, anima_location_bertrand, origin_left)}));
+        Z3_ast some_anima_location = Z3_mk_or(ctx,
+                                              2,
+                                              (Z3_ast[2]){
+                                                  Z3_mk_and(ctx, 2, (Z3_ast[2]){Z3_mk_eq(ctx, z3_mk_unary_app(ctx, anima_tile_col_f, anima_gottlob), u8_cr[0]), Z3_mk_eq(ctx, z3_mk_unary_app(ctx, anima_tile_row_f, anima_gottlob), u8_cr[1])}),
+                                                  Z3_mk_and(ctx, 2, (Z3_ast[2]){Z3_mk_eq(ctx, z3_mk_unary_app(ctx, anima_tile_col_f, anima_bertrand), u8_cr[0]), Z3_mk_eq(ctx, z3_mk_unary_app(ctx, anima_tile_row_f, anima_bertrand), u8_cr[1])})});
+
+        Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, Z3_mk_app(ctx, tile_path_f, 2, u8_cr), origin_up), some_anima_location));
+        Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, Z3_mk_app(ctx, tile_path_f, 2, u8_cr), origin_right), some_anima_location));
+        Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, Z3_mk_app(ctx, tile_path_f, 2, u8_cr), origin_down), some_anima_location));
+        Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, Z3_mk_app(ctx, tile_path_f, 2, u8_cr), origin_left), some_anima_location));
+      }
+    }
+  }
+  */
+
+  { // Each anima tile must be an origin tile
+    for (size_t anima_idx = 0; anima_idx < ANIMA_COUNT; ++anima_idx) {
+      Z3_ast anima_ast = Z3_mk_app(ctx, anima_e_consts[anima_idx], 0, 0);
+      Z3_ast anima_tile_location = Z3_mk_app(ctx, tile_path_f, 2, (Z3_ast[2]){z3_mk_unary_app(ctx, anima_tile_col_f, anima_ast), z3_mk_unary_app(ctx, anima_tile_row_f, anima_ast)});
+      Z3_optimize_assert(ctx,
+                         optimizer,
+                         Z3_mk_or(ctx,
+                                  4,
+                                  (Z3_ast[4]){Z3_mk_eq(ctx, anima_tile_location, origin_up),
+                                              Z3_mk_eq(ctx, anima_tile_location, origin_right),
+                                              Z3_mk_eq(ctx, anima_tile_location, origin_down),
+                                              Z3_mk_eq(ctx, anima_tile_location, origin_left)}));
+    }
+  }
 
   // Hm
 
