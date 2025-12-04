@@ -15,8 +15,6 @@
 #include <stdint.h>
 #include <stdio.h>
 
-char U8_BUFFER[20] = {};
-
 constexpr size_t PATH_VARIANTS = 11;
 struct z3_lang {
   Z3_sort u8_sort;
@@ -99,13 +97,14 @@ void Lang_path_setup(struct z3_lang *lang, Z3_context ctx) {
 
 void Lang_assert_path_empty_hints(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, Maze *maze) {
   Z3_ast u8_cr[2] = {};
+  char u8_buffer[20] = {};
 
   for (int32_t r = 0; r < maze->size.y; ++r) {
-    sprintf(U8_BUFFER, "%d", r);
-    u8_cr[1] = Z3_mk_numeral(ctx, U8_BUFFER, lang->u8_sort);
+    sprintf(u8_buffer, "%d", r);
+    u8_cr[1] = Z3_mk_numeral(ctx, u8_buffer, lang->u8_sort);
     for (int32_t c = 0; c < maze->size.x; ++c) {
-      sprintf(U8_BUFFER, "%d", c);
-      u8_cr[0] = Z3_mk_numeral(ctx, U8_BUFFER, lang->u8_sort);
+      sprintf(u8_buffer, "%d", c);
+      u8_cr[0] = Z3_mk_numeral(ctx, u8_buffer, lang->u8_sort);
 
       if (Maze_abstract_is_path(maze, c, r)) {
         Z3_optimize_assert_soft(ctx, optimizer, Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, u8_cr), lang->path.no_no), "1", NULL);
@@ -118,13 +117,14 @@ void Lang_assert_path_empty_hints(struct z3_lang *lang, Z3_context ctx, Z3_optim
 
 void Lang_assert_path_non_empty_hints(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, Maze *maze) {
   Z3_ast u8_cr[2] = {};
+  char u8_buffer[20] = {};
 
   for (int32_t r = 0; r < maze->size.y; r++) {
-    sprintf(U8_BUFFER, "%d", r);
-    u8_cr[1] = Z3_mk_numeral(ctx, U8_BUFFER, lang->u8_sort);
+    sprintf(u8_buffer, "%d", r);
+    u8_cr[1] = Z3_mk_numeral(ctx, u8_buffer, lang->u8_sort);
     for (int32_t c = 0; c < maze->size.x; c++) {
-      sprintf(U8_BUFFER, "%d", c);
-      u8_cr[0] = Z3_mk_numeral(ctx, U8_BUFFER, lang->u8_sort);
+      sprintf(u8_buffer, "%d", c);
+      u8_cr[0] = Z3_mk_numeral(ctx, u8_buffer, lang->u8_sort);
 
       Z3_ast tile_path_value = Z3_mk_app(ctx, lang->path.tile_is_f, 2, u8_cr);
 
@@ -132,34 +132,34 @@ void Lang_assert_path_non_empty_hints(struct z3_lang *lang, Z3_context ctx, Z3_o
 
         Z3_ast up_tile[2] = {};
         if (0 < r) {
-          sprintf(U8_BUFFER, "%d", c);
-          up_tile[0] = Z3_mk_numeral(ctx, U8_BUFFER, lang->u8_sort);
-          sprintf(U8_BUFFER, "%d", r - 1);
-          up_tile[1] = Z3_mk_numeral(ctx, U8_BUFFER, lang->u8_sort);
+          sprintf(u8_buffer, "%d", c);
+          up_tile[0] = Z3_mk_numeral(ctx, u8_buffer, lang->u8_sort);
+          sprintf(u8_buffer, "%d", r - 1);
+          up_tile[1] = Z3_mk_numeral(ctx, u8_buffer, lang->u8_sort);
         }
 
         Z3_ast rt_tile[2] = {};
         if (c + 1 < maze->size.x) {
-          sprintf(U8_BUFFER, "%d", c + 1);
-          rt_tile[0] = Z3_mk_numeral(ctx, U8_BUFFER, lang->u8_sort);
-          sprintf(U8_BUFFER, "%d", r);
-          rt_tile[1] = Z3_mk_numeral(ctx, U8_BUFFER, lang->u8_sort);
+          sprintf(u8_buffer, "%d", c + 1);
+          rt_tile[0] = Z3_mk_numeral(ctx, u8_buffer, lang->u8_sort);
+          sprintf(u8_buffer, "%d", r);
+          rt_tile[1] = Z3_mk_numeral(ctx, u8_buffer, lang->u8_sort);
         }
 
         Z3_ast dn_tile[2] = {};
         if (r + 1 < maze->size.y) {
-          sprintf(U8_BUFFER, "%d", c);
-          dn_tile[0] = Z3_mk_numeral(ctx, U8_BUFFER, lang->u8_sort);
-          sprintf(U8_BUFFER, "%d", r + 1);
-          dn_tile[1] = Z3_mk_numeral(ctx, U8_BUFFER, lang->u8_sort);
+          sprintf(u8_buffer, "%d", c);
+          dn_tile[0] = Z3_mk_numeral(ctx, u8_buffer, lang->u8_sort);
+          sprintf(u8_buffer, "%d", r + 1);
+          dn_tile[1] = Z3_mk_numeral(ctx, u8_buffer, lang->u8_sort);
         }
 
         Z3_ast lt_tile[2] = {};
         if (0 < c) {
-          sprintf(U8_BUFFER, "%d", c - 1);
-          lt_tile[0] = Z3_mk_numeral(ctx, U8_BUFFER, lang->u8_sort);
-          sprintf(U8_BUFFER, "%d", r);
-          lt_tile[1] = Z3_mk_numeral(ctx, U8_BUFFER, lang->u8_sort);
+          sprintf(u8_buffer, "%d", c - 1);
+          lt_tile[0] = Z3_mk_numeral(ctx, u8_buffer, lang->u8_sort);
+          sprintf(u8_buffer, "%d", r);
+          lt_tile[1] = Z3_mk_numeral(ctx, u8_buffer, lang->u8_sort);
         }
 
         size_t up_tile_reqs = 0;
@@ -289,28 +289,31 @@ void Lang_anima_setup(struct z3_lang *lang, Z3_context ctx) {
 }
 
 void Lang_assert_anima_locations(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, SmtWorld *world) {
+  char u8_buffer[20] = {};
+
   for (size_t anima_idx = 0; anima_idx < ANIMA_COUNT; ++anima_idx) {
 
     PairI32 anima_location = atomic_load(&world->anima[anima_idx].abstract_location);
     Z3_ast anima_ast = Z3_mk_app(ctx, lang->anima.enum_consts[anima_idx], 0, 0);
 
-    sprintf(U8_BUFFER, "%d", anima_location.y);
-    Z3_optimize_assert(ctx, optimizer, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, lang->anima.tile_row_f, anima_ast), Z3_mk_numeral(ctx, U8_BUFFER, lang->u8_sort)));
-    sprintf(U8_BUFFER, "%d", anima_location.x);
-    Z3_optimize_assert(ctx, optimizer, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, lang->anima.tile_col_f, anima_ast), Z3_mk_numeral(ctx, U8_BUFFER, lang->u8_sort)));
+    sprintf(u8_buffer, "%d", anima_location.y);
+    Z3_optimize_assert(ctx, optimizer, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, lang->anima.tile_row_f, anima_ast), Z3_mk_numeral(ctx, u8_buffer, lang->u8_sort)));
+    sprintf(u8_buffer, "%d", anima_location.x);
+    Z3_optimize_assert(ctx, optimizer, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, lang->anima.tile_col_f, anima_ast), Z3_mk_numeral(ctx, u8_buffer, lang->u8_sort)));
   }
 }
 
 // Require a non-origin tile on non-anima tiles
 void Lang_assert_all_non_anima_are_non_origin(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, SmtWorld *world, Maze *maze) {
   Z3_ast u8_cr[2] = {};
+  char u8_buffer[20] = {};
 
   for (int32_t r = 0; r < maze->size.y; r++) {
-    sprintf(U8_BUFFER, "%d", r);
-    u8_cr[1] = Z3_mk_numeral(ctx, U8_BUFFER, lang->u8_sort);
+    sprintf(u8_buffer, "%d", r);
+    u8_cr[1] = Z3_mk_numeral(ctx, u8_buffer, lang->u8_sort);
     for (int32_t c = 0; c < maze->size.x; c++) {
-      sprintf(U8_BUFFER, "%d", c);
-      u8_cr[0] = Z3_mk_numeral(ctx, U8_BUFFER, lang->u8_sort);
+      sprintf(u8_buffer, "%d", c);
+      u8_cr[0] = Z3_mk_numeral(ctx, u8_buffer, lang->u8_sort);
 
       for (size_t anima_idx = 0; anima_idx < ANIMA_COUNT; ++anima_idx) {
         auto location = atomic_load(&world->anima[anima_idx].abstract_location);
@@ -353,13 +356,14 @@ void Lang_assert_all_anima_tiles_are_origin_tiles(struct z3_lang *lang, Z3_conte
 // Unused
 void Lang_assert_all_origin_are_anima(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, SmtWorld *world, Maze *maze) {
   Z3_ast u8_cr[2] = {};
+  char u8_buffer[20] = {};
 
   for (int32_t r = 0; r < maze->size.y; r++) {
-    sprintf(U8_BUFFER, "%d", r);
-    u8_cr[1] = Z3_mk_numeral(ctx, U8_BUFFER, lang->u8_sort);
+    sprintf(u8_buffer, "%d", r);
+    u8_cr[1] = Z3_mk_numeral(ctx, u8_buffer, lang->u8_sort);
     for (int32_t c = 0; c < maze->size.x; c++) {
-      sprintf(U8_BUFFER, "%d", c);
-      u8_cr[0] = Z3_mk_numeral(ctx, U8_BUFFER, lang->u8_sort);
+      sprintf(u8_buffer, "%d", c);
+      u8_cr[0] = Z3_mk_numeral(ctx, u8_buffer, lang->u8_sort);
 
       Z3_ast anima_ands[ANIMA_COUNT];
       for (size_t anima_idx = 0; anima_idx < ANIMA_COUNT; ++anima_idx) {
@@ -432,13 +436,16 @@ void z3_tmp(Maze *maze, SmtWorld *world) {
   /* INFO("\nModel:\n%s\n", Z3_model_to_string(ctx, model)); */
 
   Z3_ast u8_cr[2] = {};
+  char u8_buffer[20] = {};
+
   Z3_ast tile_path = NULL;
+
   for (int32_t r = 0; r < maze->size.y; r++) {
-    sprintf(U8_BUFFER, "%d", r);
-    u8_cr[1] = Z3_mk_numeral(ctx, U8_BUFFER, lang.u8_sort);
+    sprintf(u8_buffer, "%d", r);
+    u8_cr[1] = Z3_mk_numeral(ctx, u8_buffer, lang.u8_sort);
     for (int32_t c = 0; c < maze->size.x; c++) {
-      sprintf(U8_BUFFER, "%d", c);
-      u8_cr[0] = Z3_mk_numeral(ctx, U8_BUFFER, lang.u8_sort);
+      sprintf(u8_buffer, "%d", c);
+      u8_cr[0] = Z3_mk_numeral(ctx, u8_buffer, lang.u8_sort);
 
       Z3_model_eval(ctx, model, Z3_mk_app(ctx, lang.path.tile_is_f, 2, u8_cr), false, &tile_path);
       if (tile_path == lang.path.no_no) {
