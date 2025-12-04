@@ -124,7 +124,7 @@ int main(int argc, char **argv) {
   /* begin scratch */
   World_sync_anima();
   printf("scratch begin...\n");
-  z3_tmp(&maze, WORLD);
+  z3_tmp(&maze, &WORLD);
 
   printf("scratch end...\n");
 
