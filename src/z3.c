@@ -335,6 +335,27 @@ Z3_context z3_mk_anima_ctx() {
   return ctx;
 }
 
+void z3_display_path(struct z3_lang *lang, Z3_context ctx, Z3_model model, Maze *maze) {
+  Z3_ast u8_cr[2] = {};
+
+  Z3_ast tile_path = NULL;
+
+  for (int32_t r = 0; r < maze->size.y; r++) {
+    u8_cr[1] = Z3_mk_int(ctx, r, lang->u8_sort);
+    for (int32_t c = 0; c < maze->size.x; c++) {
+      u8_cr[0] = Z3_mk_int(ctx, c, lang->u8_sort);
+
+      Z3_model_eval(ctx, model, Z3_mk_app(ctx, lang->path.tile_is_f, 2, u8_cr), false, &tile_path);
+      if (tile_path == lang->path.no_no) {
+        printf(" ");
+      } else {
+        printf("x");
+      }
+    }
+    printf("\n");
+  }
+}
+
 void z3_tmp(Maze *maze, SmtWorld *world) {
   Z3_context ctx = z3_mk_anima_ctx();
 
@@ -373,25 +394,7 @@ void z3_tmp(Maze *maze, SmtWorld *world) {
   Z3_model_inc_ref(ctx, model);
 
   /* INFO("\nModel:\n%s\n", Z3_model_to_string(ctx, model)); */
-
-  Z3_ast u8_cr[2] = {};
-
-  Z3_ast tile_path = NULL;
-
-  for (int32_t r = 0; r < maze->size.y; r++) {
-    u8_cr[1] = Z3_mk_int(ctx, r, lang.u8_sort);
-    for (int32_t c = 0; c < maze->size.x; c++) {
-      u8_cr[0] = Z3_mk_int(ctx, c, lang.u8_sort);
-
-      Z3_model_eval(ctx, model, Z3_mk_app(ctx, lang.path.tile_is_f, 2, u8_cr), false, &tile_path);
-      if (tile_path == lang.path.no_no) {
-        printf(" ");
-      } else {
-        printf("x");
-      }
-    }
-    printf("\n");
-  }
+  z3_display_path(&lang, ctx, model, maze);
 
   // Cleanup
 
