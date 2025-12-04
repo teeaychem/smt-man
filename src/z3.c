@@ -128,33 +128,14 @@ void Lang_assert_path_non_empty_hints(struct z3_lang *lang, Z3_context ctx, Z3_o
 
       if (Maze_abstract_is_path(maze, c, r)) {
 
-        Z3_ast up_tile[2] = {};
-        if (0 < r) {
-          up_tile[0] = Z3_mk_int(ctx, c, lang->u8_sort);
-          up_tile[1] = Z3_mk_int(ctx, r - 1, lang->u8_sort);
-        }
-
-        Z3_ast rt_tile[2] = {};
-        if (c + 1 < maze->size.x) {
-          rt_tile[0] = Z3_mk_int(ctx, c + 1, lang->u8_sort);
-          rt_tile[1] = Z3_mk_int(ctx, r, lang->u8_sort);
-        }
-
-        Z3_ast dn_tile[2] = {};
-        if (r + 1 < maze->size.y) {
-          dn_tile[0] = Z3_mk_int(ctx, c, lang->u8_sort);
-          dn_tile[1] = Z3_mk_int(ctx, r + 1, lang->u8_sort);
-        }
-
-        Z3_ast lt_tile[2] = {};
-        if (0 < c) {
-          lt_tile[0] = Z3_mk_int(ctx, c - 1, lang->u8_sort);
-          lt_tile[1] = Z3_mk_int(ctx, r, lang->u8_sort);
-        }
-
-        size_t up_tile_reqs = 0;
-        Z3_ast up_tile_or = NULL;
         {
+          Z3_ast up_tile[2] = {};
+          if (0 < r) {
+            up_tile[0] = Z3_mk_int(ctx, c, lang->u8_sort);
+            up_tile[1] = Z3_mk_int(ctx, r - 1, lang->u8_sort);
+          }
+
+          size_t up_tile_reqs = 0;
           Z3_ast up_tile_req[4] = {};
           if (0 < r) {
             up_tile_req[up_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, up_tile), lang->path.og_dn);
@@ -162,13 +143,25 @@ void Lang_assert_path_non_empty_hints(struct z3_lang *lang, Z3_context ctx, Z3_o
             up_tile_req[up_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, up_tile), lang->path.dn_rt);
             up_tile_req[up_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, up_tile), lang->path.dn_lt);
           }
-          up_tile_or = Z3_mk_or(ctx, up_tile_reqs, up_tile_req);
+
+          if (up_tile_reqs != 0) {
+            Z3_ast up_tile_or = Z3_mk_or(ctx, up_tile_reqs, up_tile_req);
+
+            Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang->path.og_up), up_tile_or));
+            Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang->path.up_lt), up_tile_or));
+            Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang->path.up_dn), up_tile_or));
+            Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang->path.up_rt), up_tile_or));
+          }
         }
 
-        size_t rt_tile_reqs = 0;
-        Z3_ast rt_tile_or = NULL;
-
         {
+          Z3_ast rt_tile[2] = {};
+          if (c + 1 < maze->size.x) {
+            rt_tile[0] = Z3_mk_int(ctx, c + 1, lang->u8_sort);
+            rt_tile[1] = Z3_mk_int(ctx, r, lang->u8_sort);
+          }
+
+          size_t rt_tile_reqs = 0;
           Z3_ast rt_tile_req[4] = {};
           if (c + 1 < maze->size.x) {
             rt_tile_req[rt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, rt_tile), lang->path.og_lt);
@@ -176,12 +169,25 @@ void Lang_assert_path_non_empty_hints(struct z3_lang *lang, Z3_context ctx, Z3_o
             rt_tile_req[rt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, rt_tile), lang->path.dn_lt);
             rt_tile_req[rt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, rt_tile), lang->path.up_lt);
           }
-          rt_tile_or = Z3_mk_or(ctx, rt_tile_reqs, rt_tile_req);
+
+          if (rt_tile_reqs != 0) {
+            Z3_ast rt_tile_or = Z3_mk_or(ctx, rt_tile_reqs, rt_tile_req);
+
+            Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang->path.og_rt), rt_tile_or));
+            Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang->path.rt_lt), rt_tile_or));
+            Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang->path.up_rt), rt_tile_or));
+            Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang->path.dn_rt), rt_tile_or));
+          }
         }
 
-        size_t dn_tile_reqs = 0;
-        Z3_ast dn_tile_or = NULL;
         {
+          Z3_ast dn_tile[2] = {};
+          if (r + 1 < maze->size.y) {
+            dn_tile[0] = Z3_mk_int(ctx, c, lang->u8_sort);
+            dn_tile[1] = Z3_mk_int(ctx, r + 1, lang->u8_sort);
+          }
+
+          size_t dn_tile_reqs = 0;
           Z3_ast dn_tile_req[4] = {};
           if (r + 1 < maze->size.y) {
             dn_tile_req[dn_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, dn_tile), lang->path.og_up);
@@ -189,12 +195,25 @@ void Lang_assert_path_non_empty_hints(struct z3_lang *lang, Z3_context ctx, Z3_o
             dn_tile_req[dn_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, dn_tile), lang->path.up_rt);
             dn_tile_req[dn_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, dn_tile), lang->path.up_lt);
           }
-          dn_tile_or = Z3_mk_or(ctx, dn_tile_reqs, dn_tile_req);
+
+          if (dn_tile_reqs != 0) {
+            Z3_ast dn_tile_or = Z3_mk_or(ctx, dn_tile_reqs, dn_tile_req);
+
+            Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang->path.og_dn), dn_tile_or));
+            Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang->path.up_dn), dn_tile_or));
+            Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang->path.dn_rt), dn_tile_or));
+            Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang->path.dn_lt), dn_tile_or));
+          }
         }
 
-        size_t lt_tile_reqs = 0;
-        Z3_ast lt_tile_or = NULL;
         {
+          Z3_ast lt_tile[2] = {};
+          if (0 < c) {
+            lt_tile[0] = Z3_mk_int(ctx, c - 1, lang->u8_sort);
+            lt_tile[1] = Z3_mk_int(ctx, r, lang->u8_sort);
+          }
+
+          size_t lt_tile_reqs = 0;
           Z3_ast lt_tile_req[4] = {};
           if (0 < c) {
             lt_tile_req[lt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, lt_tile), lang->path.og_rt);
@@ -202,71 +221,15 @@ void Lang_assert_path_non_empty_hints(struct z3_lang *lang, Z3_context ctx, Z3_o
             lt_tile_req[lt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, lt_tile), lang->path.dn_rt);
             lt_tile_req[lt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, lt_tile), lang->path.up_rt);
           }
-          lt_tile_or = Z3_mk_or(ctx, lt_tile_reqs, lt_tile_req);
-        }
 
-        if (up_tile_reqs != 0) {
-          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang->path.og_up), up_tile_or));
-        }
+          if (lt_tile_reqs != 0) {
+            Z3_ast lt_tile_or = Z3_mk_or(ctx, lt_tile_reqs, lt_tile_req);
 
-        if (rt_tile_reqs != 0) {
-          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang->path.og_rt), rt_tile_or));
-        }
-
-        if (dn_tile_reqs != 0) {
-          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang->path.og_dn), dn_tile_or));
-        }
-
-        if (lt_tile_reqs != 0) {
-          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang->path.og_lt), lt_tile_or));
-        }
-
-        // up down
-        if (up_tile_reqs != 0) {
-          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang->path.up_dn), up_tile_or));
-        }
-        if (dn_tile_reqs != 0) {
-          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang->path.up_dn), dn_tile_or));
-        }
-
-        // right left
-        if (lt_tile_reqs != 0) {
-          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang->path.rt_lt), lt_tile_or));
-        }
-        if (rt_tile_reqs != 0) {
-          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang->path.rt_lt), rt_tile_or));
-        }
-
-        // up right
-        if (up_tile_reqs != 0) {
-          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang->path.up_rt), up_tile_or));
-        }
-        if (rt_tile_reqs != 0) {
-          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang->path.up_rt), rt_tile_or));
-        }
-
-        // down right
-        if (dn_tile_reqs != 0) {
-          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang->path.dn_rt), dn_tile_or));
-        }
-        if (rt_tile_reqs != 0) {
-          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang->path.dn_rt), rt_tile_or));
-        }
-
-        // up left
-        if (up_tile_reqs != 0) {
-          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang->path.up_lt), up_tile_or));
-        }
-        if (lt_tile_reqs != 0) {
-          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang->path.up_lt), lt_tile_or));
-        }
-
-        // down left
-        if (dn_tile_reqs != 0) {
-          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang->path.dn_lt), dn_tile_or));
-        }
-        if (lt_tile_reqs != 0) {
-          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang->path.dn_lt), lt_tile_or));
+            Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang->path.og_lt), lt_tile_or));
+            Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang->path.rt_lt), lt_tile_or));
+            Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang->path.up_lt), lt_tile_or));
+            Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang->path.dn_lt), lt_tile_or));
+          }
         }
       }
     }
@@ -305,7 +268,6 @@ void Lang_assert_anima_locations(struct z3_lang *lang, Z3_context ctx, Z3_optimi
 // Require a non-origin tile on non-anima tiles
 void Lang_assert_all_non_anima_are_non_origin(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, SmtWorld *world, Maze *maze) {
   Z3_ast u8_cr[2] = {};
-
 
   for (int32_t r = 0; r < maze->size.y; r++) {
     u8_cr[1] = Z3_mk_int(ctx, r, lang->u8_sort);
