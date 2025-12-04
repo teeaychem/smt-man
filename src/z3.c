@@ -122,6 +122,7 @@ void Lang_assert_path_non_empty_hints(struct z3_lang *lang, Z3_context ctx, Z3_o
   for (int32_t r = 0; r < maze->size.y; r++) {
     sprintf(u8_buffer, "%d", r);
     u8_cr[1] = Z3_mk_numeral(ctx, u8_buffer, lang->u8_sort);
+
     for (int32_t c = 0; c < maze->size.x; c++) {
       sprintf(u8_buffer, "%d", c);
       u8_cr[0] = Z3_mk_numeral(ctx, u8_buffer, lang->u8_sort);
@@ -163,45 +164,57 @@ void Lang_assert_path_non_empty_hints(struct z3_lang *lang, Z3_context ctx, Z3_o
         }
 
         size_t up_tile_reqs = 0;
-        Z3_ast up_tile_req[4] = {};
-        if (0 < r) {
-          up_tile_req[up_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, up_tile), lang->path.og_dn);
-          up_tile_req[up_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, up_tile), lang->path.up_dn);
-          up_tile_req[up_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, up_tile), lang->path.dn_rt);
-          up_tile_req[up_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, up_tile), lang->path.dn_lt);
+        Z3_ast up_tile_or = NULL;
+        {
+          Z3_ast up_tile_req[4] = {};
+          if (0 < r) {
+            up_tile_req[up_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, up_tile), lang->path.og_dn);
+            up_tile_req[up_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, up_tile), lang->path.up_dn);
+            up_tile_req[up_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, up_tile), lang->path.dn_rt);
+            up_tile_req[up_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, up_tile), lang->path.dn_lt);
+          }
+          up_tile_or = Z3_mk_or(ctx, up_tile_reqs, up_tile_req);
         }
 
         size_t rt_tile_reqs = 0;
-        Z3_ast rt_tile_req[4] = {};
-        if (c + 1 < maze->size.x) {
-          rt_tile_req[rt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, rt_tile), lang->path.og_lt);
-          rt_tile_req[rt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, rt_tile), lang->path.rt_lt);
-          rt_tile_req[rt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, rt_tile), lang->path.dn_lt);
-          rt_tile_req[rt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, rt_tile), lang->path.up_lt);
+        Z3_ast rt_tile_or = NULL;
+
+        {
+          Z3_ast rt_tile_req[4] = {};
+          if (c + 1 < maze->size.x) {
+            rt_tile_req[rt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, rt_tile), lang->path.og_lt);
+            rt_tile_req[rt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, rt_tile), lang->path.rt_lt);
+            rt_tile_req[rt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, rt_tile), lang->path.dn_lt);
+            rt_tile_req[rt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, rt_tile), lang->path.up_lt);
+          }
+          rt_tile_or = Z3_mk_or(ctx, rt_tile_reqs, rt_tile_req);
         }
 
         size_t dn_tile_reqs = 0;
-        Z3_ast dn_tile_req[4] = {};
-        if (r + 1 < maze->size.y) {
-          dn_tile_req[dn_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, dn_tile), lang->path.og_up);
-          dn_tile_req[dn_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, dn_tile), lang->path.up_dn);
-          dn_tile_req[dn_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, dn_tile), lang->path.up_rt);
-          dn_tile_req[dn_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, dn_tile), lang->path.up_lt);
+        Z3_ast dn_tile_or = NULL;
+        {
+          Z3_ast dn_tile_req[4] = {};
+          if (r + 1 < maze->size.y) {
+            dn_tile_req[dn_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, dn_tile), lang->path.og_up);
+            dn_tile_req[dn_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, dn_tile), lang->path.up_dn);
+            dn_tile_req[dn_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, dn_tile), lang->path.up_rt);
+            dn_tile_req[dn_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, dn_tile), lang->path.up_lt);
+          }
+          dn_tile_or = Z3_mk_or(ctx, dn_tile_reqs, dn_tile_req);
         }
 
         size_t lt_tile_reqs = 0;
-        Z3_ast lt_tile_req[4] = {};
-        if (0 < c) {
-          lt_tile_req[lt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, lt_tile), lang->path.og_rt);
-          lt_tile_req[lt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, lt_tile), lang->path.rt_lt);
-          lt_tile_req[lt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, lt_tile), lang->path.dn_rt);
-          lt_tile_req[lt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, lt_tile), lang->path.up_rt);
+        Z3_ast lt_tile_or = NULL;
+        {
+          Z3_ast lt_tile_req[4] = {};
+          if (0 < c) {
+            lt_tile_req[lt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, lt_tile), lang->path.og_rt);
+            lt_tile_req[lt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, lt_tile), lang->path.rt_lt);
+            lt_tile_req[lt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, lt_tile), lang->path.dn_rt);
+            lt_tile_req[lt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, lt_tile), lang->path.up_rt);
+          }
+          lt_tile_or = Z3_mk_or(ctx, lt_tile_reqs, lt_tile_req);
         }
-
-        Z3_ast up_tile_or = Z3_mk_or(ctx, up_tile_reqs, up_tile_req);
-        Z3_ast rt_tile_or = Z3_mk_or(ctx, rt_tile_reqs, rt_tile_req);
-        Z3_ast dn_tile_or = Z3_mk_or(ctx, dn_tile_reqs, dn_tile_req);
-        Z3_ast lt_tile_or = Z3_mk_or(ctx, lt_tile_reqs, lt_tile_req);
 
         if (up_tile_reqs != 0) {
           Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang->path.og_up), up_tile_or));
