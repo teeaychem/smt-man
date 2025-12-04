@@ -21,6 +21,11 @@ constexpr size_t PATH_VARIANTS = 11;
 struct z3_lang {
   Z3_sort u8_sort;
 
+  struct anima {
+    Z3_func_decl tile_row_f;
+    Z3_func_decl tile_col_f;
+  } anima;
+
   struct path {
     Z3_sort tile_enum_sort;
 
@@ -144,172 +149,175 @@ void z3_tmp(Maze *maze, SmtWorld world) {
                                            anima_e_consts,
                                            anima_e_testers);
 
-  Z3_ast anima_gottlob = Z3_mk_app(ctx, anima_e_consts[0], 0, 0);
-  Z3_ast anima_bertrand = Z3_mk_app(ctx, anima_e_consts[1], 0, 0);
+  { // Anima locations
 
-  // Anima locations
+    { // Setup anima location fns
+      lang.anima.tile_row_f = Z3_mk_func_decl(ctx, Z3_mk_string_symbol(ctx, "anima_loc_row"), 1, (Z3_sort[1]){anima_s}, lang.u8_sort);
+      lang.anima.tile_col_f = Z3_mk_func_decl(ctx, Z3_mk_string_symbol(ctx, "anima_loc_col"), 1, (Z3_sort[1]){anima_s}, lang.u8_sort);
+    }
 
-  Z3_func_decl anima_tile_row_f = Z3_mk_func_decl(ctx, Z3_mk_string_symbol(ctx, "anima_loc_row"), 1, (Z3_sort[1]){anima_s}, lang.u8_sort);
-  Z3_func_decl anima_tile_col_f = Z3_mk_func_decl(ctx, Z3_mk_string_symbol(ctx, "anima_loc_col"), 1, (Z3_sort[1]){anima_s}, lang.u8_sort);
+    { // Assert anima location
+      for (size_t anima_idx = 0; anima_idx < ANIMA_COUNT; ++anima_idx) {
 
-  PairI32 gottlob_location = atomic_load(&world.anima[0].abstract_location);
-  sprintf(U8_BUFFER, "%d", gottlob_location.y);
-  Z3_optimize_assert(ctx, optimizer, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, anima_tile_row_f, anima_gottlob), Z3_mk_numeral(ctx, U8_BUFFER, lang.u8_sort)));
-  sprintf(U8_BUFFER, "%d", gottlob_location.x);
-  Z3_optimize_assert(ctx, optimizer, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, anima_tile_col_f, anima_gottlob), Z3_mk_numeral(ctx, U8_BUFFER, lang.u8_sort)));
+        PairI32 anima_location = atomic_load(&world.anima[anima_idx].abstract_location);
+        Z3_ast anima_ast = Z3_mk_app(ctx, anima_e_consts[anima_idx], 0, 0);
 
-  PairI32 bertrand_location = atomic_load(&world.anima[1].abstract_location);
-  sprintf(U8_BUFFER, "%d", bertrand_location.y);
-  Z3_optimize_assert(ctx, optimizer, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, anima_tile_row_f, anima_bertrand), Z3_mk_numeral(ctx, U8_BUFFER, lang.u8_sort)));
-  sprintf(U8_BUFFER, "%d", bertrand_location.x);
-  Z3_optimize_assert(ctx, optimizer, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, anima_tile_col_f, anima_bertrand), Z3_mk_numeral(ctx, U8_BUFFER, lang.u8_sort)));
+        sprintf(U8_BUFFER, "%d", anima_location.y);
+        Z3_optimize_assert(ctx, optimizer, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, lang.anima.tile_row_f, anima_ast), Z3_mk_numeral(ctx, U8_BUFFER, lang.u8_sort)));
+        sprintf(U8_BUFFER, "%d", anima_location.x);
+        Z3_optimize_assert(ctx, optimizer, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, lang.anima.tile_col_f, anima_ast), Z3_mk_numeral(ctx, U8_BUFFER, lang.u8_sort)));
+      }
+    }
+  }
 
-  for (int32_t r = 0; r < maze->size.y; r++) {
-    sprintf(U8_BUFFER, "%d", r);
-    u8_cr[1] = Z3_mk_numeral(ctx, U8_BUFFER, lang.u8_sort);
-    for (int32_t c = 0; c < maze->size.x; c++) {
-      sprintf(U8_BUFFER, "%d", c);
-      u8_cr[0] = Z3_mk_numeral(ctx, U8_BUFFER, lang.u8_sort);
+  { // Assert tile constraints
+    for (int32_t r = 0; r < maze->size.y; r++) {
+      sprintf(U8_BUFFER, "%d", r);
+      u8_cr[1] = Z3_mk_numeral(ctx, U8_BUFFER, lang.u8_sort);
+      for (int32_t c = 0; c < maze->size.x; c++) {
+        sprintf(U8_BUFFER, "%d", c);
+        u8_cr[0] = Z3_mk_numeral(ctx, U8_BUFFER, lang.u8_sort);
 
-      Z3_ast tile_path_value = Z3_mk_app(ctx, lang.path.tile_is_f, 2, u8_cr);
+        Z3_ast tile_path_value = Z3_mk_app(ctx, lang.path.tile_is_f, 2, u8_cr);
 
-      if (Maze_abstract_is_path(maze, c, r)) {
+        if (Maze_abstract_is_path(maze, c, r)) {
 
-        Z3_ast up_tile[2] = {};
-        if (0 < r) {
-          sprintf(U8_BUFFER, "%d", c);
-          up_tile[0] = Z3_mk_numeral(ctx, U8_BUFFER, lang.u8_sort);
-          sprintf(U8_BUFFER, "%d", r - 1);
-          up_tile[1] = Z3_mk_numeral(ctx, U8_BUFFER, lang.u8_sort);
-        }
+          Z3_ast up_tile[2] = {};
+          if (0 < r) {
+            sprintf(U8_BUFFER, "%d", c);
+            up_tile[0] = Z3_mk_numeral(ctx, U8_BUFFER, lang.u8_sort);
+            sprintf(U8_BUFFER, "%d", r - 1);
+            up_tile[1] = Z3_mk_numeral(ctx, U8_BUFFER, lang.u8_sort);
+          }
 
-        Z3_ast rt_tile[2] = {};
-        if (c + 1 < maze->size.x) {
-          sprintf(U8_BUFFER, "%d", c + 1);
-          rt_tile[0] = Z3_mk_numeral(ctx, U8_BUFFER, lang.u8_sort);
-          sprintf(U8_BUFFER, "%d", r);
-          rt_tile[1] = Z3_mk_numeral(ctx, U8_BUFFER, lang.u8_sort);
-        }
+          Z3_ast rt_tile[2] = {};
+          if (c + 1 < maze->size.x) {
+            sprintf(U8_BUFFER, "%d", c + 1);
+            rt_tile[0] = Z3_mk_numeral(ctx, U8_BUFFER, lang.u8_sort);
+            sprintf(U8_BUFFER, "%d", r);
+            rt_tile[1] = Z3_mk_numeral(ctx, U8_BUFFER, lang.u8_sort);
+          }
 
-        Z3_ast dn_tile[2] = {};
-        if (r + 1 < maze->size.y) {
-          sprintf(U8_BUFFER, "%d", c);
-          dn_tile[0] = Z3_mk_numeral(ctx, U8_BUFFER, lang.u8_sort);
-          sprintf(U8_BUFFER, "%d", r + 1);
-          dn_tile[1] = Z3_mk_numeral(ctx, U8_BUFFER, lang.u8_sort);
-        }
+          Z3_ast dn_tile[2] = {};
+          if (r + 1 < maze->size.y) {
+            sprintf(U8_BUFFER, "%d", c);
+            dn_tile[0] = Z3_mk_numeral(ctx, U8_BUFFER, lang.u8_sort);
+            sprintf(U8_BUFFER, "%d", r + 1);
+            dn_tile[1] = Z3_mk_numeral(ctx, U8_BUFFER, lang.u8_sort);
+          }
 
-        Z3_ast lt_tile[2] = {};
-        if (0 < c) {
-          sprintf(U8_BUFFER, "%d", c - 1);
-          lt_tile[0] = Z3_mk_numeral(ctx, U8_BUFFER, lang.u8_sort);
-          sprintf(U8_BUFFER, "%d", r);
-          lt_tile[1] = Z3_mk_numeral(ctx, U8_BUFFER, lang.u8_sort);
-        }
+          Z3_ast lt_tile[2] = {};
+          if (0 < c) {
+            sprintf(U8_BUFFER, "%d", c - 1);
+            lt_tile[0] = Z3_mk_numeral(ctx, U8_BUFFER, lang.u8_sort);
+            sprintf(U8_BUFFER, "%d", r);
+            lt_tile[1] = Z3_mk_numeral(ctx, U8_BUFFER, lang.u8_sort);
+          }
 
-        size_t up_tile_reqs = 0;
-        Z3_ast up_tile_req[4] = {};
-        if (0 < r) {
-          up_tile_req[up_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang.path.tile_is_f, 2, up_tile), lang.path.og_dn);
-          up_tile_req[up_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang.path.tile_is_f, 2, up_tile), lang.path.up_dn);
-          up_tile_req[up_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang.path.tile_is_f, 2, up_tile), lang.path.dn_rt);
-          up_tile_req[up_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang.path.tile_is_f, 2, up_tile), lang.path.dn_lt);
-        }
+          size_t up_tile_reqs = 0;
+          Z3_ast up_tile_req[4] = {};
+          if (0 < r) {
+            up_tile_req[up_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang.path.tile_is_f, 2, up_tile), lang.path.og_dn);
+            up_tile_req[up_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang.path.tile_is_f, 2, up_tile), lang.path.up_dn);
+            up_tile_req[up_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang.path.tile_is_f, 2, up_tile), lang.path.dn_rt);
+            up_tile_req[up_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang.path.tile_is_f, 2, up_tile), lang.path.dn_lt);
+          }
 
-        size_t rt_tile_reqs = 0;
-        Z3_ast rt_tile_req[4] = {};
-        if (c + 1 < maze->size.x) {
-          rt_tile_req[rt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang.path.tile_is_f, 2, rt_tile), lang.path.og_lt);
-          rt_tile_req[rt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang.path.tile_is_f, 2, rt_tile), lang.path.rt_lt);
-          rt_tile_req[rt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang.path.tile_is_f, 2, rt_tile), lang.path.dn_lt);
-          rt_tile_req[rt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang.path.tile_is_f, 2, rt_tile), lang.path.up_lt);
-        }
+          size_t rt_tile_reqs = 0;
+          Z3_ast rt_tile_req[4] = {};
+          if (c + 1 < maze->size.x) {
+            rt_tile_req[rt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang.path.tile_is_f, 2, rt_tile), lang.path.og_lt);
+            rt_tile_req[rt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang.path.tile_is_f, 2, rt_tile), lang.path.rt_lt);
+            rt_tile_req[rt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang.path.tile_is_f, 2, rt_tile), lang.path.dn_lt);
+            rt_tile_req[rt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang.path.tile_is_f, 2, rt_tile), lang.path.up_lt);
+          }
 
-        size_t dn_tile_reqs = 0;
-        Z3_ast dn_tile_req[4] = {};
-        if (r + 1 < maze->size.y) {
-          dn_tile_req[dn_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang.path.tile_is_f, 2, dn_tile), lang.path.og_up);
-          dn_tile_req[dn_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang.path.tile_is_f, 2, dn_tile), lang.path.up_dn);
-          dn_tile_req[dn_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang.path.tile_is_f, 2, dn_tile), lang.path.up_rt);
-          dn_tile_req[dn_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang.path.tile_is_f, 2, dn_tile), lang.path.up_lt);
-        }
+          size_t dn_tile_reqs = 0;
+          Z3_ast dn_tile_req[4] = {};
+          if (r + 1 < maze->size.y) {
+            dn_tile_req[dn_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang.path.tile_is_f, 2, dn_tile), lang.path.og_up);
+            dn_tile_req[dn_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang.path.tile_is_f, 2, dn_tile), lang.path.up_dn);
+            dn_tile_req[dn_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang.path.tile_is_f, 2, dn_tile), lang.path.up_rt);
+            dn_tile_req[dn_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang.path.tile_is_f, 2, dn_tile), lang.path.up_lt);
+          }
 
-        size_t lt_tile_reqs = 0;
-        Z3_ast lt_tile_req[4] = {};
-        if (0 < c) {
-          lt_tile_req[lt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang.path.tile_is_f, 2, lt_tile), lang.path.og_rt);
-          lt_tile_req[lt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang.path.tile_is_f, 2, lt_tile), lang.path.rt_lt);
-          lt_tile_req[lt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang.path.tile_is_f, 2, lt_tile), lang.path.dn_rt);
-          lt_tile_req[lt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang.path.tile_is_f, 2, lt_tile), lang.path.up_rt);
-        }
+          size_t lt_tile_reqs = 0;
+          Z3_ast lt_tile_req[4] = {};
+          if (0 < c) {
+            lt_tile_req[lt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang.path.tile_is_f, 2, lt_tile), lang.path.og_rt);
+            lt_tile_req[lt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang.path.tile_is_f, 2, lt_tile), lang.path.rt_lt);
+            lt_tile_req[lt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang.path.tile_is_f, 2, lt_tile), lang.path.dn_rt);
+            lt_tile_req[lt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang.path.tile_is_f, 2, lt_tile), lang.path.up_rt);
+          }
 
-        Z3_ast up_tile_or = Z3_mk_or(ctx, up_tile_reqs, up_tile_req);
-        Z3_ast rt_tile_or = Z3_mk_or(ctx, rt_tile_reqs, rt_tile_req);
-        Z3_ast dn_tile_or = Z3_mk_or(ctx, dn_tile_reqs, dn_tile_req);
-        Z3_ast lt_tile_or = Z3_mk_or(ctx, lt_tile_reqs, lt_tile_req);
+          Z3_ast up_tile_or = Z3_mk_or(ctx, up_tile_reqs, up_tile_req);
+          Z3_ast rt_tile_or = Z3_mk_or(ctx, rt_tile_reqs, rt_tile_req);
+          Z3_ast dn_tile_or = Z3_mk_or(ctx, dn_tile_reqs, dn_tile_req);
+          Z3_ast lt_tile_or = Z3_mk_or(ctx, lt_tile_reqs, lt_tile_req);
 
-        if (up_tile_reqs != 0) {
-          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang.path.og_up), up_tile_or));
-        }
+          if (up_tile_reqs != 0) {
+            Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang.path.og_up), up_tile_or));
+          }
 
-        if (rt_tile_reqs != 0) {
-          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang.path.og_rt), rt_tile_or));
-        }
+          if (rt_tile_reqs != 0) {
+            Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang.path.og_rt), rt_tile_or));
+          }
 
-        if (dn_tile_reqs != 0) {
-          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang.path.og_dn), dn_tile_or));
-        }
+          if (dn_tile_reqs != 0) {
+            Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang.path.og_dn), dn_tile_or));
+          }
 
-        if (lt_tile_reqs != 0) {
-          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang.path.og_lt), lt_tile_or));
-        }
+          if (lt_tile_reqs != 0) {
+            Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang.path.og_lt), lt_tile_or));
+          }
 
-        // up down
-        if (up_tile_reqs != 0) {
-          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang.path.up_dn), up_tile_or));
-        }
-        if (dn_tile_reqs != 0) {
-          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang.path.up_dn), dn_tile_or));
-        }
+          // up down
+          if (up_tile_reqs != 0) {
+            Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang.path.up_dn), up_tile_or));
+          }
+          if (dn_tile_reqs != 0) {
+            Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang.path.up_dn), dn_tile_or));
+          }
 
-        // right left
-        if (lt_tile_reqs != 0) {
-          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang.path.rt_lt), lt_tile_or));
-        }
-        if (rt_tile_reqs != 0) {
-          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang.path.rt_lt), rt_tile_or));
-        }
+          // right left
+          if (lt_tile_reqs != 0) {
+            Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang.path.rt_lt), lt_tile_or));
+          }
+          if (rt_tile_reqs != 0) {
+            Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang.path.rt_lt), rt_tile_or));
+          }
 
-        // up right
-        if (up_tile_reqs != 0) {
-          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang.path.up_rt), up_tile_or));
-        }
-        if (rt_tile_reqs != 0) {
-          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang.path.up_rt), rt_tile_or));
-        }
+          // up right
+          if (up_tile_reqs != 0) {
+            Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang.path.up_rt), up_tile_or));
+          }
+          if (rt_tile_reqs != 0) {
+            Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang.path.up_rt), rt_tile_or));
+          }
 
-        // down right
-        if (dn_tile_reqs != 0) {
-          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang.path.dn_rt), dn_tile_or));
-        }
-        if (rt_tile_reqs != 0) {
-          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang.path.dn_rt), rt_tile_or));
-        }
+          // down right
+          if (dn_tile_reqs != 0) {
+            Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang.path.dn_rt), dn_tile_or));
+          }
+          if (rt_tile_reqs != 0) {
+            Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang.path.dn_rt), rt_tile_or));
+          }
 
-        // up left
-        if (up_tile_reqs != 0) {
-          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang.path.up_lt), up_tile_or));
-        }
-        if (lt_tile_reqs != 0) {
-          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang.path.up_lt), lt_tile_or));
-        }
+          // up left
+          if (up_tile_reqs != 0) {
+            Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang.path.up_lt), up_tile_or));
+          }
+          if (lt_tile_reqs != 0) {
+            Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang.path.up_lt), lt_tile_or));
+          }
 
-        // down left
-        if (dn_tile_reqs != 0) {
-          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang.path.dn_lt), dn_tile_or));
-        }
-        if (lt_tile_reqs != 0) {
-          Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang.path.dn_lt), lt_tile_or));
+          // down left
+          if (dn_tile_reqs != 0) {
+            Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang.path.dn_lt), dn_tile_or));
+          }
+          if (lt_tile_reqs != 0) {
+            Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_value, lang.path.dn_lt), lt_tile_or));
+          }
         }
       }
     }
@@ -358,8 +366,8 @@ void z3_tmp(Maze *maze, SmtWorld world) {
         Z3_ast some_anima_location = Z3_mk_or(ctx,
                                               2,
                                               (Z3_ast[2]){
-                                                  Z3_mk_and(ctx, 2, (Z3_ast[2]){Z3_mk_eq(ctx, z3_mk_unary_app(ctx, anima_tile_col_f, anima_gottlob), u8_cr[0]), Z3_mk_eq(ctx, z3_mk_unary_app(ctx, anima_tile_row_f, anima_gottlob), u8_cr[1])}),
-                                                  Z3_mk_and(ctx, 2, (Z3_ast[2]){Z3_mk_eq(ctx, z3_mk_unary_app(ctx, anima_tile_col_f, anima_bertrand), u8_cr[0]), Z3_mk_eq(ctx, z3_mk_unary_app(ctx, anima_tile_row_f, anima_bertrand), u8_cr[1])})});
+                                                  Z3_mk_and(ctx, 2, (Z3_ast[2]){Z3_mk_eq(ctx, z3_mk_unary_app(ctx, lang.anima.tile_col_f, anima_gottlob), u8_cr[0]), Z3_mk_eq(ctx, z3_mk_unary_app(ctx, lang.anima.tile_row_f, anima_gottlob), u8_cr[1])}),
+                                                  Z3_mk_and(ctx, 2, (Z3_ast[2]){Z3_mk_eq(ctx, z3_mk_unary_app(ctx, lang.anima.tile_col_f, anima_bertrand), u8_cr[0]), Z3_mk_eq(ctx, z3_mk_unary_app(ctx, lang.anima.tile_row_f, anima_bertrand), u8_cr[1])})});
 
         Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, Z3_mk_app(ctx, tile_path_f, 2, u8_cr), lang.origin_up), some_anima_location));
         Z3_optimize_assert(ctx, optimizer, Z3_mk_implies(ctx, Z3_mk_eq(ctx, Z3_mk_app(ctx, tile_path_f, 2, u8_cr), lang.origin_right), some_anima_location));
@@ -373,7 +381,7 @@ void z3_tmp(Maze *maze, SmtWorld world) {
   { // Each anima tile must be an origin tile
     for (size_t anima_idx = 0; anima_idx < ANIMA_COUNT; ++anima_idx) {
       Z3_ast anima_ast = Z3_mk_app(ctx, anima_e_consts[anima_idx], 0, 0);
-      Z3_ast anima_tile_location = Z3_mk_app(ctx, lang.path.tile_is_f, 2, (Z3_ast[2]){z3_mk_unary_app(ctx, anima_tile_col_f, anima_ast), z3_mk_unary_app(ctx, anima_tile_row_f, anima_ast)});
+      Z3_ast anima_tile_location = Z3_mk_app(ctx, lang.path.tile_is_f, 2, (Z3_ast[2]){z3_mk_unary_app(ctx, lang.anima.tile_col_f, anima_ast), z3_mk_unary_app(ctx, lang.anima.tile_row_f, anima_ast)});
       Z3_optimize_assert(ctx,
                          optimizer,
                          Z3_mk_or(ctx,
