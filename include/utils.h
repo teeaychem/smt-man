@@ -1,7 +1,8 @@
 #pragma once
 
-#include "utils/pairs.h"
 #include <stdint.h>
+
+#include "utils/pairs.h"
 
 enum direction_e {
   UP,

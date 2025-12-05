@@ -1,16 +1,19 @@
 #pragma once
 
 #include "clog.h"
+#include "z3.h"
+
 #include "constants.h"
 #include "maze.h"
 #include "utils.h"
-#include "z3.h"
 
 constexpr size_t PATH_VARIANTS = 11;
 struct z3_lang {
-  Z3_sort u8_sort;
+  struct {
+    Z3_sort sort;
+  } u8;
 
-  struct anima {
+  struct {
     Z3_sort sort;
 
     Z3_symbol enum_names[ANIMA_COUNT];
@@ -21,16 +24,17 @@ struct z3_lang {
     Z3_func_decl tile_col_f;
 
     Z3_func_decl is_facing;
-    struct {
-      Z3_sort sort;
-
-      Z3_symbol enum_names[4];
-      Z3_func_decl enum_consts[4];
-      Z3_func_decl enum_testers[4];
-    } facing;
   } anima;
 
-  struct path {
+  struct {
+    Z3_sort sort;
+
+    Z3_symbol enum_names[4];
+    Z3_func_decl enum_consts[4];
+    Z3_func_decl enum_testers[4];
+  } direction;
+
+  struct {
     Z3_sort tile_enum_sort;
 
     Z3_symbol enum_names[PATH_VARIANTS];
@@ -98,6 +102,7 @@ struct smt_world_t {
 
 //
 
+void Lang_base_setup(struct z3_lang *lang, Z3_context ctx);
 void Lang_path_setup(struct z3_lang *lang, Z3_context ctx);
 void Lang_assert_path_empty_hints(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, Maze *maze);
 void Lang_assert_path_non_empty_hints(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, Maze *maze);
@@ -112,7 +117,7 @@ void Lang_assert_all_origin_are_anima(struct z3_lang *lang, Z3_context ctx, Z3_o
 
 //
 
-void Lang_anima_facing_setup(struct z3_lang *lang, Z3_context ctx);
+void Lang_facing_setup(struct z3_lang *lang, Z3_context ctx);
 
 //
 

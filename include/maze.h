@@ -1,12 +1,12 @@
 #pragma once
 
-#include "utils/pairs.h"
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <sys/syslog.h>
 
 #include "constants.h"
+#include "utils/pairs.h"
 
 struct maze_t {
 
