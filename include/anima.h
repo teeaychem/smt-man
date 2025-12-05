@@ -10,9 +10,6 @@
 #include "surface.h"
 #include "utils.h"
 
-#include "cvc5/c/cvc5.h"
-#include "cvc5/c/cvc5_parser.h"
-
 #include "logic.h"
 #include "utils/pairs.h"
 
@@ -20,11 +17,9 @@
 
 typedef struct mind_t Mind;
 struct mind_t {
-  Cvc5 *solver;
-  Cvc5TermManager *tm;
-  Cvc5SymbolManager *sm;
-  Cvc5InputParser *parser;
-
+  Z3_optimize solver;
+  Z3_context ctx;
+  struct z3_lang lang;
   SmtLot lot;
 };
 

@@ -29,7 +29,6 @@
           default = pkgs.mkShell {
             buildInputs = [
               pkgs.criterion
-              pkgs.cvc5
               pkgs.doxygen
               pkgs.glib
               pkgs.libpng

@@ -63,20 +63,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE criterion)
 # find_package(z3 REQUIRED CONFIG)
 target_link_libraries(${PROJECT_NAME} PRIVATE z3)
 
-## Submodules
-
-### cvc5
-
-# pkg_check_modules(cvc5 REQUIRED cvc5)
-find_package(cvc5)
-target_link_libraries(${PROJECT_NAME} PRIVATE cvc5::cvc5 cvc5::cvc5parser)
-target_include_directories(
-    ${PROJECT_NAME}
-    PRIVATE
-        ${PROJECT_SOURCE_DIR}/deps/cvc5/build/include
-        ${PROJECT_SOURCE_DIR}/deps/cvc5/include
-)
-
 ## FetchContent
 
 include(FetchContent)
