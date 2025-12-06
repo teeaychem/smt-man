@@ -1,17 +1,16 @@
-#include "anima.h"
-#include "logic.h"
+#include <stdatomic.h>
+#include <stdint.h>
 
+#include "anima.h"
 #include "constants.h"
+#include "logic.h"
 #include "maze.h"
 #include "utils.h"
 #include "utils/pairs.h"
-#include <stdatomic.h>
-#include <stdint.h>
-#include <stdio.h>
 
 Anima Anima_create(uint8_t id, PairI32 location, Direction intent, Direction momentum, PairI32 sprite_size) {
   static char *ANIMA_NAMES[2] = {"gottlob", "bertrand"};
-  printf("Creating anima: %s", ANIMA_NAMES[id]);
+  g_log(NULL, G_LOG_LEVEL_INFO, "Creating anima: %s", ANIMA_NAMES[id]);
 
   Anima self = {
       .id = id,

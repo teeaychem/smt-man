@@ -29,7 +29,7 @@ void z3_display_path(struct z3_lang *lang, Z3_context ctx, Z3_model model, Maze 
         putchar('x');
       }
     }
-    printf("\n");
+    putchar('\n');
   }
 }
 
@@ -56,20 +56,20 @@ void z3_tmp(Maze *maze, SmtWorld *world) {
   // Checks
   switch (Z3_optimize_check(ctx, optimizer, 0, NULL)) {
   case Z3_L_FALSE: {
-    g_message("UNSAT\n");
+    g_message("UNSAT");
   } break;
   case Z3_L_UNDEF: {
-    g_message("UNKNOWN\n");
+    g_message("UNKNOWN");
   } break;
   case Z3_L_TRUE: {
-    g_message("SAT\n");
+    g_message("SAT");
   } break;
   }
 
   auto model = Z3_optimize_get_model(ctx, optimizer);
   Z3_model_inc_ref(ctx, model);
 
-  g_log(NULL, G_LOG_LEVEL_INFO, "\nModel:\n%s\n", Z3_model_to_string(ctx, model));
+  g_log(NULL, G_LOG_LEVEL_INFO, "\nModel:\n%s", Z3_model_to_string(ctx, model));
   z3_display_path(&lang, ctx, model, maze);
 
   // Cleanup

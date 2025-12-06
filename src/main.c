@@ -11,6 +11,7 @@
 #include <whereami.h>
 
 #include "anima.h"
+#include "glib.h"
 #include "logic.h"
 #include "maze.h"
 #include "misc.h"
@@ -33,8 +34,6 @@ SpriteInfo ANIMA_SPRITES[ANIMA_COUNT];
 pthread_t ANIMA_THREADS[ANIMA_COUNT];
 
 SmtWorld WORLD = {};
-
-SDL_Window *gWindow = NULL;
 
 size_t SOURCE_PATH_SIZE;
 char *SOURCE_PATH;
@@ -123,10 +122,10 @@ int main(int argc, char **argv) {
 
   /* begin scratch */
   World_sync_anima();
-  printf("scratch begin...\n");
+  g_message("scratch begin...");
   z3_tmp(&maze, &WORLD);
 
-  printf("scratch end...\n");
+  g_message("scratch end...");
 
   /* end scratch */
 
@@ -219,7 +218,7 @@ int main(int argc, char **argv) {
     Surface_destroy(&ANIMA_SPRITES[idx].surface);
   }
 
-  printf("good-bye\n");
+  g_message("good-bye");
 
   return exitCode;
 }

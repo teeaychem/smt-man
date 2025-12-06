@@ -32,4 +32,6 @@ void Renderer_erase_sprite(Renderer *self,
                            PairI32 location,
                            SpriteInfo *sprite_info);
 
-void Renderer_fill_tile(Renderer *self, PairI32 pos, int32_t colour);
+void Renderer_fill_tile(Renderer *self,
+                        PairI32 pos,
+                        int32_t colour);

@@ -79,7 +79,7 @@ void Anima_deduct(Anima *self, Mind *mind) {
   case Z3_L_TRUE: {
   } break;
   default: {
-    printf("UNSAT deduction %d\n", self->id);
+    g_log(NULL, G_LOG_LEVEL_CRITICAL, "UNSAT deduction %d", self->id);
     exit(-3);
   } break;
   }
@@ -101,7 +101,7 @@ void Anima_deduct(Anima *self, Mind *mind) {
   } else if (anima_direction == lt) {
     atomic_store(&self->pov.anima[self->id].intent, LEFT);
   } else {
-    printf("No direction");
+    g_log(NULL, G_LOG_LEVEL_WARNING, "No direction");
     exit(-1);
   }
 
