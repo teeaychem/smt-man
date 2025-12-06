@@ -26,14 +26,6 @@ Mind Mind_default();
 
 // Animas
 
-typedef struct sprite_info_t SpriteInfo;
-struct sprite_info_t {
-  PairI32 size;
-  Surface surface;
-  PairI32 surface_offset;
-  uint32_t tick;
-};
-
 typedef struct anima_sync_t AnimaSync;
 struct anima_sync_t {
   _Atomic(bool) flag_suspend;

@@ -1,13 +1,13 @@
 #pragma once
 
-#include "anima.h"
-#include "logic.h"
-#include "utils/pairs.h"
+#include <stddef.h>
+
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
 
-#include <stddef.h>
+#include "render/sprite.h"
+#include "utils/pairs.h"
 
 typedef struct renderer_t Renderer;
 struct renderer_t {
