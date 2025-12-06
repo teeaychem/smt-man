@@ -24,9 +24,9 @@ void z3_display_path(struct z3_lang *lang, Z3_context ctx, Z3_model model, Maze 
 
       Z3_model_eval(ctx, model, Z3_mk_app(ctx, lang->path.tile_is_f, 2, u8_cr), false, &tile_path);
       if (tile_path == lang->path.et_et) {
-        printf(" ");
+        putchar(' ');
       } else {
-        printf("x");
+        putchar('x');
       }
     }
     printf("\n");
@@ -56,20 +56,20 @@ void z3_tmp(Maze *maze, SmtWorld *world) {
   // Checks
   switch (Z3_optimize_check(ctx, optimizer, 0, NULL)) {
   case Z3_L_FALSE: {
-    printf("UNSAT\n");
+    g_message("UNSAT\n");
   } break;
   case Z3_L_UNDEF: {
-    printf("UNKNOWN\n");
+    g_message("UNKNOWN\n");
   } break;
   case Z3_L_TRUE: {
-    printf("SAT\n");
+    g_message("SAT\n");
   } break;
   }
 
   auto model = Z3_optimize_get_model(ctx, optimizer);
   Z3_model_inc_ref(ctx, model);
 
-  /* INFO("\nModel:\n%s\n", Z3_model_to_string(ctx, model)); */
+  g_log(NULL, G_LOG_LEVEL_INFO, "\nModel:\n%s\n", Z3_model_to_string(ctx, model));
   z3_display_path(&lang, ctx, model, maze);
 
   // Cleanup

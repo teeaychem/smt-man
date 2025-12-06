@@ -1,6 +1,6 @@
 #pragma once
 
-#include "clog.h"
+#include "glib.h"
 #include "z3.h"
 
 #include "constants.h"
@@ -133,7 +133,7 @@ void Lang_facing_setup(struct z3_lang *lang, Z3_context ctx);
 //
 
 static inline void error_handler(Z3_context ctx, Z3_error_code code) {
-  ERROR("Z3 Error (#%d): %s\n", code, Z3_get_error_msg(ctx, code));
+  g_log(NULL, G_LOG_LEVEL_ERROR, "Z3 Error (#%d): %s\n", code, Z3_get_error_msg(ctx, code));
   exit(3);
 }
 
