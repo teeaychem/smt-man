@@ -11,7 +11,7 @@
 #include "utils/pairs.h"
 
 void next_line(FILE *file) {
-  char c;
+  char c = ' ';
   while (c != EOF && c != '\n') {
     c = fgetc(file);
   }
@@ -44,14 +44,14 @@ Maze Maze_create(char *path) {
 
     case 'w': {
       if (!fscanf(file_ptr, "%" SCNu32, &(self.size.x))) {
-        printf("Failed to read maze width");
+        g_log(NULL, G_LOG_LEVEL_WARNING, "Failed to read maze width: %s", path);
         preamble_ok = false;
       };
     } break;
 
     case 'h': {
       if (!fscanf(file_ptr, "%" SCNu32, &(self.size.y))) {
-        printf("Failed to read maze height");
+        g_log(NULL, G_LOG_LEVEL_WARNING, "Failed to read maze height: %s", path);
         preamble_ok = false;
       };
     } break;
@@ -71,15 +71,16 @@ Maze Maze_create(char *path) {
   }
 
   if ((self.size.x % TILE_COUNTS.x) != 0 | (self.size.y % TILE_COUNTS.y) != 0) {
-    printf("Maze dimension %dx%d is not an integer scale of %dx%d",
-           self.size.x, self.size.y,
-           TILE_COUNTS.x, TILE_COUNTS.y);
+    g_log(NULL,
+          G_LOG_LEVEL_WARNING,
+          "Maze dimension %dx%d is not an integer scale of %dx%d", self.size.x, self.size.y, TILE_COUNTS.x, TILE_COUNTS.y);
+
     preamble_ok = false;
   }
 
   if (!preamble_ok) {
-    printf("Failed to construct maze");
     fclose(file_ptr);
+    g_log(NULL, G_LOG_LEVEL_CRITICAL, "Failed to construct maze: %s", path);
     exit(1);
   }
 
@@ -87,13 +88,8 @@ Maze Maze_create(char *path) {
   self.pixels = malloc(PairI32_area(&PIXEL_DIMENSIONS) * sizeof(*self.pixels));
   memset(self.pixels, '\0', PairI32_area(&PIXEL_DIMENSIONS));
 
-  int32_t x_scale = PIXEL_DIMENSIONS.x / self.size.x;
-  int32_t y_scale = PIXEL_DIMENSIONS.y / self.size.y;
-
   int32_t pos_x = 0;
   int32_t pos_y = 0;
-
-  int32_t tile_idx = 0;
 
   while ((read = fgetc(file_ptr)) != EOF) {
     switch (read) {
@@ -107,7 +103,8 @@ Maze Maze_create(char *path) {
 
     case '\n': {
       if (pos_x != self.size.x) {
-        printf("x_x"), exit(-1);
+        g_log(NULL, G_LOG_LEVEL_CRITICAL, "Invalid row width: %s", path);
+        exit(-1);
       }
       pos_y += 1;
     } break;
@@ -130,12 +127,13 @@ Maze Maze_create(char *path) {
   }
 
   if (pos_y != self.size.y) {
-    printf("y_y"), exit(-1);
+    g_log(NULL, G_LOG_LEVEL_CRITICAL, "Invalid col height: %s", path);
+    exit(-1);
   }
 
   fclose(file_ptr);
 
-  printf("Constructed maze %dx%d (%zu)", self.size.x, self.size.y, tile_count);
+  g_log(NULL, G_LOG_LEVEL_INFO, "Constructed maze %dx%d (%zu)", self.size.x, self.size.y, tile_count);
 
   return self;
 }
@@ -148,11 +146,11 @@ void Maze_destroy(Maze *self) {
 void Maze_pixel_stdout(Maze *self) {
   for (size_t y = 0; y < PIXEL_DIMENSIONS.y; ++y) {
     for (size_t x = 0; x < PIXEL_DIMENSIONS.x; ++x) {
-      printf("%c", self->pixels[(y * PIXEL_DIMENSIONS.x) + x]);
+      putchar(self->pixels[(y * PIXEL_DIMENSIONS.x) + x]);
     }
 
     if (y + TILE_SCALE < PIXEL_DIMENSIONS.y) {
-      printf("\n");
+      putchar('\n');
     }
   }
 }
@@ -160,8 +158,8 @@ void Maze_pixel_stdout(Maze *self) {
 void Maze_abstract_stdout(Maze *self) {
   for (int32_t c = 0; c < self->size.y; ++c) {
     for (int32_t r = 0; r < self->size.x; ++r) {
-      printf("%c", Maze_abstract_at(self, r, c));
+      putchar(Maze_abstract_at(self, r, c));
     }
-    printf("\n");
+    putchar('\n');
   }
 }
