@@ -88,7 +88,8 @@ struct smt_world_anima_t {
   _Atomic(Direction) intent;
   _Atomic(Direction) momentum;
   _Atomic(AnimaStatus) status;
-  _Atomic(AnimaStatus) velocity;
+
+  _Atomic(int8_t) velocity;
 };
 
 typedef struct smt_world_t SmtWorld;
