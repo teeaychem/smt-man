@@ -4,12 +4,12 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "glib.h"
 #include "z3.h"
 
 #include "logic.h"
 #include "maze.h"
 #include "misc.h"
-#include "smt_z3.h"
 #include "utils/pairs.h"
 
 void z3_display_path(struct z3_lang *lang, Z3_context ctx, Z3_model model, Maze *maze) {
