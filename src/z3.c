@@ -49,7 +49,7 @@ void z3_tmp(Maze *maze, SmtWorld *world) {
   Lang_assert_path_non_empty_hints(&lang, ctx, optimizer, maze);
 
   Lang_assert_all_non_anima_are_non_origin(&lang, ctx, optimizer, world, maze);
-  Lang_assert_all_anima_tiles_are_origin_tiles(&lang, ctx, optimizer, world, maze);
+  Lang_assert_all_anima_tiles_are_origin_tiles(&lang, ctx, optimizer);
 
   Lang_assert_anima_locations(&lang, ctx, optimizer, world);
 

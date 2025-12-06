@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <pthread.h>
 #include <stdatomic.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -35,7 +36,7 @@ pthread_t ANIMA_THREADS[ANIMA_COUNT];
 
 SmtWorld WORLD = {};
 
-size_t SOURCE_PATH_SIZE;
+int SOURCE_PATH_SIZE;
 char *SOURCE_PATH;
 
 void *spirit(void *_anima) {
@@ -150,7 +151,7 @@ int main(int argc, char **argv) {
     SDL_zero(event);
 
     // Draw the maze only once...
-    for (size_t pxl = 0; pxl < PairI32_area(&PIXEL_DIMENSIONS); ++pxl) {
+    for (int32_t pxl = 0; pxl < PairI32_area(&PIXEL_DIMENSIONS); ++pxl) {
       if (maze.pixels[pxl] != '#') {
         renderer.frame_buffer[pxl] = 0xffffffff;
       }

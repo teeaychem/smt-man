@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 #include "SDL3/SDL_error.h"
-#include "anima.h"
+
 #include "constants.h"
 #include "render/render.h"
 #include "utils/pairs.h"
@@ -71,8 +71,8 @@ void Renderer_update(Renderer *self) {
 }
 
 void Renderer_draw_sprite(Renderer *self, PairI32 position, SpriteInfo *sprite_info) {
-  for (size_t row = 0; row < sprite_info->size.y; ++row) {
-    for (size_t col = 0; col < sprite_info->size.x; ++col) {
+  for (int32_t row = 0; row < sprite_info->size.y; ++row) {
+    for (int32_t col = 0; col < sprite_info->size.x; ++col) {
       size_t pixel_fb = (position.y + col) * PIXEL_DIMENSIONS.x + position.x + row;
       if ((self->frame_buffer[pixel_fb] | 0x00000000) == 0x00000000) {
         size_t pixel_s = (sprite_info->surface_offset.y + col) * sprite_info->surface.size.x + sprite_info->surface_offset.x + row;
@@ -83,8 +83,8 @@ void Renderer_draw_sprite(Renderer *self, PairI32 position, SpriteInfo *sprite_i
 }
 
 void Renderer_erase_sprite(Renderer *self, PairI32 position, SpriteInfo *sprite_info) {
-  for (size_t row = 0; row < sprite_info->size.y; ++row) {
-    for (size_t col = 0; col < sprite_info->size.x; ++col) {
+  for (int32_t row = 0; row < sprite_info->size.y; ++row) {
+    for (int32_t col = 0; col < sprite_info->size.x; ++col) {
       size_t pixel_fb = (position.y + col) * PIXEL_DIMENSIONS.x + position.x + row;
       size_t pixel_s = (sprite_info->surface_offset.y + col) * sprite_info->surface.size.x + sprite_info->surface_offset.x + row;
       if (self->frame_buffer[pixel_fb] == sprite_info->surface.pixels[pixel_s]) {

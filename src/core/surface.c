@@ -4,29 +4,25 @@
 
 Surface Surface_from_path(char *path) {
 
-  Surface surface;
+  Surface surface = {};
 
   png_image image;
 
   memset(&image, 0, sizeof(image));
   image.version = PNG_IMAGE_VERSION;
 
-  if (png_image_begin_read_from_file(&image, path) != 0) {
+  if (png_image_begin_read_from_file(&image, path)) {
     image.format = PNG_FORMAT_RGBA;
 
     surface.size.x = image.width;
     surface.size.y = image.height;
-
-    surface.pixels = malloc(image.width * image.height * sizeof(*surface.pixels));
+    surface.pixels = malloc(PNG_IMAGE_SIZE(image));
 
     if (surface.pixels != NULL &&
         png_image_finish_read(&image, NULL, surface.pixels, 0, NULL) != 0) {
     } else {
-      if (surface.pixels == NULL)
-        png_image_free(&image);
-      else {
-        free(surface.pixels);
-      }
+      png_image_free(&image);
+      free(surface.pixels);
     }
   }
 

@@ -269,7 +269,7 @@ void Lang_assert_all_non_anima_are_non_origin(struct z3_lang *lang, Z3_context c
   }
 }
 
-void Lang_assert_all_anima_tiles_are_origin_tiles(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, SmtWorld *world, Maze *maze) {
+void Lang_assert_all_anima_tiles_are_origin_tiles(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer) {
 
   for (size_t anima_idx = 0; anima_idx < ANIMA_COUNT; ++anima_idx) {
 
@@ -289,7 +289,7 @@ void Lang_assert_all_anima_tiles_are_origin_tiles(struct z3_lang *lang, Z3_conte
 }
 
 // Unused
-void Lang_assert_all_origin_are_anima(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, SmtWorld *world, Maze *maze) {
+void Lang_assert_all_origin_are_anima(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, Maze *maze) {
 
   Z3_ast u8_col_row[2] = {};
 

@@ -20,6 +20,7 @@ Mind Mind_default() {
 }
 
 void Anima_touch(Anima *self, Mind *mind) {
+  assert(self != NULL);
 
   Lang_base_setup(&mind->lang, mind->ctx);
   Lang_path_setup(&mind->lang, mind->ctx);

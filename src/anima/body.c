@@ -39,6 +39,7 @@ Anima Anima_create(uint8_t id, PairI32 location, Direction intent, Direction mom
 }
 
 void Anima_destroy(Anima *self) {
+  assert(self != NULL);
 }
 
 void Anima_handle_event(Anima *self, SDL_Event *event) {
@@ -120,4 +121,5 @@ void Anima_move(Anima *self, Maze *maze) {
 }
 
 void Anima_instinct(Anima *self) {
+  assert(self != NULL);
 }
