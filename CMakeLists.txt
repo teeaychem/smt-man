@@ -57,24 +57,29 @@ find_package(PNG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE PNG::PNG)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PNG_INCLUDE_DIRS})
 
-find_package(Criterion REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE criterion)
+# find_package(Criterion REQUIRED)
+# target_link_libraries(${PROJECT_NAME} PRIVATE criterion)
 
 # find_package(z3 REQUIRED CONFIG)
 target_link_libraries(${PROJECT_NAME} PRIVATE z3)
+
+pkg_check_modules(GLIB2 glib-2.0)
+find_package(PkgConfig REQUIRED)
+pkg_search_module(GLIB REQUIRED glib-2.0)
+target_include_directories(${PROJECT_NAME} PRIVATE ${GLIB_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${GLIB_LIBRARIES})
 
 ## FetchContent
 
 include(FetchContent)
 
-FetchContent_Declare(
-    clog
-    GIT_REPOSITORY https://github.com/0xA1M/clog.git
-    GIT_TAG main
-)
-FetchContent_MakeAvailable(clog)
-message("? ${clog_SOURCE_DIR}")
-target_include_directories(${PROJECT_NAME} PRIVATE ${clog_SOURCE_DIR})
+# FetchContent_Declare(
+#     clog
+#     GIT_REPOSITORY https://github.com/0xA1M/clog.git
+#     GIT_TAG main
+# )
+# FetchContent_MakeAvailable(clog)
+# target_include_directories(${PROJECT_NAME} PRIVATE ${clog_SOURCE_DIR})
 
 FetchContent_Declare(
     cwalk

@@ -11,9 +11,7 @@
     let
       lib = nixpkgs.lib;
       systems = [
-        "x86_64-linux"
         "aarch64-linux"
-        "x86_64-darwin"
         "aarch64-darwin"
       ];
     in
@@ -29,8 +27,12 @@
           default = pkgs.mkShell {
             buildInputs = [
               pkgs.criterion
-              pkgs.doxygen
+
+              pkgs.boxfort
+              pkgs.libsysprof-capture
+              pkgs.pcre2
               pkgs.glib
+
               pkgs.libpng
               pkgs.sdl3
               pkgs.z3
