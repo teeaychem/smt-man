@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "constants.h"
+#include "glib.h"
 #include "maze.h"
 #include "utils/pairs.h"
 
@@ -24,18 +25,15 @@ Maze Maze_create(char *path) {
   size_t tile_count = 0;
   bool preamble_ok = true;
 
-  FILE *file = fopen(path, "r");
-  if (!file) {
-    printf("%p ? %d", file, file == NULL);
-    printf("%s\n", path);
-    printf("Failed to open maze from: %s", path);
+  FILE *file_ptr = fopen(path, "r");
+  if (file_ptr == NULL) {
+    g_log(NULL, G_LOG_LEVEL_CRITICAL, "Failed to open maze from: %s", path);
     exit(1);
   }
 
-  char read;
-
+  char read = ' ';
   while (read != EOF) {
-    read = fgetc(file);
+    read = fgetc(file_ptr);
 
     switch (read) {
     case EOF:
@@ -45,21 +43,21 @@ Maze Maze_create(char *path) {
     } break;
 
     case 'w': {
-      if (!fscanf(file, "%" SCNu32, &(self.size.x))) {
+      if (!fscanf(file_ptr, "%" SCNu32, &(self.size.x))) {
         printf("Failed to read maze width");
         preamble_ok = false;
       };
     } break;
 
     case 'h': {
-      if (!fscanf(file, "%" SCNu32, &(self.size.y))) {
+      if (!fscanf(file_ptr, "%" SCNu32, &(self.size.y))) {
         printf("Failed to read maze height");
         preamble_ok = false;
       };
     } break;
 
     case 'm': {
-      ungetc(read, file);
+      ungetc(read, file_ptr);
       read = EOF;
     } break;
 
@@ -68,7 +66,7 @@ Maze Maze_create(char *path) {
     }
 
     if (read != EOF) {
-      next_line(file);
+      next_line(file_ptr);
     }
   }
 
@@ -81,6 +79,7 @@ Maze Maze_create(char *path) {
 
   if (!preamble_ok) {
     printf("Failed to construct maze");
+    fclose(file_ptr);
     exit(1);
   }
 
@@ -96,10 +95,10 @@ Maze Maze_create(char *path) {
 
   int32_t tile_idx = 0;
 
-  while ((read = fgetc(file)) != EOF) {
+  while ((read = fgetc(file_ptr)) != EOF) {
     switch (read) {
     case 'c': {
-      next_line(file);
+      next_line(file_ptr);
     } break;
 
     case 'm': {
@@ -134,6 +133,8 @@ Maze Maze_create(char *path) {
     printf("y_y"), exit(-1);
   }
 
+  fclose(file_ptr);
+
   printf("Constructed maze %dx%d (%zu)", self.size.x, self.size.y, tile_count);
 
   return self;
@@ -143,7 +144,6 @@ void Maze_destroy(Maze *self) {
   free(self->abstract);
   free(self->pixels);
 }
-
 
 void Maze_pixel_stdout(Maze *self) {
   for (size_t y = 0; y < PIXEL_DIMENSIONS.y; ++y) {
