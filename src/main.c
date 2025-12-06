@@ -88,7 +88,7 @@ void update_anima_sprite(uint8_t anima_id, SpriteInfo *sprite_info) {
 
 void World_sync_anima() {
   for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
-    atomic_store(&WORLD.anima[idx].abstract_location, atomic_load(&ANIMAS[idx].pov.anima[idx].abstract_location));
+    atomic_store(&WORLD.anima[idx].location, atomic_load(&ANIMAS[idx].pov.anima[idx].location));
   }
 }
 

@@ -1,6 +1,7 @@
 #include "logic.h"
 #include "macro.h"
 #include "utils/pairs.h"
+#include <stdatomic.h>
 
 Z3_context z3_mk_anima_ctx() {
 
@@ -223,7 +224,7 @@ void Lang_assert_anima_locations(struct z3_lang *lang, Z3_context ctx, Z3_optimi
 
   for (size_t anima_idx = 0; anima_idx < ANIMA_COUNT; ++anima_idx) {
 
-    PairI32 anima_location = atomic_load(&world->anima[anima_idx].abstract_location);
+    PairI32 anima_location = atomic_load(&world->anima[anima_idx].location);
     Z3_ast anima_ast = Z3_mk_app(ctx, lang->anima.enum_consts[anima_idx], 0, 0);
 
     Z3_optimize_assert(ctx, optimizer, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, lang->anima.tile_row_f, anima_ast), Z3_mk_int(ctx, anima_location.y, lang->u8.sort)));
@@ -243,7 +244,7 @@ void Lang_assert_all_non_anima_are_non_origin(struct z3_lang *lang, Z3_context c
       u8_col_row[0] = Z3_mk_int(ctx, col, lang->u8.sort);
 
       for (size_t anima_idx = 0; anima_idx < ANIMA_COUNT; ++anima_idx) {
-        PairI32 location = atomic_load(&world->anima[anima_idx].abstract_location);
+        PairI32 location = atomic_load(&world->anima[anima_idx].location);
 
         if (location.x == col && location.y == row) {
           goto skip_tile_assertion;

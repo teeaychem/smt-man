@@ -30,7 +30,7 @@ Anima Anima_create(uint8_t id, PairI32 location, Direction intent, Direction mom
 
   atomic_init(&self.pov.anima[self.id].intent, intent);
   atomic_init(&self.pov.anima[self.id].momentum, momentum);
-  atomic_init(&self.pov.anima[self.id].abstract_location, location);
+  atomic_init(&self.pov.anima[self.id].location, location);
   atomic_init(&self.pov.anima[self.id].status, ANIMA_STATUS_SEARCH);
   atomic_init(&self.pov.anima[self.id].velocity, 1);
 
@@ -69,7 +69,7 @@ void Anima_move(Anima *self, Maze *maze) {
 
   if (self->sprite_location.x % TILE_SCALE == 0 && self->sprite_location.y % TILE_SCALE == 0) {
 
-    auto abstract_location = atomic_load(&self->pov.anima[self->id].abstract_location);
+    auto abstract_location = atomic_load(&self->pov.anima[self->id].location);
     auto intent = atomic_load(&self->pov.anima[self->id].intent);
 
     atomic_store(&self->pov.anima[self->id].momentum, intent);
@@ -99,7 +99,7 @@ void Anima_move(Anima *self, Maze *maze) {
     } break;
     }
 
-    atomic_store(&self->pov.anima[self->id].abstract_location, abstract_location);
+    atomic_store(&self->pov.anima[self->id].location, abstract_location);
   }
 
   switch (atomic_load(&self->pov.anima[self->id].momentum)) {
