@@ -20,7 +20,6 @@ struct mind_t {
   Z3_optimize solver;
   Z3_context ctx;
   struct z3_lang lang;
-  SmtLot lot;
 };
 
 Mind Mind_default();
@@ -68,8 +67,6 @@ void Anima_touch(Anima *self, Mind *mind);
 void Anima_handle_event(Anima *self, SDL_Event *event);
 
 void Anima_move(Anima *self, Maze *maze);
-
-void Anima_LoT_direction(Anima *self, Mind *mind);
 
 void Anima_instinct(Anima *self);
 

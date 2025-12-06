@@ -14,7 +14,6 @@ Mind Mind_default() {
       .ctx = ctx,
       .solver = optimizer,
       .lang = {},
-      .lot = {},
   };
 
   return mind;

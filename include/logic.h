@@ -80,21 +80,6 @@ enum anima_status_t {
   ANIMA_STATUS_SEARCH,
 };
 
-typedef struct smt_anima_t SmtAnima;
-struct smt_anima_t {
-  struct {
-    Z3_ast up;
-    Z3_ast right;
-    Z3_ast down;
-    Z3_ast left;
-  } facing;
-};
-
-typedef struct smt_lot_t SmtLot;
-struct smt_lot_t {
-  SmtAnima anima[ANIMA_COUNT];
-};
-
 // World things
 
 typedef struct smt_world_anima_t SmtWorldAnima;
