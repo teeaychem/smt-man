@@ -47,7 +47,7 @@ Renderer Renderer_create() {
 void Renderer_destroy(Renderer *self) {
   SDL_DestroyWindow(self->window);
   self->window = NULL;
-};
+}
 
 void Renderer_update(Renderer *self) {
   /* SDL_RenderPresent(self->renderer); */

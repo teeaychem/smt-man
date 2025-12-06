@@ -26,7 +26,7 @@ void Anima_touch(Anima *self, Mind *mind) {
   Lang_path_setup(&mind->lang, mind->ctx);
   Lang_anima_setup(&mind->lang, mind->ctx);
   Lang_facing_setup(&mind->lang, mind->ctx);
-};
+}
 
 // deduction
 
@@ -108,4 +108,4 @@ void Anima_deduct(Anima *self, Mind *mind) {
 
   Z3_model_dec_ref(mind->ctx, model);
   Z3_optimize_pop(mind->ctx, mind->solver);
-};
+}

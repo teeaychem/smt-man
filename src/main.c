@@ -62,7 +62,7 @@ void *spirit(void *_anima) {
     pthread_mutex_unlock(&anima->sync.mtx_suspend);
   }
   return 0;
-};
+}
 
 void setup() {
   // Set the source path for resources, etc.
