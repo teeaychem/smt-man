@@ -9,24 +9,28 @@
 
 constexpr size_t PATH_VARIANTS = 11;
 struct z3_lang {
-  struct {
+  struct u8 {
     Z3_sort sort;
   } u8;
 
-  struct {
+  struct anima {
     Z3_sort sort;
 
     Z3_symbol enum_names[ANIMA_COUNT];
     Z3_func_decl enum_consts[ANIMA_COUNT];
     Z3_func_decl enum_testers[ANIMA_COUNT];
 
+    /// anima -> u8
     Z3_func_decl tile_row_f;
+
+    /// anima -> u8
     Z3_func_decl tile_col_f;
 
+    /// anima -> direction
     Z3_func_decl is_facing;
   } anima;
 
-  struct {
+  struct direction {
     Z3_sort sort;
 
     Z3_symbol enum_names[4];
@@ -34,16 +38,21 @@ struct z3_lang {
     Z3_func_decl enum_testers[4];
   } direction;
 
-  struct {
-    Z3_sort tile_enum_sort;
+  struct path {
+    Z3_sort sort;
+    Z3_symbol penatly;
 
     Z3_symbol enum_names[PATH_VARIANTS];
     Z3_func_decl enum_consts[PATH_VARIANTS];
     Z3_func_decl enum_testers[PATH_VARIANTS];
 
+    /// Origin up
     Z3_ast og_up;
+    /// Origin right
     Z3_ast og_rt;
+    /// Origin down
     Z3_ast og_dn;
+    /// Origin left
     Z3_ast og_lt;
 
     Z3_ast up_dn;
@@ -54,8 +63,10 @@ struct z3_lang {
     Z3_ast dn_lt;
     Z3_ast up_lt;
 
-    Z3_ast no_no;
+    /// Empty empty
+    Z3_ast et_et;
 
+    /// (u8, u8) -> path.sort
     Z3_func_decl tile_is_f;
   } path;
 };
@@ -104,7 +115,7 @@ struct smt_world_t {
 
 void Lang_base_setup(struct z3_lang *lang, Z3_context ctx);
 void Lang_path_setup(struct z3_lang *lang, Z3_context ctx);
-void Lang_assert_path_empty_hints(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, Maze *maze);
+void Lang_assert_shortest_path_empty_hints(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, Maze *maze);
 void Lang_assert_path_non_empty_hints(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, Maze *maze);
 
 //

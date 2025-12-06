@@ -40,7 +40,7 @@ void Lang_path_setup(struct z3_lang *lang, Z3_context ctx) {
     lang->path.enum_names[10] = Z3_mk_string_symbol(ctx, "et_et");
   }
 
-  lang->path.tile_enum_sort = Z3_mk_enumeration_sort(ctx, Z3_mk_string_symbol(ctx, "path"), PATH_VARIANTS, lang->path.enum_names, lang->path.enum_consts, lang->path.enum_testers);
+  lang->path.sort = Z3_mk_enumeration_sort(ctx, Z3_mk_string_symbol(ctx, "path"), PATH_VARIANTS, lang->path.enum_names, lang->path.enum_consts, lang->path.enum_testers);
 
   lang->path.og_up = Z3_mk_app(ctx, lang->path.enum_consts[0], 0, 0);
   lang->path.og_rt = Z3_mk_app(ctx, lang->path.enum_consts[1], 0, 0);
@@ -55,13 +55,19 @@ void Lang_path_setup(struct z3_lang *lang, Z3_context ctx) {
   lang->path.dn_lt = Z3_mk_app(ctx, lang->path.enum_consts[8], 0, 0);
   lang->path.up_lt = Z3_mk_app(ctx, lang->path.enum_consts[9], 0, 0);
 
-  lang->path.no_no = Z3_mk_app(ctx, lang->path.enum_consts[10], 0, 0);
+  lang->path.et_et = Z3_mk_app(ctx, lang->path.enum_consts[10], 0, 0);
 
-  Z3_sort u8_u8_pair[2] = {lang->u8.sort, lang->u8.sort};
-  lang->path.tile_is_f = Z3_mk_func_decl(ctx, Z3_mk_string_symbol(ctx, "path_choice"), ARRAY_LEN(u8_u8_pair), u8_u8_pair, lang->path.tile_enum_sort);
+  Z3_sort u8col_u8row[2] = {lang->u8.sort, lang->u8.sort};
+  lang->path.tile_is_f = Z3_mk_func_decl(ctx, Z3_mk_string_symbol(ctx, "path_choice"), ARRAY_LEN(u8col_u8row), u8col_u8row, lang->path.sort);
+
+  lang->path.penatly = Z3_mk_string_symbol(ctx, "path_penatly");
 }
 
-void Lang_assert_path_empty_hints(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, Maze *maze) {
+/***
+ * Shortest paths are found by placing a penatly on the assignment of a non empty path value to each potentiial path tile.
+ * So long as a path is required and optimisation is enforced, no shorter path can exist on SAT.
+ */
+void Lang_assert_shortest_path_empty_hints(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, Maze *maze) {
 
   Z3_ast u8_col_row[2] = {};
 
@@ -72,9 +78,9 @@ void Lang_assert_path_empty_hints(struct z3_lang *lang, Z3_context ctx, Z3_optim
       u8_col_row[0] = Z3_mk_int(ctx, c, lang->u8.sort);
 
       if (Maze_abstract_is_path(maze, c, r)) {
-        Z3_optimize_assert_soft(ctx, optimizer, Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, ARRAY_LEN(u8_col_row), u8_col_row), lang->path.no_no), "1", NULL);
+        Z3_optimize_assert_soft(ctx, optimizer, Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, ARRAY_LEN(u8_col_row), u8_col_row), lang->path.et_et), "1", lang->path.penatly);
       } else {
-        Z3_optimize_assert(ctx, optimizer, Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, ARRAY_LEN(u8_col_row), u8_col_row), lang->path.no_no));
+        Z3_optimize_assert(ctx, optimizer, Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, ARRAY_LEN(u8_col_row), u8_col_row), lang->path.et_et));
       }
     }
   }
@@ -253,7 +259,7 @@ void Lang_assert_all_non_anima_are_non_origin(struct z3_lang *lang, Z3_context c
           Z3_mk_eq(ctx, tile_path_value, lang->path.dn_rt),
           Z3_mk_eq(ctx, tile_path_value, lang->path.up_lt),
           Z3_mk_eq(ctx, tile_path_value, lang->path.dn_lt),
-          Z3_mk_eq(ctx, tile_path_value, lang->path.no_no),
+          Z3_mk_eq(ctx, tile_path_value, lang->path.et_et),
       };
 
       Z3_optimize_assert(ctx, optimizer, Z3_mk_or(ctx, ARRAY_LEN(value_is_non_origin), value_is_non_origin));

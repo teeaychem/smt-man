@@ -23,7 +23,7 @@ void z3_display_path(struct z3_lang *lang, Z3_context ctx, Z3_model model, Maze 
       u8_cr[0] = Z3_mk_int(ctx, c, lang->u8.sort);
 
       Z3_model_eval(ctx, model, Z3_mk_app(ctx, lang->path.tile_is_f, 2, u8_cr), false, &tile_path);
-      if (tile_path == lang->path.no_no) {
+      if (tile_path == lang->path.et_et) {
         printf(" ");
       } else {
         printf("x");
@@ -45,7 +45,7 @@ void z3_tmp(Maze *maze, SmtWorld *world) {
   Lang_path_setup(&lang, ctx);
   Lang_anima_setup(&lang, ctx);
 
-  Lang_assert_path_empty_hints(&lang, ctx, optimizer, maze);
+  Lang_assert_shortest_path_empty_hints(&lang, ctx, optimizer, maze);
   Lang_assert_path_non_empty_hints(&lang, ctx, optimizer, maze);
 
   Lang_assert_all_non_anima_are_non_origin(&lang, ctx, optimizer, world, maze);
