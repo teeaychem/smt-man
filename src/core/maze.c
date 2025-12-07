@@ -27,8 +27,8 @@ Maze Maze_create(char *path) {
   bool preamble_ok = true;
 
   FILE *file_ptr = fopen(path, "r");
-  if (file_ptr == NULL) {
-    g_log(NULL, G_LOG_LEVEL_CRITICAL, "Failed to open maze from: %s", path);
+  if (file_ptr == nullptr) {
+    g_log(nullptr, G_LOG_LEVEL_CRITICAL, "Failed to open maze from: %s", path);
     exit(1);
   }
 
@@ -45,14 +45,14 @@ Maze Maze_create(char *path) {
 
     case 'w': {
       if (!fscanf(file_ptr, "%" SCNu32, &(self.size.x))) {
-        g_log(NULL, G_LOG_LEVEL_WARNING, "Failed to read maze width: %s", path);
+        g_log(nullptr, G_LOG_LEVEL_WARNING, "Failed to read maze width: %s", path);
         preamble_ok = false;
       };
     } break;
 
     case 'h': {
       if (!fscanf(file_ptr, "%" SCNu32, &(self.size.y))) {
-        g_log(NULL, G_LOG_LEVEL_WARNING, "Failed to read maze height: %s", path);
+        g_log(nullptr, G_LOG_LEVEL_WARNING, "Failed to read maze height: %s", path);
         preamble_ok = false;
       };
     } break;
@@ -72,7 +72,7 @@ Maze Maze_create(char *path) {
   }
 
   if ((self.size.x % TILE_COUNTS.x) != 0 | (self.size.y % TILE_COUNTS.y) != 0) {
-    g_log(NULL,
+    g_log(nullptr,
           G_LOG_LEVEL_WARNING,
           "Maze dimension %dx%d is not an integer scale of %dx%d", self.size.x, self.size.y, TILE_COUNTS.x, TILE_COUNTS.y);
 
@@ -81,7 +81,7 @@ Maze Maze_create(char *path) {
 
   if (!preamble_ok) {
     fclose(file_ptr);
-    g_log(NULL, G_LOG_LEVEL_CRITICAL, "Failed to construct maze: %s", path);
+    g_log(nullptr, G_LOG_LEVEL_CRITICAL, "Failed to construct maze: %s", path);
     exit(1);
   }
 
@@ -102,7 +102,7 @@ Maze Maze_create(char *path) {
 
     case '\n': {
       if (pos_x != self.size.x) {
-        g_log(NULL, G_LOG_LEVEL_CRITICAL, "Invalid row width: %s", path);
+        g_log(nullptr, G_LOG_LEVEL_CRITICAL, "Invalid row width: %s", path);
         exit(-1);
       }
       pos_y += 1;
@@ -121,13 +121,13 @@ Maze Maze_create(char *path) {
   }
 
   if (pos_y != self.size.y) {
-    g_log(NULL, G_LOG_LEVEL_CRITICAL, "Invalid col height: %s", path);
+    g_log(nullptr, G_LOG_LEVEL_CRITICAL, "Invalid col height: %s", path);
     exit(-1);
   }
 
   fclose(file_ptr);
 
-  g_log(NULL, G_LOG_LEVEL_INFO, "Constructed maze %dx%d (%zu)", self.size.x, self.size.y, tile_count);
+  g_log(nullptr, G_LOG_LEVEL_INFO, "Constructed maze %dx%d (%zu)", self.size.x, self.size.y, tile_count);
 
   return self;
 }

@@ -14,7 +14,7 @@
 void z3_display_path(struct z3_lang *lang, Z3_context ctx, Z3_model model, Maze *maze) {
   Z3_ast u8_cr[2] = {};
 
-  Z3_ast tile_path = NULL;
+  Z3_ast tile_path = nullptr;
 
   for (uint32_t row = 0; row < maze->size.y; row++) {
     u8_cr[1] = Z3_mk_int(ctx, (int)row, lang->u8.sort);
@@ -53,7 +53,7 @@ void z3_tmp(Maze *maze, SmtWorld *world) {
   Lang_assert_anima_locations(&lang, ctx, optimizer, world);
 
   // Checks
-  switch (Z3_optimize_check(ctx, optimizer, 0, NULL)) {
+  switch (Z3_optimize_check(ctx, optimizer, 0, nullptr)) {
   case Z3_L_FALSE: {
     g_message("UNSAT");
   } break;
@@ -68,7 +68,7 @@ void z3_tmp(Maze *maze, SmtWorld *world) {
   auto model = Z3_optimize_get_model(ctx, optimizer);
   Z3_model_inc_ref(ctx, model);
 
-  g_log(NULL, G_LOG_LEVEL_INFO, "\nModel:\n%s", Z3_model_to_string(ctx, model));
+  g_log(nullptr, G_LOG_LEVEL_INFO, "\nModel:\n%s", Z3_model_to_string(ctx, model));
   z3_display_path(&lang, ctx, model, maze);
 
   // Cleanup

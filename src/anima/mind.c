@@ -20,7 +20,7 @@ Mind Mind_default() {
 }
 
 void Anima_touch(Anima *self, Mind *mind) {
-  assert(self != NULL);
+  assert(self != nullptr);
 
   Lang_base_setup(&mind->lang, mind->ctx);
   Lang_path_setup(&mind->lang, mind->ctx);
@@ -76,11 +76,11 @@ void Anima_deduct(Anima *self, Mind *mind) {
   } break;
   }
 
-  switch (Z3_optimize_check(mind->ctx, mind->solver, 0, NULL)) {
+  switch (Z3_optimize_check(mind->ctx, mind->solver, 0, nullptr)) {
   case Z3_L_TRUE: {
   } break;
   default: {
-    g_log(NULL, G_LOG_LEVEL_CRITICAL, "UNSAT deduction %d", self->id);
+    g_log(nullptr, G_LOG_LEVEL_CRITICAL, "UNSAT deduction %d", self->id);
     exit(-3);
   } break;
   }
@@ -88,7 +88,7 @@ void Anima_deduct(Anima *self, Mind *mind) {
   auto model = Z3_optimize_get_model(mind->ctx, mind->solver);
   Z3_model_inc_ref(mind->ctx, model);
 
-  Z3_ast anima_direction = NULL;
+  Z3_ast anima_direction = nullptr;
   Z3_model_eval(mind->ctx, model, Z3_mk_app(mind->ctx, mind->lang.anima.is_facing, 1, &anima_ast), false, &anima_direction);
 
   if (anima_direction == up) {
@@ -102,7 +102,7 @@ void Anima_deduct(Anima *self, Mind *mind) {
   } else if (anima_direction == lt) {
     atomic_store(&self->pov.anima[self->id].intent, LEFT);
   } else {
-    g_log(NULL, G_LOG_LEVEL_WARNING, "No direction");
+    g_log(nullptr, G_LOG_LEVEL_WARNING, "No direction");
     exit(-1);
   }
 

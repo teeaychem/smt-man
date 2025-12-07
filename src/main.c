@@ -57,7 +57,7 @@ void *spirit(void *void_anima) {
 
 void source_path_setup(char **source_path) {
   // Set the source path for resources, etc.
-  int source_path_size = wai_getExecutablePath(NULL, 0, NULL) + 1;
+  int source_path_size = wai_getExecutablePath(nullptr, 0, nullptr) + 1;
   *source_path = malloc((size_t)source_path_size * sizeof(*source_path));
   int source_path_len;
   wai_getExecutablePath(*source_path, source_path_size - 1, &source_path_len);
@@ -110,7 +110,7 @@ int main(int argc, char **argv) {
   Renderer renderer;
   SpriteInfo anima_sprites[ANIMA_COUNT];
 
-  char *source_path = NULL;
+  char *source_path = nullptr;
   char path_buffer[FILENAME_MAX];
 
   source_path_setup(&source_path);
@@ -127,7 +127,7 @@ int main(int argc, char **argv) {
       .surface_offset = PairI32_create(0, 0),
   };
   animas[0] = Anima_create(0, PairI32_create(1, 1), DOWN, DOWN, PAIR_SPRITE_EDGE);
-  pthread_create(&ANIMA_THREADS[0], NULL, spirit, (void *)&animas[0]);
+  pthread_create(&ANIMA_THREADS[0], nullptr, spirit, (void *)&animas[0]);
 
   cwk_path_join(source_path, "resources/bertrand.png", path_buffer, FILENAME_MAX);
   anima_sprites[1] = (SpriteInfo){
@@ -136,7 +136,7 @@ int main(int argc, char **argv) {
       .surface_offset = PairI32_create(0, 0),
   };
   animas[1] = Anima_create(1, PairI32_create(10, 26), DOWN, DOWN, PAIR_SPRITE_EDGE);
-  pthread_create(&ANIMA_THREADS[1], NULL, spirit, (void *)&animas[1]);
+  pthread_create(&ANIMA_THREADS[1], nullptr, spirit, (void *)&animas[1]);
 
   /* begin scratch */
   World_sync(&world, animas);
@@ -230,7 +230,7 @@ int main(int argc, char **argv) {
 
   for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
     pthread_cancel(ANIMA_THREADS[idx]);
-    pthread_join(ANIMA_THREADS[idx], NULL);
+    pthread_join(ANIMA_THREADS[idx], nullptr);
     Surface_destroy(&anima_sprites[idx].surface);
   }
   Maze_destroy(&maze);

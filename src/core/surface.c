@@ -18,8 +18,8 @@ Surface Surface_from_path(char *path) {
     surface.size.y = image.height;
     surface.pixels = malloc(PNG_IMAGE_SIZE(image));
 
-    if (surface.pixels != NULL &&
-        png_image_finish_read(&image, NULL, surface.pixels, 0, NULL) != 0) {
+    if (surface.pixels != nullptr &&
+        png_image_finish_read(&image, NULL, surface.pixels, 0, nullptr) != 0) {
     } else {
       png_image_free(&image);
       free(surface.pixels);

@@ -10,7 +10,7 @@
 
 Anima Anima_create(uint8_t id, PairI32 location, Direction intent, Direction momentum, PairI32 sprite_size) {
   static const char *ANIMA_NAMES[2] = {"gottlob", "bertrand"};
-  g_log(NULL, G_LOG_LEVEL_INFO, "Creating anima: %s", ANIMA_NAMES[id]);
+  g_log(nullptr, G_LOG_LEVEL_INFO, "Creating anima: %s", ANIMA_NAMES[id]);
 
   Anima self = {
       .id = id,
@@ -39,7 +39,7 @@ Anima Anima_create(uint8_t id, PairI32 location, Direction intent, Direction mom
 }
 
 void Anima_destroy(Anima *self) {
-  assert(self != NULL);
+  assert(self != nullptr);
 }
 
 void Anima_handle_event(Anima *self, SDL_Event *event) {
@@ -121,5 +121,5 @@ void Anima_move(Anima *self, Maze *maze) {
 }
 
 void Anima_instinct(Anima *self) {
-  assert(self != NULL);
+  assert(self != nullptr);
 }

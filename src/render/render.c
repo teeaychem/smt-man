@@ -13,19 +13,19 @@ Renderer Renderer_create(const PairI32 dimensions) {
   Renderer self = {.dimensions = dimensions};
 
   self.window = SDL_CreateWindow("smt-man", (int)(self.dimensions.x * UI_SCALE), (int)(self.dimensions.y * UI_SCALE), 0);
-  if (self.window == NULL) {
+  if (self.window == nullptr) {
     SDL_Log("Failed to create window: %s", SDL_GetError());
     exit(SDL_APP_FAILURE);
   }
 
-  self.renderer = SDL_CreateRenderer(self.window, NULL);
-  if (self.renderer == NULL) {
+  self.renderer = SDL_CreateRenderer(self.window, nullptr);
+  if (self.renderer == nullptr) {
     SDL_Log("Failed to create renderer: %s", SDL_GetError());
     exit(SDL_APP_FAILURE);
   }
 
   self.frame_buffer = malloc(PairI32_area(&self.dimensions) * sizeof(*self.frame_buffer));
-  if (self.frame_buffer == NULL) {
+  if (self.frame_buffer == nullptr) {
     SDL_Log("Failed to create frame_buffer");
     exit(-1);
   }
@@ -35,7 +35,7 @@ Renderer Renderer_create(const PairI32 dimensions) {
                                    SDL_TEXTUREACCESS_STREAMING,
                                    (int)self.dimensions.x,
                                    (int)self.dimensions.y);
-  if (self.texture == NULL) {
+  if (self.texture == nullptr) {
     SDL_Log("Failed to create texture: %s", SDL_GetError());
     exit(SDL_APP_FAILURE);
   }
@@ -47,22 +47,22 @@ Renderer Renderer_create(const PairI32 dimensions) {
 
 void Renderer_destroy(Renderer *self) {
   SDL_DestroyWindow(self->window);
-  self->window = NULL;
+  self->window = nullptr;
 }
 
 void Renderer_update(Renderer *self) {
   /* SDL_RenderPresent(self->renderer); */
-  int8_t *pixels = NULL;
+  int8_t *pixels = nullptr;
   int pitch;
 
-  SDL_LockTexture(self->texture, NULL, (void **)&pixels, &pitch);
+  SDL_LockTexture(self->texture, nullptr, (void **)&pixels, &pitch);
   for (size_t i = 0, sp = 0, dp = 0; i < self->dimensions.y; i++, dp += self->dimensions.x, sp += (size_t)pitch) {
     memcpy(pixels + sp, self->frame_buffer + dp, self->dimensions.x * sizeof(*self->frame_buffer));
   }
 
   SDL_UnlockTexture(self->texture);
 
-  auto render_result = SDL_RenderTexture(self->renderer, self->texture, NULL, NULL);
+  auto render_result = SDL_RenderTexture(self->renderer, self->texture, nullptr, nullptr);
   if (!render_result) {
     SDL_Log("Failed to render texture: %s", SDL_GetError());
     exit(SDL_APP_FAILURE);
