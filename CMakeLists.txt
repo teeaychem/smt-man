@@ -86,6 +86,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${GLIB_LIBRARIES})
 ## FetchContent
 
 include(FetchContent)
+set(FETCHCONTENT_BASE_DIR ${PROJECT_SOURCE_DIR}/fetch_content)
 
 FetchContent_Declare(
     cwalk

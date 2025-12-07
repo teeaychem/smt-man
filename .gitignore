@@ -5,4 +5,5 @@
 .cache/
 
 build/
+fetch_content/
 local/

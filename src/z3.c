@@ -5,7 +5,6 @@
 #include <stdio.h>
 
 #include "glib.h"
-#include "z3.h"
 
 #include "logic.h"
 #include "maze.h"

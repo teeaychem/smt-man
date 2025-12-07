@@ -13,7 +13,7 @@
 void next_line(FILE *file) {
   char c = ' ';
   while (c != EOF && c != '\n') {
-    c = fgetc(file);
+    c = (char)fgetc(file);
   }
 }
 
@@ -33,7 +33,7 @@ Maze Maze_create(char *path) {
 
   char read = ' ';
   while (read != EOF) {
-    read = fgetc(file_ptr);
+    read = (char)fgetc(file_ptr);
 
     switch (read) {
     case EOF:
@@ -91,7 +91,7 @@ Maze Maze_create(char *path) {
   uint32_t pos_x = 0;
   uint32_t pos_y = 0;
 
-  while ((read = fgetc(file_ptr)) != EOF) {
+  while ((read = (char)fgetc(file_ptr)) != EOF) {
     switch (read) {
     case 'c': {
       next_line(file_ptr);
