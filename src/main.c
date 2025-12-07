@@ -218,6 +218,7 @@ int main(int argc, char **argv) {
     pthread_join(ANIMA_THREADS[idx], NULL);
     Surface_destroy(&ANIMA_SPRITES[idx].surface);
   }
+  Maze_destroy(&maze);
 
   g_message("good-bye");
 
