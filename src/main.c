@@ -24,6 +24,7 @@
 #include "constants.h"
 #include "render/NSTimer.h"
 #include "render/render.h"
+#include "render/sprite.h"
 
 #include "surface.h"
 #include "toys.h"
@@ -79,33 +80,38 @@ void update_anima_sprite(SmtWorld *world, uint8_t anima_id, SpriteInfo *sprite_i
   }
 }
 
-void World_sync(SmtWorld *world, Anima animas[ANIMA_COUNT]) {
+void World_sync_animas(SmtWorld *world, Anima animas[ANIMA_COUNT]) {
   for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
     atomic_store(&world->anima[idx].location, atomic_load(&animas[idx].pov.anima[idx].location));
     atomic_store(&world->anima[idx].status, atomic_load(&animas[idx].pov.anima[idx].status));
   }
 }
 
-void render_maze(Renderer *renderer, Maze *maze) {
-  // For each tile...
-  for (uint32_t pos_x = 0; pos_x < TILE_COUNTS.x; ++pos_x) {
-    for (uint32_t pos_y = 0; pos_y < TILE_COUNTS.y; ++pos_y) {
+// Setup
 
-      bool is_path = Maze_abstract_is_path(maze, pos_x, pos_y);
-
-      for (uint32_t pxl_y = 0; pxl_y < TILE_SCALE; ++pxl_y) {
-        uint32_t y_offset = ((pos_y * TILE_SCALE) + pxl_y) * renderer->dimensions.x;
-        for (uint32_t pxl_x = 0; pxl_x < TILE_SCALE; ++pxl_x) {
-          uint32_t x_offset = pxl_x + (pos_x * TILE_SCALE);
-
-          renderer->frame_buffer[y_offset + x_offset] = is_path ? 0x00000000 : 0xffffffff;
-        }
-      }
-    }
-  }
+Maze setup_maze(char *source_path, char *path_buffer) {
+  cwk_path_join(source_path, "resources/maze/source.txt", path_buffer, FILENAME_MAX);
+  return Maze_create(path_buffer);
 }
 
-int main(int argc, char **argv) {
+void setup_anima(char *source_path, char *path_buffer, Anima animas[ANIMA_COUNT], SpriteInfo anima_sprites[ANIMA_COUNT], uint8_t id, Pair_uint32 location) {
+  animas[id] = Anima_create(id, location, DOWN, DOWN, PAIR_SPRITE_EDGE);
+
+  char path_b[40];
+
+  sprintf(path_b, "resources/%s.png", animas[id].name);
+
+  cwk_path_join(source_path, path_b, path_buffer, FILENAME_MAX);
+
+  anima_sprites[id] = (SpriteInfo){
+      .size = PAIR_SPRITE_EDGE,
+      .surface = Surface_from_path(path_buffer),
+      .surface_offset = Pair_uint32_create(0, 0),
+  };
+  pthread_create(&ANIMA_THREADS[id], nullptr, spirit, (void *)&animas[id]);
+}
+
+int main() { // int main(int argc, char *argv[]) {
 
   Pair_uint32_create(2, 2);
 
@@ -121,36 +127,17 @@ int main(int argc, char **argv) {
   source_path_setup(&source_path);
 
   // Things are prepared...
+  Maze maze = setup_maze(source_path, path_buffer);
 
-  cwk_path_join(source_path, "resources/maze/source.txt", path_buffer, FILENAME_MAX);
-  Maze maze = Maze_create(path_buffer);
+  setup_anima(source_path, path_buffer, animas, anima_sprites, 0, Pair_uint32_create(1, 1));
+  setup_anima(source_path, path_buffer, animas, anima_sprites, 1, Pair_uint32_create(16, 26));
 
-  cwk_path_join(source_path, "resources/gottlob.png", path_buffer, FILENAME_MAX);
-  anima_sprites[0] = (SpriteInfo){
-      .size = PAIR_SPRITE_EDGE,
-      .surface = Surface_from_path(path_buffer),
-      .surface_offset = Pair_uint32_create(0, 0),
-  };
-  animas[0] = Anima_create(0, Pair_uint32_create(1, 1), DOWN, DOWN, PAIR_SPRITE_EDGE);
-  pthread_create(&ANIMA_THREADS[0], nullptr, spirit, (void *)&animas[0]);
-
-  cwk_path_join(source_path, "resources/bertrand.png", path_buffer, FILENAME_MAX);
-  anima_sprites[1] = (SpriteInfo){
-      .size = PAIR_SPRITE_EDGE,
-      .surface = Surface_from_path(path_buffer),
-      .surface_offset = Pair_uint32_create(0, 0),
-  };
-  animas[1] = Anima_create(1, Pair_uint32_create(10, 26), DOWN, DOWN, PAIR_SPRITE_EDGE);
-  pthread_create(&ANIMA_THREADS[1], nullptr, spirit, (void *)&animas[1]);
-
-  /* begin scratch */
-  World_sync(&world, animas);
   g_message("scratch begin...");
+
+  World_sync_animas(&world, animas);
   z3_tmp(&maze, &world);
 
   g_message("scratch end...");
-
-  /* end scratch */
 
   // Things happen...
 
@@ -173,7 +160,7 @@ int main(int argc, char **argv) {
     SDL_zero(event);
 
     // Draw the maze only once...
-    render_maze(&renderer, &maze);
+    Renderer_read_maze(&renderer, &maze);
 
     while (!quit) {
       NSTimer_start(&frameCapTimer);
@@ -185,7 +172,7 @@ int main(int argc, char **argv) {
         Anima_handle_event(&animas[0], &event);
       }
 
-      World_sync(&world, animas);
+      World_sync_animas(&world, animas);
 
       SDL_RenderClear(renderer.renderer);
 

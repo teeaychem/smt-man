@@ -7,8 +7,9 @@
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
 
-#include "render/sprite.h"
+#include "maze.h"
 #include "pairs.h"
+#include "render/sprite.h"
 
 typedef struct renderer_t Renderer;
 struct renderer_t {
@@ -35,3 +36,5 @@ void Renderer_fill_tile(Renderer *self, Pair_uint32 pos, uint32_t colour);
 static inline uint32_t Renderer_pixel_at_point(Renderer *self, uint32_t col, uint32_t row) {
   return col * self->dimensions.x + row;
 }
+
+void Renderer_read_maze(Renderer *self, Maze *maze);

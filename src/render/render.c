@@ -5,9 +5,9 @@
 #include "SDL3/SDL_error.h"
 
 #include "constants.h"
+#include "pairs.h"
 #include "render/render.h"
 #include "render/sprite.h"
-#include "pairs.h"
 
 Renderer Renderer_create(const Pair_uint32 dimensions) {
   Renderer self = {.dimensions = dimensions};
@@ -109,6 +109,25 @@ void Renderer_fill_tile(Renderer *self, Pair_uint32 origin, uint32_t colour) {
       size_t pixel = (origin.y + col) * origin.x + row;
       if ((self->frame_buffer[pixel] | 0x00000000) == 0x00000000) {
         self->frame_buffer[pixel] = colour;
+      }
+    }
+  }
+}
+
+void Renderer_read_maze(Renderer *self, Maze *maze) {
+  // For each tile...
+  for (uint32_t pos_x = 0; pos_x < TILE_COUNTS.x; ++pos_x) {
+    for (uint32_t pos_y = 0; pos_y < TILE_COUNTS.y; ++pos_y) {
+
+      bool is_path = Maze_abstract_is_path(maze, pos_x, pos_y);
+
+      for (uint32_t pxl_y = 0; pxl_y < TILE_SCALE; ++pxl_y) {
+        uint32_t y_offset = ((pos_y * TILE_SCALE) + pxl_y) * self->dimensions.x;
+        for (uint32_t pxl_x = 0; pxl_x < TILE_SCALE; ++pxl_x) {
+          uint32_t x_offset = pxl_x + (pos_x * TILE_SCALE);
+
+          self->frame_buffer[y_offset + x_offset] = is_path ? 0x00000000 : 0xffffffff;
+        }
       }
     }
   }
