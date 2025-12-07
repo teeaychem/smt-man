@@ -1,26 +1,9 @@
 #include "setup.h"
 
-#include <assert.h>
-#include <pthread.h>
-#include <stdatomic.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-
 #include <glib.h>
-#include <sys/syslog.h>
-#include <sys/types.h>
-#include <whereami.h>
+#include <stdatomic.h>
 
-#include "anima.h"
-#include "constants.h"
-#include "logic.h"
-#include "maze.h"
-#include "misc.h"
-#include "render.h"
 #include "render/NSTimer.h"
-
 #include "toys.h"
 
 pthread_t ANIMA_THREADS[ANIMA_COUNT];
@@ -64,19 +47,17 @@ int main() { // int main(int argc, char *argv[]) {
     free(source_path);
   }
 
-  g_message("scratch begin...");
+  { // Scratch
+    g_message("scratch begin...");
+    World_sync_animas(&world, animas);
+    z3_tmp(&maze, &world);
+    g_message("scratch end...");
+  }
 
-  World_sync_animas(&world, animas);
-  z3_tmp(&maze, &world);
-
-  g_message("scratch end...");
-
-  // Things happen...
-
-  int exitCode = 0;
+  int exit_code = 0;
 
   if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
-    exitCode = 1;
+    exit_code = 1;
   } else {
 
     bool quit = false;
@@ -93,6 +74,8 @@ int main() { // int main(int argc, char *argv[]) {
     while (!quit) {
       NSTimer_start(&frameCapTimer);
 
+      // Handle events
+
       while (SDL_PollEvent(&event)) {
         if (event.type == SDL_EVENT_QUIT) {
           quit = true;
@@ -100,35 +83,36 @@ int main() { // int main(int argc, char *argv[]) {
         Anima_handle_event(&animas[0], &event);
       }
 
+      // Pre-render
+
       World_sync_animas(&world, animas);
+      rgbVM_advance(&colour);
+
+      // Render
 
       SDL_RenderClear(renderer.renderer);
 
-      for (uint8_t idx = 0; idx < ANIMA_COUNT; ++idx) {
-        Renderer_erase_sprite(&renderer, animas[idx].sprite_location, &renderer.anima_sprites[idx]);
-      }
-
-      rgbVM_advance(&colour);
       SDL_SetRenderDrawColor(renderer.renderer, colour.state[0].value, colour.state[1].value, colour.state[2].value, 0x000000ff);
 
       for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
-        Anima_instinct(&animas[id]);
-        update_anima_sprite(&world, id, &renderer.anima_sprites[id]);
+
+        Renderer_erase_sprite(&renderer, animas[id].sprite_location, &renderer.anima_sprites[id]);
+
         Anima_move(&animas[id], &maze);
+        Anima_instinct(&animas[id]);
+
+        update_anima_sprite(&world, id, &renderer.anima_sprites[id]);
 
         Renderer_draw_sprite(&renderer, animas[id].sprite_location, &renderer.anima_sprites[id]);
-      }
 
-      Renderer_update(&renderer);
-
-      for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
         renderer.anima_sprites[id].tick += 1;
-
         if (atomic_load(&animas[id].sync.flag_suspend)) {
           atomic_store(&animas[id].sync.flag_suspend, false);
           pthread_cond_broadcast(&animas[id].sync.cond_resume);
         }
       }
+
+      Renderer_update(&renderer);
 
       frameNS = NSTimer_get_ticks(&frameCapTimer);
       if (frameNS < NS_PER_FRAME) {
@@ -149,5 +133,5 @@ int main() { // int main(int argc, char *argv[]) {
 
   g_message("good-bye");
 
-  return exitCode;
+  return exit_code;
 }
