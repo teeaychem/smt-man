@@ -18,11 +18,9 @@
 #include "logic.h"
 #include "maze.h"
 #include "misc.h"
+#include "render.h"
 #include "render/NSTimer.h"
-#include "render/render.h"
-#include "render/sprite.h"
 
-#include "surface.h"
 #include "toys.h"
 
 pthread_t ANIMA_THREADS[ANIMA_COUNT];

@@ -1,3 +1,4 @@
+#pragma once 
 
 #include "logic.h"
 #include "maze.h"

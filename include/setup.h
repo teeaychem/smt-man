@@ -5,7 +5,7 @@
 #include "misc.h"
 
 #include "constants.h"
-#include "render/sprite.h"
+#include "render.h"
 
 /// Setup functions
 ///

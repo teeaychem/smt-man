@@ -1,6 +1,7 @@
-#include "surface.h"
 #include <stdint.h>
 #include <stdlib.h>
+
+#include "render/surface.h"
 
 Surface Surface_from_path(char *path) {
 

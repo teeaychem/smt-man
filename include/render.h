@@ -10,7 +10,19 @@
 #include "constants.h"
 #include "maze.h"
 #include "pairs.h"
-#include "render/sprite.h"
+#include "render/surface.h"
+
+typedef struct sprite_info_t SpriteInfo;
+struct sprite_info_t {
+  Pair_uint32 size;
+  Surface surface;
+  Pair_uint32 surface_offset;
+  uint32_t tick;
+};
+
+static inline uint32_t SpriteInfo_pixel_at_point(SpriteInfo *self, uint32_t col, uint32_t row) {
+  return (self->surface_offset.y + col) * self->surface.size.x + self->surface_offset.x + row;
+}
 
 typedef struct renderer_t Renderer;
 struct renderer_t {

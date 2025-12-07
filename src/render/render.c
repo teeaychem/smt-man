@@ -6,8 +6,7 @@
 
 #include "constants.h"
 #include "pairs.h"
-#include "render/render.h"
-#include "render/sprite.h"
+#include "render.h"
 
 Renderer Renderer_create(const Pair_uint32 dimensions) {
   Renderer self = {.dimensions = dimensions};
