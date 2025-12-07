@@ -7,7 +7,6 @@
 #include "utils/pairs.h"
 
 constexpr size_t ANIMA_COUNT = 2;
-static char *ANIMA_NAMES[2] = {"gottlob", "bertrand"};
 
 /* constexpr int32_t TILE_EDGE_SIZE = 8; */
 

@@ -5,7 +5,6 @@
 #include <SDL3/SDL_render.h>
 
 #include <stdint.h>
-#include <string.h>
 
 struct ValueMomentum {
   Uint8 value;

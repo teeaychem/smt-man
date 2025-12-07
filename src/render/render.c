@@ -55,7 +55,7 @@ void Renderer_update(Renderer *self) {
   int pitch;
 
   SDL_LockTexture(self->texture, NULL, (void **)&pixels, &pitch);
-  for (size_t i = 0, sp = 0, dp = 0; i < PIXEL_DIMENSIONS.y; i++, dp += PIXEL_DIMENSIONS.x, sp += pitch) {
+  for (size_t i = 0, sp = 0, dp = 0; i < PIXEL_DIMENSIONS.y; i++, dp += PIXEL_DIMENSIONS.x, sp += (size_t)pitch) {
     memcpy(pixels + sp, self->frame_buffer + dp, PIXEL_DIMENSIONS.x * sizeof(*(self->frame_buffer)));
   }
 
@@ -71,11 +71,11 @@ void Renderer_update(Renderer *self) {
 }
 
 void Renderer_draw_sprite(Renderer *self, PairI32 position, SpriteInfo *sprite_info) {
-  for (int32_t row = 0; row < sprite_info->size.y; ++row) {
-    for (int32_t col = 0; col < sprite_info->size.x; ++col) {
-      size_t pixel_fb = (position.y + col) * PIXEL_DIMENSIONS.x + position.x + row;
+  for (uint32_t row = 0; row < sprite_info->size.y; ++row) {
+    for (uint32_t col = 0; col < sprite_info->size.x; ++col) {
+      uint32_t pixel_fb = (position.y + col) * PIXEL_DIMENSIONS.x + position.x + row;
       if ((self->frame_buffer[pixel_fb] | 0x00000000) == 0x00000000) {
-        size_t pixel_s = (sprite_info->surface_offset.y + col) * sprite_info->surface.size.x + sprite_info->surface_offset.x + row;
+        uint32_t pixel_s = (sprite_info->surface_offset.y + col) * sprite_info->surface.size.x + sprite_info->surface_offset.x + row;
         self->frame_buffer[pixel_fb] = sprite_info->surface.pixels[pixel_s];
       }
     }
@@ -83,10 +83,10 @@ void Renderer_draw_sprite(Renderer *self, PairI32 position, SpriteInfo *sprite_i
 }
 
 void Renderer_erase_sprite(Renderer *self, PairI32 position, SpriteInfo *sprite_info) {
-  for (int32_t row = 0; row < sprite_info->size.y; ++row) {
-    for (int32_t col = 0; col < sprite_info->size.x; ++col) {
-      size_t pixel_fb = (position.y + col) * PIXEL_DIMENSIONS.x + position.x + row;
-      size_t pixel_s = (sprite_info->surface_offset.y + col) * sprite_info->surface.size.x + sprite_info->surface_offset.x + row;
+  for (uint32_t row = 0; row < sprite_info->size.y; ++row) {
+    for (uint32_t col = 0; col < sprite_info->size.x; ++col) {
+      uint32_t pixel_fb = (position.y + col) * PIXEL_DIMENSIONS.x + position.x + row;
+      uint32_t pixel_s = (sprite_info->surface_offset.y + col) * sprite_info->surface.size.x + sprite_info->surface_offset.x + row;
       if (self->frame_buffer[pixel_fb] == sprite_info->surface.pixels[pixel_s]) {
         self->frame_buffer[pixel_fb] = 0x00000000;
       }
@@ -94,7 +94,7 @@ void Renderer_erase_sprite(Renderer *self, PairI32 position, SpriteInfo *sprite_
   }
 }
 
-void Renderer_fill_tile(Renderer *self, PairI32 origin, int32_t colour) {
+void Renderer_fill_tile(Renderer *self, PairI32 origin, uint32_t colour) {
 
   for (size_t row = 0; row < TILE_SCALE; ++row) {
     for (size_t col = 0; col < TILE_SCALE; ++col) {

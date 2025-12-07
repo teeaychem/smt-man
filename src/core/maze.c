@@ -88,8 +88,8 @@ Maze Maze_create(char *path) {
   self.pixels = malloc(PairI32_area(&PIXEL_DIMENSIONS) * sizeof(*self.pixels));
   memset(self.pixels, '\0', PairI32_area(&PIXEL_DIMENSIONS));
 
-  int32_t pos_x = 0;
-  int32_t pos_y = 0;
+  uint32_t pos_x = 0;
+  uint32_t pos_y = 0;
 
   while ((read = fgetc(file_ptr)) != EOF) {
     switch (read) {
@@ -113,7 +113,7 @@ Maze Maze_create(char *path) {
       self.abstract[pos_y * self.size.x + pos_x] = read;
       for (size_t pxl_y = 0; pxl_y < TILE_SCALE; ++pxl_y) {
         for (size_t pxl_x = 0; pxl_x < TILE_SCALE; ++pxl_x) {
-          self.pixels[(((pos_y * TILE_SCALE) + pxl_y) * PIXEL_DIMENSIONS.x) + pxl_x + (pos_x * TILE_SCALE)] = read;
+          self.pixels[(((pos_y * TILE_SCALE) + pxl_y) * PIXEL_DIMENSIONS.x) + pxl_x + (pos_x * TILE_SCALE)] = (unsigned char)read;
         }
       }
 
@@ -156,8 +156,8 @@ void Maze_pixel_stdout(Maze *self) {
 }
 
 void Maze_abstract_stdout(Maze *self) {
-  for (int32_t c = 0; c < self->size.y; ++c) {
-    for (int32_t r = 0; r < self->size.x; ++r) {
+  for (uint32_t c = 0; c < self->size.y; ++c) {
+    for (uint32_t r = 0; r < self->size.x; ++r) {
       putchar(Maze_abstract_at(self, r, c));
     }
     putchar('\n');

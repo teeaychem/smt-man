@@ -10,7 +10,7 @@
 struct surface_t {
   PairI32 size;
 
-  int32_t *pixels;
+  uint32_t *pixels;
 };
 
 typedef struct surface_t Surface;

@@ -17,10 +17,10 @@ void z3_display_path(struct z3_lang *lang, Z3_context ctx, Z3_model model, Maze 
 
   Z3_ast tile_path = NULL;
 
-  for (int32_t r = 0; r < maze->size.y; r++) {
-    u8_cr[1] = Z3_mk_int(ctx, r, lang->u8.sort);
-    for (int32_t c = 0; c < maze->size.x; c++) {
-      u8_cr[0] = Z3_mk_int(ctx, c, lang->u8.sort);
+  for (uint32_t row = 0; row < maze->size.y; row++) {
+    u8_cr[1] = Z3_mk_int(ctx, (int)row, lang->u8.sort);
+    for (uint32_t col = 0; col < maze->size.x; col++) {
+      u8_cr[0] = Z3_mk_int(ctx, (int)col, lang->u8.sort);
 
       Z3_model_eval(ctx, model, Z3_mk_app(ctx, lang->path.tile_is_f, 2, u8_cr), false, &tile_path);
       if (tile_path == lang->path.et_et) {

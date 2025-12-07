@@ -1,6 +1,7 @@
 #include "logic.h"
 #include "macro.h"
 #include "utils/pairs.h"
+#include <stdint.h>
 #include <stdatomic.h>
 
 Z3_context z3_mk_anima_ctx() {
@@ -72,11 +73,11 @@ void Lang_assert_shortest_path_empty_hints(struct z3_lang *lang, Z3_context ctx,
 
   Z3_ast u8_col_row[2] = {};
 
-  for (int32_t r = 0; r < maze->size.y; ++r) {
-    u8_col_row[1] = Z3_mk_int(ctx, r, lang->u8.sort);
+  for (uint32_t r = 0; r < maze->size.y; ++r) {
+    u8_col_row[1] = Z3_mk_int(ctx, (int)r, lang->u8.sort);
 
-    for (int32_t c = 0; c < maze->size.x; ++c) {
-      u8_col_row[0] = Z3_mk_int(ctx, c, lang->u8.sort);
+    for (uint32_t c = 0; c < maze->size.x; ++c) {
+      u8_col_row[0] = Z3_mk_int(ctx, (int)c, lang->u8.sort);
 
       if (Maze_abstract_is_path(maze, c, r)) {
         Z3_optimize_assert_soft(ctx, optimizer, Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, ARRAY_LEN(u8_col_row), u8_col_row), lang->path.et_et), "1", lang->path.penatly);
@@ -91,22 +92,22 @@ void Lang_assert_path_non_empty_hints(struct z3_lang *lang, Z3_context ctx, Z3_o
 
   Z3_ast u8_col_row[2] = {};
 
-  for (int32_t r = 0; r < maze->size.y; r++) {
-    u8_col_row[1] = Z3_mk_int(ctx, r, lang->u8.sort);
+  for (uint32_t r = 0; r < maze->size.y; r++) {
+    u8_col_row[1] = Z3_mk_int(ctx, (int)r, lang->u8.sort);
 
-    for (int32_t c = 0; c < maze->size.x; c++) {
-      u8_col_row[0] = Z3_mk_int(ctx, c, lang->u8.sort);
+    for (uint32_t c = 0; c < maze->size.x; c++) {
+      u8_col_row[0] = Z3_mk_int(ctx, (int)c, lang->u8.sort);
 
       if (Maze_abstract_is_path(maze, c, r)) {
         Z3_ast tile_path_value = Z3_mk_app(ctx, lang->path.tile_is_f, 2, u8_col_row);
 
         if (0 < r) {
           Z3_ast up_tile[2] = {
-              Z3_mk_int(ctx, c, lang->u8.sort),
-              Z3_mk_int(ctx, r - 1, lang->u8.sort),
+              Z3_mk_int(ctx, (int)c, lang->u8.sort),
+              Z3_mk_int(ctx, (int)(r - 1), lang->u8.sort),
           };
 
-          size_t up_tile_reqs = 0;
+          uint32_t up_tile_reqs = 0;
           Z3_ast up_tile_req[4] = {};
 
           up_tile_req[up_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, up_tile), lang->path.og_dn);
@@ -126,11 +127,11 @@ void Lang_assert_path_non_empty_hints(struct z3_lang *lang, Z3_context ctx, Z3_o
 
         if (c + 1 < maze->size.x) {
           Z3_ast rt_tile[2] = {
-              Z3_mk_int(ctx, c + 1, lang->u8.sort),
-              Z3_mk_int(ctx, r, lang->u8.sort),
+              Z3_mk_int(ctx, (int)(c + 1), lang->u8.sort),
+              Z3_mk_int(ctx, (int)r, lang->u8.sort),
           };
 
-          size_t rt_tile_reqs = 0;
+          uint32_t rt_tile_reqs = 0;
           Z3_ast rt_tile_req[4] = {};
 
           rt_tile_req[rt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, rt_tile), lang->path.og_lt);
@@ -150,11 +151,11 @@ void Lang_assert_path_non_empty_hints(struct z3_lang *lang, Z3_context ctx, Z3_o
 
         if (r + 1 < maze->size.y) {
           Z3_ast dn_tile[2] = {
-              Z3_mk_int(ctx, c, lang->u8.sort),
-              Z3_mk_int(ctx, r + 1, lang->u8.sort),
+              Z3_mk_int(ctx, (int)c, lang->u8.sort),
+              Z3_mk_int(ctx, (int)(r + 1), lang->u8.sort),
           };
 
-          size_t dn_tile_reqs = 0;
+          uint32_t dn_tile_reqs = 0;
           Z3_ast dn_tile_req[4] = {};
 
           dn_tile_req[dn_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, dn_tile), lang->path.og_up);
@@ -174,11 +175,11 @@ void Lang_assert_path_non_empty_hints(struct z3_lang *lang, Z3_context ctx, Z3_o
 
         if (0 < c) {
           Z3_ast lt_tile[2] = {
-              Z3_mk_int(ctx, c - 1, lang->u8.sort),
-              Z3_mk_int(ctx, r, lang->u8.sort),
+              Z3_mk_int(ctx, (int)(c - 1), lang->u8.sort),
+              Z3_mk_int(ctx, (int)r, lang->u8.sort),
           };
 
-          size_t lt_tile_reqs = 0;
+          uint32_t lt_tile_reqs = 0;
           Z3_ast lt_tile_req[4] = {};
 
           lt_tile_req[lt_tile_reqs++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, lt_tile), lang->path.og_rt);
@@ -227,8 +228,8 @@ void Lang_assert_anima_locations(struct z3_lang *lang, Z3_context ctx, Z3_optimi
     PairI32 anima_location = atomic_load(&world->anima[anima_idx].location);
     Z3_ast anima_ast = Z3_mk_app(ctx, lang->anima.enum_consts[anima_idx], 0, 0);
 
-    Z3_optimize_assert(ctx, optimizer, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, lang->anima.tile_row_f, anima_ast), Z3_mk_int(ctx, anima_location.y, lang->u8.sort)));
-    Z3_optimize_assert(ctx, optimizer, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, lang->anima.tile_col_f, anima_ast), Z3_mk_int(ctx, anima_location.x, lang->u8.sort)));
+    Z3_optimize_assert(ctx, optimizer, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, lang->anima.tile_row_f, anima_ast), Z3_mk_int(ctx, (int)anima_location.y, lang->u8.sort)));
+    Z3_optimize_assert(ctx, optimizer, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, lang->anima.tile_col_f, anima_ast), Z3_mk_int(ctx, (int)anima_location.x, lang->u8.sort)));
   }
 }
 
@@ -237,11 +238,11 @@ void Lang_assert_all_non_anima_are_non_origin(struct z3_lang *lang, Z3_context c
 
   Z3_ast u8_col_row[2] = {};
 
-  for (int32_t row = 0; row < maze->size.y; row++) {
-    u8_col_row[1] = Z3_mk_int(ctx, row, lang->u8.sort);
+  for (uint32_t row = 0; row < maze->size.y; row++) {
+    u8_col_row[1] = Z3_mk_int(ctx, (int)row, lang->u8.sort);
 
-    for (int32_t col = 0; col < maze->size.x; col++) {
-      u8_col_row[0] = Z3_mk_int(ctx, col, lang->u8.sort);
+    for (uint32_t col = 0; col < maze->size.x; col++) {
+      u8_col_row[0] = Z3_mk_int(ctx, (int)col, lang->u8.sort);
 
       for (size_t anima_idx = 0; anima_idx < ANIMA_COUNT; ++anima_idx) {
         PairI32 location = atomic_load(&world->anima[anima_idx].location);
@@ -293,11 +294,11 @@ void Lang_assert_all_origin_are_anima(struct z3_lang *lang, Z3_context ctx, Z3_o
 
   Z3_ast u8_col_row[2] = {};
 
-  for (int32_t r = 0; r < maze->size.y; r++) {
-    u8_col_row[1] = Z3_mk_int(ctx, r, lang->u8.sort);
+  for (uint32_t r = 0; r < maze->size.y; r++) {
+    u8_col_row[1] = Z3_mk_int(ctx, (int)r, lang->u8.sort);
 
-    for (int32_t c = 0; c < maze->size.x; c++) {
-      u8_col_row[0] = Z3_mk_int(ctx, c, lang->u8.sort);
+    for (uint32_t c = 0; c < maze->size.x; c++) {
+      u8_col_row[0] = Z3_mk_int(ctx, (int)c, lang->u8.sort);
 
       Z3_ast path_origin;
       Z3_ast some_anima_location;

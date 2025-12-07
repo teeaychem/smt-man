@@ -45,8 +45,8 @@ int Surface_char_projection(Surface *surface, char *dest, size_t *len) {
   dest[size - 1] = '\0';
 
   size_t idx = 0;
-  for (int r = 0; r < surface->size.y; ++r) {
-    for (int c = 0; c < surface->size.x; ++c, ++idx) {
+  for (uint32_t r = 0; r < surface->size.y; ++r) {
+    for (uint32_t c = 0; c < surface->size.x; ++c, ++idx) {
       if ((surface->pixels)[r * surface->size.x + c] != 0x00000000) {
         dest[idx] = '#';
       }

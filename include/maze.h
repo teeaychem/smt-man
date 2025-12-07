@@ -26,12 +26,12 @@ static inline uint8_t Maze_pixel_at_point(Maze *self, PairI32 point) {
   return self->pixels[(point.y * PIXEL_DIMENSIONS.x) + point.x];
 }
 
-static inline char Maze_abstract_at(Maze *self, int32_t x, int32_t y) {
+static inline char Maze_abstract_at(Maze *self, uint32_t x, uint32_t y) {
   assert(x < self->size.x);
   assert(y < self->size.y);
   return self->abstract[(y * self->size.x) + x];
 }
 
-static inline bool Maze_abstract_is_path(Maze *self, int32_t x, int32_t y) {
+static inline bool Maze_abstract_is_path(Maze *self, uint32_t x, uint32_t y) {
   return self->abstract[(y * self->size.x) + x] == '#';
 }

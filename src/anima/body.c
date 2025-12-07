@@ -9,7 +9,7 @@
 #include "utils/pairs.h"
 
 Anima Anima_create(uint8_t id, PairI32 location, Direction intent, Direction momentum, PairI32 sprite_size) {
-  static char *ANIMA_NAMES[2] = {"gottlob", "bertrand"};
+  static const char *ANIMA_NAMES[2] = {"gottlob", "bertrand"};
   g_log(NULL, G_LOG_LEVEL_INFO, "Creating anima: %s", ANIMA_NAMES[id]);
 
   Anima self = {

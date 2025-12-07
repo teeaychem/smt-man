@@ -38,7 +38,7 @@ struct anima_t {
 
   uint8_t id;
 
-  char *name;
+  const char *name;
 
   PairI32 abstract_location;
   PairI32 sprite_location;

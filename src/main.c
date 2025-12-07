@@ -67,7 +67,7 @@ void *spirit(void *_anima) {
 void setup() {
   // Set the source path for resources, etc.
   SOURCE_PATH_SIZE = wai_getExecutablePath(NULL, 0, NULL) + 1;
-  SOURCE_PATH = malloc(SOURCE_PATH_SIZE * sizeof(*SOURCE_PATH));
+  SOURCE_PATH = malloc((size_t)SOURCE_PATH_SIZE * sizeof(*SOURCE_PATH));
   int source_path_len;
   wai_getExecutablePath(SOURCE_PATH, SOURCE_PATH_SIZE - 1, &source_path_len);
   assert(source_path_len < SOURCE_PATH_SIZE);
@@ -151,7 +151,7 @@ int main(int argc, char **argv) {
     SDL_zero(event);
 
     // Draw the maze only once...
-    for (int32_t pxl = 0; pxl < PairI32_area(&PIXEL_DIMENSIONS); ++pxl) {
+    for (uint32_t pxl = 0; pxl < PairI32_area(&PIXEL_DIMENSIONS); ++pxl) {
       if (maze.pixels[pxl] != '#') {
         renderer.frame_buffer[pxl] = 0xffffffff;
       }
@@ -182,7 +182,7 @@ int main(int argc, char **argv) {
         Anima_handle_event(&ANIMAS[0], &event);
       }
 
-      for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
+      for (uint8_t idx = 0; idx < ANIMA_COUNT; ++idx) {
         Anima_instinct(&ANIMAS[idx]);
         update_anima_sprite(idx, &ANIMA_SPRITES[idx]);
         Anima_move(&ANIMAS[idx], &maze);

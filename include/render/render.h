@@ -14,7 +14,7 @@ struct renderer_t {
   SDL_Window *window;
 
   SDL_Renderer *renderer;
-  int32_t *frame_buffer;
+  uint32_t *frame_buffer;
   SDL_Texture *texture;
 };
 
@@ -24,14 +24,8 @@ void Renderer_destroy(Renderer *self);
 
 void Renderer_update(Renderer *self);
 
-void Renderer_draw_sprite(Renderer *self,
-                          PairI32 location,
-                          SpriteInfo *sprite_info);
+void Renderer_draw_sprite(Renderer *self, PairI32 location, SpriteInfo *sprite_info);
 
-void Renderer_erase_sprite(Renderer *self,
-                           PairI32 location,
-                           SpriteInfo *sprite_info);
+void Renderer_erase_sprite(Renderer *self, PairI32 location, SpriteInfo *sprite_info);
 
-void Renderer_fill_tile(Renderer *self,
-                        PairI32 pos,
-                        int32_t colour);
+void Renderer_fill_tile(Renderer *self, PairI32 pos, uint32_t colour);
