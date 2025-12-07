@@ -34,7 +34,7 @@ Maze setup_maze(char *source_path) {
   return Maze_create(path_buffer);
 }
 
-void setup_anima(char *source_path, Anima animas[ANIMA_COUNT], SpriteInfo anima_sprites[ANIMA_COUNT], uint8_t id, Pair_uint8 location) {
+void setup_anima(char *source_path, Anima animas[ANIMA_COUNT], SpriteInfo *anima_sprites, uint8_t id, Pair_uint8 location) {
   animas[id] = Anima_create(id, location, DOWN, DOWN, PAIR_SPRITE_EDGE);
 
   char path_b[40];
@@ -43,7 +43,7 @@ void setup_anima(char *source_path, Anima animas[ANIMA_COUNT], SpriteInfo anima_
   sprintf(path_b, "resources/%s.png", animas[id].name);
   cwk_path_join(source_path, path_b, path_buffer, FILENAME_MAX);
 
-  anima_sprites[id] = (SpriteInfo){
+  *anima_sprites = (SpriteInfo){
       .size = PAIR_SPRITE_EDGE,
       .surface = Surface_from_path(path_buffer),
       .surface_offset = Pair_uint32_create(0, 0),

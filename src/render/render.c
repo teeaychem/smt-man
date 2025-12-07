@@ -48,6 +48,10 @@ Renderer Renderer_create(const Pair_uint32 dimensions) {
 void Renderer_destroy(Renderer *self) {
   SDL_DestroyWindow(self->window);
   self->window = nullptr;
+
+  for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
+    Surface_destroy(&self->anima_sprites[idx].surface);
+  }
 }
 
 void Renderer_update(Renderer *self) {

@@ -52,18 +52,19 @@ int main() { // int main(int argc, char *argv[]) {
   SmtWorld world = {};
   Anima animas[ANIMA_COUNT];
 
-  Renderer renderer;
-  SpriteInfo anima_sprites[ANIMA_COUNT];
-
-  char *source_path = setup_source_path();
+  Renderer renderer = Renderer_create(PIXEL_DIMENSIONS);
 
   rgbVM colour;
+  Maze maze;
 
-  // Things are prepared...
-  Maze maze = setup_maze(source_path);
+  { // Resource setup
+    char *source_path = setup_source_path();
+    maze = setup_maze(source_path);
 
-  setup_anima(source_path, animas, anima_sprites, 0, Pair_uint8_create(1, 1));
-  setup_anima(source_path, animas, anima_sprites, 1, Pair_uint8_create(16, 26));
+    setup_anima(source_path, animas, &renderer.anima_sprites[0], 0, Pair_uint8_create(1, 1));
+    setup_anima(source_path, animas, &renderer.anima_sprites[1], 1, Pair_uint8_create(16, 26));
+    free(source_path);
+  }
 
   g_message("scratch begin...");
 
@@ -79,8 +80,6 @@ int main() { // int main(int argc, char *argv[]) {
   if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
     exitCode = 1;
   } else {
-
-    renderer = Renderer_create(PIXEL_DIMENSIONS);
 
     bool quit = false;
 
@@ -108,7 +107,7 @@ int main() { // int main(int argc, char *argv[]) {
       SDL_RenderClear(renderer.renderer);
 
       for (uint8_t idx = 0; idx < ANIMA_COUNT; ++idx) {
-        Renderer_erase_sprite(&renderer, animas[idx].sprite_location, &anima_sprites[idx]);
+        Renderer_erase_sprite(&renderer, animas[idx].sprite_location, &renderer.anima_sprites[idx]);
       }
 
       rgbVM_advance(&colour);
@@ -116,16 +115,16 @@ int main() { // int main(int argc, char *argv[]) {
 
       for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
         Anima_instinct(&animas[id]);
-        update_anima_sprite(&world, id, &anima_sprites[id]);
+        update_anima_sprite(&world, id, &renderer.anima_sprites[id]);
         Anima_move(&animas[id], &maze);
 
-        Renderer_draw_sprite(&renderer, animas[id].sprite_location, &anima_sprites[id]);
+        Renderer_draw_sprite(&renderer, animas[id].sprite_location, &renderer.anima_sprites[id]);
       }
 
       Renderer_update(&renderer);
 
       for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
-        anima_sprites[id].tick += 1;
+        renderer.anima_sprites[id].tick += 1;
 
         if (atomic_load(&animas[id].sync.flag_suspend)) {
           atomic_store(&animas[id].sync.flag_suspend, false);
@@ -146,9 +145,8 @@ int main() { // int main(int argc, char *argv[]) {
   for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
     pthread_cancel(ANIMA_THREADS[idx]);
     pthread_join(ANIMA_THREADS[idx], nullptr);
-    Surface_destroy(&anima_sprites[idx].surface);
   }
-  free(source_path);
+
   Maze_destroy(&maze);
 
   g_message("good-bye");

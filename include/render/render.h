@@ -7,6 +7,7 @@
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
 
+#include "constants.h"
 #include "maze.h"
 #include "pairs.h"
 #include "render/sprite.h"
@@ -19,6 +20,8 @@ struct renderer_t {
   SDL_Renderer *renderer;
   uint32_t *frame_buffer;
   SDL_Texture *texture;
+
+  SpriteInfo anima_sprites[ANIMA_COUNT];
 };
 
 Renderer Renderer_create(const Pair_uint32 dimensions);
