@@ -3,7 +3,7 @@
 #include "pairs.h"
 #include <stdlib.h>
 
-Pair_uint32 steps_in_direction(Pair_uint32 *origin, Direction direction, uint32_t steps) {
+Pair_uint32 steps_in_direction(Pair_uint8 *origin, Direction direction, uint32_t steps) {
 
   Pair_uint32 destination = {.x = origin->x, .y = origin->y};
 

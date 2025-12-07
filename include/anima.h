@@ -7,7 +7,6 @@
 #include <SDL3/SDL_render.h>
 
 #include "pairs.h"
-#include "surface.h"
 #include "utils.h"
 
 #include "logic.h"
@@ -40,7 +39,7 @@ struct anima_t {
 
   const char *name;
 
-  Pair_uint32 abstract_location;
+  Pair_uint8 abstract_location;
   Pair_uint32 sprite_location;
 
   SmtWorld pov;
@@ -50,7 +49,7 @@ struct anima_t {
   AnimaSync sync;
 };
 
-Anima Anima_create(uint8_t id, Pair_uint32 location, Direction intent, Direction momentum, Pair_uint32 sprite_size);
+Anima Anima_create(uint8_t id, Pair_uint8 location, Direction intent, Direction momentum, Pair_uint32 sprite_size);
 
 void Anima_destroy(Anima *self);
 

@@ -225,7 +225,7 @@ void Lang_assert_anima_locations(struct z3_lang *lang, Z3_context ctx, Z3_optimi
 
   for (size_t anima_idx = 0; anima_idx < ANIMA_COUNT; ++anima_idx) {
 
-    Pair_uint32 anima_location = atomic_load(&world->anima[anima_idx].location);
+    auto anima_location = atomic_load(&world->anima[anima_idx].location);
     Z3_ast anima_ast = Z3_mk_app(ctx, lang->anima.enum_consts[anima_idx], 0, 0);
 
     Z3_optimize_assert(ctx, optimizer, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, lang->anima.tile_row_f, anima_ast), Z3_mk_int(ctx, (int)anima_location.y, lang->u8.sort)));
@@ -244,8 +244,8 @@ void Lang_assert_all_non_anima_are_non_origin(struct z3_lang *lang, Z3_context c
     for (uint32_t col = 0; col < maze->size.x; col++) {
       u8_col_row[0] = Z3_mk_int(ctx, (int)col, lang->u8.sort);
 
-      for (size_t anima_idx = 0; anima_idx < ANIMA_COUNT; ++anima_idx) {
-        Pair_uint32 location = atomic_load(&world->anima[anima_idx].location);
+      for (uint8_t anima_idx = 0; anima_idx < ANIMA_COUNT; ++anima_idx) {
+        auto location = atomic_load(&world->anima[anima_idx].location);
 
         if (location.x == col && location.y == row) {
           goto skip_tile_assertion;

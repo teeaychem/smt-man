@@ -94,7 +94,7 @@ Maze setup_maze(char *source_path, char *path_buffer) {
   return Maze_create(path_buffer);
 }
 
-void setup_anima(char *source_path, char *path_buffer, Anima animas[ANIMA_COUNT], SpriteInfo anima_sprites[ANIMA_COUNT], uint8_t id, Pair_uint32 location) {
+void setup_anima(char *source_path, char *path_buffer, Anima animas[ANIMA_COUNT], SpriteInfo anima_sprites[ANIMA_COUNT], uint8_t id, Pair_uint8 location) {
   animas[id] = Anima_create(id, location, DOWN, DOWN, PAIR_SPRITE_EDGE);
 
   char path_b[40];
@@ -129,8 +129,8 @@ int main() { // int main(int argc, char *argv[]) {
   // Things are prepared...
   Maze maze = setup_maze(source_path, path_buffer);
 
-  setup_anima(source_path, path_buffer, animas, anima_sprites, 0, Pair_uint32_create(1, 1));
-  setup_anima(source_path, path_buffer, animas, anima_sprites, 1, Pair_uint32_create(16, 26));
+  setup_anima(source_path, path_buffer, animas, anima_sprites, 0, Pair_uint8_create(1, 1));
+  setup_anima(source_path, path_buffer, animas, anima_sprites, 1, Pair_uint8_create(16, 26));
 
   g_message("scratch begin...");
 

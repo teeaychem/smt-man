@@ -5,10 +5,10 @@
 #include "constants.h"
 #include "logic.h"
 #include "maze.h"
-#include "utils.h"
 #include "pairs.h"
+#include "utils.h"
 
-Anima Anima_create(uint8_t id, Pair_uint32 location, Direction intent, Direction momentum, Pair_uint32 sprite_size) {
+Anima Anima_create(uint8_t id, Pair_uint8 location, Direction intent, Direction momentum, Pair_uint32 sprite_size) {
   static const char *ANIMA_NAMES[2] = {"gottlob", "bertrand"};
   g_log(nullptr, G_LOG_LEVEL_INFO, "Creating anima: %s", ANIMA_NAMES[id]);
 
@@ -18,7 +18,7 @@ Anima Anima_create(uint8_t id, Pair_uint32 location, Direction intent, Direction
       .pov = {},
 
       .sprite_size = sprite_size,
-      .sprite_location = Pair_uint32_scale(&location, TILE_SCALE),
+      .sprite_location = Pair_uint32_create(location.x * TILE_SCALE, location.y * TILE_SCALE),
 
       .sync = {
           .cond_resume = PTHREAD_COND_INITIALIZER,

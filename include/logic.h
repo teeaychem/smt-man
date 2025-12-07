@@ -84,7 +84,7 @@ typedef enum anima_status_t AnimaStatus;
 
 typedef struct smt_world_anima_t SmtWorldAnima;
 struct smt_world_anima_t {
-  _Atomic(Pair_uint32) location;
+  _Atomic(Pair_uint8) location;
 
   _Atomic(Direction) intent;
   _Atomic(Direction) momentum;
