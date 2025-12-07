@@ -1,6 +1,6 @@
 #pragma once
 
-#include "utils/pairs.h"
+#include "pairs.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
@@ -9,7 +9,7 @@
 #include <png.h>
 
 struct surface_t {
-  PairI32 size;
+  Pair_uint32 size;
 
   uint32_t *pixels;
 };

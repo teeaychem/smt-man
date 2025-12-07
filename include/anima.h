@@ -6,12 +6,12 @@
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
 
-#include "maze.h"
+#include "pairs.h"
 #include "surface.h"
 #include "utils.h"
 
 #include "logic.h"
-#include "utils/pairs.h"
+#include "pairs.h"
 
 // Minds
 
@@ -40,17 +40,17 @@ struct anima_t {
 
   const char *name;
 
-  PairI32 abstract_location;
-  PairI32 sprite_location;
+  Pair_uint32 abstract_location;
+  Pair_uint32 sprite_location;
 
   SmtWorld pov;
 
-  PairI32 sprite_size;
+  Pair_uint32 sprite_size;
 
   AnimaSync sync;
 };
 
-Anima Anima_create(uint8_t id, PairI32 location, Direction intent, Direction momentum, PairI32 sprite_size);
+Anima Anima_create(uint8_t id, Pair_uint32 location, Direction intent, Direction momentum, Pair_uint32 sprite_size);
 
 void Anima_destroy(Anima *self);
 

@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-#include "utils/pairs.h"
+#include "pairs.h"
 
 enum direction_e {
   UP,
@@ -13,6 +13,6 @@ enum direction_e {
 
 typedef enum direction_e Direction;
 
-PairI32 steps_in_direction(PairI32 *origin, Direction direction, uint32_t steps);
+Pair_uint32 steps_in_direction(Pair_uint32 *origin, Direction direction, uint32_t steps);
 
 int random_in_range(int min, int max);

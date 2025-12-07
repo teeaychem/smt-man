@@ -7,9 +7,9 @@
 #include "constants.h"
 #include "render/render.h"
 #include "render/sprite.h"
-#include "utils/pairs.h"
+#include "pairs.h"
 
-Renderer Renderer_create(const PairI32 dimensions) {
+Renderer Renderer_create(const Pair_uint32 dimensions) {
   Renderer self = {.dimensions = dimensions};
 
   self.window = SDL_CreateWindow("smt-man", (int)(self.dimensions.x * UI_SCALE), (int)(self.dimensions.y * UI_SCALE), 0);
@@ -24,7 +24,7 @@ Renderer Renderer_create(const PairI32 dimensions) {
     exit(SDL_APP_FAILURE);
   }
 
-  self.frame_buffer = malloc(PairI32_area(&self.dimensions) * sizeof(*self.frame_buffer));
+  self.frame_buffer = malloc(Pair_uint32_area(&self.dimensions) * sizeof(*self.frame_buffer));
   if (self.frame_buffer == nullptr) {
     SDL_Log("Failed to create frame_buffer");
     exit(-1);
@@ -71,7 +71,7 @@ void Renderer_update(Renderer *self) {
   SDL_RenderPresent(self->renderer);
 }
 
-void Renderer_draw_sprite(Renderer *self, PairI32 position, SpriteInfo *sprite_info) {
+void Renderer_draw_sprite(Renderer *self, Pair_uint32 position, SpriteInfo *sprite_info) {
   for (uint32_t row = 0; row < sprite_info->size.y; ++row) {
 
     for (uint32_t col = 0; col < sprite_info->size.x; ++col) {
@@ -88,7 +88,7 @@ void Renderer_draw_sprite(Renderer *self, PairI32 position, SpriteInfo *sprite_i
   }
 }
 
-void Renderer_erase_sprite(Renderer *self, PairI32 position, SpriteInfo *sprite_info) {
+void Renderer_erase_sprite(Renderer *self, Pair_uint32 position, SpriteInfo *sprite_info) {
   for (uint32_t row = 0; row < sprite_info->size.y; ++row) {
     for (uint32_t col = 0; col < sprite_info->size.x; ++col) {
 
@@ -102,7 +102,7 @@ void Renderer_erase_sprite(Renderer *self, PairI32 position, SpriteInfo *sprite_
   }
 }
 
-void Renderer_fill_tile(Renderer *self, PairI32 origin, uint32_t colour) {
+void Renderer_fill_tile(Renderer *self, Pair_uint32 origin, uint32_t colour) {
 
   for (size_t row = 0; row < TILE_SCALE; ++row) {
     for (size_t col = 0; col < TILE_SCALE; ++col) {

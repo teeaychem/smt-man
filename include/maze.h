@@ -5,10 +5,10 @@
 #include <stdint.h>
 #include <sys/syslog.h>
 
-#include "utils/pairs.h"
+#include "pairs.h"
 
 struct maze_t {
-  PairI32 size;
+  Pair_uint32 size;
   char *abstract;
 };
 

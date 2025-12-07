@@ -2,13 +2,13 @@
 
 #include "surface.h"
 
-#include "utils/pairs.h"
+#include "pairs.h"
 
 typedef struct sprite_info_t SpriteInfo;
 struct sprite_info_t {
-  PairI32 size;
+  Pair_uint32 size;
   Surface surface;
-  PairI32 surface_offset;
+  Pair_uint32 surface_offset;
   uint32_t tick;
 };
 

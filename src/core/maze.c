@@ -8,7 +8,7 @@
 #include "constants.h"
 #include "glib.h"
 #include "maze.h"
-#include "utils/pairs.h"
+#include "pairs.h"
 
 void next_line(FILE *file) {
   char c = ' ';
@@ -85,7 +85,7 @@ Maze Maze_create(char *path) {
     exit(1);
   }
 
-  self.abstract = malloc(PairI32_area(&self.size) * sizeof(*self.abstract));
+  self.abstract = malloc(Pair_uint32_area(&self.size) * sizeof(*self.abstract));
 
   uint32_t pos_x = 0;
   uint32_t pos_y = 0;

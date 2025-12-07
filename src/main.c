@@ -1,3 +1,7 @@
+#define PAIR_IMPLEMENTATION
+#include "pairs.h"
+#undef PAIR_IMPLEMENTATION
+
 #include <assert.h>
 #include <pthread.h>
 #include <stdatomic.h>
@@ -23,8 +27,6 @@
 
 #include "surface.h"
 #include "toys.h"
-
-#include "utils/pairs.h"
 
 pthread_mutex_t MTX_SOLVER = PTHREAD_MUTEX_INITIALIZER;
 
@@ -104,6 +106,9 @@ void render_maze(Renderer *renderer, Maze *maze) {
 }
 
 int main(int argc, char **argv) {
+
+  Pair_uint32_create(2, 2);
+
   SmtWorld world = {};
   Anima animas[ANIMA_COUNT];
 
@@ -124,18 +129,18 @@ int main(int argc, char **argv) {
   anima_sprites[0] = (SpriteInfo){
       .size = PAIR_SPRITE_EDGE,
       .surface = Surface_from_path(path_buffer),
-      .surface_offset = PairI32_create(0, 0),
+      .surface_offset = Pair_uint32_create(0, 0),
   };
-  animas[0] = Anima_create(0, PairI32_create(1, 1), DOWN, DOWN, PAIR_SPRITE_EDGE);
+  animas[0] = Anima_create(0, Pair_uint32_create(1, 1), DOWN, DOWN, PAIR_SPRITE_EDGE);
   pthread_create(&ANIMA_THREADS[0], nullptr, spirit, (void *)&animas[0]);
 
   cwk_path_join(source_path, "resources/bertrand.png", path_buffer, FILENAME_MAX);
   anima_sprites[1] = (SpriteInfo){
       .size = PAIR_SPRITE_EDGE,
       .surface = Surface_from_path(path_buffer),
-      .surface_offset = PairI32_create(0, 0),
+      .surface_offset = Pair_uint32_create(0, 0),
   };
-  animas[1] = Anima_create(1, PairI32_create(10, 26), DOWN, DOWN, PAIR_SPRITE_EDGE);
+  animas[1] = Anima_create(1, Pair_uint32_create(10, 26), DOWN, DOWN, PAIR_SPRITE_EDGE);
   pthread_create(&ANIMA_THREADS[1], nullptr, spirit, (void *)&animas[1]);
 
   /* begin scratch */
@@ -184,10 +189,8 @@ int main(int argc, char **argv) {
 
       SDL_RenderClear(renderer.renderer);
 
-      for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
-        Renderer_erase_sprite(&renderer,
-                              animas[idx].sprite_location,
-                              &anima_sprites[idx]);
+      for (uint8_t idx = 0; idx < ANIMA_COUNT; ++idx) {
+        Renderer_erase_sprite(&renderer, animas[idx].sprite_location, &anima_sprites[idx]);
       }
 
       rgbVM_advance(&colour);
@@ -202,14 +205,12 @@ int main(int argc, char **argv) {
         update_anima_sprite(&world, idx, &anima_sprites[idx]);
         Anima_move(&animas[idx], &maze);
 
-        Renderer_draw_sprite(&renderer,
-                             animas[idx].sprite_location,
-                             &anima_sprites[idx]);
+        Renderer_draw_sprite(&renderer, animas[idx].sprite_location, &anima_sprites[idx]);
       }
 
       Renderer_update(&renderer);
 
-      for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
+      for (uint8_t idx = 0; idx < ANIMA_COUNT; ++idx) {
         anima_sprites[idx].tick += 1;
 
         if (atomic_load(&animas[idx].sync.flag_suspend)) {

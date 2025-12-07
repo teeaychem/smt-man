@@ -6,9 +6,9 @@
 #include "logic.h"
 #include "maze.h"
 #include "utils.h"
-#include "utils/pairs.h"
+#include "pairs.h"
 
-Anima Anima_create(uint8_t id, PairI32 location, Direction intent, Direction momentum, PairI32 sprite_size) {
+Anima Anima_create(uint8_t id, Pair_uint32 location, Direction intent, Direction momentum, Pair_uint32 sprite_size) {
   static const char *ANIMA_NAMES[2] = {"gottlob", "bertrand"};
   g_log(nullptr, G_LOG_LEVEL_INFO, "Creating anima: %s", ANIMA_NAMES[id]);
 
@@ -18,7 +18,7 @@ Anima Anima_create(uint8_t id, PairI32 location, Direction intent, Direction mom
       .pov = {},
 
       .sprite_size = sprite_size,
-      .sprite_location = PairI32_scale(&location, TILE_SCALE),
+      .sprite_location = Pair_uint32_scale(&location, TILE_SCALE),
 
       .sync = {
           .cond_resume = PTHREAD_COND_INITIALIZER,
@@ -74,7 +74,7 @@ void Anima_move(Anima *self, Maze *maze) {
 
     atomic_store(&self->pov.anima[self->id].momentum, intent);
 
-    PairI32 destination = steps_in_direction(&abstract_location, intent, 1);
+    Pair_uint32 destination = steps_in_direction(&abstract_location, intent, 1);
 
     auto path_ok = Maze_abstract_is_path(maze, destination.x, destination.y);
 

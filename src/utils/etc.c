@@ -1,11 +1,11 @@
 #include "toys.h"
 #include "utils.h"
-#include "utils/pairs.h"
+#include "pairs.h"
 #include <stdlib.h>
 
-PairI32 steps_in_direction(PairI32 *origin, Direction direction, uint32_t steps) {
+Pair_uint32 steps_in_direction(Pair_uint32 *origin, Direction direction, uint32_t steps) {
 
-  PairI32 destination = {.x = origin->x, .y = origin->y};
+  Pair_uint32 destination = {.x = origin->x, .y = origin->y};
 
   switch (direction) {
   case UP: {
