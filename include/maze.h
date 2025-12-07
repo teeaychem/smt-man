@@ -5,15 +5,11 @@
 #include <stdint.h>
 #include <sys/syslog.h>
 
-#include "constants.h"
 #include "utils/pairs.h"
 
 struct maze_t {
-
   PairI32 size;
-
   char *abstract;
-  uint8_t *pixels;
 };
 
 typedef struct maze_t Maze;
@@ -21,10 +17,6 @@ typedef struct maze_t Maze;
 Maze Maze_create(char *path);
 
 void Maze_destroy(Maze *self);
-
-static inline uint8_t Maze_pixel_at_point(Maze *self, PairI32 point) {
-  return self->pixels[(point.y * PIXEL_DIMENSIONS.x) + point.x];
-}
 
 static inline char Maze_abstract_at(Maze *self, uint32_t x, uint32_t y) {
   assert(x < self->size.x);

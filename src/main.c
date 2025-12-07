@@ -36,7 +36,6 @@ pthread_t ANIMA_THREADS[ANIMA_COUNT];
 
 SmtWorld WORLD = {};
 
-int SOURCE_PATH_SIZE;
 char *SOURCE_PATH;
 
 void *spirit(void *_anima) {
@@ -64,19 +63,19 @@ void *spirit(void *_anima) {
   return 0;
 }
 
-void setup() {
+void source_path_setup() {
   // Set the source path for resources, etc.
-  SOURCE_PATH_SIZE = wai_getExecutablePath(NULL, 0, NULL) + 1;
-  SOURCE_PATH = malloc((size_t)SOURCE_PATH_SIZE * sizeof(*SOURCE_PATH));
+  int source_path_size = wai_getExecutablePath(NULL, 0, NULL) + 1;
+  SOURCE_PATH = malloc((size_t)source_path_size * sizeof(*SOURCE_PATH));
   int source_path_len;
-  wai_getExecutablePath(SOURCE_PATH, SOURCE_PATH_SIZE - 1, &source_path_len);
-  assert(source_path_len < SOURCE_PATH_SIZE);
+  wai_getExecutablePath(SOURCE_PATH, source_path_size - 1, &source_path_len);
+  assert(source_path_len < source_path_size);
   SOURCE_PATH[source_path_len] = '\0';
 }
 
-void update_anima_sprite(uint8_t anima_id, SpriteInfo *sprite_info) {
+void update_anima_sprite(SmtWorld *world, uint8_t anima_id, SpriteInfo *sprite_info) {
 
-  switch (atomic_load(&WORLD.anima[anima_id].status)) {
+  switch (atomic_load(&world->anima[anima_id].status)) {
 
   case ANIMA_STATUS_SEARCH: {
     if (sprite_info->tick % 15 == 0) {
@@ -86,9 +85,10 @@ void update_anima_sprite(uint8_t anima_id, SpriteInfo *sprite_info) {
   }
 }
 
-void World_sync_anima() {
+void World_sync() {
   for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
     atomic_store(&WORLD.anima[idx].location, atomic_load(&ANIMAS[idx].pov.anima[idx].location));
+    atomic_store(&WORLD.anima[idx].status, atomic_load(&ANIMAS[idx].pov.anima[idx].status));
   }
 }
 
@@ -96,7 +96,7 @@ int main(int argc, char **argv) {
 
   char PATH_BUFFER[FILENAME_MAX];
 
-  setup();
+  source_path_setup();
 
   // Things are prepared...
 
@@ -122,7 +122,7 @@ int main(int argc, char **argv) {
   pthread_create(&ANIMA_THREADS[1], NULL, spirit, (void *)&ANIMAS[1]);
 
   /* begin scratch */
-  World_sync_anima();
+  World_sync();
   g_message("scratch begin...");
   z3_tmp(&maze, &WORLD);
 
@@ -151,17 +151,47 @@ int main(int argc, char **argv) {
     SDL_zero(event);
 
     // Draw the maze only once...
-    for (uint32_t pxl = 0; pxl < PairI32_area(&PIXEL_DIMENSIONS); ++pxl) {
-      if (maze.pixels[pxl] != '#') {
-        renderer.frame_buffer[pxl] = 0xffffffff;
+    // For each tile...
+    for (uint32_t pos_x = 0; pos_x < TILE_COUNTS.x; ++pos_x) {
+      for (uint32_t pos_y = 0; pos_y < TILE_COUNTS.y; ++pos_y) {
+
+        if (!Maze_abstract_is_path(&maze, pos_x, pos_y)) {
+
+          for (uint32_t pxl_y = 0; pxl_y < TILE_SCALE; ++pxl_y) {
+            uint32_t y_offset = ((pos_y * TILE_SCALE) + pxl_y) * renderer.dimensions.x;
+            for (uint32_t pxl_x = 0; pxl_x < TILE_SCALE; ++pxl_x) {
+              uint32_t x_offset = pxl_x + (pos_x * TILE_SCALE);
+
+              renderer.frame_buffer[y_offset + x_offset] = 0xffffffff;
+            }
+          }
+        } else {
+          for (uint32_t pxl_y = 0; pxl_y < TILE_SCALE; ++pxl_y) {
+            uint32_t y_offset = ((pos_y * TILE_SCALE) + pxl_y) * renderer.dimensions.x;
+            for (uint32_t pxl_x = 0; pxl_x < TILE_SCALE; ++pxl_x) {
+              uint32_t x_offset = pxl_x + (pos_x * TILE_SCALE);
+
+              renderer.frame_buffer[y_offset + x_offset] = 0x00000000;
+            }
+          }
+        }
       }
     }
 
     while (!quit) {
       NSTimer_start(&frameCapTimer);
+
+      while (SDL_PollEvent(&event)) {
+        if (event.type == SDL_EVENT_QUIT) {
+          quit = true;
+        }
+        Anima_handle_event(&ANIMAS[0], &event);
+      }
+
+      World_sync();
+
       SDL_RenderClear(renderer.renderer);
 
-      World_sync_anima();
       for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
         Renderer_erase_sprite(&renderer,
                               ANIMAS[idx].sprite_location,
@@ -175,16 +205,9 @@ int main(int argc, char **argv) {
                              colour.state[2].value,
                              0x000000ff);
 
-      while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_EVENT_QUIT) {
-          quit = true;
-        }
-        Anima_handle_event(&ANIMAS[0], &event);
-      }
-
       for (uint8_t idx = 0; idx < ANIMA_COUNT; ++idx) {
-        Anima_instinct(&ANIMAS[idx]);
-        update_anima_sprite(idx, &ANIMA_SPRITES[idx]);
+        // Anima_instinct(&ANIMAS[idx]);
+        update_anima_sprite(&WORLD, idx, &ANIMA_SPRITES[idx]);
         Anima_move(&ANIMAS[idx], &maze);
 
         Renderer_draw_sprite(&renderer,

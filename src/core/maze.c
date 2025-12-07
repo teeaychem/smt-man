@@ -19,8 +19,9 @@ void next_line(FILE *file) {
 
 Maze Maze_create(char *path) {
 
-  Maze self = {.size = {},
-               .pixels = NULL};
+  Maze self = {
+      .size = {},
+  };
 
   size_t tile_count = 0;
   bool preamble_ok = true;
@@ -85,8 +86,6 @@ Maze Maze_create(char *path) {
   }
 
   self.abstract = malloc(PairI32_area(&self.size) * sizeof(*self.abstract));
-  self.pixels = malloc(PairI32_area(&PIXEL_DIMENSIONS) * sizeof(*self.pixels));
-  memset(self.pixels, '\0', PairI32_area(&PIXEL_DIMENSIONS));
 
   uint32_t pos_x = 0;
   uint32_t pos_y = 0;
@@ -111,11 +110,6 @@ Maze Maze_create(char *path) {
 
     default: {
       self.abstract[pos_y * self.size.x + pos_x] = read;
-      for (size_t pxl_y = 0; pxl_y < TILE_SCALE; ++pxl_y) {
-        for (size_t pxl_x = 0; pxl_x < TILE_SCALE; ++pxl_x) {
-          self.pixels[(((pos_y * TILE_SCALE) + pxl_y) * PIXEL_DIMENSIONS.x) + pxl_x + (pos_x * TILE_SCALE)] = (unsigned char)read;
-        }
-      }
 
       pos_x += 1;
 
@@ -140,19 +134,6 @@ Maze Maze_create(char *path) {
 
 void Maze_destroy(Maze *self) {
   free(self->abstract);
-  free(self->pixels);
-}
-
-void Maze_pixel_stdout(Maze *self) {
-  for (size_t y = 0; y < PIXEL_DIMENSIONS.y; ++y) {
-    for (size_t x = 0; x < PIXEL_DIMENSIONS.x; ++x) {
-      putchar(self->pixels[(y * PIXEL_DIMENSIONS.x) + x]);
-    }
-
-    if (y + TILE_SCALE < PIXEL_DIMENSIONS.y) {
-      putchar('\n');
-    }
-  }
 }
 
 void Maze_abstract_stdout(Maze *self) {
