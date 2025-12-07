@@ -1,5 +1,6 @@
 #pragma once
 
+#include <pthread.h>
 #include <stdint.h>
 
 #include <SDL3/SDL_render.h>
@@ -22,3 +23,6 @@ constexpr int UI_SCALE = 3;
 constexpr uint32_t FPS_COUNT = 15;
 
 constexpr Uint64 NS_PER_FRAME = 1000000000 / FPS_COUNT;
+
+extern pthread_t ANIMA_THREADS[ANIMA_COUNT];
+extern pthread_mutex_t MTX_SOLVER;
