@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stddef.h>
+#include <stdint.h>
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
@@ -11,6 +12,7 @@
 
 typedef struct renderer_t Renderer;
 struct renderer_t {
+  PairI32 dimensions;
   SDL_Window *window;
 
   SDL_Renderer *renderer;
@@ -18,7 +20,7 @@ struct renderer_t {
   SDL_Texture *texture;
 };
 
-Renderer Renderer_create();
+Renderer Renderer_create(const PairI32 dimensions);
 
 void Renderer_destroy(Renderer *self);
 
@@ -29,3 +31,7 @@ void Renderer_draw_sprite(Renderer *self, PairI32 location, SpriteInfo *sprite_i
 void Renderer_erase_sprite(Renderer *self, PairI32 location, SpriteInfo *sprite_info);
 
 void Renderer_fill_tile(Renderer *self, PairI32 pos, uint32_t colour);
+
+static inline uint32_t Renderer_pixel_at_point(Renderer *self, uint32_t col, uint32_t row) {
+  return col * self->dimensions.x + row;
+}

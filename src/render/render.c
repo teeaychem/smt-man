@@ -6,12 +6,13 @@
 
 #include "constants.h"
 #include "render/render.h"
+#include "render/sprite.h"
 #include "utils/pairs.h"
 
-Renderer Renderer_create() {
-  Renderer self;
+Renderer Renderer_create(const PairI32 dimensions) {
+  Renderer self = {.dimensions = dimensions};
 
-  self.window = SDL_CreateWindow("smt-man", PIXEL_DIMENSIONS.x * UI_SCALE, PIXEL_DIMENSIONS.y * UI_SCALE, 0);
+  self.window = SDL_CreateWindow("smt-man", (int)(self.dimensions.x * UI_SCALE), (int)(self.dimensions.y * UI_SCALE), 0);
   if (self.window == NULL) {
     SDL_Log("Failed to create window: %s", SDL_GetError());
     exit(SDL_APP_FAILURE);
@@ -23,7 +24,7 @@ Renderer Renderer_create() {
     exit(SDL_APP_FAILURE);
   }
 
-  self.frame_buffer = malloc(PairI32_area(&PIXEL_DIMENSIONS) * sizeof(*self.frame_buffer));
+  self.frame_buffer = malloc(PairI32_area(&self.dimensions) * sizeof(*self.frame_buffer));
   if (self.frame_buffer == NULL) {
     SDL_Log("Failed to create frame_buffer");
     exit(-1);
@@ -32,8 +33,8 @@ Renderer Renderer_create() {
   self.texture = SDL_CreateTexture(self.renderer,
                                    SDL_PIXELFORMAT_ABGR8888,
                                    SDL_TEXTUREACCESS_STREAMING,
-                                   PIXEL_DIMENSIONS.x,
-                                   PIXEL_DIMENSIONS.y);
+                                   (int)self.dimensions.x,
+                                   (int)self.dimensions.y);
   if (self.texture == NULL) {
     SDL_Log("Failed to create texture: %s", SDL_GetError());
     exit(SDL_APP_FAILURE);
@@ -55,8 +56,8 @@ void Renderer_update(Renderer *self) {
   int pitch;
 
   SDL_LockTexture(self->texture, NULL, (void **)&pixels, &pitch);
-  for (size_t i = 0, sp = 0, dp = 0; i < PIXEL_DIMENSIONS.y; i++, dp += PIXEL_DIMENSIONS.x, sp += (size_t)pitch) {
-    memcpy(pixels + sp, self->frame_buffer + dp, PIXEL_DIMENSIONS.x * sizeof(*(self->frame_buffer)));
+  for (size_t i = 0, sp = 0, dp = 0; i < self->dimensions.y; i++, dp += self->dimensions.x, sp += (size_t)pitch) {
+    memcpy(pixels + sp, self->frame_buffer + dp, self->dimensions.x * sizeof(*self->frame_buffer));
   }
 
   SDL_UnlockTexture(self->texture);
@@ -72,10 +73,15 @@ void Renderer_update(Renderer *self) {
 
 void Renderer_draw_sprite(Renderer *self, PairI32 position, SpriteInfo *sprite_info) {
   for (uint32_t row = 0; row < sprite_info->size.y; ++row) {
+
     for (uint32_t col = 0; col < sprite_info->size.x; ++col) {
-      uint32_t pixel_fb = (position.y + col) * PIXEL_DIMENSIONS.x + position.x + row;
+
+      uint32_t pixel_fb = Renderer_pixel_at_point(self, position.y + col, position.x + row);
+
       if ((self->frame_buffer[pixel_fb] | 0x00000000) == 0x00000000) {
+
         uint32_t pixel_s = (sprite_info->surface_offset.y + col) * sprite_info->surface.size.x + sprite_info->surface_offset.x + row;
+
         self->frame_buffer[pixel_fb] = sprite_info->surface.pixels[pixel_s];
       }
     }
@@ -85,8 +91,10 @@ void Renderer_draw_sprite(Renderer *self, PairI32 position, SpriteInfo *sprite_i
 void Renderer_erase_sprite(Renderer *self, PairI32 position, SpriteInfo *sprite_info) {
   for (uint32_t row = 0; row < sprite_info->size.y; ++row) {
     for (uint32_t col = 0; col < sprite_info->size.x; ++col) {
-      uint32_t pixel_fb = (position.y + col) * PIXEL_DIMENSIONS.x + position.x + row;
-      uint32_t pixel_s = (sprite_info->surface_offset.y + col) * sprite_info->surface.size.x + sprite_info->surface_offset.x + row;
+
+      uint32_t pixel_fb = Renderer_pixel_at_point(self, position.y + col, position.x + row);
+
+      uint32_t pixel_s = SpriteInfo_pixel_at_point(sprite_info, col, row);
       if (self->frame_buffer[pixel_fb] == sprite_info->surface.pixels[pixel_s]) {
         self->frame_buffer[pixel_fb] = 0x00000000;
       }

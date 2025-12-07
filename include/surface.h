@@ -5,6 +5,7 @@
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
 
+#include <stdint.h>
 #include <png.h>
 
 struct surface_t {
@@ -12,11 +13,10 @@ struct surface_t {
 
   uint32_t *pixels;
 };
-
 typedef struct surface_t Surface;
 
 Surface Surface_from_path(char *path);
 
 void Surface_destroy(Surface *self);
 
-int Surface_char_projection(Surface *surface, char *dest, size_t *len);
+int Surface_char_projection(Surface *self, char *dest, size_t *len);

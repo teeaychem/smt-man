@@ -140,7 +140,7 @@ int main(int argc, char **argv) {
     exitCode = 1;
   } else {
 
-    renderer = Renderer_create();
+    renderer = Renderer_create(PIXEL_DIMENSIONS);
 
     bool quit = false;
 
