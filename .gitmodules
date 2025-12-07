@@ -1,0 +1,6 @@
+[submodule "dependencies/cwalk"]
+	path = submodules/cwalk
+	url = https://github.com/likle/cwalk.git
+[submodule "dependencies/whereami"]
+	path = submodules/whereami
+	url = https://github.com/gpakosz/whereami.git

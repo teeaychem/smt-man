@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 4.1.2)
-project(smt-man LANGUAGES C)
 
-set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
+project(smt-man LANGUAGES C)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -46,7 +45,7 @@ target_compile_options(
         -Wformat=2
         -Wconversion
         -Wunreachable-code
-        # -g3
+        -g3
         -O3
     # -DDEBUG
 )
@@ -74,7 +73,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${PNG_INCLUDE_DIRS})
 # find_package(Criterion REQUIRED)
 # target_link_libraries(${PROJECT_NAME} PRIVATE criterion)
 
-# find_package(z3 REQUIRED CONFIG)
+find_package(z3 REQUIRED CONFIG)
 target_link_libraries(${PROJECT_NAME} PRIVATE z3)
 
 pkg_check_modules(GLIB2 glib-2.0)
@@ -83,27 +82,16 @@ pkg_search_module(GLIB REQUIRED glib-2.0)
 target_include_directories(${PROJECT_NAME} PRIVATE ${GLIB_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${GLIB_LIBRARIES})
 
-## FetchContent
+## Submodules
+set(SUBMODULES ${CMAKE_CURRENT_SOURCE_DIR}/submodules)
 
-include(FetchContent)
-set(FETCHCONTENT_BASE_DIR ${PROJECT_SOURCE_DIR}/fetch_content)
+target_include_directories(${PROJECT_NAME} PRIVATE ${SUBMODULES}/cwalk/include)
+target_sources(${PROJECT_NAME} PRIVATE ${SUBMODULES}/cwalk/src/cwalk.c)
 
-FetchContent_Declare(
-    cwalk
-    GIT_REPOSITORY https://github.com/likle/cwalk.git
-    GIT_TAG v1.2.9
-)
-FetchContent_MakeAvailable(cwalk)
-target_include_directories(${PROJECT_NAME} PRIVATE ${cwalk_SOURCE_DIR}/include)
-target_sources(${PROJECT_NAME} PRIVATE ${cwalk_SOURCE_DIR}/src/cwalk.c)
+target_include_directories(${PROJECT_NAME} PRIVATE ${SUBMODULES}/whereami/src)
+target_sources(${PROJECT_NAME} PRIVATE ${SUBMODULES}/whereami/src/whereami.c)
 
-FetchContent_Declare(
-    whereami
-    GIT_REPOSITORY https://github.com/gpakosz/whereami.git
-)
-FetchContent_MakeAvailable(whereami)
-target_include_directories(${PROJECT_NAME} PRIVATE ${whereami_SOURCE_DIR}/src)
-target_sources(${PROJECT_NAME} PRIVATE ${whereami_SOURCE_DIR}/src/whereami.c)
+# Resources
 
 add_custom_target(
     copy_data
@@ -114,5 +102,7 @@ add_custom_target(
     COMMENT "Copying data"
 )
 add_dependencies(${PROJECT_NAME} copy_data)
+
+# Tests
 
 # add_subdirectory("tests")
