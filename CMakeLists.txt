@@ -27,13 +27,27 @@ add_executable(
     ${UTILS}
 )
 
+set(COMPILE_AND_LINK_OPTIONS
+    -fsanitize={address,undefined}
+    -fno-omit-frame-pointer
+)
+add_compile_options(${COMPILE_AND_LINK_OPTIONS})
+add_link_options(${COMPILE_AND_LINK_OPTIONS})
+
 target_compile_options(
     ${PROJECT_NAME}
     PRIVATE
-        # -Wall
-        -Werror
-        -g
-        -O0
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Wformat-security
+        -Wnull-dereference
+        -Wwrite-strings
+        -Wformat=2
+        -Wconversion
+        -Wunreachable-code
+        # -g3
+        -O3
     # -DDEBUG
 )
 
@@ -43,16 +57,16 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 
 find_package(PkgConfig REQUIRED)
 
+find_package(Threads)
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
-find_package(Threads)
 target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
 
 pkg_check_modules(SDL3 REQUIRED SDL3)
 find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3 SDL3::Headers)
 
-# pkg_check_modules(LIBPNG REQUIRED LIBPNG)
+pkg_check_modules(LIBPNG REQUIRED LIBPNG)
 find_package(PNG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE PNG::PNG)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PNG_INCLUDE_DIRS})
@@ -72,14 +86,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${GLIB_LIBRARIES})
 ## FetchContent
 
 include(FetchContent)
-
-# FetchContent_Declare(
-#     clog
-#     GIT_REPOSITORY https://github.com/0xA1M/clog.git
-#     GIT_TAG main
-# )
-# FetchContent_MakeAvailable(clog)
-# target_include_directories(${PROJECT_NAME} PRIVATE ${clog_SOURCE_DIR})
 
 FetchContent_Declare(
     cwalk
