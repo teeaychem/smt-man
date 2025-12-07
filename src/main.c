@@ -26,26 +26,18 @@
 
 #include "utils/pairs.h"
 
-Renderer renderer;
+pthread_mutex_t MTX_SOLVER = PTHREAD_MUTEX_INITIALIZER;
 
-pthread_mutex_t mtx_solver = PTHREAD_MUTEX_INITIALIZER;
-
-Anima ANIMAS[ANIMA_COUNT];
-SpriteInfo ANIMA_SPRITES[ANIMA_COUNT];
 pthread_t ANIMA_THREADS[ANIMA_COUNT];
 
-SmtWorld WORLD = {};
+void *spirit(void *void_anima) {
 
-char *SOURCE_PATH;
-
-void *spirit(void *_anima) {
-
-  Anima *anima = _anima;
+  Anima *anima = void_anima;
   Mind mind = Mind_default();
 
-  pthread_mutex_lock(&mtx_solver);
+  pthread_mutex_lock(&MTX_SOLVER);
   Anima_touch(anima, &mind);
-  pthread_mutex_unlock(&mtx_solver);
+  pthread_mutex_unlock(&MTX_SOLVER);
 
   atomic_store(&anima->sync.flag_suspend, true);
 
@@ -63,14 +55,14 @@ void *spirit(void *_anima) {
   return 0;
 }
 
-void source_path_setup() {
+void source_path_setup(char **source_path) {
   // Set the source path for resources, etc.
   int source_path_size = wai_getExecutablePath(NULL, 0, NULL) + 1;
-  SOURCE_PATH = malloc((size_t)source_path_size * sizeof(*SOURCE_PATH));
+  *source_path = malloc((size_t)source_path_size * sizeof(*source_path));
   int source_path_len;
-  wai_getExecutablePath(SOURCE_PATH, source_path_size - 1, &source_path_len);
+  wai_getExecutablePath(*source_path, source_path_size - 1, &source_path_len);
   assert(source_path_len < source_path_size);
-  SOURCE_PATH[source_path_len] = '\0';
+  *source_path[source_path_len] = '\0';
 }
 
 void update_anima_sprite(SmtWorld *world, uint8_t anima_id, SpriteInfo *sprite_info) {
@@ -85,46 +77,71 @@ void update_anima_sprite(SmtWorld *world, uint8_t anima_id, SpriteInfo *sprite_i
   }
 }
 
-void World_sync() {
+void World_sync(SmtWorld *world, Anima animas[ANIMA_COUNT]) {
   for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
-    atomic_store(&WORLD.anima[idx].location, atomic_load(&ANIMAS[idx].pov.anima[idx].location));
-    atomic_store(&WORLD.anima[idx].status, atomic_load(&ANIMAS[idx].pov.anima[idx].status));
+    atomic_store(&world->anima[idx].location, atomic_load(&animas[idx].pov.anima[idx].location));
+    atomic_store(&world->anima[idx].status, atomic_load(&animas[idx].pov.anima[idx].status));
+  }
+}
+
+void render_maze(Renderer *renderer, Maze *maze) {
+  // For each tile...
+  for (uint32_t pos_x = 0; pos_x < TILE_COUNTS.x; ++pos_x) {
+    for (uint32_t pos_y = 0; pos_y < TILE_COUNTS.y; ++pos_y) {
+
+      bool is_path = Maze_abstract_is_path(maze, pos_x, pos_y);
+
+      for (uint32_t pxl_y = 0; pxl_y < TILE_SCALE; ++pxl_y) {
+        uint32_t y_offset = ((pos_y * TILE_SCALE) + pxl_y) * renderer->dimensions.x;
+        for (uint32_t pxl_x = 0; pxl_x < TILE_SCALE; ++pxl_x) {
+          uint32_t x_offset = pxl_x + (pos_x * TILE_SCALE);
+
+          renderer->frame_buffer[y_offset + x_offset] = is_path ? 0x00000000 : 0xffffffff;
+        }
+      }
+    }
   }
 }
 
 int main(int argc, char **argv) {
+  SmtWorld world = {};
+  Anima animas[ANIMA_COUNT];
 
-  char PATH_BUFFER[FILENAME_MAX];
+  Renderer renderer;
+  SpriteInfo anima_sprites[ANIMA_COUNT];
 
-  source_path_setup();
+  char *source_path = NULL;
+  char path_buffer[FILENAME_MAX];
+
+  source_path_setup(&source_path);
 
   // Things are prepared...
 
-  cwk_path_join(SOURCE_PATH, "resources/maze/source.txt", PATH_BUFFER, FILENAME_MAX);
-  Maze maze = Maze_create(PATH_BUFFER);
+  cwk_path_join(source_path, "resources/maze/source.txt", path_buffer, FILENAME_MAX);
+  Maze maze = Maze_create(path_buffer);
 
-  cwk_path_join(SOURCE_PATH, "resources/gottlob.png", PATH_BUFFER, FILENAME_MAX);
-  ANIMA_SPRITES[0] = (SpriteInfo){
+  cwk_path_join(source_path, "resources/gottlob.png", path_buffer, FILENAME_MAX);
+  anima_sprites[0] = (SpriteInfo){
       .size = PAIR_SPRITE_EDGE,
-      .surface = Surface_from_path(PATH_BUFFER),
+      .surface = Surface_from_path(path_buffer),
       .surface_offset = PairI32_create(0, 0),
   };
-  ANIMAS[0] = Anima_create(0, PairI32_create(1, 1), DOWN, DOWN, PAIR_SPRITE_EDGE);
-  pthread_create(&ANIMA_THREADS[0], NULL, spirit, (void *)&ANIMAS[0]);
+  animas[0] = Anima_create(0, PairI32_create(1, 1), DOWN, DOWN, PAIR_SPRITE_EDGE);
+  pthread_create(&ANIMA_THREADS[0], NULL, spirit, (void *)&animas[0]);
 
-  cwk_path_join(SOURCE_PATH, "resources/bertrand.png", PATH_BUFFER, FILENAME_MAX);
-  ANIMA_SPRITES[1] = (SpriteInfo){
+  cwk_path_join(source_path, "resources/bertrand.png", path_buffer, FILENAME_MAX);
+  anima_sprites[1] = (SpriteInfo){
       .size = PAIR_SPRITE_EDGE,
-      .surface = Surface_from_path(PATH_BUFFER),
+      .surface = Surface_from_path(path_buffer),
       .surface_offset = PairI32_create(0, 0),
   };
-  ANIMAS[1] = Anima_create(1, PairI32_create(10, 26), DOWN, DOWN, PAIR_SPRITE_EDGE);
-  pthread_create(&ANIMA_THREADS[1], NULL, spirit, (void *)&ANIMAS[1]);
+  animas[1] = Anima_create(1, PairI32_create(10, 26), DOWN, DOWN, PAIR_SPRITE_EDGE);
+  pthread_create(&ANIMA_THREADS[1], NULL, spirit, (void *)&animas[1]);
 
   /* begin scratch */
-  World_sync();
+  World_sync(&world, animas);
   g_message("scratch begin...");
-  z3_tmp(&maze, &WORLD);
+  z3_tmp(&maze, &world);
 
   g_message("scratch end...");
 
@@ -151,32 +168,7 @@ int main(int argc, char **argv) {
     SDL_zero(event);
 
     // Draw the maze only once...
-    // For each tile...
-    for (uint32_t pos_x = 0; pos_x < TILE_COUNTS.x; ++pos_x) {
-      for (uint32_t pos_y = 0; pos_y < TILE_COUNTS.y; ++pos_y) {
-
-        if (!Maze_abstract_is_path(&maze, pos_x, pos_y)) {
-
-          for (uint32_t pxl_y = 0; pxl_y < TILE_SCALE; ++pxl_y) {
-            uint32_t y_offset = ((pos_y * TILE_SCALE) + pxl_y) * renderer.dimensions.x;
-            for (uint32_t pxl_x = 0; pxl_x < TILE_SCALE; ++pxl_x) {
-              uint32_t x_offset = pxl_x + (pos_x * TILE_SCALE);
-
-              renderer.frame_buffer[y_offset + x_offset] = 0xffffffff;
-            }
-          }
-        } else {
-          for (uint32_t pxl_y = 0; pxl_y < TILE_SCALE; ++pxl_y) {
-            uint32_t y_offset = ((pos_y * TILE_SCALE) + pxl_y) * renderer.dimensions.x;
-            for (uint32_t pxl_x = 0; pxl_x < TILE_SCALE; ++pxl_x) {
-              uint32_t x_offset = pxl_x + (pos_x * TILE_SCALE);
-
-              renderer.frame_buffer[y_offset + x_offset] = 0x00000000;
-            }
-          }
-        }
-      }
-    }
+    render_maze(&renderer, &maze);
 
     while (!quit) {
       NSTimer_start(&frameCapTimer);
@@ -185,17 +177,17 @@ int main(int argc, char **argv) {
         if (event.type == SDL_EVENT_QUIT) {
           quit = true;
         }
-        Anima_handle_event(&ANIMAS[0], &event);
+        Anima_handle_event(&animas[0], &event);
       }
 
-      World_sync();
+      World_sync(&world, animas);
 
       SDL_RenderClear(renderer.renderer);
 
       for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
         Renderer_erase_sprite(&renderer,
-                              ANIMAS[idx].sprite_location,
-                              &ANIMA_SPRITES[idx]);
+                              animas[idx].sprite_location,
+                              &anima_sprites[idx]);
       }
 
       rgbVM_advance(&colour);
@@ -207,22 +199,22 @@ int main(int argc, char **argv) {
 
       for (uint8_t idx = 0; idx < ANIMA_COUNT; ++idx) {
         // Anima_instinct(&ANIMAS[idx]);
-        update_anima_sprite(&WORLD, idx, &ANIMA_SPRITES[idx]);
-        Anima_move(&ANIMAS[idx], &maze);
+        update_anima_sprite(&world, idx, &anima_sprites[idx]);
+        Anima_move(&animas[idx], &maze);
 
         Renderer_draw_sprite(&renderer,
-                             ANIMAS[idx].sprite_location,
-                             &ANIMA_SPRITES[idx]);
+                             animas[idx].sprite_location,
+                             &anima_sprites[idx]);
       }
 
       Renderer_update(&renderer);
 
       for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
-        ANIMA_SPRITES[idx].tick += 1;
+        anima_sprites[idx].tick += 1;
 
-        if (atomic_load(&ANIMAS[idx].sync.flag_suspend)) {
-          atomic_store(&ANIMAS[idx].sync.flag_suspend, false);
-          pthread_cond_broadcast(&ANIMAS[idx].sync.cond_resume);
+        if (atomic_load(&animas[idx].sync.flag_suspend)) {
+          atomic_store(&animas[idx].sync.flag_suspend, false);
+          pthread_cond_broadcast(&animas[idx].sync.cond_resume);
         }
       }
 
@@ -239,7 +231,7 @@ int main(int argc, char **argv) {
   for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
     pthread_cancel(ANIMA_THREADS[idx]);
     pthread_join(ANIMA_THREADS[idx], NULL);
-    Surface_destroy(&ANIMA_SPRITES[idx].surface);
+    Surface_destroy(&anima_sprites[idx].surface);
   }
   Maze_destroy(&maze);
 
