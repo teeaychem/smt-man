@@ -74,7 +74,7 @@ void Anima_move(Anima *self, Maze *maze) {
 
     atomic_store(&self->pov.anima[self->id].momentum, intent);
 
-    Pair_uint32 destination = steps_in_direction(&abstract_location, intent, 1);
+    auto destination = steps_in_direction(&abstract_location, intent, 1);
 
     auto path_ok = Maze_abstract_is_path(maze, destination.x, destination.y);
 

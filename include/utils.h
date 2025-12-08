@@ -13,6 +13,6 @@ enum direction_e {
 
 typedef enum direction_e Direction;
 
-Pair_uint32 steps_in_direction(Pair_uint8 *origin, Direction direction, uint32_t steps);
+Pair_uint8 steps_in_direction(Pair_uint8 *origin, Direction direction, uint8_t steps);
 
 int random_in_range(int min, int max);

@@ -23,7 +23,7 @@ Renderer Renderer_create(const Pair_uint32 dimensions) {
     exit(SDL_APP_FAILURE);
   }
 
-  self.frame_buffer = malloc(Pair_uint32_area(&self.dimensions) * sizeof(*self.frame_buffer));
+  self.frame_buffer = malloc(self.dimensions.x * self.dimensions.y * sizeof(*self.frame_buffer));
   if (self.frame_buffer == nullptr) {
     SDL_Log("Failed to create frame_buffer");
     exit(-1);
@@ -119,8 +119,8 @@ void Renderer_fill_tile(Renderer *self, Pair_uint32 origin, uint32_t colour) {
 
 void Renderer_read_maze(Renderer *self, Maze *maze) {
   // For each tile...
-  for (uint32_t pos_x = 0; pos_x < TILE_COUNTS.x; ++pos_x) {
-    for (uint32_t pos_y = 0; pos_y < TILE_COUNTS.y; ++pos_y) {
+  for (uint8_t pos_x = 0; pos_x < TILE_COUNTS.x; ++pos_x) {
+    for (uint8_t pos_y = 0; pos_y < TILE_COUNTS.y; ++pos_y) {
 
       bool is_path = Maze_abstract_is_path(maze, pos_x, pos_y);
 

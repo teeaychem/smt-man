@@ -1,8 +1,8 @@
 #include "logic.h"
 #include "macro.h"
 #include "pairs.h"
-#include <stdint.h>
 #include <stdatomic.h>
+#include <stdint.h>
 
 Z3_context z3_mk_anima_ctx() {
 
@@ -73,10 +73,10 @@ void Lang_assert_shortest_path_empty_hints(struct z3_lang *lang, Z3_context ctx,
 
   Z3_ast u8_col_row[2] = {};
 
-  for (uint32_t r = 0; r < maze->size.y; ++r) {
+  for (uint8_t r = 0; r < maze->size.y; ++r) {
     u8_col_row[1] = Z3_mk_int(ctx, (int)r, lang->u8.sort);
 
-    for (uint32_t c = 0; c < maze->size.x; ++c) {
+    for (uint8_t c = 0; c < maze->size.x; ++c) {
       u8_col_row[0] = Z3_mk_int(ctx, (int)c, lang->u8.sort);
 
       if (Maze_abstract_is_path(maze, c, r)) {
@@ -92,10 +92,10 @@ void Lang_assert_path_non_empty_hints(struct z3_lang *lang, Z3_context ctx, Z3_o
 
   Z3_ast u8_col_row[2] = {};
 
-  for (uint32_t r = 0; r < maze->size.y; r++) {
+  for (uint8_t r = 0; r < maze->size.y; r++) {
     u8_col_row[1] = Z3_mk_int(ctx, (int)r, lang->u8.sort);
 
-    for (uint32_t c = 0; c < maze->size.x; c++) {
+    for (uint8_t c = 0; c < maze->size.x; c++) {
       u8_col_row[0] = Z3_mk_int(ctx, (int)c, lang->u8.sort);
 
       if (Maze_abstract_is_path(maze, c, r)) {

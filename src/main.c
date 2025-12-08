@@ -33,7 +33,7 @@ int main() { // int main(int argc, char *argv[]) {
   SmtWorld world = {};
   Anima animas[ANIMA_COUNT];
 
-  Renderer renderer = Renderer_create(PIXEL_DIMENSIONS);
+  Renderer renderer = Renderer_create((Pair_uint32){.x = TILE_COUNTS.x * TILE_SCALE, .y = TILE_COUNTS.y * TILE_SCALE});
 
   rgbVM colour;
   Maze maze;

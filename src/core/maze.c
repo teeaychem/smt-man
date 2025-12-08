@@ -44,14 +44,14 @@ Maze Maze_create(char *path) {
     } break;
 
     case 'w': {
-      if (!fscanf(file_ptr, "%" SCNu32, &(self.size.x))) {
+      if (!fscanf(file_ptr, "%" SCNu8, &(self.size.x))) {
         g_log(nullptr, G_LOG_LEVEL_WARNING, "Failed to read maze width: %s", path);
         preamble_ok = false;
       };
     } break;
 
     case 'h': {
-      if (!fscanf(file_ptr, "%" SCNu32, &(self.size.y))) {
+      if (!fscanf(file_ptr, "%" SCNu8, &(self.size.y))) {
         g_log(nullptr, G_LOG_LEVEL_WARNING, "Failed to read maze height: %s", path);
         preamble_ok = false;
       };
@@ -85,7 +85,7 @@ Maze Maze_create(char *path) {
     exit(1);
   }
 
-  self.abstract = malloc(Pair_uint32_area(&self.size) * sizeof(*self.abstract));
+  self.abstract = malloc((size_t)self.size.x * (size_t)self.size.y * sizeof(*self.abstract));
 
   uint32_t pos_x = 0;
   uint32_t pos_y = 0;
@@ -137,8 +137,8 @@ void Maze_destroy(Maze *self) {
 }
 
 void Maze_abstract_stdout(Maze *self) {
-  for (uint32_t c = 0; c < self->size.y; ++c) {
-    for (uint32_t r = 0; r < self->size.x; ++r) {
+  for (uint8_t c = 0; c < self->size.y; ++c) {
+    for (uint8_t r = 0; r < self->size.x; ++r) {
       putchar(Maze_abstract_at(self, r, c));
     }
     putchar('\n');

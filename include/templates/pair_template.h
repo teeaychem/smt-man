@@ -18,8 +18,6 @@ typedef struct {
 
 S_TYPE CAT(S_TYPE, create)(TYPE x, TYPE y);
 
-TYPE CAT(S_TYPE, area)(const S_TYPE *self);
-
 S_TYPE CAT(S_TYPE, scale)(const S_TYPE *self, const TYPE factor);
 
 S_TYPE CAT(S_TYPE, abstract_by)(const S_TYPE *self, const TYPE interval);
@@ -28,10 +26,6 @@ S_TYPE CAT(S_TYPE, abstract_by)(const S_TYPE *self, const TYPE interval);
 
 S_TYPE CAT(S_TYPE, create)(TYPE x, TYPE y) {
   return (S_TYPE){.x = x, .y = y};
-}
-
-TYPE CAT(S_TYPE, area)(const S_TYPE *self) {
-  return self->x * self->y;
 }
 
 S_TYPE CAT(S_TYPE, scale)(const S_TYPE *self, const TYPE factor) {

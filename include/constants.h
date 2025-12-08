@@ -9,13 +9,9 @@
 
 constexpr uint8_t ANIMA_COUNT = 2;
 
-/* constexpr int32_t TILE_EDGE_SIZE = 8; */
-
 constexpr Pair_uint32 TILE_COUNTS = {.x = 28, .y = 31};
 
 constexpr int32_t TILE_SCALE = 16;
-
-constexpr Pair_uint32 PIXEL_DIMENSIONS = {.x = TILE_COUNTS.x * TILE_SCALE, .y = TILE_COUNTS.y * TILE_SCALE};
 
 constexpr Pair_uint32 PAIR_SPRITE_EDGE = {.x = TILE_SCALE, .y = TILE_SCALE};
 
