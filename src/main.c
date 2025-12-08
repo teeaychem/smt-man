@@ -42,7 +42,7 @@ int main() { // int main(int argc, char *argv[]) {
     char *source_path = setup_source_path();
     maze = setup_maze(source_path);
 
-    setup_anima(source_path, animas, &renderer.anima_sprites[0], 0, Pair_uint8_create(1, 1));
+    setup_anima(source_path, animas, &renderer.anima_sprites[0], 0, Pair_uint8_create(1, 4));
     setup_anima(source_path, animas, &renderer.anima_sprites[1], 1, Pair_uint8_create(16, 26));
     free(source_path);
   }

@@ -54,7 +54,6 @@ void Renderer_destroy(Renderer *self) {
 }
 
 void Renderer_update(Renderer *self) {
-  /* SDL_RenderPresent(self->renderer); */
   int8_t *pixels = nullptr;
   int pitch;
 

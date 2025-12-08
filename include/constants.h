@@ -9,7 +9,7 @@
 
 constexpr uint8_t ANIMA_COUNT = 2;
 
-constexpr Pair_uint32 TILE_COUNTS = {.x = 28, .y = 31};
+constexpr Pair_uint32 TILE_COUNTS = {.x = 28, .y = 36};
 
 constexpr int32_t TILE_SCALE = 16;
 
