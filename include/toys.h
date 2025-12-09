@@ -15,6 +15,6 @@ struct rgbVM_t {
   struct ValueMomentum state[3];
 };
 
-typedef struct rgbVM_t rgbVM;
+typedef struct rgbVM_t rgb_s;
 
-void rgbVM_advance(rgbVM *self);
+void rgbVM_advance(rgb_s *self);

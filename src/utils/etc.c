@@ -32,7 +32,7 @@ int random_in_range(int min, int max) {
   return min + rand() / (RAND_MAX / (max - min + 1) + 1);
 }
 
-void rgbVM_advance(rgbVM *self) {
+void rgbVM_advance(rgb_s *self) {
   int current = random_in_range(0, 2);
 
   if (self->state[current].value == UINT8_MAX) {

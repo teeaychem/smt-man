@@ -35,7 +35,7 @@ int main() { // int main(int argc, char *argv[]) {
 
   Renderer renderer = Renderer_create((Pair_uint32){.x = TILE_COUNTS.x * TILE_SCALE, .y = TILE_COUNTS.y * TILE_SCALE});
 
-  rgbVM colour;
+  rgb_s colour;
   Maze maze;
 
   { // Resource setup
