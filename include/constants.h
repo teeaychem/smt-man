@@ -16,7 +16,7 @@ constexpr int32_t TILE_SCALE = 16;
 constexpr Pair_uint32 PAIR_SPRITE_EDGE = {.x = TILE_SCALE, .y = TILE_SCALE};
 
 constexpr int UI_SCALE = 3;
-constexpr uint32_t FPS_COUNT = 15;
+constexpr uint32_t FPS_COUNT = 12;
 
 constexpr Uint64 NS_PER_FRAME = 1000000000 / FPS_COUNT;
 

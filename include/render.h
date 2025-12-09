@@ -33,10 +33,11 @@ struct renderer_t {
   uint32_t *frame_buffer;
   SDL_Texture *texture;
 
+  Surface sheet;
   SpriteInfo anima_sprites[ANIMA_COUNT];
 };
 
-Renderer Renderer_create(const Pair_uint32 dimensions);
+Renderer Renderer_create(const Pair_uint32 dimensions, Surface sheet);
 
 void Renderer_destroy(Renderer *self);
 
@@ -53,3 +54,6 @@ static inline uint32_t Renderer_pixel_at_point(Renderer *self, uint32_t col, uin
 }
 
 void Renderer_read_maze(Renderer *self, Maze *maze);
+
+void Renderer_draw_spirit(Renderer *self, Pair_uint32 location, uint32_t tick);
+void Renderer_erase_spirit(Renderer *self, Pair_uint32 location, uint32_t tick);

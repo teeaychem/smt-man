@@ -1,7 +1,10 @@
+#include "cwalk.h"
+#include "pairs.h"
 #include "setup.h"
 
 #include <glib.h>
 #include <stdatomic.h>
+#include <stdint.h>
 
 #include "render/NSTimer.h"
 #include "toys.h"
@@ -33,7 +36,9 @@ int main() { // int main(int argc, char *argv[]) {
   SmtWorld world = {};
   Anima animas[ANIMA_COUNT];
 
-  Renderer renderer = Renderer_create((Pair_uint32){.x = TILE_COUNTS.x * TILE_SCALE, .y = TILE_COUNTS.y * TILE_SCALE});
+  Pair_uint32 pixel_dimensions = {.x = TILE_COUNTS.x * TILE_SCALE, .y = TILE_COUNTS.y * TILE_SCALE};
+
+  Renderer renderer;
 
   rgb_s colour;
   Maze maze;
@@ -41,6 +46,10 @@ int main() { // int main(int argc, char *argv[]) {
   { // Resource setup
     char *source_path = setup_source_path();
     maze = setup_maze(source_path);
+
+    char path_buffer[FILENAME_MAX];
+    cwk_path_join(source_path, "resources/sheet.png", path_buffer, FILENAME_MAX);
+    renderer = Renderer_create(pixel_dimensions, Surface_from_path(path_buffer));
 
     setup_anima(source_path, animas, &renderer.anima_sprites[0], 0, Pair_uint8_create(1, 4));
     setup_anima(source_path, animas, &renderer.anima_sprites[1], 1, Pair_uint8_create(16, 26));
@@ -51,8 +60,10 @@ int main() { // int main(int argc, char *argv[]) {
     g_message("scratch begin...");
     World_sync_animas(&world, animas);
     z3_tmp(&maze, &world);
+
     g_message("scratch end...");
   }
+  uint32_t tick = 0;
 
   int exit_code = 0;
 
@@ -91,6 +102,8 @@ int main() { // int main(int argc, char *argv[]) {
       // Render
 
       SDL_RenderClear(renderer.renderer);
+      Renderer_erase_spirit(&renderer, Pair_uint32_create(16, 4 * 16), tick);
+      Renderer_draw_spirit(&renderer, Pair_uint32_create(16, 4 * 16), ++tick);
 
       SDL_SetRenderDrawColor(renderer.renderer, colour.state[0].value, colour.state[1].value, colour.state[2].value, 0x000000ff);
 
