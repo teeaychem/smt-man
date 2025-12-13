@@ -106,10 +106,11 @@ int main() { // int main(int argc, char *argv[]) {
 
       SDL_RenderClear(renderer.renderer);
       {
-        Pair_uint32 size;
         Pair_uint32 offset;
-        Sheet_anima_right(&size, &offset);
-        Render_write(&renderer, Pair_uint32_create(16, 4 * 16), &size, &offset);
+        Render_write_from_sheet(&renderer,
+                                Pair_uint32_create(16, 4 * 16),
+                                sheet_offsets.anima.size,
+                                &sheet_offsets.anima.lt[1]);
       }
 
       SDL_SetRenderDrawColor(renderer.renderer, colour.state[0].value, colour.state[1].value, colour.state[2].value, 0x000000ff);

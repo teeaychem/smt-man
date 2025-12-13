@@ -8,6 +8,16 @@
 #include "pairs.h"
 #include "render.h"
 
+Sheetoffsets sheet_offsets = {
+    .anima = {
+        .size = 16,
+        .rt = {{.x = 1, .y = 83}, {.x = 18, .y = 83}},
+        .dn = {{.x = 35, .y = 83}, {.x = 52, .y = 83}},
+        .lt = {{.x = 69, .y = 83}, {.x = 86, .y = 83}},
+        .up = {{.x = 103, .y = 83}, {.x = 120, .y = 83}},
+    },
+};
+
 Renderer Renderer_create(const Pair_uint32 dimensions, Surface sheet) {
   Renderer self = {
       .dimensions = dimensions,

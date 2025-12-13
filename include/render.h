@@ -21,6 +21,20 @@ struct sprite_info_t {
   uint32_t tick;
 };
 
+struct sheet_offets_t {
+  struct {
+    uint32_t size;
+    Pair_uint32 rt[2];
+    Pair_uint32 dn[2];
+    Pair_uint32 lt[2];
+    Pair_uint32 up[2];
+
+  } anima;
+};
+typedef struct sheet_offets_t Sheetoffsets;
+
+extern Sheetoffsets sheet_offsets;
+
 typedef Surface Sheet;
 
 static inline uint32_t Sprite_pixel_at_point(SpriteInfo *self, uint32_t col, uint32_t row) {
@@ -88,19 +102,9 @@ static inline uint32_t Surface_pixel_offset(Surface *self, uint32_t col, uint32_
   return (row * self->size.x) + col;
 }
 
-static void Sheet_anima_right(Pair_uint32 *size, Pair_uint32 *offset) {
-  assert(size != nullptr);
-  assert(offset != nullptr);
-
-  size->x = 16;
-  size->y = 16;
-  offset->x = 1;
-  offset->y = 83;
-}
-
-static void Render_write(Renderer *self, Pair_uint32 location, Pair_uint32 *size, Pair_uint32 *offset) {
-  for (uint32_t row = 0; row < size->y; ++row) {
-    for (uint32_t col = 0; col < size->x; ++col) {
+static void Render_write_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 *offset) {
+  for (uint32_t row = 0; row < size; ++row) {
+    for (uint32_t col = 0; col < size; ++col) {
 
       uint32_t pixel_fb = Renderer_pixel_at_point(self, location.x + col, location.y + row);
 
