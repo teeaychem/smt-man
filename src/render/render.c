@@ -76,65 +76,6 @@ void Renderer_update(Renderer *self) {
   SDL_RenderPresent(self->renderer);
 }
 
-void Renderer_draw_sprite(Renderer *self, Pair_uint32 location, SpriteInfo *sprite_info) {
-  for (uint32_t row = 0; row < sprite_info->size.y; ++row) {
-    for (uint32_t col = 0; col < sprite_info->size.x; ++col) {
-
-      uint32_t pixel_fb = Renderer_pixel_at_point(self, location.y + col, location.x + row);
-
-      if ((self->frame_buffer[pixel_fb] | 0x00000000) == 0x00000000) {
-
-        uint32_t pixel_s = (sprite_info->surface_offset.y + col) * sprite_info->surface.size.x + sprite_info->surface_offset.x + row;
-
-        self->frame_buffer[pixel_fb] = sprite_info->surface.pixels[pixel_s];
-      }
-    }
-  }
-}
-
-void Renderer_erase_sprite(Renderer *self, Pair_uint32 position, SpriteInfo *sprite_info) {
-  for (uint32_t row = 0; row < sprite_info->size.y; ++row) {
-    for (uint32_t col = 0; col < sprite_info->size.x; ++col) {
-
-      uint32_t pixel_fb = Renderer_pixel_at_point(self, position.y + col, position.x + row);
-      uint32_t pixel_s = SpriteInfo_pixel_at_point(sprite_info, col, row);
-
-      if (self->frame_buffer[pixel_fb] == sprite_info->surface.pixels[pixel_s]) {
-        self->frame_buffer[pixel_fb] = 0x00000000;
-      }
-    }
-  }
-}
-
-void Renderer_draw_spirit(Renderer *self, Pair_uint32 location, uint32_t tick) {
-  for (uint32_t row = 0; row < 16; ++row) {
-    for (uint32_t col = 0; col < 16; ++col) {
-
-      uint32_t pixel_fb = Renderer_pixel_at_point(self, location.y + col, location.x + row);
-
-      if ((self->frame_buffer[pixel_fb] | 0x00000000) == 0x00000000) {
-        uint32_t pixel_s = (83 + col) * self->sheet.size.x + 1 + (17 * (tick % 2)) + row;
-
-        self->frame_buffer[pixel_fb] = self->sheet.pixels[pixel_s];
-      }
-    }
-  }
-}
-
-void Renderer_erase_spirit(Renderer *self, Pair_uint32 location, uint32_t tick) {
-  for (uint32_t row = 0; row < 16; ++row) {
-    for (uint32_t col = 0; col < 16; ++col) {
-
-      uint32_t pixel_fb = Renderer_pixel_at_point(self, location.y + col, location.x + row);
-      uint32_t pixel_s = (83 + col) * self->sheet.size.x + 1 + (17 * (tick % 2)) + row;
-
-      if (self->frame_buffer[pixel_fb] == self->sheet.pixels[pixel_s]) {
-        self->frame_buffer[pixel_fb] = 0x00000000;
-      }
-    }
-  }
-}
-
 void Renderer_fill_tile(Renderer *self, Pair_uint32 origin, uint32_t colour) {
 
   for (size_t row = 0; row < TILE_SCALE; ++row) {

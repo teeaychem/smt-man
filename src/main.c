@@ -1,11 +1,14 @@
-#include "cwalk.h"
-#include "pairs.h"
+#include "render.h"
 #include "setup.h"
 
 #include <glib.h>
 #include <stdatomic.h>
 #include <stdint.h>
 
+#include "cwalk.h"
+
+#include "misc.h"
+#include "pairs.h"
 #include "render/NSTimer.h"
 #include "toys.h"
 
@@ -18,7 +21,7 @@ void update_anima_sprite(SmtWorld *world, uint8_t anima_id, SpriteInfo *sprite_i
 
   case ANIMA_STATUS_SEARCH: {
     if (sprite_info->tick % 15 == 0) {
-      sprite_info->surface_offset.x = (sprite_info->surface_offset.x + sprite_info->size.x) % sprite_info->surface.size.x;
+      /* sprite_info->surface_offset.x = (sprite_info->surface_offset.x + sprite_info->size.x) % sprite_info->surface.size.x; */
     }
   } break;
   }
@@ -102,8 +105,12 @@ int main() { // int main(int argc, char *argv[]) {
       // Render
 
       SDL_RenderClear(renderer.renderer);
-      Renderer_erase_spirit(&renderer, Pair_uint32_create(16, 4 * 16), tick);
-      Renderer_draw_spirit(&renderer, Pair_uint32_create(16, 4 * 16), ++tick);
+      {
+        Pair_uint32 size;
+        Pair_uint32 offset;
+        Sheet_anima_right(&size, &offset);
+        Render_write(&renderer, Pair_uint32_create(16, 4 * 16), &size, &offset);
+      }
 
       SDL_SetRenderDrawColor(renderer.renderer, colour.state[0].value, colour.state[1].value, colour.state[2].value, 0x000000ff);
 

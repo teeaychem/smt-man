@@ -6,6 +6,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
+#include <stdio.h>
 
 #include "constants.h"
 #include "maze.h"
@@ -20,8 +21,10 @@ struct sprite_info_t {
   uint32_t tick;
 };
 
-static inline uint32_t SpriteInfo_pixel_at_point(SpriteInfo *self, uint32_t col, uint32_t row) {
-  return (self->surface_offset.y + col) * self->surface.size.x + self->surface_offset.x + row;
+typedef Surface Sheet;
+
+static inline uint32_t Sprite_pixel_at_point(SpriteInfo *self, uint32_t col, uint32_t row) {
+  return (row * self->surface.size.x) + col;
 }
 
 typedef struct renderer_t Renderer;
@@ -43,17 +46,71 @@ void Renderer_destroy(Renderer *self);
 
 void Renderer_update(Renderer *self);
 
-void Renderer_draw_sprite(Renderer *self, Pair_uint32 location, SpriteInfo *sprite_info);
+static inline uint32_t Renderer_pixel_at_point(Renderer *self, uint32_t col, uint32_t row) {
+  return (row * self->dimensions.x) + col;
+}
 
-void Renderer_erase_sprite(Renderer *self, Pair_uint32 location, SpriteInfo *sprite_info);
+static void Renderer_draw_sprite(Renderer *self, Pair_uint32 location, SpriteInfo *sprite_info) {
+  for (uint32_t row = 0; row < sprite_info->size.y; ++row) {
+    for (uint32_t col = 0; col < sprite_info->size.x; ++col) {
+
+      uint32_t pixel_fb = Renderer_pixel_at_point(self, location.x + col, location.y + row);
+
+      if ((self->frame_buffer[pixel_fb] | 0x00000000) == 0x00000000) {
+
+        uint32_t pixel_s = Sprite_pixel_at_point(sprite_info, col, row);
+
+        self->frame_buffer[pixel_fb] = sprite_info->surface.pixels[pixel_s];
+      }
+    }
+  }
+}
+
+static void Renderer_erase_sprite(Renderer *self, Pair_uint32 position, SpriteInfo *sprite_info) {
+  for (uint32_t row = 0; row < sprite_info->size.y; ++row) {
+    for (uint32_t col = 0; col < sprite_info->size.x; ++col) {
+
+      uint32_t pixel_fb = Renderer_pixel_at_point(self, position.x + col, position.y + row);
+      uint32_t pixel_s = Sprite_pixel_at_point(sprite_info, col, row);
+
+      if (self->frame_buffer[pixel_fb] == sprite_info->surface.pixels[pixel_s]) {
+        self->frame_buffer[pixel_fb] = 0x00000000;
+      }
+    }
+  }
+}
 
 void Renderer_fill_tile(Renderer *self, Pair_uint32 pos, uint32_t colour);
 
-static inline uint32_t Renderer_pixel_at_point(Renderer *self, uint32_t col, uint32_t row) {
-  return col * self->dimensions.x + row;
-}
-
 void Renderer_read_maze(Renderer *self, Maze *maze);
 
-void Renderer_draw_spirit(Renderer *self, Pair_uint32 location, uint32_t tick);
-void Renderer_erase_spirit(Renderer *self, Pair_uint32 location, uint32_t tick);
+static inline uint32_t Surface_pixel_offset(Surface *self, uint32_t col, uint32_t row) {
+  return (row * self->size.x) + col;
+}
+
+static void Sheet_anima_right(Pair_uint32 *size, Pair_uint32 *offset) {
+  assert(size != nullptr);
+  assert(offset != nullptr);
+
+  size->x = 16;
+  size->y = 16;
+  offset->x = 1;
+  offset->y = 83;
+}
+
+static void Render_write(Renderer *self, Pair_uint32 location, Pair_uint32 *size, Pair_uint32 *offset) {
+  for (uint32_t row = 0; row < size->y; ++row) {
+    for (uint32_t col = 0; col < size->x; ++col) {
+
+      uint32_t pixel_fb = Renderer_pixel_at_point(self, location.x + col, location.y + row);
+
+      /* if ((self->frame_buffer[pixel_fb] | 0x00000000) == 0x00000000) { */
+
+      uint32_t pixel_s = Surface_pixel_offset(&self->sheet, offset->x + col, offset->y + row);
+
+      self->frame_buffer[pixel_fb] = self->sheet.pixels[pixel_s];
+      /* self->frame_buffer[pixel_fb] = 0xFFFFFFFF; */
+      /* } */
+    }
+  }
+}
