@@ -116,3 +116,61 @@ void Renderer_read_maze(Renderer *self, Maze *maze) {
     }
   }
 }
+
+void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 *offset) {
+  for (uint32_t row = 0; row < size; ++row) {
+    for (uint32_t col = 0; col < size; ++col) {
+
+      uint32_t pixel_fb = Renderer_pixel_at_point(self, location.x + col, location.y + row);
+
+      if ((self->frame_buffer[pixel_fb] | 0x00000000) == 0x00000000) {
+        uint32_t pixel_s = Surface_pixel_offset(&self->sheet, offset->x + col, offset->y + row);
+        self->frame_buffer[pixel_fb] = self->sheet.pixels[pixel_s];
+      }
+    }
+  }
+}
+
+void Renderer_erase_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 *offset) {
+
+  for (uint32_t row = 0; row < size; ++row) {
+    for (uint32_t col = 0; col < size; ++col) {
+
+      uint32_t pixel_fb = Renderer_pixel_at_point(self, location.x + col, location.y + row);
+      uint32_t pixel_s = Surface_pixel_offset(&self->sheet, offset->x + col, offset->y + row);
+      if (self->frame_buffer[pixel_fb] == self->sheet.pixels[pixel_s]) {
+        self->frame_buffer[pixel_fb] = 0x00000000;
+      }
+    }
+  }
+}
+
+void Renderer_draw_sprite(Renderer *self, Pair_uint32 location, SpriteInfo *sprite_info) {
+  for (uint32_t row = 0; row < sprite_info->size.y; ++row) {
+    for (uint32_t col = 0; col < sprite_info->size.x; ++col) {
+
+      uint32_t pixel_fb = Renderer_pixel_at_point(self, location.x + col, location.y + row);
+
+      if ((self->frame_buffer[pixel_fb] | 0x00000000) == 0x00000000) {
+
+        uint32_t pixel_s = Sprite_pixel_at_point(sprite_info, col, row);
+
+        self->frame_buffer[pixel_fb] = sprite_info->surface.pixels[pixel_s];
+      }
+    }
+  }
+}
+
+void Renderer_erase_sprite(Renderer *self, Pair_uint32 position, SpriteInfo *sprite_info) {
+  for (uint32_t row = 0; row < sprite_info->size.y; ++row) {
+    for (uint32_t col = 0; col < sprite_info->size.x; ++col) {
+
+      uint32_t pixel_fb = Renderer_pixel_at_point(self, position.x + col, position.y + row);
+      uint32_t pixel_s = Sprite_pixel_at_point(sprite_info, col, row);
+
+      if (self->frame_buffer[pixel_fb] == sprite_info->surface.pixels[pixel_s]) {
+        self->frame_buffer[pixel_fb] = 0x00000000;
+      }
+    }
+  }
+}
