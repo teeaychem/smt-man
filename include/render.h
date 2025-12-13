@@ -7,7 +7,6 @@
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
 
-#include "constants.h"
 #include "maze.h"
 #include "pairs.h"
 #include "render/surface.h"
@@ -38,7 +37,6 @@ struct renderer_t {
   SDL_Texture *texture;
 
   Surface sheet;
-  SpriteInfo anima_sprites[ANIMA_COUNT];
 };
 
 Renderer Renderer_create(const Pair_uint32 dimensions, Surface sheet);
@@ -62,19 +60,3 @@ static inline uint32_t Surface_pixel_offset(Surface *self, uint32_t col, uint32_
 void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 *offset);
 
 void Renderer_erase_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 *offset);
-
-// TODO: Remove
-typedef struct sprite_info_t SpriteInfo;
-struct sprite_info_t {
-  Pair_uint32 size;
-  Surface surface;
-  Pair_uint32 surface_offset;
-  uint32_t tick;
-};
-
-static inline uint32_t Sprite_pixel_at_point(SpriteInfo *self, uint32_t col, uint32_t row) {
-  return (row * self->surface.size.x) + col;
-}
-
-void Renderer_draw_sprite(Renderer *self, Pair_uint32 location, SpriteInfo *sprite_info);
-void Renderer_erase_sprite(Renderer *self, Pair_uint32 position, SpriteInfo *sprite_info);

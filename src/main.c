@@ -15,14 +15,14 @@
 pthread_t ANIMA_THREADS[ANIMA_COUNT];
 pthread_mutex_t MTX_SOLVER = PTHREAD_MUTEX_INITIALIZER;
 
-void update_anima_sprite(SmtWorld *world, uint8_t anima_id, SpriteInfo *sprite_info) {
+void update_anima_sprite(SmtWorld *world, uint8_t anima_id) {
 
   switch (atomic_load(&world->anima[anima_id].status)) {
 
   case ANIMA_STATUS_SEARCH: {
-    if (sprite_info->tick % 15 == 0) {
-      /* sprite_info->surface_offset.x = (sprite_info->surface_offset.x + sprite_info->size.x) % sprite_info->surface.size.x; */
-    }
+    /* if (sprite->tick % 15 == 0) { */
+    /* sprite_info->surface_offset.x = (sprite_info->surface_offset.x + sprite_info->size.x) % sprite_info->surface.size.x; */
+    /* } */
   } break;
   }
 }
@@ -54,8 +54,8 @@ int main() { // int main(int argc, char *argv[]) {
     cwk_path_join(source_path, "resources/sheet.png", path_buffer, FILENAME_MAX);
     renderer = Renderer_create(pixel_dimensions, Surface_from_path(path_buffer));
 
-    setup_anima(source_path, animas, &renderer.anima_sprites[0], 0, Pair_uint8_create(1, 4));
-    setup_anima(source_path, animas, &renderer.anima_sprites[1], 1, Pair_uint8_create(16, 26));
+    setup_anima(source_path, animas, 0, Pair_uint8_create(1, 4));
+    setup_anima(source_path, animas, 1, Pair_uint8_create(16, 26));
     free(source_path);
   }
 
@@ -107,17 +107,10 @@ int main() { // int main(int argc, char *argv[]) {
       SDL_RenderClear(renderer.renderer);
       {
 
-        Renderer_erase_from_sheet(&renderer,
-                                  Pair_uint32_create(16, 4 * 16),
-                                  sheet_offsets.anima.size,
-                                  &sheet_offsets.anima.lt[tick]);
-
         Renderer_draw_from_sheet(&renderer,
                                  Pair_uint32_create(16, 4 * 16),
                                  sheet_offsets.anima.size,
                                  &sheet_offsets.anima.lt[tick]);
-
-
 
         /* tick += 1; */
         /* tick %= 2; */
@@ -127,16 +120,22 @@ int main() { // int main(int argc, char *argv[]) {
 
       for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
 
-        Renderer_erase_sprite(&renderer, animas[id].sprite_location, &renderer.anima_sprites[id]);
+        Renderer_erase_from_sheet(&renderer,
+                                  animas[id].sprite_location,
+                                  sheet_offsets.anima.size,
+                                  &sheet_offsets.anima.lt[tick]);
 
         Anima_move(&animas[id], &maze);
         Anima_instinct(&animas[id]);
 
-        update_anima_sprite(&world, id, &renderer.anima_sprites[id]);
+        // TODO: Update sprite
 
-        Renderer_draw_sprite(&renderer, animas[id].sprite_location, &renderer.anima_sprites[id]);
+        Renderer_draw_from_sheet(&renderer,
+                                 animas[id].sprite_location,
+                                 sheet_offsets.anima.size,
+                                 &sheet_offsets.anima.lt[tick]);
 
-        renderer.anima_sprites[id].tick += 1;
+        // TODO: Update sprite tick
         if (atomic_load(&animas[id].sync.flag_suspend)) {
           atomic_store(&animas[id].sync.flag_suspend, false);
           pthread_cond_broadcast(&animas[id].sync.cond_resume);
