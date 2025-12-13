@@ -4,6 +4,7 @@
 
 .cache/
 
+.direnv/
 build/
 fetch_content/
 local/
