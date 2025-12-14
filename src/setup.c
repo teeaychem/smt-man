@@ -41,24 +41,21 @@ void setup_anima(Anima animas[ANIMA_COUNT], uint8_t id, Pair_uint8 location) {
 void *setup_spirit(void *void_anima) {
 
   Anima *anima = void_anima;
-  Mind mind = {};
-
-  Mind_default(&mind);
 
   pthread_mutex_lock(&MTX_SOLVER);
-  Anima_touch(anima, &mind);
+  Mind_touch(&anima->mind);
   pthread_mutex_unlock(&MTX_SOLVER);
 
-  atomic_store(&anima->sync.flag_suspend, true);
+  atomic_store(&anima->contact.flag_suspend, true);
 
   while (true) {
-    pthread_mutex_lock(&anima->sync.mtx_suspend);
-    if (!atomic_load(&anima->sync.flag_suspend)) {
-      Anima_deduct(anima, &mind);
-      atomic_store(&anima->sync.flag_suspend, true);
+    pthread_mutex_lock(&anima->contact.mtx_suspend);
+    if (!atomic_load(&anima->contact.flag_suspend)) {
+      Mind_deduct(&anima->mind);
+      atomic_store(&anima->contact.flag_suspend, true);
     }
-    pthread_cond_wait(&anima->sync.cond_resume, &anima->sync.mtx_suspend);
-    pthread_mutex_unlock(&anima->sync.mtx_suspend);
+    pthread_cond_wait(&anima->contact.cond_resume, &anima->contact.mtx_suspend);
+    pthread_mutex_unlock(&anima->contact.mtx_suspend);
   }
   return 0;
 }

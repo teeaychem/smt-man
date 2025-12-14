@@ -1,4 +1,3 @@
-#include "constants.h"
 #include "setup.h"
 
 #include <glib.h>
@@ -7,6 +6,7 @@
 
 #include "cwalk.h"
 
+#include "constants.h"
 #include "generic/pairs.h"
 #include "misc.h"
 #include "render.h"
@@ -30,8 +30,8 @@ void update_anima_sprite(Situation *world, uint8_t anima_id) {
 
 void World_sync_animas(Situation *world, Anima animas[ANIMA_COUNT]) {
   for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
-    atomic_store(&world->anima[idx].location, atomic_load(&animas[idx].pov.anima[idx].location));
-    atomic_store(&world->anima[idx].status, atomic_load(&animas[idx].pov.anima[idx].status));
+    atomic_store(&world->anima[idx].location, atomic_load(&animas[idx].mind.view.anima[idx].location));
+    atomic_store(&world->anima[idx].status, atomic_load(&animas[idx].mind.view.anima[idx].status));
   }
 }
 
@@ -68,8 +68,8 @@ int main() { // int main(int argc, char *argv[]) {
 
   { // Sprite setup
     for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
-      auto l = atomic_load(&animas[idx].pov.anima[idx].location);
-      anima_sprite_location[idx] = (Pair_uint32){.x = l.x * TILE_SCALE, l.y * TILE_SCALE};
+      auto location = atomic_load(&animas[idx].mind.view.anima[idx].location);
+      anima_sprite_location[idx] = (Pair_uint32){.x = location.x * TILE_SCALE, location.y * TILE_SCALE};
     }
   }
 
@@ -140,9 +140,9 @@ int main() { // int main(int argc, char *argv[]) {
                                  &sheet_data.anima.lt[tick]);
 
         // TODO: Update sprite tick
-        if (atomic_load(&animas[id].sync.flag_suspend)) {
-          atomic_store(&animas[id].sync.flag_suspend, false);
-          pthread_cond_broadcast(&animas[id].sync.cond_resume);
+        if (atomic_load(&animas[id].contact.flag_suspend)) {
+          atomic_store(&animas[id].contact.flag_suspend, false);
+          pthread_cond_broadcast(&animas[id].contact.cond_resume);
         }
       }
 

@@ -11,24 +11,29 @@
 void Anima_default(Anima *anima, uint8_t id, Pair_uint8 location, Direction direction) {
   g_log(nullptr, G_LOG_LEVEL_INFO, "Creating anima: %d", id);
 
+  Z3_context ctx = z3_mk_anima_ctx();
+  Z3_optimize optimizer = Z3_mk_optimize(ctx);
+  Z3_optimize_inc_ref(ctx, optimizer);
+
   *anima = (Anima){
       .id = id,
-      .pov = {},
 
-      .sync = {
+      .contact = {
           .cond_resume = PTHREAD_COND_INITIALIZER,
           .mtx_suspend = PTHREAD_MUTEX_INITIALIZER,
       },
 
+      .mind = {
+          .ctx = ctx,
+          .solver = optimizer,
+          .lang = {},
+          .view = {},
+      },
   };
 
-  atomic_init(&anima->pov.anima[anima->id].intent, direction);
-  atomic_init(&anima->pov.anima[anima->id].momentum, direction);
-  atomic_init(&anima->pov.anima[anima->id].location, location);
-  atomic_init(&anima->pov.anima[anima->id].status, ANIMA_STATUS_SEARCH);
-  atomic_init(&anima->pov.anima[anima->id].speed, 1);
+  Mind_default(&anima->mind, id, location, direction);
 
-  atomic_init(&anima->sync.flag_suspend, false);
+  atomic_init(&anima->contact.flag_suspend, false);
 }
 
 void Anima_destroy(Anima *self) {
@@ -41,16 +46,16 @@ void Anima_handle_event(Anima *self, SDL_Event *event) {
 
     switch (event->key.key) {
     case SDLK_UP: {
-      atomic_store(&self->pov.anima[self->id].intent, UP);
+      atomic_store(&self->mind.view.anima[self->id].intent, UP);
     } break;
     case SDLK_DOWN: {
-      atomic_store(&self->pov.anima[self->id].intent, DOWN);
+      atomic_store(&self->mind.view.anima[self->id].intent, DOWN);
     } break;
     case SDLK_LEFT: {
-      atomic_store(&self->pov.anima[self->id].intent, LEFT);
+      atomic_store(&self->mind.view.anima[self->id].intent, LEFT);
     } break;
     case SDLK_RIGHT: {
-      atomic_store(&self->pov.anima[self->id].intent, RIGHT);
+      atomic_store(&self->mind.view.anima[self->id].intent, RIGHT);
     } break;
     }
   }
@@ -58,14 +63,14 @@ void Anima_handle_event(Anima *self, SDL_Event *event) {
 
 void Anima_move(Anima *self, Maze *maze, Pair_uint32 *sprite_location) {
 
-  auto velocity = atomic_load(&self->pov.anima[self->id].speed);
+  auto velocity = atomic_load(&self->mind.view.anima[self->id].speed);
 
   if (sprite_location->x % TILE_SCALE == 0 && sprite_location->y % TILE_SCALE == 0) {
 
-    Pair_uint8 abstract_location = atomic_load(&self->pov.anima[self->id].location);
-    Direction intent = atomic_load(&self->pov.anima[self->id].intent);
+    Pair_uint8 abstract_location = atomic_load(&self->mind.view.anima[self->id].location);
+    Direction intent = atomic_load(&self->mind.view.anima[self->id].intent);
 
-    atomic_store(&self->pov.anima[self->id].momentum, intent);
+    atomic_store(&self->mind.view.anima[self->id].momentum, intent);
 
     Pair_uint8 destination = steps_in_direction(&abstract_location, intent, 1);
 
@@ -77,7 +82,7 @@ void Anima_move(Anima *self, Maze *maze, Pair_uint32 *sprite_location) {
       velocity = 0;
     }
 
-    switch (atomic_load(&self->pov.anima[self->id].momentum)) {
+    switch (atomic_load(&self->mind.view.anima[self->id].momentum)) {
     case UP: {
       abstract_location.y -= velocity;
     } break;
@@ -92,10 +97,10 @@ void Anima_move(Anima *self, Maze *maze, Pair_uint32 *sprite_location) {
     } break;
     }
 
-    atomic_store(&self->pov.anima[self->id].location, abstract_location);
+    atomic_store(&self->mind.view.anima[self->id].location, abstract_location);
   }
 
-  switch (atomic_load(&self->pov.anima[self->id].momentum)) {
+  switch (atomic_load(&self->mind.view.anima[self->id].momentum)) {
   case UP: {
     sprite_location->y -= velocity;
   } break;
@@ -110,7 +115,7 @@ void Anima_move(Anima *self, Maze *maze, Pair_uint32 *sprite_location) {
   } break;
   }
 
-  atomic_store(&self->pov.anima[self->id].speed, velocity);
+  atomic_store(&self->mind.view.anima[self->id].speed, velocity);
 }
 
 void Anima_instinct(Anima *self) {
