@@ -1,3 +1,4 @@
+#include "constants.h"
 #include "setup.h"
 
 #include <glib.h>
@@ -39,6 +40,7 @@ int main() { // int main(int argc, char *argv[]) {
   Situation world = {};
 
   Anima animas[ANIMA_COUNT];
+  Pair_uint32 anima_sprite_location[ANIMA_COUNT] = {};
 
   Renderer renderer = {};
   rgb_s colour = {};
@@ -62,6 +64,13 @@ int main() { // int main(int argc, char *argv[]) {
     setup_anima(animas, 3, Pair_uint8_create(4, 29));
 
     free(source_path);
+  }
+
+  { // Sprite setup
+    for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
+      auto l = atomic_load(&animas[idx].pov.anima[idx].location);
+      anima_sprite_location[idx] = (Pair_uint32){.x = l.x * TILE_SCALE, l.y * TILE_SCALE};
+    }
   }
 
   { // Scratch
@@ -116,17 +125,17 @@ int main() { // int main(int argc, char *argv[]) {
       for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
 
         Renderer_erase_from_sheet(&renderer,
-                                  animas[id].sprite_location,
+                                  anima_sprite_location[id],
                                   sheet_data.anima.size,
                                   &sheet_data.anima.lt[tick]);
 
-        Anima_move(&animas[id], &maze);
+        Anima_move(&animas[id], &maze, &anima_sprite_location[id]);
         Anima_instinct(&animas[id]);
 
         // TODO: Update sprite
 
         Renderer_draw_from_sheet(&renderer,
-                                 animas[id].sprite_location,
+                                 anima_sprite_location[id],
                                  sheet_data.anima.size,
                                  &sheet_data.anima.lt[tick]);
 

@@ -39,8 +39,6 @@ struct anima_t {
 
   uint8_t id;
 
-  Pair_uint32 sprite_location;
-
   Situation pov;
 
   AnimaSync sync;
@@ -57,7 +55,7 @@ void Anima_touch(Anima *self, Mind *mind);
 
 void Anima_handle_event(Anima *self, SDL_Event *event);
 
-void Anima_move(Anima *self, Maze *maze);
+void Anima_move(Anima *self, Maze *maze, Pair_uint32 *sprite_location);
 
 void Anima_instinct(Anima *self);
 

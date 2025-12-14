@@ -15,8 +15,6 @@ void Anima_default(Anima *anima, uint8_t id, Pair_uint8 location, Direction dire
       .id = id,
       .pov = {},
 
-      .sprite_location = Pair_uint32_create(location.x * TILE_SCALE, location.y * TILE_SCALE),
-
       .sync = {
           .cond_resume = PTHREAD_COND_INITIALIZER,
           .mtx_suspend = PTHREAD_MUTEX_INITIALIZER,
@@ -58,11 +56,11 @@ void Anima_handle_event(Anima *self, SDL_Event *event) {
   }
 }
 
-void Anima_move(Anima *self, Maze *maze) {
+void Anima_move(Anima *self, Maze *maze, Pair_uint32 *sprite_location) {
 
   auto velocity = atomic_load(&self->pov.anima[self->id].speed);
 
-  if (self->sprite_location.x % TILE_SCALE == 0 && self->sprite_location.y % TILE_SCALE == 0) {
+  if (sprite_location->x % TILE_SCALE == 0 && sprite_location->y % TILE_SCALE == 0) {
 
     Pair_uint8 abstract_location = atomic_load(&self->pov.anima[self->id].location);
     Direction intent = atomic_load(&self->pov.anima[self->id].intent);
@@ -99,16 +97,16 @@ void Anima_move(Anima *self, Maze *maze) {
 
   switch (atomic_load(&self->pov.anima[self->id].momentum)) {
   case UP: {
-    self->sprite_location.y -= velocity;
+    sprite_location->y -= velocity;
   } break;
   case RIGHT: {
-    self->sprite_location.x += velocity;
+    sprite_location->x += velocity;
   } break;
   case DOWN: {
-    self->sprite_location.y += velocity;
+    sprite_location->y += velocity;
   } break;
   case LEFT: {
-    self->sprite_location.x -= velocity;
+    sprite_location->x -= velocity;
   } break;
   }
 
