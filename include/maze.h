@@ -5,13 +5,12 @@
 #include <stdint.h>
 #include <sys/syslog.h>
 
-#include "pairs.h"
+#include "generic/pairs.h"
 
 struct maze_t {
   Pair_uint8 size;
   char *abstract;
 };
-
 typedef struct maze_t Maze;
 
 Maze Maze_create(char *path);

@@ -1,7 +1,8 @@
-#include "pairs.h"
+#include <stdlib.h>
+
+#include "generic/pairs.h"
 #include "toys.h"
 #include "utils.h"
-#include <stdlib.h>
 
 Pair_uint8 steps_in_direction(Pair_uint8 *origin, Direction direction, uint8_t steps) {
 

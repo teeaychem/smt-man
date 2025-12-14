@@ -6,11 +6,9 @@
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
 
-#include "pairs.h"
-#include "utils.h"
-
+#include "generic/pairs.h"
 #include "logic.h"
-#include "pairs.h"
+#include "utils.h"
 
 // Minds
 

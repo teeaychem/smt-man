@@ -1,7 +1,7 @@
 /// Generic struct setup
 
 #define PAIR_IMPLEMENTATION
-#include "pairs.h"
+#include "generic/pairs.h"
 #undef PAIR_IMPLEMENTATION
 
 /// Other setup

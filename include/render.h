@@ -7,11 +7,11 @@
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
 
+#include "generic/pairs.h"
 #include "maze.h"
-#include "pairs.h"
 #include "render/surface.h"
 
-struct sheet_offets_t {
+struct sheet_offsets_t {
   struct {
     uint32_t size;
     Pair_uint32 rt[2];
@@ -21,7 +21,7 @@ struct sheet_offets_t {
 
   } anima;
 };
-typedef struct sheet_offets_t Sheetoffsets;
+typedef struct sheet_offsets_t Sheetoffsets;
 
 extern Sheetoffsets sheet_offsets;
 
@@ -44,7 +44,6 @@ void Renderer_update(Renderer *self);
 void Renderer_fill_tile(Renderer *self, Pair_uint32 pos, uint32_t colour);
 
 void Renderer_read_maze(Renderer *self, Maze *maze);
-
 
 void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 *offset);
 

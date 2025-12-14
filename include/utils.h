@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-#include "pairs.h"
+#include "generic/pairs.h"
 
 enum direction_e {
   UP,

@@ -5,7 +5,7 @@
 #include "SDL3/SDL_error.h"
 
 #include "constants.h"
-#include "pairs.h"
+#include "generic/pairs.h"
 #include "render.h"
 
 Sheetoffsets sheet_offsets = {

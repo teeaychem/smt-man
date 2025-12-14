@@ -1,12 +1,13 @@
 #pragma once
 
-#include "pairs.h"
+#include <stdint.h>
+
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
-
-#include <stdint.h>
 #include <png.h>
+
+#include "generic/pairs.h"
 
 struct surface_t {
   Pair_uint32 size;

@@ -6,8 +6,8 @@
 
 #include "cwalk.h"
 
+#include "generic/pairs.h"
 #include "misc.h"
-#include "pairs.h"
 #include "render.h"
 #include "render/NSTimer.h"
 #include "toys.h"

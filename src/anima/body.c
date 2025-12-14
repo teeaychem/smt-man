@@ -3,9 +3,9 @@
 
 #include "anima.h"
 #include "constants.h"
+#include "generic/pairs.h"
 #include "logic.h"
 #include "maze.h"
-#include "pairs.h"
 #include "utils.h"
 
 Anima Anima_create(uint8_t id, Pair_uint8 location, Direction intent, Direction momentum, Pair_uint32 sprite_size) {

@@ -1,8 +1,9 @@
-#include "logic.h"
-#include "macro.h"
-#include "pairs.h"
 #include <stdatomic.h>
 #include <stdint.h>
+
+#include "generic/pairs.h"
+#include "logic.h"
+#include "macro.h"
 
 Z3_context z3_mk_anima_ctx() {
 

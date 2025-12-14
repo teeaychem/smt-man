@@ -1,14 +1,10 @@
 #include <assert.h>
-#include <inttypes.h>
 #include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include "constants.h"
+#include "generic/pairs.h"
 #include "glib.h"
 #include "maze.h"
-#include "pairs.h"
 
 void next_line(FILE *file) {
   char c = ' ';

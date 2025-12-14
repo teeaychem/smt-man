@@ -5,7 +5,7 @@
 
 #include <SDL3/SDL_render.h>
 
-#include "pairs.h"
+#include "generic/pairs.h"
 
 constexpr uint8_t ANIMA_COUNT = 2;
 
