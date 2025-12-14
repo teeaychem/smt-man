@@ -35,7 +35,7 @@ struct renderer_t {
   SDL_Texture *texture;
 };
 
-Renderer Renderer_create(const Pair_uint32 dimensions, Surface sheet);
+Renderer Renderer_create(const Pair_uint32 dimensions, char *sheet_path);
 
 void Renderer_destroy(Renderer *self);
 

@@ -18,7 +18,11 @@ Sheetoffsets sheet_offsets = {
     },
 };
 
-Renderer Renderer_create(const Pair_uint32 dimensions, Surface sheet) {
+Renderer Renderer_create(const Pair_uint32 dimensions, char *sheet_path) {
+
+  Surface sheet = {};
+  Surface_from_path(&sheet, sheet_path);
+
   Renderer self = {
       .frame_buffer = {.size = dimensions,
                        .pixels = malloc(self.frame_buffer.size.x * self.frame_buffer.size.y * sizeof(*self.frame_buffer.pixels))},

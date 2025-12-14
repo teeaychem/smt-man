@@ -52,7 +52,7 @@ int main() { // int main(int argc, char *argv[]) {
 
     char path_buffer[FILENAME_MAX];
     cwk_path_join(source_path, "resources/sheet.png", path_buffer, FILENAME_MAX);
-    renderer = Renderer_create(pixel_dimensions, Surface_from_path(path_buffer));
+    renderer = Renderer_create(pixel_dimensions, path_buffer);
 
     setup_anima(source_path, animas, 0, Pair_uint8_create(1, 4));
     setup_anima(source_path, animas, 1, Pair_uint8_create(16, 26));
