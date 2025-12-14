@@ -1,4 +1,3 @@
-#include "render.h"
 #include "setup.h"
 
 #include <glib.h>
@@ -9,6 +8,7 @@
 
 #include "misc.h"
 #include "pairs.h"
+#include "render.h"
 #include "render/NSTimer.h"
 #include "toys.h"
 

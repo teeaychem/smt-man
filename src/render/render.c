@@ -118,7 +118,7 @@ void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 location, uint32_t siz
   for (uint32_t row = 0; row < size; ++row) {
     for (uint32_t col = 0; col < size; ++col) {
 
-      uint32_t pixel_fb = Renderer_pixel_at_point(self, location.x + col, location.y + row);
+      uint32_t pixel_fb = Surface_pixel_offset(&self->frame_buffer, location.x + col, location.y + row);
 
       if ((self->frame_buffer.pixels[pixel_fb] | 0x00000000) == 0x00000000) {
         uint32_t pixel_s = Surface_pixel_offset(&self->sheet, offset->x + col, offset->y + row);
@@ -133,7 +133,7 @@ void Renderer_erase_from_sheet(Renderer *self, Pair_uint32 location, uint32_t si
   for (uint32_t row = 0; row < size; ++row) {
     for (uint32_t col = 0; col < size; ++col) {
 
-      uint32_t pixel_fb = Renderer_pixel_at_point(self, location.x + col, location.y + row);
+      uint32_t pixel_fb = Surface_pixel_offset(&self->frame_buffer, location.x + col, location.y + row);
       uint32_t pixel_s = Surface_pixel_offset(&self->sheet, offset->x + col, offset->y + row);
       if (self->frame_buffer.pixels[pixel_fb] == self->sheet.pixels[pixel_s]) {
         self->frame_buffer.pixels[pixel_fb] = 0x00000000;

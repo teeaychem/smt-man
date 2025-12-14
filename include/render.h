@@ -25,8 +25,6 @@ typedef struct sheet_offets_t Sheetoffsets;
 
 extern Sheetoffsets sheet_offsets;
 
-typedef Surface Sheet;
-
 typedef struct renderer_t Renderer;
 struct renderer_t {
   Surface sheet;
@@ -43,17 +41,10 @@ void Renderer_destroy(Renderer *self);
 
 void Renderer_update(Renderer *self);
 
-static inline uint32_t Renderer_pixel_at_point(Renderer *self, uint32_t col, uint32_t row) {
-  return (row * self->frame_buffer.size.x) + col;
-}
-
 void Renderer_fill_tile(Renderer *self, Pair_uint32 pos, uint32_t colour);
 
 void Renderer_read_maze(Renderer *self, Maze *maze);
 
-static inline uint32_t Surface_pixel_offset(Surface *self, uint32_t col, uint32_t row) {
-  return (row * self->size.x) + col;
-}
 
 void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 *offset);
 
