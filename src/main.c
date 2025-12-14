@@ -45,7 +45,8 @@ int main() { // int main(int argc, char *argv[]) {
   Maze maze = {};
 
   { // Resource setup
-    char *source_path = setup_source_path();
+    char *source_path;
+    setup_source_path(&source_path);
     setup_maze(&maze, source_path);
 
     { // Renderer

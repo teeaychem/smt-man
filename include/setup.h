@@ -11,7 +11,7 @@
 /// Ordered here by call priority, where relevant.
 
 /// Before maze and anima
-char *setup_source_path();
+void setup_source_path(char **source_path);
 
 void setup_maze(Maze *maze, char *source_path);
 

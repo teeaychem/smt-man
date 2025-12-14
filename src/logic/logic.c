@@ -224,7 +224,8 @@ void Lang_anima_setup(struct z3_lang *lang, Z3_context ctx) {
 
 void Lang_assert_anima_locations(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, SmtWorld *world) {
 
-  for (size_t anima_idx = 0; anima_idx < ANIMA_COUNT; ++anima_idx) {
+  // TODO: Generalise
+  for (size_t anima_idx = 0; anima_idx < 2; ++anima_idx) {
 
     auto anima_location = atomic_load(&world->anima[anima_idx].location);
     Z3_ast anima_ast = Z3_mk_app(ctx, lang->anima.enum_consts[anima_idx], 0, 0);
