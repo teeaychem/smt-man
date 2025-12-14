@@ -4,8 +4,8 @@
 #include "z3.h"
 
 #include "constants.h"
+#include "logic/situation.h"
 #include "maze.h"
-#include "utils.h"
 
 constexpr size_t PATH_VARIANTS = 11;
 struct z3_lang {
@@ -73,34 +73,6 @@ struct z3_lang {
 
 //
 
-constexpr size_t SMT_INPUT_BUFFER_SIZE = 1024;
-
-enum anima_status_t {
-  ANIMA_STATUS_SEARCH,
-};
-typedef enum anima_status_t AnimaStatus;
-
-// World things
-
-struct abstract_anima_t {
-  _Atomic(Pair_uint8) location;
-
-  _Atomic(Direction) intent;
-  _Atomic(Direction) momentum;
-
-  _Atomic(AnimaStatus) status;
-
-  _Atomic(uint32_t) speed;
-};
-typedef struct abstract_anima_t AbstractAnima;
-
-typedef struct smt_world_t SmtWorld;
-struct smt_world_t {
-  AbstractAnima anima[ANIMA_COUNT];
-};
-
-//
-
 void Lang_base_setup(struct z3_lang *lang, Z3_context ctx);
 void Lang_path_setup(struct z3_lang *lang, Z3_context ctx);
 void Lang_assert_shortest_path_empty_hints(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, Maze *maze);
@@ -109,8 +81,8 @@ void Lang_assert_path_non_empty_hints(struct z3_lang *lang, Z3_context ctx, Z3_o
 //
 
 void Lang_anima_setup(struct z3_lang *lang, Z3_context ctx);
-void Lang_assert_anima_locations(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, SmtWorld *world);
-void Lang_assert_all_non_anima_are_non_origin(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, SmtWorld *world, Maze *maze);
+void Lang_assert_anima_locations(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, Situation *world);
+void Lang_assert_all_non_anima_are_non_origin(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, Situation *world, Maze *maze);
 void Lang_assert_all_anima_tiles_are_origin_tiles(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer);
 void Lang_assert_all_origin_are_anima(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, Maze *maze);
 

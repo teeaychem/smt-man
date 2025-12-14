@@ -32,7 +32,7 @@ void z3_display_path(struct z3_lang *lang, Z3_context ctx, Z3_model model, Maze 
   }
 }
 
-void z3_tmp(Maze *maze, SmtWorld *world) {
+void z3_tmp(Maze *maze, Situation *world) {
   Z3_context ctx = z3_mk_anima_ctx();
 
   struct z3_lang lang = {};

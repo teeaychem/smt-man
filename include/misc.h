@@ -1,6 +1,6 @@
-#pragma once 
+#pragma once
 
-#include "logic.h"
+#include "logic/situation.h"
 #include "maze.h"
 
-void z3_tmp(Maze *maze, SmtWorld *world);
+void z3_tmp(Maze *maze, Situation *world);

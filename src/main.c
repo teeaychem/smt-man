@@ -15,7 +15,7 @@
 pthread_t ANIMA_THREADS[ANIMA_COUNT];
 pthread_mutex_t MTX_SOLVER = PTHREAD_MUTEX_INITIALIZER;
 
-void update_anima_sprite(SmtWorld *world, uint8_t anima_id) {
+void update_anima_sprite(Situation *world, uint8_t anima_id) {
 
   switch (atomic_load(&world->anima[anima_id].status)) {
 
@@ -27,7 +27,7 @@ void update_anima_sprite(SmtWorld *world, uint8_t anima_id) {
   }
 }
 
-void World_sync_animas(SmtWorld *world, Anima animas[ANIMA_COUNT]) {
+void World_sync_animas(Situation *world, Anima animas[ANIMA_COUNT]) {
   for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
     atomic_store(&world->anima[idx].location, atomic_load(&animas[idx].pov.anima[idx].location));
     atomic_store(&world->anima[idx].status, atomic_load(&animas[idx].pov.anima[idx].status));
@@ -36,7 +36,7 @@ void World_sync_animas(SmtWorld *world, Anima animas[ANIMA_COUNT]) {
 
 int main() { // int main(int argc, char *argv[]) {
 
-  SmtWorld world = {};
+  Situation world = {};
 
   Anima animas[ANIMA_COUNT];
 
