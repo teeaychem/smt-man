@@ -20,11 +20,16 @@ Sheetoffsets sheet_offsets = {
 
 Renderer Renderer_create(const Pair_uint32 dimensions, Surface sheet) {
   Renderer self = {
-      .dimensions = dimensions,
+      .frame_buffer = {.size = dimensions,
+                       .pixels = malloc(self.frame_buffer.size.x * self.frame_buffer.size.y * sizeof(*self.frame_buffer.pixels))},
       .sheet = sheet,
   };
+  if (self.frame_buffer.pixels == nullptr) {
+    SDL_Log("Failed to create frame_buffer");
+    exit(-1);
+  }
 
-  self.window = SDL_CreateWindow("smt-man", (int)(self.dimensions.x * UI_SCALE), (int)(self.dimensions.y * UI_SCALE), 0);
+  self.window = SDL_CreateWindow("smt-man", (int)(self.frame_buffer.size.x * UI_SCALE), (int)(self.frame_buffer.size.y * UI_SCALE), 0);
   if (self.window == nullptr) {
     SDL_Log("Failed to create window: %s", SDL_GetError());
     exit(SDL_APP_FAILURE);
@@ -36,17 +41,11 @@ Renderer Renderer_create(const Pair_uint32 dimensions, Surface sheet) {
     exit(SDL_APP_FAILURE);
   }
 
-  self.frame_buffer = malloc(self.dimensions.x * self.dimensions.y * sizeof(*self.frame_buffer));
-  if (self.frame_buffer == nullptr) {
-    SDL_Log("Failed to create frame_buffer");
-    exit(-1);
-  }
-
   self.texture = SDL_CreateTexture(self.renderer,
                                    SDL_PIXELFORMAT_ABGR8888,
                                    SDL_TEXTUREACCESS_STREAMING,
-                                   (int)self.dimensions.x,
-                                   (int)self.dimensions.y);
+                                   (int)self.frame_buffer.size.x,
+                                   (int)self.frame_buffer.size.y);
   if (self.texture == nullptr) {
     SDL_Log("Failed to create texture: %s", SDL_GetError());
     exit(SDL_APP_FAILURE);
@@ -69,8 +68,8 @@ void Renderer_update(Renderer *self) {
   int pitch;
 
   SDL_LockTexture(self->texture, nullptr, (void **)&pixels, &pitch);
-  for (size_t i = 0, sp = 0, dp = 0; i < self->dimensions.y; i++, dp += self->dimensions.x, sp += (size_t)pitch) {
-    memcpy(pixels + sp, self->frame_buffer + dp, self->dimensions.x * sizeof(*self->frame_buffer));
+  for (size_t i = 0, sp = 0, dp = 0; i < self->frame_buffer.size.y; i++, dp += self->frame_buffer.size.x, sp += (size_t)pitch) {
+    memcpy(pixels + sp, self->frame_buffer.pixels + dp, self->frame_buffer.size.x * sizeof(*self->frame_buffer.pixels));
   }
 
   SDL_UnlockTexture(self->texture);
@@ -89,8 +88,8 @@ void Renderer_fill_tile(Renderer *self, Pair_uint32 origin, uint32_t colour) {
   for (size_t row = 0; row < TILE_SCALE; ++row) {
     for (size_t col = 0; col < TILE_SCALE; ++col) {
       size_t pixel = (origin.y + col) * origin.x + row;
-      if ((self->frame_buffer[pixel] | 0x00000000) == 0x00000000) {
-        self->frame_buffer[pixel] = colour;
+      if ((self->frame_buffer.pixels[pixel] | 0x00000000) == 0x00000000) {
+        self->frame_buffer.pixels[pixel] = colour;
       }
     }
   }
@@ -104,11 +103,11 @@ void Renderer_read_maze(Renderer *self, Maze *maze) {
       bool is_path = Maze_abstract_is_path(maze, pos_x, pos_y);
 
       for (uint32_t pxl_y = 0; pxl_y < TILE_SCALE; ++pxl_y) {
-        uint32_t y_offset = ((pos_y * TILE_SCALE) + pxl_y) * self->dimensions.x;
+        uint32_t y_offset = ((pos_y * TILE_SCALE) + pxl_y) * self->frame_buffer.size.x;
         for (uint32_t pxl_x = 0; pxl_x < TILE_SCALE; ++pxl_x) {
           uint32_t x_offset = pxl_x + (pos_x * TILE_SCALE);
 
-          self->frame_buffer[y_offset + x_offset] = is_path ? 0x00000000 : 0xffffffff;
+          self->frame_buffer.pixels[y_offset + x_offset] = is_path ? 0x00000000 : 0xffffffff;
         }
       }
     }
@@ -121,9 +120,9 @@ void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 location, uint32_t siz
 
       uint32_t pixel_fb = Renderer_pixel_at_point(self, location.x + col, location.y + row);
 
-      if ((self->frame_buffer[pixel_fb] | 0x00000000) == 0x00000000) {
+      if ((self->frame_buffer.pixels[pixel_fb] | 0x00000000) == 0x00000000) {
         uint32_t pixel_s = Surface_pixel_offset(&self->sheet, offset->x + col, offset->y + row);
-        self->frame_buffer[pixel_fb] = self->sheet.pixels[pixel_s];
+        self->frame_buffer.pixels[pixel_fb] = self->sheet.pixels[pixel_s];
       }
     }
   }
@@ -136,8 +135,8 @@ void Renderer_erase_from_sheet(Renderer *self, Pair_uint32 location, uint32_t si
 
       uint32_t pixel_fb = Renderer_pixel_at_point(self, location.x + col, location.y + row);
       uint32_t pixel_s = Surface_pixel_offset(&self->sheet, offset->x + col, offset->y + row);
-      if (self->frame_buffer[pixel_fb] == self->sheet.pixels[pixel_s]) {
-        self->frame_buffer[pixel_fb] = 0x00000000;
+      if (self->frame_buffer.pixels[pixel_fb] == self->sheet.pixels[pixel_s]) {
+        self->frame_buffer.pixels[pixel_fb] = 0x00000000;
       }
     }
   }

@@ -29,14 +29,12 @@ typedef Surface Sheet;
 
 typedef struct renderer_t Renderer;
 struct renderer_t {
-  Pair_uint32 dimensions;
-  SDL_Window *window;
-
-  SDL_Renderer *renderer;
-  uint32_t *frame_buffer;
-  SDL_Texture *texture;
-
   Surface sheet;
+  Surface frame_buffer;
+
+  SDL_Window *window;
+  SDL_Renderer *renderer;
+  SDL_Texture *texture;
 };
 
 Renderer Renderer_create(const Pair_uint32 dimensions, Surface sheet);
@@ -46,7 +44,7 @@ void Renderer_destroy(Renderer *self);
 void Renderer_update(Renderer *self);
 
 static inline uint32_t Renderer_pixel_at_point(Renderer *self, uint32_t col, uint32_t row) {
-  return (row * self->dimensions.x) + col;
+  return (row * self->frame_buffer.size.x) + col;
 }
 
 void Renderer_fill_tile(Renderer *self, Pair_uint32 pos, uint32_t colour);
