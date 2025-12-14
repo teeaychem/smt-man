@@ -37,25 +37,29 @@ void World_sync_animas(SmtWorld *world, Anima animas[ANIMA_COUNT]) {
 int main() { // int main(int argc, char *argv[]) {
 
   SmtWorld world = {};
+
   Anima animas[ANIMA_COUNT];
 
-  Pair_uint32 pixel_dimensions = {.x = TILE_COUNTS.x * TILE_SCALE, .y = TILE_COUNTS.y * TILE_SCALE};
-
-  Renderer renderer;
-
-  rgb_s colour;
-  Maze maze;
+  Renderer renderer = {};
+  rgb_s colour = {};
+  Maze maze = {};
 
   { // Resource setup
     char *source_path = setup_source_path();
-    maze = setup_maze(source_path);
+    setup_maze(&maze, source_path);
 
-    char path_buffer[FILENAME_MAX];
-    cwk_path_join(source_path, "resources/sheet.png", path_buffer, FILENAME_MAX);
-    renderer = Renderer_create(pixel_dimensions, path_buffer);
+    { // Renderer
+      char path_buffer[FILENAME_MAX];
+      cwk_path_join(source_path, "resources/sheet.png", path_buffer, FILENAME_MAX);
+      Pair_uint32 pixel_dimensions = {.x = TILE_COUNTS.x * TILE_SCALE, .y = TILE_COUNTS.y * TILE_SCALE};
+      renderer = Renderer_create(pixel_dimensions, path_buffer);
+    }
 
-    setup_anima(source_path, animas, 0, Pair_uint8_create(1, 4));
-    setup_anima(source_path, animas, 1, Pair_uint8_create(16, 26));
+    setup_anima(animas, 0, Pair_uint8_create(1, 4));
+    setup_anima(animas, 1, Pair_uint8_create(16, 26));
+    setup_anima(animas, 2, Pair_uint8_create(21, 12));
+    setup_anima(animas, 3, Pair_uint8_create(4, 29));
+
     free(source_path);
   }
 
@@ -105,16 +109,6 @@ int main() { // int main(int argc, char *argv[]) {
       // Render
 
       SDL_RenderClear(renderer.renderer);
-      {
-
-        Renderer_draw_from_sheet(&renderer,
-                                 Pair_uint32_create(16, 4 * 16),
-                                 sheet_offsets.anima.size,
-                                 &sheet_offsets.anima.lt[tick]);
-
-        /* tick += 1; */
-        /* tick %= 2; */
-      }
 
       SDL_SetRenderDrawColor(renderer.renderer, colour.state[0].value, colour.state[1].value, colour.state[2].value, 0x000000ff);
 
@@ -122,8 +116,8 @@ int main() { // int main(int argc, char *argv[]) {
 
         Renderer_erase_from_sheet(&renderer,
                                   animas[id].sprite_location,
-                                  sheet_offsets.anima.size,
-                                  &sheet_offsets.anima.lt[tick]);
+                                  sheet_data.anima.size,
+                                  &sheet_data.anima.lt[tick]);
 
         Anima_move(&animas[id], &maze);
         Anima_instinct(&animas[id]);
@@ -132,8 +126,8 @@ int main() { // int main(int argc, char *argv[]) {
 
         Renderer_draw_from_sheet(&renderer,
                                  animas[id].sprite_location,
-                                 sheet_offsets.anima.size,
-                                 &sheet_offsets.anima.lt[tick]);
+                                 sheet_data.anima.size,
+                                 &sheet_data.anima.lt[tick]);
 
         // TODO: Update sprite tick
         if (atomic_load(&animas[id].sync.flag_suspend)) {

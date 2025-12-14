@@ -19,7 +19,7 @@ struct mind_t {
   struct z3_lang lang;
 };
 
-Mind Mind_default();
+void Mind_default(Mind *mind);
 
 // Animas
 
@@ -35,19 +35,14 @@ struct anima_t {
 
   uint8_t id;
 
-  const char *name;
-
-  Pair_uint8 abstract_location;
   Pair_uint32 sprite_location;
 
   SmtWorld pov;
 
-  Pair_uint32 sprite_size;
-
   AnimaSync sync;
 };
 
-Anima Anima_create(uint8_t id, Pair_uint8 location, Direction intent, Direction momentum, Pair_uint32 sprite_size);
+void Anima_default(Anima *anima, uint8_t id, Pair_uint8 location, Direction direction);
 
 void Anima_destroy(Anima *self);
 

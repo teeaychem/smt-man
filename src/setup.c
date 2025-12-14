@@ -28,27 +28,23 @@ char *setup_source_path() {
   return source_path;
 }
 
-Maze setup_maze(char *source_path) {
+void setup_maze(Maze *maze, char *source_path) {
   char path_buffer[FILENAME_MAX];
   cwk_path_join(source_path, "resources/maze/source.txt", path_buffer, FILENAME_MAX);
-  return Maze_create(path_buffer);
+  Maze_create(maze, path_buffer);
 }
 
-void setup_anima(char *source_path, Anima animas[ANIMA_COUNT], uint8_t id, Pair_uint8 location) {
-  animas[id] = Anima_create(id, location, DOWN, DOWN, PAIR_SPRITE_EDGE);
-
-  char path_b[40];
-  char path_buffer[FILENAME_MAX];
-
-  sprintf(path_b, "resources/%s.png", animas[id].name);
-  cwk_path_join(source_path, path_b, path_buffer, FILENAME_MAX);
+void setup_anima(Anima animas[ANIMA_COUNT], uint8_t id, Pair_uint8 location) {
+  Anima_default(&animas[id], id, location, DOWN);
 
   pthread_create(&ANIMA_THREADS[id], nullptr, setup_spirit, (void *)&animas[id]);
 }
 void *setup_spirit(void *void_anima) {
 
   Anima *anima = void_anima;
-  Mind mind = Mind_default();
+  Mind mind = {};
+
+  Mind_default(&mind);
 
   pthread_mutex_lock(&MTX_SOLVER);
   Anima_touch(anima, &mind);

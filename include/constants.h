@@ -7,13 +7,11 @@
 
 #include "generic/pairs.h"
 
-constexpr uint8_t ANIMA_COUNT = 2;
+constexpr uint8_t ANIMA_COUNT = 4;
 
 constexpr Pair_uint32 TILE_COUNTS = {.x = 28, .y = 36};
 
 constexpr int32_t TILE_SCALE = 16;
-
-constexpr Pair_uint32 PAIR_SPRITE_EDGE = {.x = TILE_SCALE, .y = TILE_SCALE};
 
 constexpr int UI_SCALE = 3;
 constexpr uint32_t FPS_COUNT = 12;

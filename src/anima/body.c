@@ -8,16 +8,13 @@
 #include "maze.h"
 #include "utils.h"
 
-Anima Anima_create(uint8_t id, Pair_uint8 location, Direction intent, Direction momentum, Pair_uint32 sprite_size) {
-  static const char *ANIMA_NAMES[2] = {"gottlob", "bertrand"};
-  g_log(nullptr, G_LOG_LEVEL_INFO, "Creating anima: %s", ANIMA_NAMES[id]);
+void Anima_default(Anima *anima, uint8_t id, Pair_uint8 location, Direction direction) {
+  g_log(nullptr, G_LOG_LEVEL_INFO, "Creating anima: %d", id);
 
-  Anima self = {
+  *anima = (Anima){
       .id = id,
-      .name = ANIMA_NAMES[id],
       .pov = {},
 
-      .sprite_size = sprite_size,
       .sprite_location = Pair_uint32_create(location.x * TILE_SCALE, location.y * TILE_SCALE),
 
       .sync = {
@@ -27,15 +24,13 @@ Anima Anima_create(uint8_t id, Pair_uint8 location, Direction intent, Direction 
 
   };
 
-  atomic_init(&self.pov.anima[self.id].intent, intent);
-  atomic_init(&self.pov.anima[self.id].momentum, momentum);
-  atomic_init(&self.pov.anima[self.id].location, location);
-  atomic_init(&self.pov.anima[self.id].status, ANIMA_STATUS_SEARCH);
-  atomic_init(&self.pov.anima[self.id].velocity, 1);
+  atomic_init(&anima->pov.anima[anima->id].intent, direction);
+  atomic_init(&anima->pov.anima[anima->id].momentum, direction);
+  atomic_init(&anima->pov.anima[anima->id].location, location);
+  atomic_init(&anima->pov.anima[anima->id].status, ANIMA_STATUS_SEARCH);
+  atomic_init(&anima->pov.anima[anima->id].speed, 1);
 
-  atomic_init(&self.sync.flag_suspend, false);
-
-  return self;
+  atomic_init(&anima->sync.flag_suspend, false);
 }
 
 void Anima_destroy(Anima *self) {
@@ -65,18 +60,18 @@ void Anima_handle_event(Anima *self, SDL_Event *event) {
 
 void Anima_move(Anima *self, Maze *maze) {
 
-  auto velocity = atomic_load(&self->pov.anima[self->id].velocity);
+  auto velocity = atomic_load(&self->pov.anima[self->id].speed);
 
   if (self->sprite_location.x % TILE_SCALE == 0 && self->sprite_location.y % TILE_SCALE == 0) {
 
-    auto abstract_location = atomic_load(&self->pov.anima[self->id].location);
-    auto intent = atomic_load(&self->pov.anima[self->id].intent);
+    Pair_uint8 abstract_location = atomic_load(&self->pov.anima[self->id].location);
+    Direction intent = atomic_load(&self->pov.anima[self->id].intent);
 
     atomic_store(&self->pov.anima[self->id].momentum, intent);
 
-    auto destination = steps_in_direction(&abstract_location, intent, 1);
+    Pair_uint8 destination = steps_in_direction(&abstract_location, intent, 1);
 
-    auto path_ok = Maze_abstract_is_path(maze, destination.x, destination.y);
+    bool path_ok = Maze_abstract_is_path(maze, destination.x, destination.y);
 
     if (path_ok) {
       velocity = 1;
@@ -117,7 +112,7 @@ void Anima_move(Anima *self, Maze *maze) {
   } break;
   }
 
-  atomic_store(&self->pov.anima[self->id].velocity, velocity);
+  atomic_store(&self->pov.anima[self->id].speed, velocity);
 }
 
 void Anima_instinct(Anima *self) {

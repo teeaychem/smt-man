@@ -82,8 +82,7 @@ typedef enum anima_status_t AnimaStatus;
 
 // World things
 
-typedef struct smt_world_anima_t SmtWorldAnima;
-struct smt_world_anima_t {
+struct abstract_anima_t {
   _Atomic(Pair_uint8) location;
 
   _Atomic(Direction) intent;
@@ -91,12 +90,13 @@ struct smt_world_anima_t {
 
   _Atomic(AnimaStatus) status;
 
-  _Atomic(uint32_t) velocity;
+  _Atomic(uint32_t) speed;
 };
+typedef struct abstract_anima_t AbstractAnima;
 
 typedef struct smt_world_t SmtWorld;
 struct smt_world_t {
-  SmtWorldAnima anima[ANIMA_COUNT];
+  AbstractAnima anima[ANIMA_COUNT];
 };
 
 //

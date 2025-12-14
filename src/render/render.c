@@ -8,7 +8,7 @@
 #include "generic/pairs.h"
 #include "render.h"
 
-Sheetoffsets sheet_offsets = {
+Sheetoffsets sheet_data = {
     .anima = {
         .size = 16,
         .rt = {{.x = 1, .y = 83}, {.x = 18, .y = 83}},

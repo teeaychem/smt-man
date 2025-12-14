@@ -23,7 +23,7 @@ struct sheet_offsets_t {
 };
 typedef struct sheet_offsets_t Sheetoffsets;
 
-extern Sheetoffsets sheet_offsets;
+extern Sheetoffsets sheet_data;
 
 typedef struct renderer_t Renderer;
 struct renderer_t {

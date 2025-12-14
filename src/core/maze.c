@@ -7,15 +7,15 @@
 #include "maze.h"
 
 void next_line(FILE *file) {
-  char c = ' ';
-  while (c != EOF && c != '\n') {
-    c = (char)fgetc(file);
+  char chx = ' ';
+  while (chx != EOF && chx != '\n') {
+    chx = (char)fgetc(file);
   }
 }
 
-Maze Maze_create(char *path) {
+void Maze_create(Maze *maze, char *path) {
 
-  Maze self = {
+  *maze = (Maze){
       .size = {},
   };
 
@@ -40,14 +40,14 @@ Maze Maze_create(char *path) {
     } break;
 
     case 'w': {
-      if (!fscanf(file_ptr, "%" SCNu8, &(self.size.x))) {
+      if (!fscanf(file_ptr, "%" SCNu8, &(maze->size.x))) {
         g_log(nullptr, G_LOG_LEVEL_WARNING, "Failed to read maze width: %s", path);
         preamble_ok = false;
       };
     } break;
 
     case 'h': {
-      if (!fscanf(file_ptr, "%" SCNu8, &(self.size.y))) {
+      if (!fscanf(file_ptr, "%" SCNu8, &(maze->size.y))) {
         g_log(nullptr, G_LOG_LEVEL_WARNING, "Failed to read maze height: %s", path);
         preamble_ok = false;
       };
@@ -67,10 +67,10 @@ Maze Maze_create(char *path) {
     }
   }
 
-  if ((self.size.x % TILE_COUNTS.x) != 0 | (self.size.y % TILE_COUNTS.y) != 0) {
+  if ((maze->size.x % TILE_COUNTS.x) != 0 | (maze->size.y % TILE_COUNTS.y) != 0) {
     g_log(nullptr,
           G_LOG_LEVEL_WARNING,
-          "Maze dimension %dx%d is not an integer scale of %dx%d", self.size.x, self.size.y, TILE_COUNTS.x, TILE_COUNTS.y);
+          "Maze dimension %dx%d is not an integer scale of %dx%d", maze->size.x, maze->size.y, TILE_COUNTS.x, TILE_COUNTS.y);
 
     preamble_ok = false;
   }
@@ -81,7 +81,7 @@ Maze Maze_create(char *path) {
     exit(1);
   }
 
-  self.abstract = malloc((size_t)self.size.x * (size_t)self.size.y * sizeof(*self.abstract));
+  maze->tiles = malloc((size_t)maze->size.x * (size_t)maze->size.y * sizeof(*maze->tiles));
 
   uint32_t pos_x = 0;
   uint32_t pos_y = 0;
@@ -97,7 +97,7 @@ Maze Maze_create(char *path) {
     } break;
 
     case '\n': {
-      if (pos_x != self.size.x) {
+      if (pos_x != maze->size.x) {
         g_log(nullptr, G_LOG_LEVEL_CRITICAL, "Invalid row width: %s", path);
         exit(-1);
       }
@@ -105,7 +105,7 @@ Maze Maze_create(char *path) {
     } break;
 
     default: {
-      self.abstract[pos_y * self.size.x + pos_x] = read;
+      maze->tiles[pos_y * maze->size.x + pos_x] = read;
 
       pos_x += 1;
 
@@ -116,20 +116,18 @@ Maze Maze_create(char *path) {
     }
   }
 
-  if (pos_y != self.size.y) {
+  if (pos_y != maze->size.y) {
     g_log(nullptr, G_LOG_LEVEL_CRITICAL, "Invalid col height: %s", path);
     exit(-1);
   }
 
   fclose(file_ptr);
 
-  g_log(nullptr, G_LOG_LEVEL_INFO, "Constructed maze %dx%d (%zu)", self.size.x, self.size.y, tile_count);
-
-  return self;
+  g_log(nullptr, G_LOG_LEVEL_INFO, "Constructed maze %dx%d (%zu)", maze->size.x, maze->size.y, tile_count);
 }
 
 void Maze_destroy(Maze *self) {
-  free(self->abstract);
+  free(self->tiles);
 }
 
 void Maze_abstract_stdout(Maze *self) {

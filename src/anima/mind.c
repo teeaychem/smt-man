@@ -4,19 +4,17 @@
 #include "anima.h"
 #include "logic.h"
 
-Mind Mind_default() {
+void Mind_default(Mind *mind) {
 
   Z3_context ctx = z3_mk_anima_ctx();
   Z3_optimize optimizer = Z3_mk_optimize(ctx);
   Z3_optimize_inc_ref(ctx, optimizer);
 
-  Mind mind = {
+  *mind = (Mind){
       .ctx = ctx,
       .solver = optimizer,
       .lang = {},
   };
-
-  return mind;
 }
 
 void Anima_touch(Anima *self, Mind *mind) {
