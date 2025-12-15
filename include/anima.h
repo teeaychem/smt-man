@@ -38,4 +38,6 @@ void Anima_handle_event(Anima *self, SDL_Event *event);
 
 void Anima_on_frame(Anima *self, Maze *maze, Pair_uint32 *sprite_location);
 
+void Anima_sync_abstract(Anima *self, Maze *maze);
+
 void Anima_instinct(Anima *self);

@@ -11,11 +11,13 @@
 Sheetoffsets sheet_data = {
     .anima = {
         .size = 16,
-        .rt = {{.x = 1, .y = 83}, {.x = 18, .y = 83}},
-        .dn = {{.x = 35, .y = 83}, {.x = 52, .y = 83}},
-        .lt = {{.x = 69, .y = 83}, {.x = 86, .y = 83}},
-        .up = {{.x = 103, .y = 83}, {.x = 120, .y = 83}},
-    },
+        .direction = {
+            .frames = 2,
+            .rt = {{.x = 1, .y = 83}, {.x = 18, .y = 83}},
+            .dn = {{.x = 35, .y = 83}, {.x = 52, .y = 83}},
+            .lt = {{.x = 69, .y = 83}, {.x = 86, .y = 83}},
+            .up = {{.x = 103, .y = 83}, {.x = 120, .y = 83}},
+        }},
 };
 
 void Renderer_create(Renderer *renderer, uint32_t scale, const Pair_uint8 maze_dimensions, char *sheet_path) {

@@ -22,10 +22,13 @@ typedef struct pallete_t Pallete;
 struct sheet_offsets_t {
   struct {
     uint32_t size;
-    Pair_uint32 rt[2];
-    Pair_uint32 dn[2];
-    Pair_uint32 lt[2];
-    Pair_uint32 up[2];
+    struct {
+      uint32_t frames;
+      Pair_uint32 rt[2];
+      Pair_uint32 dn[2];
+      Pair_uint32 lt[2];
+      Pair_uint32 up[2];
+    } direction;
 
   } anima;
 };

@@ -72,12 +72,13 @@ void Anima_sync_abstract(Anima *self, Maze *maze) {
 
   bool path_ok = Maze_abstract_is_path(maze, destination.x, destination.y);
 
-  uint8_t velocity = atomic_load(&self->mind.view.anima[self->id].speed);
+  uint8_t velocity = atomic_load(&self->mind.view.anima[self->id].velocity);
   if (path_ok) {
     velocity = 1;
   } else {
     velocity = 0;
   }
+  atomic_store(&self->mind.view.anima[self->id].velocity, velocity);
 
   switch (atomic_load(&self->mind.view.anima[self->id].momentum)) {
   case UP: {
@@ -108,7 +109,7 @@ void Anima_on_frame(Anima *self, Maze *maze, Pair_uint32 *sprite_location) {
     Anima_sync_abstract(self, maze);
   }
 
-  uint8_t velocity = atomic_load(&self->mind.view.anima[self->id].speed);
+  uint8_t velocity = atomic_load(&self->mind.view.anima[self->id].velocity);
   switch (atomic_load(&self->mind.view.anima[self->id].momentum)) {
   case UP: {
     sprite_location->y -= velocity;
@@ -123,8 +124,6 @@ void Anima_on_frame(Anima *self, Maze *maze, Pair_uint32 *sprite_location) {
     sprite_location->x -= velocity;
   } break;
   }
-
-  atomic_store(&self->mind.view.anima[self->id].speed, velocity);
 }
 
 void Anima_instinct(Anima *self) {
