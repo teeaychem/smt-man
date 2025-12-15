@@ -11,6 +11,14 @@
 #include "maze.h"
 #include "render/surface.h"
 
+struct pallete_t {
+  uint32_t a;
+  uint32_t b;
+  uint32_t c;
+  uint32_t d;
+};
+typedef struct pallete_t Pallete;
+
 struct sheet_offsets_t {
   struct {
     uint32_t size;
@@ -27,6 +35,7 @@ extern Sheetoffsets sheet_data;
 
 typedef struct renderer_t Renderer;
 struct renderer_t {
+  uint32_t scale;
   Surface sheet;
   Surface frame_buffer;
 
@@ -35,7 +44,7 @@ struct renderer_t {
   SDL_Texture *texture;
 };
 
-Renderer Renderer_create(const Pair_uint32 dimensions, char *sheet_path);
+void Renderer_create(Renderer *renderer, uint32_t scale, const Pair_uint8 maze_size, char *sheet_path);
 
 void Renderer_destroy(Renderer *self);
 

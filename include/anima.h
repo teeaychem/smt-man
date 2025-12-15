@@ -13,6 +13,7 @@
 struct anima_t {
   // Identifier
   uint8_t id;
+  uint32_t scale;
 
   // Tools for contacting the anima from a different thread
   struct {
@@ -27,7 +28,7 @@ typedef struct anima_t Anima;
 
 // Methods
 
-void Anima_default(Anima *anima, uint8_t id, Pair_uint8 location, Direction direction);
+void Anima_default(Anima *anima, uint8_t id, uint32_t scale, Pair_uint8 location, Direction direction);
 
 void Anima_destroy(Anima *self);
 

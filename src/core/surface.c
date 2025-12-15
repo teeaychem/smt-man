@@ -54,6 +54,6 @@ void Surface_char_projection(Surface *self, char *dest, size_t *len) {
   }
 }
 
-inline uint32_t Surface_pixel_offset(Surface *self, uint32_t col, uint32_t row) {
+inline uint32_t Surface_offset(Surface *self, uint32_t col, uint32_t row) {
   return (row * self->size.x) + col;
 }

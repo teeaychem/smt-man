@@ -2,13 +2,12 @@
 #include <stdint.h>
 
 #include "anima.h"
-#include "constants.h"
 #include "generic/pairs.h"
 #include "logic.h"
 #include "maze.h"
 #include "utils.h"
 
-void Anima_default(Anima *anima, uint8_t id, Pair_uint8 location, Direction direction) {
+void Anima_default(Anima *anima, uint8_t id, uint32_t scale, Pair_uint8 location, Direction direction) {
   g_log(nullptr, G_LOG_LEVEL_INFO, "Creating anima: %d", id);
 
   Z3_context ctx = z3_mk_anima_ctx();
@@ -17,6 +16,7 @@ void Anima_default(Anima *anima, uint8_t id, Pair_uint8 location, Direction dire
 
   *anima = (Anima){
       .id = id,
+      .scale = scale,
 
       .contact = {
           .cond_resume = PTHREAD_COND_INITIALIZER,
@@ -65,7 +65,7 @@ void Anima_move(Anima *self, Maze *maze, Pair_uint32 *sprite_location) {
 
   auto velocity = atomic_load(&self->mind.view.anima[self->id].speed);
 
-  if (sprite_location->x % TILE_SCALE == 0 && sprite_location->y % TILE_SCALE == 0) {
+  if (sprite_location->x % self->scale == 0 && sprite_location->y % self->scale == 0) {
 
     Pair_uint8 abstract_location = atomic_load(&self->mind.view.anima[self->id].location);
     Direction intent = atomic_load(&self->mind.view.anima[self->id].intent);

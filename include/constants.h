@@ -3,20 +3,14 @@
 #include <pthread.h>
 #include <stdint.h>
 
-#include <SDL3/SDL_render.h>
-
-#include "generic/pairs.h"
-
 constexpr uint8_t ANIMA_COUNT = 4;
-
-constexpr Pair_uint32 TILE_COUNTS = {.x = 28, .y = 36};
 
 constexpr int32_t TILE_SCALE = 16;
 
 constexpr int UI_SCALE = 3;
 constexpr uint32_t FPS_COUNT = 12;
 
-constexpr Uint64 NS_PER_FRAME = 1000000000 / FPS_COUNT;
+constexpr uint64_t NS_PER_FRAME = 1000000000 / FPS_COUNT;
 
 extern pthread_t ANIMA_THREADS[ANIMA_COUNT];
 extern pthread_mutex_t MTX_SOLVER;
