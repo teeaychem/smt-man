@@ -17,6 +17,7 @@ void Anima_default(Anima *anima, uint8_t id, uint32_t scale, Pair_uint8 location
   *anima = (Anima){
       .id = id,
       .scale = scale,
+      .tick = 0,
 
       .contact = {
           .cond_resume = PTHREAD_COND_INITIALIZER,
@@ -61,45 +62,53 @@ void Anima_handle_event(Anima *self, SDL_Event *event) {
   }
 }
 
-void Anima_move(Anima *self, Maze *maze, Pair_uint32 *sprite_location) {
+void Anima_sync_abstract(Anima *self, Maze *maze) {
+  Pair_uint8 abstract_location = atomic_load(&self->mind.view.anima[self->id].location);
 
-  auto velocity = atomic_load(&self->mind.view.anima[self->id].speed);
+  Direction intent = atomic_load(&self->mind.view.anima[self->id].intent);
+  atomic_store(&self->mind.view.anima[self->id].momentum, intent);
 
-  if (sprite_location->x % self->scale == 0 && sprite_location->y % self->scale == 0) {
+  Pair_uint8 destination = steps_in_direction(&abstract_location, intent, 1);
 
-    Pair_uint8 abstract_location = atomic_load(&self->mind.view.anima[self->id].location);
-    Direction intent = atomic_load(&self->mind.view.anima[self->id].intent);
+  bool path_ok = Maze_abstract_is_path(maze, destination.x, destination.y);
 
-    atomic_store(&self->mind.view.anima[self->id].momentum, intent);
-
-    Pair_uint8 destination = steps_in_direction(&abstract_location, intent, 1);
-
-    bool path_ok = Maze_abstract_is_path(maze, destination.x, destination.y);
-
-    if (path_ok) {
-      velocity = 1;
-    } else {
-      velocity = 0;
-    }
-
-    switch (atomic_load(&self->mind.view.anima[self->id].momentum)) {
-    case UP: {
-      abstract_location.y -= velocity;
-    } break;
-    case RIGHT: {
-      abstract_location.x += velocity;
-    } break;
-    case DOWN: {
-      abstract_location.y += velocity;
-    } break;
-    case LEFT: {
-      abstract_location.x -= velocity;
-    } break;
-    }
-
-    atomic_store(&self->mind.view.anima[self->id].location, abstract_location);
+  uint8_t velocity = atomic_load(&self->mind.view.anima[self->id].speed);
+  if (path_ok) {
+    velocity = 1;
+  } else {
+    velocity = 0;
   }
 
+  switch (atomic_load(&self->mind.view.anima[self->id].momentum)) {
+  case UP: {
+    abstract_location.y -= velocity;
+  } break;
+  case RIGHT: {
+    abstract_location.x += velocity;
+  } break;
+  case DOWN: {
+    abstract_location.y += velocity;
+  } break;
+  case LEFT: {
+    abstract_location.x -= velocity;
+  } break;
+  }
+
+  atomic_store(&self->mind.view.anima[self->id].location, abstract_location);
+}
+
+void Anima_on_frame(Anima *self, Maze *maze, Pair_uint32 *sprite_location) {
+
+  // Ensure coherence
+  Anima_instinct(self);
+
+  self->tick += 1;
+
+  if (sprite_location->x % self->scale == 0 && sprite_location->y % self->scale == 0) {
+    Anima_sync_abstract(self, maze);
+  }
+
+  uint8_t velocity = atomic_load(&self->mind.view.anima[self->id].speed);
   switch (atomic_load(&self->mind.view.anima[self->id].momentum)) {
   case UP: {
     sprite_location->y -= velocity;

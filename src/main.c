@@ -130,8 +130,7 @@ int main() { // int main(int argc, char *argv[]) {
                                   sheet_data.anima.size,
                                   &sheet_data.anima.lt[tick]);
 
-        Anima_move(&animas[id], &maze, &anima_sprite_location[id]);
-        Anima_instinct(&animas[id]);
+        Anima_on_frame(&animas[id], &maze, &anima_sprite_location[id]);
 
         // TODO: Update sprite
 

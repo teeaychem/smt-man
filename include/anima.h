@@ -5,6 +5,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
+#include <stdint.h>
 
 #include "anima/mind.h"
 #include "generic/pairs.h"
@@ -14,6 +15,7 @@ struct anima_t {
   // Identifier
   uint8_t id;
   uint32_t scale;
+  uint8_t tick;
 
   // Tools for contacting the anima from a different thread
   struct {
@@ -34,6 +36,6 @@ void Anima_destroy(Anima *self);
 
 void Anima_handle_event(Anima *self, SDL_Event *event);
 
-void Anima_move(Anima *self, Maze *maze, Pair_uint32 *sprite_location);
+void Anima_on_frame(Anima *self, Maze *maze, Pair_uint32 *sprite_location);
 
 void Anima_instinct(Anima *self);

@@ -10,6 +10,6 @@ struct abstract_anima_t {
 
   _Atomic(AnimaStatus) status;
 
-  _Atomic(uint32_t) speed;
+  _Atomic(uint8_t) speed;
 };
 typedef struct abstract_anima_t AbstractAnima;
