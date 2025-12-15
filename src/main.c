@@ -1,3 +1,4 @@
+#include "render/palette.h"
 #include "render/sheet.h"
 #include "setup.h"
 
@@ -41,6 +42,7 @@ int main() { // int main(int argc, char *argv[]) {
   Situation world = {};
 
   Anima animas[ANIMA_COUNT];
+  Pallete anima_palletes[ANIMA_COUNT];
   Pair_uint32 anima_sprite_location[ANIMA_COUNT] = {};
 
   Renderer renderer = {};
@@ -60,9 +62,36 @@ int main() { // int main(int argc, char *argv[]) {
     }
 
     setup_anima(animas, 0, Pair_uint8_create(1, 4));
+    anima_palletes[0] = (Pallete){
+        .a = 0x00000000,
+        .b = 0x00000000,
+        .c = 0x00000000,
+        .d = 0xffff00ff,
+    };
+
     setup_anima(animas, 1, Pair_uint8_create(16, 26));
+    anima_palletes[1] = (Pallete){
+        .a = 0x00000000,
+        .b = 0x00000000,
+        .c = 0x00000000,
+        .d = 0xffffbb00,
+    };
+
     setup_anima(animas, 2, Pair_uint8_create(21, 12));
+    anima_palletes[2] = (Pallete){
+        .a = 0x00000000,
+        .b = 0x00000000,
+        .c = 0x00000000,
+        .d = 0xfa8072ff,
+    };
+
     setup_anima(animas, 3, Pair_uint8_create(4, 29));
+    anima_palletes[3] = (Pallete){
+        .a = 0x00000000,
+        .b = 0x00000000,
+        .c = 0x00000000,
+        .d = 0xff808080,
+    };
 
     free(source_path);
   }
@@ -129,7 +158,8 @@ int main() { // int main(int argc, char *argv[]) {
         Renderer_erase_from_sheet(&renderer,
                                   anima_sprite_location[id],
                                   sheet_data.anima.size,
-                                  Sheet_anima_offset(&animas[id]));
+                                  Sheet_anima_offset(&animas[id]),
+                                  anima_palletes[id]);
 
         Anima_on_frame(&animas[id], &maze, &anima_sprite_location[id]);
 
@@ -138,7 +168,8 @@ int main() { // int main(int argc, char *argv[]) {
         Renderer_draw_from_sheet(&renderer,
                                  anima_sprite_location[id],
                                  sheet_data.anima.size,
-                                 Sheet_anima_offset(&animas[id]));
+                                 Sheet_anima_offset(&animas[id]),
+                                 anima_palletes[id]);
 
         if (atomic_load(&animas[id].contact.flag_suspend)) {
           atomic_store(&animas[id].contact.flag_suspend, false);

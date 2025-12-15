@@ -8,7 +8,6 @@
 #include "generic/pairs.h"
 #include "render.h"
 
-
 void Renderer_create(Renderer *renderer, uint32_t scale, const Pair_uint8 maze_dimensions, char *sheet_path) {
 
   Surface sheet = {};
@@ -113,7 +112,8 @@ void Renderer_read_maze(Renderer *self, Maze *maze) {
   }
 }
 
-void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 offset) {
+
+void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 offset, Pallete pallete) {
 
   for (uint32_t row = 0; row < size; ++row) {
     for (uint32_t col = 0; col < size; ++col) {
@@ -122,13 +122,14 @@ void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 location, uint32_t siz
 
       if (self->frame_buffer.pixels[pixel_fb] == 0x00000000) {
         uint32_t pixel_s = Surface_offset(&self->sheet, offset.x + col, offset.y + row);
-        self->frame_buffer.pixels[pixel_fb] = self->sheet.pixels[pixel_s];
+
+        self->frame_buffer.pixels[pixel_fb] = Pallete_offset(self->sheet.pixels[pixel_s], pallete);
       }
     }
   }
 }
 
-void Renderer_erase_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 offset) {
+void Renderer_erase_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 offset, Pallete pallete) {
 
   for (uint32_t row = 0; row < size; ++row) {
     for (uint32_t col = 0; col < size; ++col) {
@@ -136,7 +137,7 @@ void Renderer_erase_from_sheet(Renderer *self, Pair_uint32 location, uint32_t si
       uint32_t pixel_fb = Surface_offset(&self->frame_buffer, location.x + col, location.y + row);
       uint32_t pixel_s = Surface_offset(&self->sheet, offset.x + col, offset.y + row);
 
-      if (self->frame_buffer.pixels[pixel_fb] == self->sheet.pixels[pixel_s]) {
+      if (self->frame_buffer.pixels[pixel_fb] == Pallete_offset(self->sheet.pixels[pixel_s], pallete)) {
         self->frame_buffer.pixels[pixel_fb] = 0x00000000;
       }
     }

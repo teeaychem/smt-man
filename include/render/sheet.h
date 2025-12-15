@@ -22,5 +22,4 @@ typedef struct sheet_offsets_t SheetOffsets;
 
 extern SheetOffsets sheet_data;
 
-
 Pair_uint32 Sheet_anima_offset(Anima *anima);
