@@ -8,17 +8,6 @@
 #include "generic/pairs.h"
 #include "render.h"
 
-Sheetoffsets sheet_data = {
-    .anima = {
-        .size = 16,
-        .direction = {
-            .frames = 2,
-            .rt = {{.x = 1, .y = 83}, {.x = 18, .y = 83}},
-            .dn = {{.x = 35, .y = 83}, {.x = 52, .y = 83}},
-            .lt = {{.x = 69, .y = 83}, {.x = 86, .y = 83}},
-            .up = {{.x = 103, .y = 83}, {.x = 120, .y = 83}},
-        }},
-};
 
 void Renderer_create(Renderer *renderer, uint32_t scale, const Pair_uint8 maze_dimensions, char *sheet_path) {
 
@@ -124,7 +113,7 @@ void Renderer_read_maze(Renderer *self, Maze *maze) {
   }
 }
 
-void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 *offset) {
+void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 offset) {
 
   for (uint32_t row = 0; row < size; ++row) {
     for (uint32_t col = 0; col < size; ++col) {
@@ -132,20 +121,20 @@ void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 location, uint32_t siz
       uint32_t pixel_fb = Surface_offset(&self->frame_buffer, location.x + col, location.y + row);
 
       if (self->frame_buffer.pixels[pixel_fb] == 0x00000000) {
-        uint32_t pixel_s = Surface_offset(&self->sheet, offset->x + col, offset->y + row);
+        uint32_t pixel_s = Surface_offset(&self->sheet, offset.x + col, offset.y + row);
         self->frame_buffer.pixels[pixel_fb] = self->sheet.pixels[pixel_s];
       }
     }
   }
 }
 
-void Renderer_erase_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 *offset) {
+void Renderer_erase_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 offset) {
 
   for (uint32_t row = 0; row < size; ++row) {
     for (uint32_t col = 0; col < size; ++col) {
 
       uint32_t pixel_fb = Surface_offset(&self->frame_buffer, location.x + col, location.y + row);
-      uint32_t pixel_s = Surface_offset(&self->sheet, offset->x + col, offset->y + row);
+      uint32_t pixel_s = Surface_offset(&self->sheet, offset.x + col, offset.y + row);
 
       if (self->frame_buffer.pixels[pixel_fb] == self->sheet.pixels[pixel_s]) {
         self->frame_buffer.pixels[pixel_fb] = 0x00000000;

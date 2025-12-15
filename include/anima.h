@@ -16,6 +16,7 @@ struct anima_t {
   uint8_t id;
   uint32_t scale;
   uint8_t tick;
+  Direction momentum;
 
   // Tools for contacting the anima from a different thread
   struct {

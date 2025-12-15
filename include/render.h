@@ -19,23 +19,6 @@ struct pallete_t {
 };
 typedef struct pallete_t Pallete;
 
-struct sheet_offsets_t {
-  struct {
-    uint32_t size;
-    struct {
-      uint32_t frames;
-      Pair_uint32 rt[2];
-      Pair_uint32 dn[2];
-      Pair_uint32 lt[2];
-      Pair_uint32 up[2];
-    } direction;
-
-  } anima;
-};
-typedef struct sheet_offsets_t Sheetoffsets;
-
-extern Sheetoffsets sheet_data;
-
 typedef struct renderer_t Renderer;
 struct renderer_t {
   uint32_t scale;
@@ -57,6 +40,6 @@ void Renderer_fill_tile(Renderer *self, Pair_uint32 pos, uint32_t colour);
 
 void Renderer_read_maze(Renderer *self, Maze *maze);
 
-void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 *offset);
+void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 offset);
 
-void Renderer_erase_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 *offset);
+void Renderer_erase_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 offset);

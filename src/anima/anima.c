@@ -18,6 +18,7 @@ void Anima_default(Anima *anima, uint8_t id, uint32_t scale, Pair_uint8 location
       .id = id,
       .scale = scale,
       .tick = 0,
+      .momentum = direction,
 
       .contact = {
           .cond_resume = PTHREAD_COND_INITIALIZER,
@@ -67,6 +68,7 @@ void Anima_sync_abstract(Anima *self, Maze *maze) {
 
   Direction intent = atomic_load(&self->mind.view.anima[self->id].intent);
   atomic_store(&self->mind.view.anima[self->id].momentum, intent);
+  self->momentum = intent;
 
   Pair_uint8 destination = steps_in_direction(&abstract_location, intent, 1);
 

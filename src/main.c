@@ -1,3 +1,4 @@
+#include "render/sheet.h"
 #include "setup.h"
 
 #include <glib.h>
@@ -128,7 +129,7 @@ int main() { // int main(int argc, char *argv[]) {
         Renderer_erase_from_sheet(&renderer,
                                   anima_sprite_location[id],
                                   sheet_data.anima.size,
-                                  &sheet_data.anima.direction.lt[animas[id].tick % sheet_data.anima.direction.frames]);
+                                  Sheet_anima_offset(&animas[id]));
 
         Anima_on_frame(&animas[id], &maze, &anima_sprite_location[id]);
 
@@ -137,7 +138,7 @@ int main() { // int main(int argc, char *argv[]) {
         Renderer_draw_from_sheet(&renderer,
                                  anima_sprite_location[id],
                                  sheet_data.anima.size,
-                                 &sheet_data.anima.direction.lt[animas[id].tick % sheet_data.anima.direction.frames]);
+                                 Sheet_anima_offset(&animas[id]));
 
         if (atomic_load(&animas[id].contact.flag_suspend)) {
           atomic_store(&animas[id].contact.flag_suspend, false);
