@@ -7,7 +7,7 @@
 #include "maze.h"
 #include "utils.h"
 
-void Anima_default(Anima *anima, uint8_t id, uint32_t scale, Pair_uint8 location, Direction direction) {
+void Anima_default(Anima *anima, uint8_t id, uint8_t scale, Pair_uint8 location, Direction direction) {
   g_log(nullptr, G_LOG_LEVEL_INFO, "Creating anima: %d", id);
 
   Z3_context ctx = z3_mk_anima_ctx();

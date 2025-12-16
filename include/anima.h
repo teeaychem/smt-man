@@ -14,7 +14,7 @@
 struct anima_t {
   // Identifier
   uint8_t id;
-  uint32_t scale;
+  uint8_t scale;
   uint8_t tick;
   Direction momentum;
 
@@ -31,7 +31,7 @@ typedef struct anima_t Anima;
 
 // Methods
 
-void Anima_default(Anima *anima, uint8_t id, uint32_t scale, Pair_uint8 location, Direction direction);
+void Anima_default(Anima *anima, uint8_t id, uint8_t scale, Pair_uint8 location, Direction direction);
 
 void Anima_destroy(Anima *self);
 
