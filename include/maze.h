@@ -1,11 +1,29 @@
 #pragma once
 
 #include <assert.h>
-#include <stdbool.h>
 #include <stdint.h>
-#include <sys/syslog.h>
 
 #include "generic/pairs.h"
+
+// Tile representation data
+struct tile_data_t {
+  enum {
+    TILE_EDGE_UP = 0,
+    TILE_EDGE_RT,
+    TILE_EDGE_DN,
+    TILE_EDGE_LT,
+  } edge;
+
+  enum {
+    TILE_LINES_ONE = 0,
+    TILE_LINES_TWO,
+  } lines;
+
+  enum {
+    TILE_STYLE_STRAIGHT = 0,
+    TILE_STYLE_CURVED,
+  } style;
+};
 
 struct maze_t {
   Pair_uint8 size;
