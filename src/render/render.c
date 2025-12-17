@@ -98,20 +98,34 @@ void Renderer_read_maze(Renderer *self, Maze *maze) {
   for (uint8_t pos_x = 0; pos_x < maze->size.x; ++pos_x) {
     for (uint8_t pos_y = 0; pos_y < maze->size.y; ++pos_y) {
 
-      bool is_path = Maze_abstract_is_path(maze, pos_x, pos_y);
+      TileData tile_data = Maze_abstract_at(maze, pos_x, pos_y);
 
       for (uint32_t pxl_y = 0; pxl_y < self->scale; ++pxl_y) {
         uint32_t y_offset = ((pos_y * self->scale) + pxl_y) * self->frame_buffer.size.x;
         for (uint32_t pxl_x = 0; pxl_x < self->scale; ++pxl_x) {
           uint32_t x_offset = pxl_x + (pos_x * self->scale);
 
-          self->frame_buffer.pixels[y_offset + x_offset] = is_path ? 0x00000000 : 0xffffffff;
+          switch (tile_data.type) {
+
+          case TILE_EDGE: {
+            self->frame_buffer.pixels[y_offset + x_offset] = 0xffffffff;
+          } break;
+          case TILE_EMPTY: {
+            self->frame_buffer.pixels[y_offset + x_offset] = 0x00f00fff;
+          } break;
+          case TILE_INFO: {
+            self->frame_buffer.pixels[y_offset + x_offset] = 0x00ff00ff;
+          } break;
+          case TILE_PATH: {
+            self->frame_buffer.pixels[y_offset + x_offset] = 0x00000000;
+          } break;
+            break;
+          }
         }
       }
     }
   }
 }
-
 
 void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 offset, Pallete pallete) {
 

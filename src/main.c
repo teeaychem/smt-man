@@ -111,7 +111,6 @@ int main() { // int main(int argc, char *argv[]) {
 
     g_message("scratch end...");
   }
-  uint32_t tick = 0;
 
   int exit_code = 0;
 

@@ -107,7 +107,44 @@ void Maze_create(Maze *maze, char *path) {
     } break;
 
     default: {
-      maze->tiles[pos_y * maze->size.x + pos_x] = read;
+
+      TileData data = {};
+
+      switch (read) {
+
+      case ' ': {
+        data.type = TILE_PATH;
+        data.value.path_value.item = ITEM_NONE;
+      } break;
+
+      case '-': {
+        data.type = TILE_PATH;
+        data.value.path_value.item = ITEM_PELLET;
+      } break;
+
+      case '+': {
+        data.type = TILE_PATH;
+        data.value.path_value.item = ITEM_POWERUP;
+      } break;
+
+      case 'H': {
+        data.type = TILE_EDGE;
+      } break;
+
+      case '|': {
+        data.type = TILE_EDGE;
+      } break;
+
+      case '_': {
+        data.type = TILE_EMPTY;
+      } break;
+
+      case 'X': {
+        data.type = TILE_INFO;
+      } break;
+      }
+
+      maze->tiles[pos_y * maze->size.x + pos_x] = data;
 
       pos_x += 1;
 
@@ -135,7 +172,22 @@ void Maze_destroy(Maze *self) {
 void Maze_abstract_stdout(Maze *self) {
   for (uint8_t c = 0; c < self->size.y; ++c) {
     for (uint8_t r = 0; r < self->size.x; ++r) {
-      putchar(Maze_abstract_at(self, r, c));
+      switch (Maze_abstract_at(self, r, c).type) {
+
+      case TILE_EDGE: {
+        putchar('#');
+      } break;
+      case TILE_EMPTY: {
+        putchar('_');
+      } break;
+      case TILE_INFO: {
+        putchar('X');
+      } break;
+      case TILE_PATH: {
+        putchar(' ');
+      } break;
+        break;
+      }
     }
     putchar('\n');
   }
