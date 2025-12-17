@@ -111,7 +111,7 @@ void Maze_create(Maze *maze, char *path) {
 
       pos_x += 1;
 
-      if (read == '#') {
+      if (read == '-') {
         ++tile_count;
       }
     }
