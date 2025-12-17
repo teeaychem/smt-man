@@ -42,5 +42,7 @@ static inline char Maze_abstract_at(Maze *self, uint8_t x, uint8_t y) {
 }
 
 static inline bool Maze_abstract_is_path(Maze *self, uint8_t x, uint8_t y) {
-  return self->tiles[(y * self->size.x) + x] == '-';
+  return self->tiles[(y * self->size.x) + x] == '-' ||
+         self->tiles[(y * self->size.x) + x] == '+' ||
+         self->tiles[(y * self->size.x) + x] == ' ';
 }
