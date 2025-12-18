@@ -11,6 +11,7 @@
 #include "maze.h"
 #include "render/palette.h"
 #include "render/surface.h"
+#include "utils.h"
 
 typedef struct renderer_t Renderer;
 struct renderer_t {
@@ -29,10 +30,12 @@ void Renderer_destroy(Renderer *self);
 
 void Renderer_update(Renderer *self);
 
-void Renderer_fill_tile(Renderer *self, Pair_uint32 pos, uint32_t colour);
+void Renderer_tile_fill(Renderer *self, Pair_uint32 pos, uint32_t colour);
 
 void Renderer_read_maze(Renderer *self, Maze *maze);
 
 void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 offset, Pallete pallete);
 
 void Renderer_erase_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 offset, Pallete pallete);
+
+void Renderer_tile_line(Renderer *self, Pair_uint32 offset, Direction direction, uint32_t length, uint32_t colour);
