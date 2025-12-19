@@ -1,9 +1,16 @@
 /// Generic struct setup
 
 #include "constants.h"
+
 #define PAIR_IMPLEMENTATION
 #include "generic/pairs.h"
 #undef PAIR_IMPLEMENTATION
+
+#define ARITHMETIC_IMPLEMENTATION
+#include "generic/arithmetic.h"
+#undef ARITHMETIC_IMPLEMENTATION
+
+
 
 /// Other setup
 

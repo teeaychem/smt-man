@@ -10,8 +10,15 @@ enum direction_e {
   DOWN,
   LEFT,
 };
-
 typedef enum direction_e Direction;
+
+enum quadrant_e {
+  FIRST,
+  SECOND,
+  THIRD,
+  FOURTH,
+};
+typedef enum quadrant_e Quadrant;
 
 Pair_uint8 steps_in_direction(Pair_uint8 *origin, Direction direction, uint8_t steps);
 

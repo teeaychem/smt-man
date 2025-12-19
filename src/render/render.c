@@ -93,13 +93,43 @@ void Renderer_read_maze(Renderer *self, Maze *maze) {
       switch (tile_data.type) {
 
       case TILE_EDGE: {
-        Renderer_tile_line(self, tile_position, DOWN, 16, 0x66666666);
-        Renderer_tile_line(self, tile_position, RIGHT, 16, 0x66666666);
 
-        Pair_uint32 tile_position_offset = {.x = tile_position.x + self->scale - 1, .y = tile_position.y + self->scale - 1};
+        /*
+        {
+          Pair_uint32 top_left_position = {.x = pos_x * self->scale, .y = pos_y * self->scale};
+          Renderer_tile_line(self, top_left_position, DOWN, 16, 0xFFFFFFFF);
+          Renderer_tile_line(self, top_left_position, RIGHT, 16, 0xFFFFFFFF);
+        }
 
-        Renderer_tile_line(self, tile_position_offset, UP, 16, 0x66666666);
-        Renderer_tile_line(self, tile_position_offset, LEFT, 16, 0x66666666);
+        {
+          Pair_uint32 bottom_right_position = {.x = (pos_x * self->scale) + 15, .y = (pos_y * self->scale) + 15};
+          Renderer_tile_line(self, bottom_right_position, UP, 16, 0xFFFFFFFF);
+          Renderer_tile_line(self, bottom_right_position, LEFT, 16, 0xFFFFFFFF);
+        }
+        */
+
+        Pair_uint32 tile_position = {.x = pos_x * self->scale + 7, .y = pos_y * self->scale + 7};
+
+        /* Renderer_tile_line(self, tile_position, UP, 8, 0xFFFFFFFF); */
+        /* Renderer_tile_line(self, tile_position, RIGHT, 8, 0xFFFFFFFF); */
+        /* Renderer_tile_line(self, tile_position, DOWN, 9, 0xFFFFFFFF); */
+        /* Renderer_tile_line(self, tile_position, LEFT, 8, 0xFFFFFFFF); */
+
+        Renderer_circle(self, tile_position, 7, FIRST, 0xFFFFFFFF);
+        Renderer_circle(self, tile_position, 5, FIRST, 0xFFFFFFFF);
+        Renderer_circle(self, tile_position, 3, FIRST, 0xFFFFFFFF);
+
+        Renderer_circle(self, tile_position, 7, SECOND, 0xFFFFFFFF);
+        Renderer_circle(self, tile_position, 5, SECOND, 0xFFFFFFFF);
+        Renderer_circle(self, tile_position, 3, SECOND, 0xFFFFFFFF);
+
+        Renderer_circle(self, tile_position, 7, THIRD, 0xFFFFFFFF);
+        Renderer_circle(self, tile_position, 5, THIRD, 0xFFFFFFFF);
+        Renderer_circle(self, tile_position, 3, THIRD, 0xFFFFFFFF);
+
+        Renderer_circle(self, tile_position, 7, FOURTH, 0xFFFFFFFF);
+        Renderer_circle(self, tile_position, 5, FOURTH, 0xFFFFFFFF);
+        Renderer_circle(self, tile_position, 3, FOURTH, 0xFFFFFFFF);
 
       } break;
       case TILE_EMPTY: {
@@ -183,27 +213,106 @@ void Renderer_tile_line(Renderer *self, Pair_uint32 offset, Direction direction,
 
   case UP: {
     for (uint32_t idx = 0; idx < length; ++idx) {
-      size_t pixel = ((offset.y - idx) * self->frame_buffer.size.x + offset.x);
-      self->frame_buffer.pixels[pixel] = colour;
+      self->frame_buffer.pixels[Renderer_buffer_index(self, offset.x, offset.y - idx)] = colour;
     }
   } break;
   case RIGHT: {
     for (uint32_t idx = 0; idx < length; ++idx) {
-      size_t pixel = ((offset.y) * self->frame_buffer.size.x + offset.x + idx);
-      self->frame_buffer.pixels[pixel] = colour;
+      self->frame_buffer.pixels[Renderer_buffer_index(self, offset.x + idx, offset.y)] = colour;
     }
   } break;
   case DOWN: {
     for (uint32_t idx = 0; idx < length; ++idx) {
-      size_t pixel = ((offset.y + idx) * self->frame_buffer.size.x + offset.x);
-      self->frame_buffer.pixels[pixel] = colour;
+      self->frame_buffer.pixels[Renderer_buffer_index(self, offset.x, offset.y + idx)] = colour;
     }
   } break;
   case LEFT: {
     for (uint32_t idx = 0; idx < length; ++idx) {
-      size_t pixel = ((offset.y) * self->frame_buffer.size.x + offset.x - idx);
-      self->frame_buffer.pixels[pixel] = colour;
+      self->frame_buffer.pixels[Renderer_buffer_index(self, offset.x - idx, offset.y)] = colour;
     }
   } break;
+  }
+}
+
+void Renderer_circle_draw(Renderer *self, Pair_uint32 *origin, Pair_uint32 *offset, Quadrant quadrant, uint32_t colour) {
+
+  uint32_t pixel;
+
+  switch (quadrant) {
+
+  case FIRST: {
+    pixel = Renderer_buffer_index(self, origin->x + offset->x, origin->y - offset->y);
+    self->frame_buffer.pixels[pixel] = colour;
+
+    pixel = Renderer_buffer_index(self, origin->x + offset->y, origin->y - offset->x);
+    self->frame_buffer.pixels[pixel] = colour;
+  } break;
+  case SECOND: {
+    pixel = Renderer_buffer_index(self, origin->x - offset->y, origin->y - offset->x);
+    self->frame_buffer.pixels[pixel] = colour;
+
+    pixel = Renderer_buffer_index(self, origin->x - offset->x, origin->y - offset->y);
+    self->frame_buffer.pixels[pixel] = colour;
+  } break;
+  case THIRD: {
+    pixel = Renderer_buffer_index(self, origin->x - offset->x, origin->y + offset->y);
+    self->frame_buffer.pixels[pixel] = colour;
+
+    pixel = Renderer_buffer_index(self, origin->x - offset->y, origin->y + offset->x);
+    self->frame_buffer.pixels[pixel] = colour;
+  } break;
+  case FOURTH: {
+    pixel = Renderer_buffer_index(self, origin->x + offset->x, origin->y + offset->y);
+    self->frame_buffer.pixels[pixel] = colour;
+
+    pixel = Renderer_buffer_index(self, origin->x + offset->y, origin->y + offset->x);
+    self->frame_buffer.pixels[pixel] = colour;
+
+  } break;
+  }
+}
+
+void Renderer_circle(Renderer *self, Pair_uint32 origin, uint32_t radius, Quadrant quadrant, uint32_t colour) {
+
+  assert(radius <= INT32_MAX);
+
+  Pair_uint32 offset = {.x = 0, .y = radius};
+
+  switch (quadrant) {
+
+  case FIRST: {
+    origin.x += 1;
+  } break;
+  case SECOND: {
+    /* origin.x -= 1; */
+  } break;
+  case THIRD: {
+    /* origin.x -= 1; */
+    origin.y += 1;
+  } break;
+  case FOURTH: {
+    origin.x += 1;
+    origin.y += 1;
+  } break;
+  }
+
+  int32_t direction_relative = 1 - (int32_t)radius;
+  int32_t turn_left = 3;
+  int32_t turn_right = -((int32_t)radius << 1) + 5;
+
+  Renderer_circle_draw(self, &origin, &offset, quadrant, colour);
+  while (offset.y > offset.x) {
+    if (direction_relative <= 0) {
+      direction_relative += turn_left;
+    } else {
+      direction_relative += turn_right;
+      turn_right += 2;
+      offset.y -= 1;
+    }
+    turn_left += 2;
+    turn_right += 2;
+    offset.x += 1;
+
+    Renderer_circle_draw(self, &origin, &offset, quadrant, colour);
   }
 }
