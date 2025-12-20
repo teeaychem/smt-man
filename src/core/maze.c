@@ -241,14 +241,14 @@ void Maze_detail_arc_outer(Maze *self) {
     }
 
     { // BOTTOM
-      tile = Maze_abstract_at(self, col, self->size.y - 3);
+      tile = Maze_abstract_at(self, col, self->size.y - self->padding_bot);
       if (tile->type == TILE_EDGE) {
         Tile_set_arc(tile, THIRD);
       }
     }
 
     { // INTERMEDIATE
-      for (uint8_t row = 4; row < self->size.y - 3; ++row) {
+      for (uint8_t row = 4; row < self->size.y - self->padding_bot; ++row) {
         tile = Maze_abstract_at(self, col, row);
         if (tile->type == TILE_EDGE) {
           if (Maze_abstract_at(self, col + 1, row)->type == TILE_EDGE) {
@@ -289,14 +289,14 @@ void Maze_detail_arc_outer(Maze *self) {
     }
 
     { // BOTTOM
-      tile = Maze_abstract_at(self, col, self->size.y - 3);
+      tile = Maze_abstract_at(self, col, self->size.y - self->padding_bot);
       if (tile->type == TILE_EDGE) {
         Tile_set_arc(tile, FOURTH);
       }
     }
 
     { // INTERMEDIATE
-      for (uint8_t row = 4; row < self->size.y - 3; ++row) {
+      for (uint8_t row = 4; row < self->size.y - self->padding_bot; ++row) {
         tile = Maze_abstract_at(self, col, row);
         if (tile->type == TILE_EDGE) {
           if (Maze_abstract_at(self, col - 1, row)->type == TILE_EDGE) {
@@ -326,7 +326,7 @@ void Maze_detail_arc_outer(Maze *self) {
   }
 
   { // TOP
-    uint8_t row = 3;
+    uint8_t row = self->padding_top;
     TileData *tile = nullptr;
 
     { // LEFT
@@ -364,7 +364,7 @@ void Maze_detail_arc_outer(Maze *self) {
   }
 
   { // BOTTOM
-    uint8_t row = self->size.y - 3;
+    uint8_t row = self->size.y - self->padding_bot - 1;
     TileData *tile = nullptr;
 
     { // LEFT
@@ -404,26 +404,32 @@ void Maze_detail_arc_outer(Maze *self) {
 
 void Maze_detail_arc_inner(Maze *self) {
   for (uint8_t col = 1; col < self->size.x - 1; ++col) {
-    for (uint8_t row = self->padding_top; row < self->size.y - 3; ++row) {
+    for (uint8_t row = self->padding_top; row < self->size.y - (self->padding_bot + 1); ++row) {
       TileData *tile = Maze_abstract_at(self, col, row);
       if (tile->type == TILE_EDGE) {
-        if ((Maze_abstract_at(self, col + 1, row)->type != TILE_EDGE) &&
-            (Maze_abstract_at(self, col, row - 1)->type != TILE_EDGE)) {
+
+        bool up_is_edge = (Maze_abstract_at(self, col, row - 1)->type == TILE_EDGE);
+        bool left_is_edge = Maze_abstract_at(self, col - 1, row)->type == TILE_EDGE;
+        bool right_is_edge = (Maze_abstract_at(self, col + 1, row)->type == TILE_EDGE);
+        bool down_is_edge = Maze_abstract_at(self, col, row + 1)->type == TILE_EDGE;
+
+        if ((left_is_edge && down_is_edge) &&
+            ((!right_is_edge && !up_is_edge) || (Maze_abstract_at(self, col - 1, row + 1)->type == TILE_PATH))) {
           Tile_set_arc(tile, FIRST);
         }
 
-        if ((Maze_abstract_at(self, col - 1, row)->type != TILE_EDGE) &&
-            (Maze_abstract_at(self, col, row - 1)->type != TILE_EDGE)) {
+        else if ((right_is_edge && down_is_edge) &&
+                 ((!left_is_edge && !up_is_edge) || (Maze_abstract_at(self, col + 1, row + 1)->type == TILE_PATH))) {
           Tile_set_arc(tile, SECOND);
         }
 
-        if ((Maze_abstract_at(self, col - 1, row)->type != TILE_EDGE) &&
-            (Maze_abstract_at(self, col, row + 1)->type != TILE_EDGE)) {
+        else if ((right_is_edge && up_is_edge) &&
+                 ((!left_is_edge && !down_is_edge) || (Maze_abstract_at(self, col + 1, row - 1)->type == TILE_PATH))) {
           Tile_set_arc(tile, THIRD);
         }
 
-        if ((Maze_abstract_at(self, col + 1, row)->type != TILE_EDGE) &&
-            (Maze_abstract_at(self, col, row + 1)->type != TILE_EDGE)) {
+        else if ((left_is_edge && up_is_edge) &&
+                 ((!right_is_edge && !down_is_edge) || (Maze_abstract_at(self, col - 1, row - 1)->type != TILE_EDGE))) {
           Tile_set_arc(tile, FOURTH);
         }
       }
@@ -432,6 +438,7 @@ void Maze_detail_arc_inner(Maze *self) {
 }
 
 void Maze_detail(Maze *self) {
+  printf("%d %d\n", self->size.x, self->size.y);
   Maze_detail_arc_outer(self);
   Maze_detail_arc_inner(self);
 }

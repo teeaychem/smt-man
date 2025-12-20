@@ -83,13 +83,15 @@ void Renderer_read_maze(Renderer *self, Maze *maze) {
   // For each tile...
   printf("Tile scale: %d\n", self->frame_buffer.size.x / maze->size.x);
 
-  for (uint8_t pos_x = 0; pos_x < maze->size.x; ++pos_x) {
-    uint32_t pos_scaled_x = (pos_x * self->scale);
+  uint32_t indent = TILE_SCALE / 2;
 
-    for (uint8_t pos_y = 0; pos_y < maze->size.y; ++pos_y) {
-      uint32_t pos_scaled_y = (pos_y * self->scale);
+  for (uint8_t col = 0; col < maze->size.x; ++col) {
+    uint32_t col_scaled = (col * self->scale);
 
-      TileData *tile_data = Maze_abstract_at(maze, pos_x, pos_y);
+    for (uint8_t row = 0; row < maze->size.y; ++row) {
+      uint32_t row_scaled = (row * self->scale);
+
+      TileData *tile_data = Maze_abstract_at(maze, col, row);
 
       switch (tile_data->type) {
 
@@ -99,53 +101,61 @@ void Renderer_read_maze(Renderer *self, Maze *maze) {
 
         case TILE_STYLE_LINE: {
 
-          {
-            Pair_uint32 top_left_position = {.x = pos_x * self->scale, .y = pos_y * self->scale};
-            Renderer_tile_line(self, top_left_position, DOWN, 16, 0xFFFFFFFF);
-            Renderer_tile_line(self, top_left_position, RIGHT, 16, 0xFFFFFFFF);
-          }
-
-          {
-            Pair_uint32 bottom_right_position = {.x = (pos_x * self->scale) + 15, .y = (pos_y * self->scale) + 15};
-            Renderer_tile_line(self, bottom_right_position, UP, 16, 0xFFFFFFFF);
-            Renderer_tile_line(self, bottom_right_position, LEFT, 16, 0xFFFFFFFF);
+          if (row == maze->padding_top) {
+            Renderer_tile_line(self, col_scaled, row_scaled + indent - 1, RIGHT, TILE_SCALE, 0xFFFFFFFF);
+          } else if (row == (maze->size.y - maze->padding_bot - 1)) {
+            Renderer_tile_line(self, col_scaled, row_scaled + indent + 1, RIGHT, TILE_SCALE, 0xFFFFFFFF);
+          } else {
+            if (Maze_abstract_at(maze, col, row + 1)->type == TILE_PATH) {
+              Renderer_tile_line(self, col_scaled, row_scaled + indent - 1, RIGHT, TILE_SCALE, 0xFFFFFFFF);
+            } else if (Maze_abstract_at(maze, col, row - 1)->type == TILE_PATH) {
+              Renderer_tile_line(self, col_scaled, row_scaled + indent, RIGHT, TILE_SCALE, 0xFFFFFFFF);
+            } else if (col + 1 < maze->size.x && Maze_abstract_at(maze, col + 1, row)->type == TILE_PATH) {
+              Renderer_tile_line(self, col_scaled + indent - 1, row_scaled, DOWN, TILE_SCALE, 0xFFFFFFFF);
+            } else if (0 < col && Maze_abstract_at(maze, col - 1, row)->type == TILE_PATH) {
+              Renderer_tile_line(self, col_scaled + indent, row_scaled, DOWN, TILE_SCALE, 0xFFFFFFFF);
+            } else {
+              printf("??? %d %d\n", row, col);
+            }
           }
 
         } break;
         case TILE_STYLE_ARC: {
+          Pair_uint32 tile_position = {.x = col_scaled, .y = row_scaled};
 
-          Pair_uint32 tile_position = {.x = pos_scaled_x, .y = pos_scaled_y};
-
-          Renderer_tile_arc(self, tile_position, TILE_SCALE - 1, tile_data->value.edge_value.edge_arc_value, 0xFFFFFFFF);
-          Renderer_tile_arc(self, tile_position, TILE_SCALE - 5, tile_data->value.edge_value.edge_arc_value, 0xFFFFFFFF);
-          /* Renderer_tile_arc(self, tile_position, TILE_SCALE - 5, tile_data->value.edge_value.edge_arc_value, 0xFFFFFFFF); */
+          if ((row == maze->padding_top) || (row == (maze->size.y - maze->padding_bot - 1)) ||
+              (col == 0) || (col + 1 == maze->size.x)) {
+            Renderer_tile_arc(self, tile_position, indent, tile_data->value.edge_value.edge_arc_value, 0xFFFFFFFF);
+          } else {
+            Renderer_tile_arc(self, tile_position, indent - 1, tile_data->value.edge_value.edge_arc_value, 0xFFFFFFFF);
+          }
         } break;
         }
 
       } break;
       case TILE_EMPTY: {
         for (uint32_t pxl_y = 0; pxl_y < self->scale; ++pxl_y) {
-          uint32_t y_offset = (pos_scaled_y + pxl_y) * self->frame_buffer.size.x;
+          uint32_t y_offset = (row_scaled + pxl_y) * self->frame_buffer.size.x;
           for (uint32_t pxl_x = 0; pxl_x < self->scale; ++pxl_x) {
-            uint32_t x_offset = pxl_x + pos_scaled_x;
+            uint32_t x_offset = pxl_x + col_scaled;
             self->frame_buffer.pixels[y_offset + x_offset] = 0x00f00fff;
           }
         }
       } break;
       case TILE_INFO: {
         for (uint32_t pxl_y = 0; pxl_y < self->scale; ++pxl_y) {
-          uint32_t y_offset = (pos_scaled_y + pxl_y) * self->frame_buffer.size.x;
+          uint32_t y_offset = (row_scaled + pxl_y) * self->frame_buffer.size.x;
           for (uint32_t pxl_x = 0; pxl_x < self->scale; ++pxl_x) {
-            uint32_t x_offset = pxl_x + pos_scaled_x;
+            uint32_t x_offset = pxl_x + col_scaled;
             self->frame_buffer.pixels[y_offset + x_offset] = 0x00ff00ff;
           }
         }
       } break;
       case TILE_PATH: {
         for (uint32_t pxl_y = 0; pxl_y < self->scale; ++pxl_y) {
-          uint32_t y_offset = (pos_scaled_y + pxl_y) * self->frame_buffer.size.x;
+          uint32_t y_offset = (row_scaled + pxl_y) * self->frame_buffer.size.x;
           for (uint32_t pxl_x = 0; pxl_x < self->scale; ++pxl_x) {
-            uint32_t x_offset = pxl_x + pos_scaled_x;
+            uint32_t x_offset = pxl_x + col_scaled;
             self->frame_buffer.pixels[y_offset + x_offset] = 0x00000000;
           }
         }
@@ -198,28 +208,28 @@ void Renderer_tile_fill(Renderer *self, Pair_uint32 origin, uint32_t colour) {
   }
 }
 
-void Renderer_tile_line(Renderer *self, Pair_uint32 offset, Direction direction, uint32_t length, uint32_t colour) {
+void Renderer_tile_line(Renderer *self, uint32_t x, uint32_t y, Direction direction, uint32_t length, uint32_t colour) {
 
   switch (direction) {
 
   case UP: {
     for (uint32_t idx = 0; idx < length; ++idx) {
-      self->frame_buffer.pixels[Renderer_buffer_index(self, offset.x, offset.y - idx)] = colour;
+      self->frame_buffer.pixels[Renderer_buffer_index(self, x, y - idx)] = colour;
     }
   } break;
   case RIGHT: {
     for (uint32_t idx = 0; idx < length; ++idx) {
-      self->frame_buffer.pixels[Renderer_buffer_index(self, offset.x + idx, offset.y)] = colour;
+      self->frame_buffer.pixels[Renderer_buffer_index(self, x + idx, y)] = colour;
     }
   } break;
   case DOWN: {
     for (uint32_t idx = 0; idx < length; ++idx) {
-      self->frame_buffer.pixels[Renderer_buffer_index(self, offset.x, offset.y + idx)] = colour;
+      self->frame_buffer.pixels[Renderer_buffer_index(self, x, y + idx)] = colour;
     }
   } break;
   case LEFT: {
     for (uint32_t idx = 0; idx < length; ++idx) {
-      self->frame_buffer.pixels[Renderer_buffer_index(self, offset.x - idx, offset.y)] = colour;
+      self->frame_buffer.pixels[Renderer_buffer_index(self, x - idx, y)] = colour;
     }
   } break;
   }
