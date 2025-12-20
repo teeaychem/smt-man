@@ -45,4 +45,4 @@ void Renderer_erase_from_sheet(Renderer *self, Pair_uint32 location, uint32_t si
 void Renderer_tile_line(Renderer *self, Pair_uint32 offset, Direction direction, uint32_t length, uint32_t colour);
 
 // INVARIANT: The tile has an even number of pixels, and the origin is given by: (x += width/2, y += height/2).
-void Renderer_tile_circle(Renderer *self, Pair_uint32 origin, uint32_t radius, Quadrant quadrant, uint32_t colour);
+void Renderer_tile_arc(Renderer *self, Pair_uint32 origin, uint32_t radius, Quadrant quadrant, uint32_t colour);

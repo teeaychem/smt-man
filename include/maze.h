@@ -4,6 +4,33 @@
 #include <stdint.h>
 
 #include "generic/pairs.h"
+#include "utils.h"
+
+struct tile_edge_data_t {
+
+  enum {
+    TILE_LINES_ONE = 0,
+    TILE_LINES_TWO,
+  } lines;
+
+  enum {
+    TILE_STYLE_LINE,
+    TILE_STYLE_ARC,
+  } edge_style;
+
+  union {
+    Direction edge_line_value;
+    Quadrant edge_arc_value;
+  };
+};
+
+struct tile_path_data_t {
+  enum {
+    ITEM_NONE,
+    ITEM_PELLET,
+    ITEM_POWERUP,
+  } item;
+};
 
 // Tile representation data
 struct tile_data_t {
@@ -15,34 +42,8 @@ struct tile_data_t {
   } type;
 
   union {
-
-    struct {
-      enum {
-        TILE_EDGE_UP = 0,
-        TILE_EDGE_RT,
-        TILE_EDGE_DN,
-        TILE_EDGE_LT,
-      } offset;
-
-      enum {
-        TILE_LINES_ONE = 0,
-        TILE_LINES_TWO,
-      } lines;
-
-      enum {
-        TILE_STYLE_STRAIGHT = 0,
-        TILE_STYLE_CURVED,
-      } style;
-    } edge_value;
-
-    struct {
-      enum {
-        ITEM_NONE,
-        ITEM_PELLET,
-        ITEM_POWERUP,
-      } item;
-
-    } path_value;
+    struct tile_edge_data_t edge_value;
+    struct tile_path_data_t path_value;
   } value;
 };
 typedef struct tile_data_t TileData;
@@ -54,6 +55,8 @@ struct maze_t {
 typedef struct maze_t Maze;
 
 void Maze_create(Maze *maze, char *path);
+
+void Maze_detail(Maze *self);
 
 void Maze_destroy(Maze *self);
 

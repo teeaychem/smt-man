@@ -5,7 +5,6 @@
 #include "SDL3/SDL_error.h"
 
 #include "constants.h"
-#include "generic/arithmetic.h"
 #include "generic/pairs.h"
 #include "render.h"
 
@@ -91,48 +90,37 @@ void Renderer_read_maze(Renderer *self, Maze *maze) {
       uint32_t pos_scaled_y = (pos_y * self->scale);
 
       TileData *tile_data = Maze_abstract_at(maze, pos_x, pos_y);
-      Pair_uint32 tile_position = {.x = pos_scaled_x, .y = pos_scaled_y};
 
       switch (tile_data->type) {
 
       case TILE_EDGE: {
 
-        /*
-        {
-          Pair_uint32 top_left_position = {.x = pos_x * self->scale, .y = pos_y * self->scale};
-          Renderer_tile_line(self, top_left_position, DOWN, 16, 0xFFFFFFFF);
-          Renderer_tile_line(self, top_left_position, RIGHT, 16, 0xFFFFFFFF);
+        switch (tile_data->value.edge_value.edge_style) {
+
+        case TILE_STYLE_LINE: {
+
+          {
+            Pair_uint32 top_left_position = {.x = pos_x * self->scale, .y = pos_y * self->scale};
+            Renderer_tile_line(self, top_left_position, DOWN, 16, 0xFFFFFFFF);
+            Renderer_tile_line(self, top_left_position, RIGHT, 16, 0xFFFFFFFF);
+          }
+
+          {
+            Pair_uint32 bottom_right_position = {.x = (pos_x * self->scale) + 15, .y = (pos_y * self->scale) + 15};
+            Renderer_tile_line(self, bottom_right_position, UP, 16, 0xFFFFFFFF);
+            Renderer_tile_line(self, bottom_right_position, LEFT, 16, 0xFFFFFFFF);
+          }
+
+        } break;
+        case TILE_STYLE_ARC: {
+
+          Pair_uint32 tile_position = {.x = pos_scaled_x, .y = pos_scaled_y};
+
+          Renderer_tile_arc(self, tile_position, TILE_SCALE - 1, tile_data->value.edge_value.edge_arc_value, 0xFFFFFFFF);
+          Renderer_tile_arc(self, tile_position, TILE_SCALE - 5, tile_data->value.edge_value.edge_arc_value, 0xFFFFFFFF);
+          /* Renderer_tile_arc(self, tile_position, TILE_SCALE - 5, tile_data->value.edge_value.edge_arc_value, 0xFFFFFFFF); */
+        } break;
         }
-
-        {
-          Pair_uint32 bottom_right_position = {.x = (pos_x * self->scale) + 15, .y = (pos_y * self->scale) + 15};
-          Renderer_tile_line(self, bottom_right_position, UP, 16, 0xFFFFFFFF);
-          Renderer_tile_line(self, bottom_right_position, LEFT, 16, 0xFFFFFFFF);
-        }
-        */
-
-        Pair_uint32 tile_position = {.x = pos_scaled_x + 8, .y = pos_scaled_y + 8};
-
-        /* Renderer_tile_line(self, tile_position, UP, 8, 0xFFFFFFFF); */
-        /* Renderer_tile_line(self, tile_position, RIGHT, 8, 0xFFFFFFFF); */
-        /* Renderer_tile_line(self, tile_position, DOWN, 9, 0xFFFFFFFF); */
-        /* Renderer_tile_line(self, tile_position, LEFT, 8, 0xFFFFFFFF); */
-
-        Renderer_tile_circle(self, tile_position, 7, FIRST, 0xFFFFFFFF);
-        Renderer_tile_circle(self, tile_position, 5, FIRST, 0xFFFFFFFF);
-        Renderer_tile_circle(self, tile_position, 3, FIRST, 0xFFFFFFFF);
-
-        Renderer_tile_circle(self, tile_position, 7, SECOND, 0xFFFFFFFF);
-        Renderer_tile_circle(self, tile_position, 5, SECOND, 0xFFFFFFFF);
-        Renderer_tile_circle(self, tile_position, 3, SECOND, 0xFFFFFFFF);
-
-        Renderer_tile_circle(self, tile_position, 7, THIRD, 0xFFFFFFFF);
-        Renderer_tile_circle(self, tile_position, 5, THIRD, 0xFFFFFFFF);
-        Renderer_tile_circle(self, tile_position, 3, THIRD, 0xFFFFFFFF);
-
-        Renderer_tile_circle(self, tile_position, 7, FOURTH, 0xFFFFFFFF);
-        Renderer_tile_circle(self, tile_position, 5, FOURTH, 0xFFFFFFFF);
-        Renderer_tile_circle(self, tile_position, 3, FOURTH, 0xFFFFFFFF);
 
       } break;
       case TILE_EMPTY: {
@@ -275,8 +263,7 @@ void Renderer_circle_draw(Renderer *self, Pair_uint32 *origin, Pair_uint32 *offs
   }
 }
 
-
-void Renderer_tile_circle(Renderer *self, Pair_uint32 origin, uint32_t radius, Quadrant quadrant, uint32_t colour) {
+void Renderer_tile_arc(Renderer *self, Pair_uint32 origin, uint32_t radius, Quadrant quadrant, uint32_t colour) {
 
   assert(radius <= INT32_MAX);
 
@@ -284,14 +271,14 @@ void Renderer_tile_circle(Renderer *self, Pair_uint32 origin, uint32_t radius, Q
 
   switch (quadrant) {
   case FIRST: {
-    origin.y -= 1;
+    origin.y += (TILE_SCALE)-1;
   } break;
   case SECOND: {
-    origin.y -= 1;
-    origin.x -= 1;
+    origin.x += (TILE_SCALE - 1);
+    origin.y += (TILE_SCALE - 1);
   } break;
   case THIRD: {
-    origin.x -= 1;
+    origin.x += (TILE_SCALE - 1);
   } break;
   case FOURTH: {
   } break;

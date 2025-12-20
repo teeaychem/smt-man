@@ -39,6 +39,7 @@ void setup_maze(Maze *maze, char *source_path) {
   char path_buffer[FILENAME_MAX];
   cwk_path_join(source_path, "resources/maze/source.txt", path_buffer, FILENAME_MAX);
   Maze_create(maze, path_buffer);
+  Maze_detail(maze);
 }
 
 void setup_anima(Anima animas[ANIMA_COUNT], uint8_t id, Pair_uint8 location) {
