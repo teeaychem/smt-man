@@ -18,6 +18,8 @@ void Maze_create(Maze *maze, char *path) {
 
   *maze = (Maze){
       .size = {},
+      .padding_top = 0,
+      .padding_bot = 0,
   };
 
   size_t tile_count = 0;
@@ -54,7 +56,8 @@ void Maze_create(Maze *maze, char *path) {
       };
     } break;
 
-    case 'm': {
+    case 'm':
+    case 't': {
       ungetc(read, file_ptr);
       read = EOF;
     } break;
@@ -85,13 +88,23 @@ void Maze_create(Maze *maze, char *path) {
 
   maze->tiles = malloc((size_t)maze->size.x * (size_t)maze->size.y * sizeof(*maze->tiles));
 
-  uint32_t pos_x = 0;
-  uint32_t pos_y = 0;
+  uint8_t pos_x = 0;
+  uint8_t pos_y = 0;
 
   while ((read = (char)fgetc(file_ptr)) != EOF) {
     switch (read) {
     case 'c': {
       next_line(file_ptr);
+    } break;
+
+    case 't': {
+      pos_x = 0;
+      maze->padding_top += 1;
+    } break;
+
+    case 'b': {
+      pos_x = 0;
+      maze->padding_bot += 1;
     } break;
 
     case 'm': {
@@ -100,7 +113,16 @@ void Maze_create(Maze *maze, char *path) {
 
     case '\n': {
       if (pos_x != maze->size.x) {
-        g_log(nullptr, G_LOG_LEVEL_CRITICAL, "Invalid row width: %s", path);
+        g_log(nullptr, G_LOG_LEVEL_CRITICAL,
+              "Invalid width.\n"
+              "\tHave: %d\n"
+              "\tExpected: %d\n"
+              "\tRow: %d\n"
+              "\tMaze: %s",
+              pos_x,
+              maze->size.x,
+              pos_y,
+              path);
         exit(-1);
       }
       pos_y += 1;
@@ -156,7 +178,14 @@ void Maze_create(Maze *maze, char *path) {
   }
 
   if (pos_y != maze->size.y) {
-    g_log(nullptr, G_LOG_LEVEL_CRITICAL, "Invalid col height: %s", path);
+    g_log(nullptr, G_LOG_LEVEL_CRITICAL,
+          "Invalid height.\n"
+          "\tHave: %d\n"
+          "\tExpected: %d\n"
+          "\tMaze: %s",
+          pos_y,
+          maze->size.y,
+          path);
     exit(-1);
   }
 
@@ -202,10 +231,10 @@ void Maze_detail_arc_outer(Maze *self) {
 
   { // LEFT
     uint8_t col = 0;
-    TileData *tile;
+    TileData *tile = nullptr;
 
     { // TOP
-      tile = Maze_abstract_at(self, col, 3);
+      tile = Maze_abstract_at(self, col, self->padding_top);
       if (tile->type == TILE_EDGE) {
         Tile_set_arc(tile, SECOND);
       }
@@ -250,10 +279,10 @@ void Maze_detail_arc_outer(Maze *self) {
 
   { // RIGHT
     uint8_t col = self->size.x - 1;
-    TileData *tile;
+    TileData *tile = nullptr;
 
     { // TOP
-      tile = Maze_abstract_at(self, col, 3);
+      tile = Maze_abstract_at(self, col, self->padding_top);
       if (tile->type == TILE_EDGE) {
         Tile_set_arc(tile, FIRST);
       }
@@ -298,7 +327,7 @@ void Maze_detail_arc_outer(Maze *self) {
 
   { // TOP
     uint8_t row = 3;
-    TileData *tile;
+    TileData *tile = nullptr;
 
     { // LEFT
       tile = Maze_abstract_at(self, 0, row);
@@ -336,7 +365,7 @@ void Maze_detail_arc_outer(Maze *self) {
 
   { // BOTTOM
     uint8_t row = self->size.y - 3;
-    TileData *tile;
+    TileData *tile = nullptr;
 
     { // LEFT
       tile = Maze_abstract_at(self, 0, row);
@@ -375,7 +404,7 @@ void Maze_detail_arc_outer(Maze *self) {
 
 void Maze_detail_arc_inner(Maze *self) {
   for (uint8_t col = 1; col < self->size.x - 1; ++col) {
-    for (uint8_t row = 3; row < self->size.y - 3; ++row) {
+    for (uint8_t row = self->padding_top; row < self->size.y - 3; ++row) {
       TileData *tile = Maze_abstract_at(self, col, row);
       if (tile->type == TILE_EDGE) {
         if ((Maze_abstract_at(self, col + 1, row)->type != TILE_EDGE) &&

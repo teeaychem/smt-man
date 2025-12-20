@@ -51,6 +51,8 @@ typedef struct tile_data_t TileData;
 struct maze_t {
   Pair_uint8 size;
   TileData *tiles;
+  uint8_t padding_top;
+  uint8_t padding_bot;
 };
 typedef struct maze_t Maze;
 

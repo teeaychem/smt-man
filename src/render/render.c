@@ -271,7 +271,7 @@ void Renderer_tile_arc(Renderer *self, Pair_uint32 origin, uint32_t radius, Quad
 
   switch (quadrant) {
   case FIRST: {
-    origin.y += (TILE_SCALE)-1;
+    origin.y += (TILE_SCALE - 1);
   } break;
   case SECOND: {
     origin.x += (TILE_SCALE - 1);
