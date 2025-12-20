@@ -83,7 +83,7 @@ void Renderer_read_maze(Renderer *self, Maze *maze) {
   // For each tile...
   printf("Tile scale: %d\n", self->frame_buffer.size.x / maze->size.x);
 
-  uint32_t indent = TILE_SCALE / 2;
+  uint32_t indent = TILE_PIXELS / 2;
 
   for (uint8_t col = 0; col < maze->size.x; ++col) {
     uint32_t col_scaled = (col * self->scale);
@@ -102,18 +102,18 @@ void Renderer_read_maze(Renderer *self, Maze *maze) {
         case TILE_STYLE_LINE: {
 
           if (row == maze->padding_top) {
-            Renderer_tile_line(self, col_scaled, row_scaled + indent - 1, RIGHT, TILE_SCALE, 0xFFFFFFFF);
+            Renderer_tile_line(self, col_scaled, row_scaled + indent - 1, RIGHT, TILE_PIXELS, 0xFFFFFFFF);
           } else if (row == (maze->size.y - maze->padding_bot - 1)) {
-            Renderer_tile_line(self, col_scaled, row_scaled + indent + 1, RIGHT, TILE_SCALE, 0xFFFFFFFF);
+            Renderer_tile_line(self, col_scaled, row_scaled + indent + 1, RIGHT, TILE_PIXELS, 0xFFFFFFFF);
           } else {
             if (Maze_abstract_at(maze, col, row + 1)->type == TILE_PATH) {
-              Renderer_tile_line(self, col_scaled, row_scaled + indent - 1, RIGHT, TILE_SCALE, 0xFFFFFFFF);
+              Renderer_tile_line(self, col_scaled, row_scaled + indent - 1, RIGHT, TILE_PIXELS, 0xFFFFFFFF);
             } else if (Maze_abstract_at(maze, col, row - 1)->type == TILE_PATH) {
-              Renderer_tile_line(self, col_scaled, row_scaled + indent, RIGHT, TILE_SCALE, 0xFFFFFFFF);
+              Renderer_tile_line(self, col_scaled, row_scaled + indent, RIGHT, TILE_PIXELS, 0xFFFFFFFF);
             } else if (col + 1 < maze->size.x && Maze_abstract_at(maze, col + 1, row)->type == TILE_PATH) {
-              Renderer_tile_line(self, col_scaled + indent - 1, row_scaled, DOWN, TILE_SCALE, 0xFFFFFFFF);
+              Renderer_tile_line(self, col_scaled + indent - 1, row_scaled, DOWN, TILE_PIXELS, 0xFFFFFFFF);
             } else if (0 < col && Maze_abstract_at(maze, col - 1, row)->type == TILE_PATH) {
-              Renderer_tile_line(self, col_scaled + indent, row_scaled, DOWN, TILE_SCALE, 0xFFFFFFFF);
+              Renderer_tile_line(self, col_scaled + indent, row_scaled, DOWN, TILE_PIXELS, 0xFFFFFFFF);
             } else {
               printf("??? %d %d\n", row, col);
             }
@@ -167,10 +167,12 @@ void Renderer_read_maze(Renderer *self, Maze *maze) {
 
 void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 offset, Pallete pallete) {
 
+  uint32_t double_offset = TILE_PIXELS * 2 == size ? SPRITE_OFFSET_HACK : 0;
+
   for (uint32_t row = 0; row < size; ++row) {
     for (uint32_t col = 0; col < size; ++col) {
 
-      uint32_t pixel_fb = Surface_offset(&self->frame_buffer, location.x + col, location.y + row);
+      uint32_t pixel_fb = Surface_offset(&self->frame_buffer, location.x + col - double_offset, location.y + row - double_offset);
 
       if (self->frame_buffer.pixels[pixel_fb] == 0x00000000) {
         uint32_t pixel_s = Surface_offset(&self->sheet, offset.x + col, offset.y + row);
@@ -183,10 +185,12 @@ void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 location, uint32_t siz
 
 void Renderer_erase_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 offset, Pallete pallete) {
 
+  uint32_t double_offset = TILE_PIXELS * 2 == size ? SPRITE_OFFSET_HACK : 0;
+
   for (uint32_t row = 0; row < size; ++row) {
     for (uint32_t col = 0; col < size; ++col) {
 
-      uint32_t pixel_fb = Surface_offset(&self->frame_buffer, location.x + col, location.y + row);
+      uint32_t pixel_fb = Surface_offset(&self->frame_buffer, location.x + col - double_offset, location.y + row - double_offset);
       uint32_t pixel_s = Surface_offset(&self->sheet, offset.x + col, offset.y + row);
 
       if (self->frame_buffer.pixels[pixel_fb] == Pallete_offset(self->sheet.pixels[pixel_s], pallete)) {
@@ -281,14 +285,14 @@ void Renderer_tile_arc(Renderer *self, Pair_uint32 origin, uint32_t radius, Quad
 
   switch (quadrant) {
   case FIRST: {
-    origin.y += (TILE_SCALE - 1);
+    origin.y += (TILE_PIXELS - 1);
   } break;
   case SECOND: {
-    origin.x += (TILE_SCALE - 1);
-    origin.y += (TILE_SCALE - 1);
+    origin.x += (TILE_PIXELS - 1);
+    origin.y += (TILE_PIXELS - 1);
   } break;
   case THIRD: {
-    origin.x += (TILE_SCALE - 1);
+    origin.x += (TILE_PIXELS - 1);
   } break;
   case FOURTH: {
   } break;

@@ -58,7 +58,7 @@ int main() { // int main(int argc, char *argv[]) {
       char path_buffer[FILENAME_MAX];
       cwk_path_join(source_path, "resources/sheet.png", path_buffer, FILENAME_MAX);
 
-      Renderer_create(&renderer, TILE_SCALE, maze.size, path_buffer);
+      Renderer_create(&renderer, TILE_PIXELS, maze.size, path_buffer);
     }
 
     setup_anima(animas, 0, Pair_uint8_create(1, 4));
@@ -99,8 +99,8 @@ int main() { // int main(int argc, char *argv[]) {
   { // Sprite setup
     for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
       auto location = atomic_load(&animas[idx].mind.view.anima[idx].location);
-      anima_sprite_location[idx] = (Pair_uint32){.x = location.x * renderer.scale,
-                                                 location.y * renderer.scale};
+      anima_sprite_location[idx] = (Pair_uint32){.x = (location.x * renderer.scale),
+                                                 (location.y * renderer.scale)};
     }
   }
 

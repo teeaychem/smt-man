@@ -44,7 +44,7 @@ void setup_maze(Maze *maze, char *source_path) {
 
 void setup_anima(Anima animas[ANIMA_COUNT], uint8_t id, Pair_uint8 location) {
 
-  Anima_default(&animas[id], id, TILE_SCALE,  location, DOWN);
+  Anima_default(&animas[id], id, TILE_PIXELS,  location, DOWN);
   pthread_create(&ANIMA_THREADS[id], nullptr, setup_spirit, (void *)&animas[id]);
 }
 void *setup_spirit(void *void_anima) {

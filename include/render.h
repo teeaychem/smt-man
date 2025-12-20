@@ -38,9 +38,9 @@ void Renderer_tile_fill(Renderer *self, Pair_uint32 pos, uint32_t colour);
 
 void Renderer_read_maze(Renderer *self, Maze *maze);
 
-void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 offset, Pallete pallete);
+void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 destination, uint32_t size, Pair_uint32 source, Pallete pallete);
 
-void Renderer_erase_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 offset, Pallete pallete);
+void Renderer_erase_from_sheet(Renderer *self, Pair_uint32 destination, uint32_t size, Pair_uint32 source, Pallete pallete);
 
 void Renderer_tile_line(Renderer *self, uint32_t x, uint32_t y, Direction direction, uint32_t length, uint32_t colour);
 

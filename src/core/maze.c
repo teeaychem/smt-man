@@ -438,7 +438,6 @@ void Maze_detail_arc_inner(Maze *self) {
 }
 
 void Maze_detail(Maze *self) {
-  printf("%d %d\n", self->size.x, self->size.y);
   Maze_detail_arc_outer(self);
   Maze_detail_arc_inner(self);
 }

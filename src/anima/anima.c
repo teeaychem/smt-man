@@ -107,7 +107,7 @@ void Anima_on_frame(Anima *self, Maze *maze, Pair_uint32 *sprite_location) {
 
   self->tick += 1;
 
-  if (sprite_location->x % self->scale == 0 && sprite_location->y % self->scale == 0) {
+  if (sprite_location->x % TILE_PIXELS == 0 && sprite_location->y % TILE_PIXELS == 0) {
     Anima_sync_abstract(self, maze);
   }
 
