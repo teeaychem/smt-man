@@ -295,6 +295,82 @@ void Maze_detail_arc_outer(Maze *self) {
       }
     }
   }
+
+  { // TOP
+    uint8_t row = 3;
+    TileData *tile;
+
+    { // LEFT
+      tile = Maze_abstract_at(self, 0, row);
+      if (tile->type == TILE_EDGE) {
+        Tile_set_arc(tile, SECOND);
+      }
+    }
+
+    { // RIGHT
+      tile = Maze_abstract_at(self, self->size.x - 1, row);
+      if (tile->type == TILE_EDGE) {
+        Tile_set_arc(tile, FIRST);
+      }
+    }
+
+    { // INTERMEDIATE
+      for (uint8_t col = 1; col < self->size.x - 1; ++col) {
+        tile = Maze_abstract_at(self, col, row);
+        if (tile->type == TILE_EDGE) {
+          if (Maze_abstract_at(self, col, row + 1)->type == TILE_EDGE) {
+
+            if ((Maze_abstract_at(self, col - 1, row)->type == TILE_EDGE) &&
+                (Maze_abstract_at(self, col + 1, row)->type == TILE_EDGE)) {
+              if (Maze_abstract_at(self, col + 1, row + 1)->type != TILE_EDGE) {
+                Tile_set_arc(tile, SECOND);
+              } else if (Maze_abstract_at(self, col - 1, row + 1)->type != TILE_EDGE) {
+                Tile_set_arc(tile, FIRST);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  { // BOTTOM
+    uint8_t row = self->size.y - 3;
+    TileData *tile;
+
+    { // LEFT
+      tile = Maze_abstract_at(self, 0, row);
+      if (tile->type == TILE_EDGE) {
+        Tile_set_arc(tile, THIRD);
+      }
+    }
+
+    { // RIGHT
+      tile = Maze_abstract_at(self, self->size.x - 1, row);
+      if (tile->type == TILE_EDGE) {
+        Tile_set_arc(tile, FOURTH);
+      }
+    }
+
+    { // INTERMEDIATE
+      for (uint8_t col = 1; col < self->size.x - 1; ++col) {
+        tile = Maze_abstract_at(self, col, row);
+        if (tile->type == TILE_EDGE) {
+          if (Maze_abstract_at(self, col, row - 1)->type == TILE_EDGE) {
+
+            if ((Maze_abstract_at(self, col - 1, row)->type == TILE_EDGE) &&
+                (Maze_abstract_at(self, col + 1, row)->type == TILE_EDGE)) {
+              if (Maze_abstract_at(self, col + 1, row - 1)->type != TILE_EDGE) {
+                Tile_set_arc(tile, THIRD);
+              } else if (Maze_abstract_at(self, col - 1, row - 1)->type != TILE_EDGE) {
+                Tile_set_arc(tile, FOURTH);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
 /* void Maze_detail_arc_inner(Maze *self) { */
