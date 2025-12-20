@@ -172,7 +172,7 @@ void Maze_destroy(Maze *self) {
 void Maze_abstract_stdout(Maze *self) {
   for (uint8_t c = 0; c < self->size.y; ++c) {
     for (uint8_t r = 0; r < self->size.x; ++r) {
-      switch (Maze_abstract_at(self, r, c).type) {
+      switch (Maze_abstract_at(self, r, c)->type) {
 
       case TILE_EDGE: {
         putchar('#');

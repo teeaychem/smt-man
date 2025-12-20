@@ -87,10 +87,10 @@ void Renderer_read_maze(Renderer *self, Maze *maze) {
   for (uint8_t pos_x = 0; pos_x < maze->size.x; ++pos_x) {
     for (uint8_t pos_y = 0; pos_y < maze->size.y; ++pos_y) {
 
-      TileData tile_data = Maze_abstract_at(maze, pos_x, pos_y);
       Pair_uint32 tile_position = {.x = pos_x * self->scale, .y = pos_y * self->scale};
+      TileData *tile_data = Maze_abstract_at(maze, pos_x, pos_y);
 
-      switch (tile_data.type) {
+      switch (tile_data->type) {
 
       case TILE_EDGE: {
 
