@@ -85,10 +85,13 @@ void Renderer_read_maze(Renderer *self, Maze *maze) {
   printf("Tile scale: %d\n", self->frame_buffer.size.x / maze->size.x);
 
   for (uint8_t pos_x = 0; pos_x < maze->size.x; ++pos_x) {
-    for (uint8_t pos_y = 0; pos_y < maze->size.y; ++pos_y) {
+    uint32_t pos_scaled_x = (pos_x * self->scale);
 
-      Pair_uint32 tile_position = {.x = pos_x * self->scale, .y = pos_y * self->scale};
+    for (uint8_t pos_y = 0; pos_y < maze->size.y; ++pos_y) {
+      uint32_t pos_scaled_y = (pos_y * self->scale);
+
       TileData *tile_data = Maze_abstract_at(maze, pos_x, pos_y);
+      Pair_uint32 tile_position = {.x = pos_scaled_x, .y = pos_scaled_y};
 
       switch (tile_data->type) {
 
@@ -108,53 +111,53 @@ void Renderer_read_maze(Renderer *self, Maze *maze) {
         }
         */
 
-        Pair_uint32 tile_position = {.x = pos_x * self->scale + 7, .y = pos_y * self->scale + 7};
+        Pair_uint32 tile_position = {.x = pos_scaled_x + 8, .y = pos_scaled_y + 8};
 
         /* Renderer_tile_line(self, tile_position, UP, 8, 0xFFFFFFFF); */
         /* Renderer_tile_line(self, tile_position, RIGHT, 8, 0xFFFFFFFF); */
         /* Renderer_tile_line(self, tile_position, DOWN, 9, 0xFFFFFFFF); */
         /* Renderer_tile_line(self, tile_position, LEFT, 8, 0xFFFFFFFF); */
 
-        Renderer_circle(self, tile_position, 7, FIRST, 0xFFFFFFFF);
-        Renderer_circle(self, tile_position, 5, FIRST, 0xFFFFFFFF);
-        Renderer_circle(self, tile_position, 3, FIRST, 0xFFFFFFFF);
+        Renderer_tile_circle(self, tile_position, 7, FIRST, 0xFFFFFFFF);
+        Renderer_tile_circle(self, tile_position, 5, FIRST, 0xFFFFFFFF);
+        Renderer_tile_circle(self, tile_position, 3, FIRST, 0xFFFFFFFF);
 
-        Renderer_circle(self, tile_position, 7, SECOND, 0xFFFFFFFF);
-        Renderer_circle(self, tile_position, 5, SECOND, 0xFFFFFFFF);
-        Renderer_circle(self, tile_position, 3, SECOND, 0xFFFFFFFF);
+        Renderer_tile_circle(self, tile_position, 7, SECOND, 0xFFFFFFFF);
+        Renderer_tile_circle(self, tile_position, 5, SECOND, 0xFFFFFFFF);
+        Renderer_tile_circle(self, tile_position, 3, SECOND, 0xFFFFFFFF);
 
-        Renderer_circle(self, tile_position, 7, THIRD, 0xFFFFFFFF);
-        Renderer_circle(self, tile_position, 5, THIRD, 0xFFFFFFFF);
-        Renderer_circle(self, tile_position, 3, THIRD, 0xFFFFFFFF);
+        Renderer_tile_circle(self, tile_position, 7, THIRD, 0xFFFFFFFF);
+        Renderer_tile_circle(self, tile_position, 5, THIRD, 0xFFFFFFFF);
+        Renderer_tile_circle(self, tile_position, 3, THIRD, 0xFFFFFFFF);
 
-        Renderer_circle(self, tile_position, 7, FOURTH, 0xFFFFFFFF);
-        Renderer_circle(self, tile_position, 5, FOURTH, 0xFFFFFFFF);
-        Renderer_circle(self, tile_position, 3, FOURTH, 0xFFFFFFFF);
+        Renderer_tile_circle(self, tile_position, 7, FOURTH, 0xFFFFFFFF);
+        Renderer_tile_circle(self, tile_position, 5, FOURTH, 0xFFFFFFFF);
+        Renderer_tile_circle(self, tile_position, 3, FOURTH, 0xFFFFFFFF);
 
       } break;
       case TILE_EMPTY: {
         for (uint32_t pxl_y = 0; pxl_y < self->scale; ++pxl_y) {
-          uint32_t y_offset = ((pos_y * self->scale) + pxl_y) * self->frame_buffer.size.x;
+          uint32_t y_offset = (pos_scaled_y + pxl_y) * self->frame_buffer.size.x;
           for (uint32_t pxl_x = 0; pxl_x < self->scale; ++pxl_x) {
-            uint32_t x_offset = pxl_x + (pos_x * self->scale);
+            uint32_t x_offset = pxl_x + pos_scaled_x;
             self->frame_buffer.pixels[y_offset + x_offset] = 0x00f00fff;
           }
         }
       } break;
       case TILE_INFO: {
         for (uint32_t pxl_y = 0; pxl_y < self->scale; ++pxl_y) {
-          uint32_t y_offset = ((pos_y * self->scale) + pxl_y) * self->frame_buffer.size.x;
+          uint32_t y_offset = (pos_scaled_y + pxl_y) * self->frame_buffer.size.x;
           for (uint32_t pxl_x = 0; pxl_x < self->scale; ++pxl_x) {
-            uint32_t x_offset = pxl_x + (pos_x * self->scale);
+            uint32_t x_offset = pxl_x + pos_scaled_x;
             self->frame_buffer.pixels[y_offset + x_offset] = 0x00ff00ff;
           }
         }
       } break;
       case TILE_PATH: {
         for (uint32_t pxl_y = 0; pxl_y < self->scale; ++pxl_y) {
-          uint32_t y_offset = ((pos_y * self->scale) + pxl_y) * self->frame_buffer.size.x;
+          uint32_t y_offset = (pos_scaled_y + pxl_y) * self->frame_buffer.size.x;
           for (uint32_t pxl_x = 0; pxl_x < self->scale; ++pxl_x) {
-            uint32_t x_offset = pxl_x + (pos_x * self->scale);
+            uint32_t x_offset = pxl_x + pos_scaled_x;
             self->frame_buffer.pixels[y_offset + x_offset] = 0x00000000;
           }
         }
@@ -272,27 +275,25 @@ void Renderer_circle_draw(Renderer *self, Pair_uint32 *origin, Pair_uint32 *offs
   }
 }
 
-void Renderer_circle(Renderer *self, Pair_uint32 origin, uint32_t radius, Quadrant quadrant, uint32_t colour) {
+
+void Renderer_tile_circle(Renderer *self, Pair_uint32 origin, uint32_t radius, Quadrant quadrant, uint32_t colour) {
 
   assert(radius <= INT32_MAX);
 
   Pair_uint32 offset = {.x = 0, .y = radius};
 
   switch (quadrant) {
-
   case FIRST: {
-    origin.x += 1;
+    origin.y -= 1;
   } break;
   case SECOND: {
-    /* origin.x -= 1; */
+    origin.y -= 1;
+    origin.x -= 1;
   } break;
   case THIRD: {
-    /* origin.x -= 1; */
-    origin.y += 1;
+    origin.x -= 1;
   } break;
   case FOURTH: {
-    origin.x += 1;
-    origin.y += 1;
   } break;
   }
 
