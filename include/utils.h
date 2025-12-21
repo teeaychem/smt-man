@@ -1,19 +1,7 @@
 #pragma once
 
-enum direction_e {
-  UP,
-  RIGHT,
-  DOWN,
-  LEFT,
-};
-typedef enum direction_e Direction;
+#include <stdlib.h>
 
-enum quadrant_e {
-  FIRST,
-  SECOND,
-  THIRD,
-  FOURTH,
-};
-typedef enum quadrant_e Quadrant;
-
-int random_in_range(int min, int max);
+static inline int random_in_range(int min, int max) {
+  return min + rand() / (RAND_MAX / (max - min + 1) + 1);
+}

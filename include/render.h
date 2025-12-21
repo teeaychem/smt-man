@@ -6,11 +6,11 @@
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
 
+#include "enums.h"
 #include "generic/pairs.h"
 #include "maze.h"
 #include "render/palette.h"
 #include "render/surface.h"
-#include "utils.h"
 
 typedef struct renderer_t Renderer;
 struct renderer_t {

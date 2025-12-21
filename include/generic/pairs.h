@@ -1,6 +1,6 @@
 #pragma once
 
-#include "utils.h"
+#include "enums.h"
 #include <stdint.h>
 
 #define TYPE uint32_t
