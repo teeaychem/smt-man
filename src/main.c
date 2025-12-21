@@ -11,8 +11,8 @@
 #include "render.h"
 #include "render/NSTimer.h"
 #include "render/palette.h"
+#include "render/rgb_momentum.h"
 #include "render/sheet.h"
-#include "toys.h"
 
 pthread_t ANIMA_THREADS[ANIMA_COUNT];
 
@@ -28,7 +28,7 @@ int main() { // int main(int argc, char *argv[]) {
   Pair_uint32 anima_sprite_location[ANIMA_COUNT] = {};
 
   Renderer renderer = {};
-  rgb_s colour = {};
+  RGBMomentum colour = {};
   Maze maze = {};
 
   setup_resources(&renderer, &maze, animas, anima_palletes);

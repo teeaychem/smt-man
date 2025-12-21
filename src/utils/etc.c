@@ -1,7 +1,6 @@
 #include <stdlib.h>
 
 #include "generic/pairs.h"
-#include "toys.h"
 #include "utils.h"
 
 Pair_uint8 steps_in_direction(const Pair_uint8 *origin, Direction direction, uint8_t steps) {
@@ -31,20 +30,4 @@ Pair_uint8 steps_in_direction(const Pair_uint8 *origin, Direction direction, uin
 
 int random_in_range(int min, int max) {
   return min + rand() / (RAND_MAX / (max - min + 1) + 1);
-}
-
-void rgbVM_advance(rgb_s *self) {
-  int current = random_in_range(0, 2);
-
-  if (self->state[current].value == UINT8_MAX) {
-    self->state[current].momentum = false;
-  } else if (self->state[current].value == 0) {
-    self->state[current].momentum = true;
-  }
-
-  if (self->state[current].momentum) {
-    self->state[current].value = (self->state[current].value + 1);
-  } else {
-    self->state[current].value = (self->state[current].value - 1);
-  }
 }
