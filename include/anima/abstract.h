@@ -1,7 +1,9 @@
 #pragma once
 
 #include "anima/enums.h"
+#include "generic/pairs.h"
 #include "utils.h"
+
 struct abstract_anima_t {
   _Atomic(Pair_uint8) location;
 

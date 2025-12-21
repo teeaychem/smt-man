@@ -70,7 +70,7 @@ void Anima_sync_abstract(Anima *self, Maze *maze) {
   atomic_store(&self->mind.view.anima[self->id].momentum, intent);
   self->momentum = intent;
 
-  Pair_uint8 destination = steps_in_direction(&abstract_location, intent, 1);
+  Pair_uint8 destination = Pair_uint8_steps_in_direction(&abstract_location, intent, 1);
 
   bool path_ok = Maze_abstract_is_path(maze, destination.x, destination.y);
 
