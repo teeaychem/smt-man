@@ -14,5 +14,3 @@ constexpr uint64_t NS_PER_FRAME = 1000000000 / FPS_COUNT;
 
 extern pthread_t ANIMA_THREADS[ANIMA_COUNT];
 extern pthread_mutex_t MTX_SOLVER;
-
-constexpr uint32_t SPRITE_OFFSET_HACK = 4;

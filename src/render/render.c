@@ -167,12 +167,12 @@ void Renderer_read_maze(Renderer *self, Maze *maze) {
 
 void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 offset, Pallete pallete) {
 
-  uint32_t double_offset = TILE_PIXELS * 2 == size ? SPRITE_OFFSET_HACK : 0;
-
   for (uint32_t row = 0; row < size; ++row) {
     for (uint32_t col = 0; col < size; ++col) {
 
-      uint32_t pixel_fb = Surface_offset(&self->frame_buffer, location.x + col - double_offset, location.y + row - double_offset);
+      uint32_t pixel_fb = Surface_offset(&self->frame_buffer,
+                                         location.x + col - Renderer_centre_offset(self, size),
+                                         location.y + row - Renderer_centre_offset(self, size));
 
       if (self->frame_buffer.pixels[pixel_fb] == 0x00000000) {
         uint32_t pixel_s = Surface_offset(&self->sheet, offset.x + col, offset.y + row);
@@ -185,12 +185,12 @@ void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 location, uint32_t siz
 
 void Renderer_erase_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 offset, Pallete pallete) {
 
-  uint32_t double_offset = TILE_PIXELS * 2 == size ? SPRITE_OFFSET_HACK : 0;
-
   for (uint32_t row = 0; row < size; ++row) {
     for (uint32_t col = 0; col < size; ++col) {
 
-      uint32_t pixel_fb = Surface_offset(&self->frame_buffer, location.x + col - double_offset, location.y + row - double_offset);
+      uint32_t pixel_fb = Surface_offset(&self->frame_buffer,
+                                         location.x + col - Renderer_centre_offset(self, size),
+                                         location.y + row - Renderer_centre_offset(self, size));
       uint32_t pixel_s = Surface_offset(&self->sheet, offset.x + col, offset.y + row);
 
       if (self->frame_buffer.pixels[pixel_fb] == Pallete_offset(self->sheet.pixels[pixel_s], pallete)) {

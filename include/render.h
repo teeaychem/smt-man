@@ -1,6 +1,5 @@
 #pragma once
 
-#include <stddef.h>
 #include <stdint.h>
 
 #include <SDL3/SDL.h>
@@ -46,3 +45,8 @@ void Renderer_tile_line(Renderer *self, uint32_t x, uint32_t y, Direction direct
 
 // INVARIANT: The tile has an even number of pixels, and the origin is given by: (x += width/2, y += height/2).
 void Renderer_tile_arc(Renderer *self, Pair_uint32 origin, uint32_t radius, Quadrant quadrant, uint32_t colour);
+
+// Calculates the pixels to offset a render by in order for the render to be centred on a tile.
+static inline uint32_t Renderer_centre_offset(Renderer *self, uint32_t size) {
+  return size > self->scale ? (size - self->scale) / 2 : 0;
+}
