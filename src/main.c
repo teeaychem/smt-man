@@ -1,12 +1,8 @@
-#include "render/palette.h"
-#include "render/sheet.h"
 #include "setup.h"
 
 #include <glib.h>
 #include <stdatomic.h>
 #include <stdint.h>
-
-#include "cwalk.h"
 
 #include "constants.h"
 #include "generic/pairs.h"
@@ -14,12 +10,16 @@
 #include "misc.h"
 #include "render.h"
 #include "render/NSTimer.h"
+#include "render/palette.h"
+#include "render/sheet.h"
 #include "toys.h"
 
 pthread_t ANIMA_THREADS[ANIMA_COUNT];
 
+constexpr uint32_t FPS = 12;
+
 int main() { // int main(int argc, char *argv[]) {
-  constexpr uint32_t FPS = 12;
+  int exit_code = 0;
 
   Situation situation = {};
 
@@ -31,93 +31,38 @@ int main() { // int main(int argc, char *argv[]) {
   rgb_s colour = {};
   Maze maze = {};
 
-  { // Resource setup
-    char *source_path;
-    setup_source_path(&source_path);
-    setup_maze(&maze, source_path);
+  setup_resources(&renderer, &maze, animas, anima_palletes);
+  setup_sprites(&renderer, animas, anima_sprite_location);
 
-    { // Renderer
-      char path_buffer[FILENAME_MAX];
-      cwk_path_join(source_path, "resources/sheet.png", path_buffer, FILENAME_MAX);
-
-      Renderer_create(&renderer, TILE_PIXELS, maze.size, path_buffer);
-    }
-
-    setup_anima(animas, 0, Pair_uint8_create(1, 4));
-    anima_palletes[0] = (Pallete){
-        .a = 0x00000000,
-        .b = 0x00000000,
-        .c = 0x00000000,
-        .d = 0xffff00ff,
-    };
-
-    setup_anima(animas, 1, Pair_uint8_create(16, 26));
-    anima_palletes[1] = (Pallete){
-        .a = 0x00000000,
-        .b = 0x00000000,
-        .c = 0x00000000,
-        .d = 0xffffbb00,
-    };
-
-    setup_anima(animas, 2, Pair_uint8_create(21, 12));
-    anima_palletes[2] = (Pallete){
-        .a = 0x00000000,
-        .b = 0x00000000,
-        .c = 0x00000000,
-        .d = 0xfa8072ff,
-    };
-
-    setup_anima(animas, 3, Pair_uint8_create(4, 29));
-    anima_palletes[3] = (Pallete){
-        .a = 0x00000000,
-        .b = 0x00000000,
-        .c = 0x00000000,
-        .d = 0xff808080,
-    };
-
-    free(source_path);
-  }
-
-  { // Sprite setup
-    for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
-      auto location = atomic_load(&animas[idx].mind.view.anima[idx].location);
-      anima_sprite_location[idx] = (Pair_uint32){.x = (location.x * renderer.tile_pixels),
-                                                 (location.y * renderer.tile_pixels)};
-    }
-  }
-
-  { // Scratch
+  { // Scratch block
     g_message("scratch begin...");
     Sync_situation_animas(&situation, animas);
     z3_tmp(&maze, &situation);
-
     g_message("scratch end...");
   }
 
-  int exit_code = 0;
-
   if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
     exit_code = 1;
-  } else {
+    goto exit_block;
+  }
 
-    bool quit = false;
+  bool quit = false;
 
-    SDL_Event event;
+  SDL_Event event;
 
-    constexpr uint64_t NS_PER_FRAME = 1000000000 / FPS;
-    uint64_t frameNS;
+  constexpr uint64_t NS_PER_FRAME = 1000000000 / FPS;
 
-    NSTimer frameCapTimer = NSTimer_default();
+  uint64_t frame_nanoseconds = 0;
+  NSTimer frame_cap_timer = NSTimer_default();
 
-    SDL_zero(event);
+  SDL_zero(event);
 
-    // Draw the maze only once...
-    Renderer_read_maze(&renderer, &maze);
+  // Draw the maze only once...
+  Renderer_read_maze(&renderer, &maze);
 
+  { // core block
     while (!quit) {
-      NSTimer_start(&frameCapTimer);
-
-      // Handle events
+      NSTimer_start(&frame_cap_timer);
 
       while (SDL_PollEvent(&event)) {
         if (event.type == SDL_EVENT_QUIT) {
@@ -126,50 +71,51 @@ int main() { // int main(int argc, char *argv[]) {
         Anima_handle_event(&animas[0], &event);
       }
 
-      // Pre-render
-
-      Sync_situation_animas(&situation, animas);
-      rgbVM_advance(&colour);
-
-      // Render
-
-      SDL_RenderClear(renderer.renderer);
-
-      SDL_SetRenderDrawColor(renderer.renderer, colour.state[0].value, colour.state[1].value, colour.state[2].value, 0x000000ff);
-
-      for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
-
-        Renderer_erase_from_sheet(&renderer,
-                                  anima_sprite_location[id],
-                                  sheet_data.anima.size,
-                                  Sheet_anima_offset(&animas[id]),
-                                  anima_palletes[id]);
-
-        Anima_on_frame(&animas[id], &maze, &anima_sprite_location[id]);
-
-        // TODO: Update sprite
-
-        Renderer_draw_from_sheet(&renderer,
-                                 anima_sprite_location[id],
-                                 sheet_data.anima.size,
-                                 Sheet_anima_offset(&animas[id]),
-                                 anima_palletes[id]);
-
-        if (atomic_load(&animas[id].contact.flag_suspend)) {
-          atomic_store(&animas[id].contact.flag_suspend, false);
-          pthread_cond_broadcast(&animas[id].contact.cond_resume);
-        }
+      { // pre_render_block
+        Sync_situation_animas(&situation, animas);
+        rgbVM_advance(&colour);
       }
 
-      Renderer_update(&renderer);
+      { // render_block
+        SDL_RenderClear(renderer.renderer);
 
-      frameNS = NSTimer_get_ticks(&frameCapTimer);
-      if (frameNS < NS_PER_FRAME) {
-        SDL_DelayNS(NS_PER_FRAME - frameNS);
+        SDL_SetRenderDrawColor(renderer.renderer, colour.state[0].value, colour.state[1].value, colour.state[2].value, 0x000000ff);
+
+        for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
+
+          Renderer_erase_from_sheet(&renderer,
+                                    anima_sprite_location[id],
+                                    sheet_data.anima.size,
+                                    Sheet_anima_offset(&animas[id]),
+                                    anima_palletes[id]);
+
+          Anima_on_frame(&animas[id], &maze, &anima_sprite_location[id]);
+
+          Renderer_draw_from_sheet(&renderer,
+                                   anima_sprite_location[id],
+                                   sheet_data.anima.size,
+                                   Sheet_anima_offset(&animas[id]),
+                                   anima_palletes[id]);
+
+          if (atomic_load(&animas[id].contact.flag_suspend)) {
+            atomic_store(&animas[id].contact.flag_suspend, false);
+            pthread_cond_broadcast(&animas[id].contact.cond_resume);
+          }
+        }
+
+        Renderer_update(&renderer);
+      }
+
+      { // wait block
+        frame_nanoseconds = NSTimer_get_ticks(&frame_cap_timer);
+        if (frame_nanoseconds < NS_PER_FRAME) {
+          SDL_DelayNS(NS_PER_FRAME - frame_nanoseconds);
+        }
       }
     }
   }
 
+exit_block: {
   Renderer_destroy(&renderer);
   SDL_Quit();
 
@@ -183,4 +129,5 @@ int main() { // int main(int argc, char *argv[]) {
   g_message("good-bye");
 
   return exit_code;
+}
 }

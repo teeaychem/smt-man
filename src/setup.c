@@ -21,6 +21,8 @@
 #include "cwalk.h"
 #include <whereami.h>
 
+// Private
+
 // Set the source path for resources, etc.
 void setup_source_path(char **source_path) {
 
@@ -40,11 +42,6 @@ void setup_maze(Maze *maze, char *source_path) {
   Maze_detail(maze);
 }
 
-void setup_anima(Anima animas[ANIMA_COUNT], uint8_t id, Pair_uint8 location) {
-
-  Anima_default(&animas[id], id, TILE_PIXELS, location, DOWN);
-  pthread_create(&ANIMA_THREADS[id], nullptr, setup_spirit, (void *)&animas[id]);
-}
 void *setup_spirit(void *void_anima) {
 
   Anima *anima = void_anima;
@@ -63,4 +60,67 @@ void *setup_spirit(void *void_anima) {
     pthread_mutex_unlock(&anima->contact.mtx_suspend);
   }
   return 0;
+}
+
+void setup_anima(Anima animas[ANIMA_COUNT], uint8_t id, Pair_uint8 location) {
+
+  Anima_default(&animas[id], id, TILE_PIXELS, location, DOWN);
+  pthread_create(&ANIMA_THREADS[id], nullptr, setup_spirit, (void *)&animas[id]);
+}
+
+// Public
+
+void setup_resources(Renderer *renderer, Maze *maze, Anima animas[ANIMA_COUNT], Pallete anima_palletes[ANIMA_COUNT]) { // Resource setup
+  char *source_path;
+  setup_source_path(&source_path);
+  setup_maze(maze, source_path);
+
+  { // Renderer
+    char path_buffer[FILENAME_MAX];
+    cwk_path_join(source_path, "resources/sheet.png", path_buffer, FILENAME_MAX);
+
+    Renderer_create(renderer, TILE_PIXELS, maze->size, path_buffer);
+  }
+
+  setup_anima(animas, 0, Pair_uint8_create(1, 4));
+  anima_palletes[0] = (Pallete){
+      .a = 0x00000000,
+      .b = 0x00000000,
+      .c = 0x00000000,
+      .d = 0xffff00ff,
+  };
+
+  setup_anima(animas, 1, Pair_uint8_create(16, 26));
+  anima_palletes[1] = (Pallete){
+      .a = 0x00000000,
+      .b = 0x00000000,
+      .c = 0x00000000,
+      .d = 0xffffbb00,
+  };
+
+  setup_anima(animas, 2, Pair_uint8_create(21, 12));
+  anima_palletes[2] = (Pallete){
+      .a = 0x00000000,
+      .b = 0x00000000,
+      .c = 0x00000000,
+      .d = 0xfa8072ff,
+  };
+
+  setup_anima(animas, 3, Pair_uint8_create(4, 29));
+  anima_palletes[3] = (Pallete){
+      .a = 0x00000000,
+      .b = 0x00000000,
+      .c = 0x00000000,
+      .d = 0xff808080,
+  };
+
+  free(source_path);
+}
+
+void setup_sprites(Renderer *renderer, Anima animas[ANIMA_COUNT], Pair_uint32 anima_sprite_location[ANIMA_COUNT]) { // Sprite setup
+  for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
+    Pair_uint8 location = atomic_load(&animas[idx].mind.view.anima[idx].location);
+    anima_sprite_location[idx] = (Pair_uint32){.x = (location.x * renderer->tile_pixels),
+                                               (location.y * renderer->tile_pixels)};
+  }
 }
