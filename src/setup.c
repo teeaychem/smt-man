@@ -64,7 +64,7 @@ void *setup_spirit(void *void_anima) {
 
 void setup_anima(Anima animas[ANIMA_COUNT], uint8_t id, Pair_uint8 location) {
 
-  Anima_default(&animas[id], id, TILE_PIXELS, location, DOWN);
+  Anima_default(&animas[id], id, TILE_PIXELS, location, SOUTH);
   pthread_create(&ANIMA_THREADS[id], nullptr, setup_spirit, (void *)&animas[id]);
 }
 

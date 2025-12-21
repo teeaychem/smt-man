@@ -18,16 +18,16 @@ Pair_uint32 Sheet_anima_offset(const Anima *anima) {
 
   switch (anima->momentum) {
 
-  case UP: {
+  case NORTH: {
     return sheet_data.anima.direction.up[offset];
   } break;
-  case RIGHT: {
+  case EAST: {
     return sheet_data.anima.direction.rt[offset];
   } break;
-  case DOWN: {
+  case SOUTH: {
     return sheet_data.anima.direction.dn[offset];
   } break;
-  case LEFT: {
+  case WEST: {
     return sheet_data.anima.direction.lt[offset];
   } break;
   }

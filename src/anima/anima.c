@@ -48,16 +48,16 @@ void Anima_handle_event(Anima *self, SDL_Event *event) {
 
     switch (event->key.key) {
     case SDLK_UP: {
-      atomic_store(&self->mind.view.anima[self->id].intent, UP);
+      atomic_store(&self->mind.view.anima[self->id].intent, NORTH);
     } break;
     case SDLK_DOWN: {
-      atomic_store(&self->mind.view.anima[self->id].intent, DOWN);
+      atomic_store(&self->mind.view.anima[self->id].intent, SOUTH);
     } break;
     case SDLK_LEFT: {
-      atomic_store(&self->mind.view.anima[self->id].intent, LEFT);
+      atomic_store(&self->mind.view.anima[self->id].intent, WEST);
     } break;
     case SDLK_RIGHT: {
-      atomic_store(&self->mind.view.anima[self->id].intent, RIGHT);
+      atomic_store(&self->mind.view.anima[self->id].intent, EAST);
     } break;
     }
   }
@@ -83,16 +83,16 @@ void Anima_sync_abstract(Anima *self, Maze *maze) {
   atomic_store(&self->mind.view.anima[self->id].velocity, velocity);
 
   switch (atomic_load(&self->mind.view.anima[self->id].momentum)) {
-  case UP: {
+  case NORTH: {
     abstract_location.y -= velocity;
   } break;
-  case RIGHT: {
+  case EAST: {
     abstract_location.x += velocity;
   } break;
-  case DOWN: {
+  case SOUTH: {
     abstract_location.y += velocity;
   } break;
-  case LEFT: {
+  case WEST: {
     abstract_location.x -= velocity;
   } break;
   }
@@ -113,16 +113,16 @@ void Anima_on_frame(Anima *self, Maze *maze, Pair_uint32 *sprite_location) {
 
   uint8_t velocity = atomic_load(&self->mind.view.anima[self->id].velocity);
   switch (atomic_load(&self->mind.view.anima[self->id].momentum)) {
-  case UP: {
+  case NORTH: {
     sprite_location->y -= velocity;
   } break;
-  case RIGHT: {
+  case EAST: {
     sprite_location->x += velocity;
   } break;
-  case DOWN: {
+  case SOUTH: {
     sprite_location->y += velocity;
   } break;
-  case LEFT: {
+  case WEST: {
     sprite_location->x -= velocity;
   } break;
   }

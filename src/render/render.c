@@ -102,18 +102,18 @@ void Renderer_read_maze(Renderer *self, const Maze *maze) {
         case TILE_STYLE_LINE: {
 
           if (row == maze->padding_top) {
-            Renderer_tile_line(self, col_scaled, row_scaled + indent - 1, RIGHT, self->tile_pixels, 0xFFFFFFFF);
+            Renderer_tile_line(self, col_scaled, row_scaled + indent - 1, EAST, self->tile_pixels, 0xFFFFFFFF);
           } else if (row == (maze->size.y - maze->padding_bot - 1)) {
-            Renderer_tile_line(self, col_scaled, row_scaled + indent + 1, RIGHT, self->tile_pixels, 0xFFFFFFFF);
+            Renderer_tile_line(self, col_scaled, row_scaled + indent + 1, EAST, self->tile_pixels, 0xFFFFFFFF);
           } else {
             if (Maze_abstract_at(maze, col, row + 1)->type == TILE_PATH) {
-              Renderer_tile_line(self, col_scaled, row_scaled + indent - 1, RIGHT, self->tile_pixels, 0xFFFFFFFF);
+              Renderer_tile_line(self, col_scaled, row_scaled + indent - 1, EAST, self->tile_pixels, 0xFFFFFFFF);
             } else if (Maze_abstract_at(maze, col, row - 1)->type == TILE_PATH) {
-              Renderer_tile_line(self, col_scaled, row_scaled + indent, RIGHT, self->tile_pixels, 0xFFFFFFFF);
+              Renderer_tile_line(self, col_scaled, row_scaled + indent, EAST, self->tile_pixels, 0xFFFFFFFF);
             } else if (col + 1 < maze->size.x && Maze_abstract_at(maze, col + 1, row)->type == TILE_PATH) {
-              Renderer_tile_line(self, col_scaled + indent - 1, row_scaled, DOWN, self->tile_pixels, 0xFFFFFFFF);
+              Renderer_tile_line(self, col_scaled + indent - 1, row_scaled, SOUTH, self->tile_pixels, 0xFFFFFFFF);
             } else if (0 < col && Maze_abstract_at(maze, col - 1, row)->type == TILE_PATH) {
-              Renderer_tile_line(self, col_scaled + indent, row_scaled, DOWN, self->tile_pixels, 0xFFFFFFFF);
+              Renderer_tile_line(self, col_scaled + indent, row_scaled, SOUTH, self->tile_pixels, 0xFFFFFFFF);
             } else {
               printf("??? %d %d\n", row, col);
             }
@@ -216,22 +216,22 @@ void Renderer_tile_line(Renderer *self, uint32_t x, uint32_t y, Direction direct
 
   switch (direction) {
 
-  case UP: {
+  case NORTH: {
     for (uint32_t idx = 0; idx < length; ++idx) {
       self->frame_buffer.pixels[Renderer_buffer_index(self, x, y - idx)] = colour;
     }
   } break;
-  case RIGHT: {
+  case EAST: {
     for (uint32_t idx = 0; idx < length; ++idx) {
       self->frame_buffer.pixels[Renderer_buffer_index(self, x + idx, y)] = colour;
     }
   } break;
-  case DOWN: {
+  case SOUTH: {
     for (uint32_t idx = 0; idx < length; ++idx) {
       self->frame_buffer.pixels[Renderer_buffer_index(self, x, y + idx)] = colour;
     }
   } break;
-  case LEFT: {
+  case WEST: {
     for (uint32_t idx = 0; idx < length; ++idx) {
       self->frame_buffer.pixels[Renderer_buffer_index(self, x - idx, y)] = colour;
     }

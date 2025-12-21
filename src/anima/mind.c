@@ -93,15 +93,15 @@ void Mind_deduct(Mind *self) {
   Z3_model_eval(self->ctx, model, Z3_mk_app(self->ctx, self->lang.anima.is_facing, 1, &anima_ast), false, &anima_direction);
 
   if (anima_direction == up) {
-    atomic_store(&self->view.anima[self->id].intent, UP);
+    atomic_store(&self->view.anima[self->id].intent, NORTH);
   } else if (anima_direction == rt) {
-    atomic_store(&self->view.anima[self->id].intent, RIGHT);
+    atomic_store(&self->view.anima[self->id].intent, EAST);
 
   } else if (anima_direction == dn) {
-    atomic_store(&self->view.anima[self->id].intent, DOWN);
+    atomic_store(&self->view.anima[self->id].intent, SOUTH);
 
   } else if (anima_direction == lt) {
-    atomic_store(&self->view.anima[self->id].intent, LEFT);
+    atomic_store(&self->view.anima[self->id].intent, WEST);
   } else {
     g_log(nullptr, G_LOG_LEVEL_WARNING, "No direction");
     exit(-1);
