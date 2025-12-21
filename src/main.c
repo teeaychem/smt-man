@@ -7,12 +7,12 @@
 #include "constants.h"
 #include "generic/pairs.h"
 #include "logic/synchronization.h"
-#include "temp.h"
 #include "render.h"
-#include "render/timer_nano.h"
 #include "render/palette.h"
 #include "render/rgb_momentum.h"
 #include "render/sheet.h"
+#include "render/timer_nano.h"
+#include "temp.h"
 
 pthread_t ANIMA_THREADS[ANIMA_COUNT];
 

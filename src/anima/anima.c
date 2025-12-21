@@ -63,56 +63,64 @@ void Anima_handle_event(Anima *self, SDL_Event *event) {
   }
 }
 
-void Anima_sync_abstract(Anima *self, Maze *maze) {
-  Pair_uint8 abstract_location = atomic_load(&self->mind.view.anima[self->id].location);
+void Anima_sync_abstract(Anima *self, Maze *maze, Pair_uint32 *sprite_location) {
+  /// Scale sprite location
+  Pair_uint8 abstract_location = {.x = (uint8_t)(sprite_location->x / TILE_PIXELS),
+                                  .y = (uint8_t)(sprite_location->y / TILE_PIXELS)};
 
   Direction intent = atomic_load(&self->mind.view.anima[self->id].intent);
-  atomic_store(&self->mind.view.anima[self->id].momentum, intent);
-  self->momentum = intent;
-
-  Pair_uint8 destination = Pair_uint8_steps_in_direction(&abstract_location, intent, 1);
-
-  bool path_ok = Maze_abstract_is_path(maze, destination.x, destination.y);
-
   uint8_t velocity = atomic_load(&self->mind.view.anima[self->id].velocity);
-  if (path_ok) {
+
+  bool intent_ok = false;
+  switch (intent) {
+  case NORTH: {
+    intent_ok = (abstract_location.y != Maze_first_row(maze)) &&
+                Maze_abstract_is_path(maze, abstract_location.x, abstract_location.y - 1);
+  } break;
+  case EAST: {
+    intent_ok = (abstract_location.x + 1 < maze->size.x) &&
+                Maze_abstract_is_path(maze, abstract_location.x + 1, abstract_location.y);
+  } break;
+  case SOUTH: {
+    intent_ok = (abstract_location.y != Maze_last_row(maze)) &&
+                Maze_abstract_is_path(maze, abstract_location.x, abstract_location.y + 1);
+  } break;
+  case WEST: {
+    intent_ok = (0 < abstract_location.x) &&
+                Maze_abstract_is_path(maze, abstract_location.x - 1, abstract_location.y);
+  } break;
+  }
+
+  if (intent_ok) {
     velocity = 1;
   } else {
     velocity = 0;
   }
-  atomic_store(&self->mind.view.anima[self->id].velocity, velocity);
 
-  switch (atomic_load(&self->mind.view.anima[self->id].momentum)) {
-  case NORTH: {
-    abstract_location.y -= velocity;
-  } break;
-  case EAST: {
-    abstract_location.x += velocity;
-  } break;
-  case SOUTH: {
-    abstract_location.y += velocity;
-  } break;
-  case WEST: {
-    abstract_location.x -= velocity;
-  } break;
+  { // Store block
+    self->momentum = intent;
+    atomic_store(&self->mind.view.anima[self->id].momentum, intent);
+    atomic_store(&self->mind.view.anima[self->id].velocity, velocity);
+    atomic_store(&self->mind.view.anima[self->id].location, abstract_location);
   }
-
-  atomic_store(&self->mind.view.anima[self->id].location, abstract_location);
 }
 
 void Anima_on_frame(Anima *self, Maze *maze, Pair_uint32 *sprite_location) {
+  bool centred = sprite_location->x % TILE_PIXELS == 0 && sprite_location->y % TILE_PIXELS == 0;
 
   // Ensure coherence
   Anima_instinct(self);
 
   self->tick += 1;
 
-  if (sprite_location->x % TILE_PIXELS == 0 && sprite_location->y % TILE_PIXELS == 0) {
-    Anima_sync_abstract(self, maze);
+  if (centred) {
+    Anima_sync_abstract(self, maze, sprite_location);
   }
 
   uint8_t velocity = atomic_load(&self->mind.view.anima[self->id].velocity);
-  switch (atomic_load(&self->mind.view.anima[self->id].momentum)) {
+  auto momentum = atomic_load(&self->mind.view.anima[self->id].momentum);
+
+  switch (momentum) {
   case NORTH: {
     sprite_location->y -= velocity;
   } break;
@@ -126,6 +134,8 @@ void Anima_on_frame(Anima *self, Maze *maze, Pair_uint32 *sprite_location) {
     sprite_location->x -= velocity;
   } break;
   }
+
+  atomic_store(&self->mind.view.anima[self->id].velocity, velocity);
 }
 
 void Anima_instinct(Anima *self) {

@@ -5,6 +5,8 @@
 
 #include "enums.h"
 #include "generic/pairs.h"
+#include "glib.h"
+#include "utils.h"
 
 struct tile_edge_data_t {
 
@@ -64,13 +66,28 @@ void Maze_detail(Maze *self);
 
 void Maze_destroy(Maze *self);
 
-static inline TileData *Maze_abstract_at(const Maze *self, uint8_t x, uint8_t y) {
-  assert(x < self->size.x);
-  assert(y < self->size.y);
-  return &self->tiles[(y * self->size.x) + x];
+static inline TileData *Maze_abstract_at(const Maze *self, uint8_t col, uint8_t row) {
+  if (!(col < self->size.x)) {
+    g_log(nullptr, G_LOG_LEVEL_CRITICAL, "Invalid col: %d", col);
+    pause_panic();
+  }
+
+  if (!(row < self->size.y)) {
+    g_log(nullptr, G_LOG_LEVEL_CRITICAL, "Invalid row: %d", row);
+    pause_panic();
+  }
+
+  return &self->tiles[(row * self->size.x) + col];
 }
 
-static inline bool Maze_abstract_is_path(const Maze *self, uint8_t x, uint8_t y) {
-  return self->tiles[(y * self->size.x) + x].type == TILE_PATH;
-  ;
+static inline bool Maze_abstract_is_path(const Maze *self, uint8_t col, uint8_t row) {
+  return Maze_abstract_at(self, col, row)->type == TILE_PATH;
+}
+
+static inline bool Maze_first_row(const Maze *self) {
+  return self->padding_top;
+}
+
+static inline bool Maze_last_row(const Maze *self) {
+  return self->size.y - (self->padding_bot + 1);
 }
