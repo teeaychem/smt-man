@@ -3,7 +3,7 @@
 
 #include "anima/mind.h"
 #include "logic.h"
-#include "utils.h"
+#include "random.h"
 
 void Mind_default(Mind *mind, uint8_t id, Pair_uint8 location, Direction direction) {
 

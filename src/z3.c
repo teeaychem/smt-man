@@ -1,6 +1,5 @@
 #include <assert.h>
 #include <stdatomic.h>
-#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 
@@ -8,7 +7,7 @@
 
 #include "logic.h"
 #include "maze.h"
-#include "misc.h"
+#include "temp.h"
 
 
 void z3_display_path(struct z3_lang *lang, Z3_context ctx, Z3_model model, Maze *maze) {

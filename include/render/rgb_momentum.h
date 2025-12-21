@@ -6,7 +6,7 @@
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
 
-#include "utils.h"
+#include "random.h"
 
 struct rgb_momentum_t {
   struct {
@@ -16,7 +16,7 @@ struct rgb_momentum_t {
 };
 typedef struct rgb_momentum_t RGBMomentum;
 
-static void rgbVM_advance(RGBMomentum *self) {
+static void rgb_momentum_advance(RGBMomentum *self) {
   int current = random_in_range(0, 2);
 
   if (self->state[current].value == UINT8_MAX) {

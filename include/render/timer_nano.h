@@ -2,35 +2,35 @@
 
 #include <SDL3/SDL.h>
 
-struct ns_timer_t {
+struct timer_nano_t {
   Uint64 mStartedTicks;
   Uint64 mPausedTicks;
 
   bool mPaused;
   bool mStarted;
 };
-typedef struct ns_timer_t NSTimer;
+typedef struct timer_nano_t TimerNano;
 
-static inline NSTimer NSTimer_default() {
-  NSTimer timer = {.mStartedTicks = 0, .mPausedTicks = 0, .mPaused = false, .mStarted = false};
+static inline TimerNano TimerNano_default() {
+  TimerNano timer = {.mStartedTicks = 0, .mPausedTicks = 0, .mPaused = false, .mStarted = false};
   return timer;
 }
 
-static inline void NSTimer_start(NSTimer *self) {
+static inline void TimerNano_start(TimerNano *self) {
   self->mStarted = true;
   self->mPaused = false;
   self->mStartedTicks = SDL_GetTicksNS();
   self->mPausedTicks = 0;
 }
 
-static inline void NSTimer_stop(NSTimer *self) {
+static inline void TimerNano_stop(TimerNano *self) {
   self->mStarted = false;
   self->mPaused = false;
   self->mStartedTicks = 0;
   self->mPausedTicks = 0;
 }
 
-static inline void NSTimer_pause(NSTimer *self) {
+static inline void TimerNano_pause(TimerNano *self) {
   if (self->mStarted && !self->mPaused) {
     self->mStarted = false;
     self->mPaused = true;
@@ -39,7 +39,7 @@ static inline void NSTimer_pause(NSTimer *self) {
   }
 }
 
-static inline void NSTimer_unpause(NSTimer *self) {
+static inline void TimerNano_resume(TimerNano *self) {
   if (self->mStarted && self->mPaused) {
     self->mPaused = false;
     self->mStartedTicks = SDL_GetTicksNS() - self->mPausedTicks;
@@ -47,7 +47,7 @@ static inline void NSTimer_unpause(NSTimer *self) {
   }
 }
 
-static inline Uint64 NSTimer_get_ticks(NSTimer *self) {
+static inline Uint64 TimerNano_get_ticks(TimerNano *self) {
   Uint64 time = 0;
 
   if (self->mStarted) {
@@ -61,10 +61,10 @@ static inline Uint64 NSTimer_get_ticks(NSTimer *self) {
   return time;
 }
 
-static inline bool NSTimer_is_started(NSTimer *self) {
+static inline bool TimerNano_is_started(TimerNano *self) {
   return self->mStarted;
 }
 
-static inline bool NSTimer_is_paused(NSTimer *self) {
+static inline bool TimerNano_is_paused(TimerNano *self) {
   return self->mPaused && self->mStarted;
 }

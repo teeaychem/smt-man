@@ -7,9 +7,9 @@
 #include "constants.h"
 #include "generic/pairs.h"
 #include "logic/synchronization.h"
-#include "misc.h"
+#include "temp.h"
 #include "render.h"
-#include "render/NSTimer.h"
+#include "render/timer_nano.h"
 #include "render/palette.h"
 #include "render/rgb_momentum.h"
 #include "render/sheet.h"
@@ -53,7 +53,7 @@ int main() { // int main(int argc, char *argv[]) {
   constexpr uint64_t NS_PER_FRAME = 1000000000 / FPS;
 
   uint64_t frame_nanoseconds = 0;
-  NSTimer frame_cap_timer = NSTimer_default();
+  TimerNano frame_cap_timer = TimerNano_default();
 
   SDL_zero(event);
 
@@ -62,7 +62,7 @@ int main() { // int main(int argc, char *argv[]) {
 
   { // core block
     while (!quit) {
-      NSTimer_start(&frame_cap_timer);
+      TimerNano_start(&frame_cap_timer);
 
       while (SDL_PollEvent(&event)) {
         if (event.type == SDL_EVENT_QUIT) {
@@ -73,7 +73,7 @@ int main() { // int main(int argc, char *argv[]) {
 
       { // pre_render_block
         Sync_situation_animas(&situation, animas);
-        rgbVM_advance(&colour);
+        rgb_momentum_advance(&colour);
       }
 
       { // render_block
@@ -107,7 +107,7 @@ int main() { // int main(int argc, char *argv[]) {
       }
 
       { // wait block
-        frame_nanoseconds = NSTimer_get_ticks(&frame_cap_timer);
+        frame_nanoseconds = TimerNano_get_ticks(&frame_cap_timer);
         if (frame_nanoseconds < NS_PER_FRAME) {
           SDL_DelayNS(NS_PER_FRAME - frame_nanoseconds);
         }
