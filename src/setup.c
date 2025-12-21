@@ -79,7 +79,7 @@ void setup_resources(Renderer *renderer, Maze *maze, Anima animas[ANIMA_COUNT], 
     char path_buffer[FILENAME_MAX];
     cwk_path_join(source_path, "resources/sheet.png", path_buffer, FILENAME_MAX);
 
-    Renderer_create(renderer, TILE_PIXELS, maze->size, path_buffer);
+    Renderer_create(renderer, maze->size, path_buffer);
   }
 
   setup_anima(animas, 0, Pair_uint8_create(1, 4));
@@ -120,7 +120,7 @@ void setup_resources(Renderer *renderer, Maze *maze, Anima animas[ANIMA_COUNT], 
 void setup_sprites(Renderer *renderer, Anima animas[ANIMA_COUNT], Pair_uint32 anima_sprite_location[ANIMA_COUNT]) { // Sprite setup
   for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
     Pair_uint8 location = atomic_load(&animas[idx].mind.view.anima[idx].location);
-    anima_sprite_location[idx] = (Pair_uint32){.x = (location.x * renderer->tile_pixels),
-                                               (location.y * renderer->tile_pixels)};
+    anima_sprite_location[idx] = (Pair_uint32){.x = (location.x * TILE_PIXELS),
+                                               (location.y * TILE_PIXELS)};
   }
 }

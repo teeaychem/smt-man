@@ -16,8 +16,6 @@
 
 pthread_t ANIMA_THREADS[ANIMA_COUNT];
 
-constexpr uint32_t FPS = 12;
-
 int main() { // int main(int argc, char *argv[]) {
   int exit_code = 0;
 
@@ -49,8 +47,6 @@ int main() { // int main(int argc, char *argv[]) {
   bool quit = false;
 
   SDL_Event event;
-
-  constexpr uint64_t NS_PER_FRAME = 1000000000 / FPS;
 
   uint64_t frame_nanoseconds = 0;
   TimerNano frame_cap_timer = TimerNano_default();

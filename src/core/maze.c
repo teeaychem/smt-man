@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "constants.h"
 #include "generic/pairs.h"
 #include "glib.h"
 #include "maze.h"
@@ -71,11 +72,10 @@ void Maze_create(Maze *maze, char *path) {
     }
   }
 
-  constexpr Pair_uint32 standard_tile_dimensions = {.x = 28, .y = 36};
-  if ((maze->size.x % standard_tile_dimensions.x) != 0 | (maze->size.y % standard_tile_dimensions.y) != 0) {
+  if ((maze->size.x % STANDARD_TILE_DIMENSIONS.x) != 0 | (maze->size.y % STANDARD_TILE_DIMENSIONS.y) != 0) {
     g_log(nullptr,
           G_LOG_LEVEL_WARNING,
-          "Maze dimension %dx%d is not an integer scale of %dx%d", maze->size.x, maze->size.y, standard_tile_dimensions.x, standard_tile_dimensions.y);
+          "Maze dimension %dx%d is not an integer scale of %dx%d", maze->size.x, maze->size.y, STANDARD_TILE_DIMENSIONS.x, STANDARD_TILE_DIMENSIONS.y);
 
     preamble_ok = false;
   }

@@ -65,8 +65,8 @@ void Anima_handle_event(Anima *self, SDL_Event *event) {
 
 void Anima_sync_abstract(Anima *self, Maze *maze, Pair_uint32 *sprite_location) {
   /// Scale sprite location
-  Pair_uint8 abstract_location = {.x = (uint8_t)(sprite_location->x / TILE_PIXELS),
-                                  .y = (uint8_t)(sprite_location->y / TILE_PIXELS)};
+  Pair_uint8 location = {.x = (uint8_t)(sprite_location->x / TILE_PIXELS),
+                         .y = (uint8_t)(sprite_location->y / TILE_PIXELS)};
 
   Direction intent = atomic_load(&self->mind.view.anima[self->id].intent);
   uint8_t velocity = atomic_load(&self->mind.view.anima[self->id].velocity);
@@ -74,20 +74,16 @@ void Anima_sync_abstract(Anima *self, Maze *maze, Pair_uint32 *sprite_location) 
   bool intent_ok = false;
   switch (intent) {
   case NORTH: {
-    intent_ok = (abstract_location.y != Maze_first_row(maze)) &&
-                Maze_abstract_is_path(maze, abstract_location.x, abstract_location.y - 1);
+    intent_ok = (location.y != Maze_first_row(maze)) && Maze_abstract_is_path(maze, location.x, location.y - 1);
   } break;
   case EAST: {
-    intent_ok = (abstract_location.x + 1 < maze->size.x) &&
-                Maze_abstract_is_path(maze, abstract_location.x + 1, abstract_location.y);
+    intent_ok = (location.x + 2 < maze->size.x) && Maze_abstract_is_path(maze, location.x + 1, location.y);
   } break;
   case SOUTH: {
-    intent_ok = (abstract_location.y != Maze_last_row(maze)) &&
-                Maze_abstract_is_path(maze, abstract_location.x, abstract_location.y + 1);
+    intent_ok = (location.y != Maze_last_row(maze)) && Maze_abstract_is_path(maze, location.x, location.y + 1);
   } break;
   case WEST: {
-    intent_ok = (0 < abstract_location.x) &&
-                Maze_abstract_is_path(maze, abstract_location.x - 1, abstract_location.y);
+    intent_ok = (0 < location.x) && Maze_abstract_is_path(maze, location.x - 1, location.y);
   } break;
   }
 
@@ -101,7 +97,7 @@ void Anima_sync_abstract(Anima *self, Maze *maze, Pair_uint32 *sprite_location) 
     self->momentum = intent;
     atomic_store(&self->mind.view.anima[self->id].momentum, intent);
     atomic_store(&self->mind.view.anima[self->id].velocity, velocity);
-    atomic_store(&self->mind.view.anima[self->id].location, abstract_location);
+    atomic_store(&self->mind.view.anima[self->id].location, location);
   }
 }
 
