@@ -10,6 +10,7 @@
 
 #include "constants.h"
 #include "generic/pairs.h"
+#include "logic/synchronization.h"
 #include "misc.h"
 #include "render.h"
 #include "render/NSTimer.h"
@@ -17,29 +18,10 @@
 
 pthread_t ANIMA_THREADS[ANIMA_COUNT];
 
-void update_anima_sprite(Situation *world, uint8_t anima_id) {
-
-  switch (atomic_load(&world->anima[anima_id].status)) {
-
-  case ANIMA_STATUS_SEARCH: {
-    /* if (sprite->tick % 15 == 0) { */
-    /* sprite_info->surface_offset.x = (sprite_info->surface_offset.x + sprite_info->size.x) % sprite_info->surface.size.x; */
-    /* } */
-  } break;
-  }
-}
-
-void World_sync_animas(Situation *world, Anima animas[ANIMA_COUNT]) {
-  for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
-    atomic_store(&world->anima[idx].location, atomic_load(&animas[idx].mind.view.anima[idx].location));
-    atomic_store(&world->anima[idx].status, atomic_load(&animas[idx].mind.view.anima[idx].status));
-  }
-}
-
 int main() { // int main(int argc, char *argv[]) {
   constexpr uint32_t FPS = 12;
 
-  Situation world = {};
+  Situation situation = {};
 
   Anima animas[ANIMA_COUNT];
   Pallete anima_palletes[ANIMA_COUNT];
@@ -106,8 +88,8 @@ int main() { // int main(int argc, char *argv[]) {
 
   { // Scratch
     g_message("scratch begin...");
-    World_sync_animas(&world, animas);
-    z3_tmp(&maze, &world);
+    Sync_situation_animas(&situation, animas);
+    z3_tmp(&maze, &situation);
 
     g_message("scratch end...");
   }
@@ -146,7 +128,7 @@ int main() { // int main(int argc, char *argv[]) {
 
       // Pre-render
 
-      World_sync_animas(&world, animas);
+      Sync_situation_animas(&situation, animas);
       rgbVM_advance(&colour);
 
       // Render

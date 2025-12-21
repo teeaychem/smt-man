@@ -222,12 +222,12 @@ void Lang_anima_setup(struct z3_lang *lang, Z3_context ctx) {
   lang->anima.tile_col_f = Z3_mk_func_decl(ctx, Z3_mk_string_symbol(ctx, "anima_col"), 1, (Z3_sort[1]){lang->anima.sort}, lang->u8.sort);
 }
 
-void Lang_assert_anima_locations(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, Situation *world) {
+void Lang_assert_anima_locations(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, Situation *situation) {
 
   // TODO: Generalise
   for (size_t anima_idx = 0; anima_idx < 2; ++anima_idx) {
 
-    auto anima_location = atomic_load(&world->anima[anima_idx].location);
+    auto anima_location = atomic_load(&situation->anima[anima_idx].location);
     Z3_ast anima_ast = Z3_mk_app(ctx, lang->anima.enum_consts[anima_idx], 0, 0);
 
     Z3_optimize_assert(ctx, optimizer, Z3_mk_eq(ctx, z3_mk_unary_app(ctx, lang->anima.tile_row_f, anima_ast), Z3_mk_int(ctx, (int)anima_location.y, lang->u8.sort)));
@@ -236,7 +236,7 @@ void Lang_assert_anima_locations(struct z3_lang *lang, Z3_context ctx, Z3_optimi
 }
 
 // Require a non-origin tile on non-anima tiles
-void Lang_assert_all_non_anima_are_non_origin(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, Situation *world, Maze *maze) {
+void Lang_assert_all_non_anima_are_non_origin(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, Situation *situation, Maze *maze) {
 
   Z3_ast u8_col_row[2] = {};
 
@@ -247,7 +247,7 @@ void Lang_assert_all_non_anima_are_non_origin(struct z3_lang *lang, Z3_context c
       u8_col_row[0] = Z3_mk_int(ctx, (int)col, lang->u8.sort);
 
       for (uint8_t anima_idx = 0; anima_idx < ANIMA_COUNT; ++anima_idx) {
-        auto location = atomic_load(&world->anima[anima_idx].location);
+        auto location = atomic_load(&situation->anima[anima_idx].location);
 
         if (location.x == col && location.y == row) {
           goto skip_tile_assertion;

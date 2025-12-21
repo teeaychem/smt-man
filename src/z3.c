@@ -32,7 +32,7 @@ void z3_display_path(struct z3_lang *lang, Z3_context ctx, Z3_model model, Maze 
   }
 }
 
-void z3_tmp(Maze *maze, Situation *world) {
+void z3_tmp(Maze *maze, Situation *situation) {
   Z3_context ctx = z3_mk_anima_ctx();
 
   struct z3_lang lang = {};
@@ -47,10 +47,10 @@ void z3_tmp(Maze *maze, Situation *world) {
   Lang_assert_shortest_path_empty_hints(&lang, ctx, optimizer, maze);
   Lang_assert_path_non_empty_hints(&lang, ctx, optimizer, maze);
 
-  Lang_assert_all_non_anima_are_non_origin(&lang, ctx, optimizer, world, maze);
+  Lang_assert_all_non_anima_are_non_origin(&lang, ctx, optimizer, situation, maze);
   Lang_assert_all_anima_tiles_are_origin_tiles(&lang, ctx, optimizer);
 
-  Lang_assert_anima_locations(&lang, ctx, optimizer, world);
+  Lang_assert_anima_locations(&lang, ctx, optimizer, situation);
 
   // Checks
   switch (Z3_optimize_check(ctx, optimizer, 0, nullptr)) {
