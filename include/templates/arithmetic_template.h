@@ -17,11 +17,11 @@ TYPE CAT(ALIAS, min)(TYPE x, TYPE y);
 
 TYPE CAT(ALIAS, max)(TYPE x, TYPE y) {
   return x >= y ? x : y;
-};
+}
 
 TYPE CAT(ALIAS, min)(TYPE x, TYPE y) {
   return x <= y ? x : y;
-};
+}
 
 #endif
 
