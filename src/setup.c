@@ -10,8 +10,6 @@
 #include "generic/arithmetic.h"
 #undef ARITHMETIC_IMPLEMENTATION
 
-
-
 /// Other setup
 
 #include "setup.h"
@@ -44,16 +42,14 @@ void setup_maze(Maze *maze, char *source_path) {
 
 void setup_anima(Anima animas[ANIMA_COUNT], uint8_t id, Pair_uint8 location) {
 
-  Anima_default(&animas[id], id, TILE_PIXELS,  location, DOWN);
+  Anima_default(&animas[id], id, TILE_PIXELS, location, DOWN);
   pthread_create(&ANIMA_THREADS[id], nullptr, setup_spirit, (void *)&animas[id]);
 }
 void *setup_spirit(void *void_anima) {
 
   Anima *anima = void_anima;
 
-  pthread_mutex_lock(&MTX_SOLVER);
   Mind_touch(&anima->mind);
-  pthread_mutex_unlock(&MTX_SOLVER);
 
   atomic_store(&anima->contact.flag_suspend, true);
 

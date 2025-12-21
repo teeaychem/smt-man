@@ -16,7 +16,6 @@
 #include "toys.h"
 
 pthread_t ANIMA_THREADS[ANIMA_COUNT];
-pthread_mutex_t MTX_SOLVER = PTHREAD_MUTEX_INITIALIZER;
 
 void update_anima_sprite(Situation *world, uint8_t anima_id) {
 
