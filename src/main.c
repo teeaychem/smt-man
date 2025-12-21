@@ -38,6 +38,7 @@ void World_sync_animas(Situation *world, Anima animas[ANIMA_COUNT]) {
 }
 
 int main() { // int main(int argc, char *argv[]) {
+  constexpr uint32_t FPS = 12;
 
   Situation world = {};
 
@@ -99,8 +100,8 @@ int main() { // int main(int argc, char *argv[]) {
   { // Sprite setup
     for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
       auto location = atomic_load(&animas[idx].mind.view.anima[idx].location);
-      anima_sprite_location[idx] = (Pair_uint32){.x = (location.x * renderer.scale),
-                                                 (location.y * renderer.scale)};
+      anima_sprite_location[idx] = (Pair_uint32){.x = (location.x * renderer.tile_pixels),
+                                                 (location.y * renderer.tile_pixels)};
     }
   }
 
@@ -121,7 +122,10 @@ int main() { // int main(int argc, char *argv[]) {
     bool quit = false;
 
     SDL_Event event;
-    Uint64 frameNS;
+
+    constexpr uint64_t NS_PER_FRAME = 1000000000 / FPS;
+    uint64_t frameNS;
+
     NSTimer frameCapTimer = NSTimer_default();
 
     SDL_zero(event);

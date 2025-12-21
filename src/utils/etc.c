@@ -4,7 +4,7 @@
 #include "toys.h"
 #include "utils.h"
 
-Pair_uint8 steps_in_direction(Pair_uint8 *origin, Direction direction, uint8_t steps) {
+Pair_uint8 steps_in_direction(const Pair_uint8 *origin, Direction direction, uint8_t steps) {
 
   Pair_uint8 destination = {.x = origin->x, .y = origin->y};
 

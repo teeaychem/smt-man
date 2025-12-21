@@ -56,19 +56,21 @@ struct maze_t {
 };
 typedef struct maze_t Maze;
 
+// Methods
+
 void Maze_create(Maze *maze, char *path);
 
 void Maze_detail(Maze *self);
 
 void Maze_destroy(Maze *self);
 
-static inline TileData *Maze_abstract_at(Maze *self, uint8_t x, uint8_t y) {
+static inline TileData *Maze_abstract_at(const Maze *self, uint8_t x, uint8_t y) {
   assert(x < self->size.x);
   assert(y < self->size.y);
   return &self->tiles[(y * self->size.x) + x];
 }
 
-static inline bool Maze_abstract_is_path(Maze *self, uint8_t x, uint8_t y) {
+static inline bool Maze_abstract_is_path(const Maze *self, uint8_t x, uint8_t y) {
   return self->tiles[(y * self->size.x) + x].type == TILE_PATH;
   ;
 }

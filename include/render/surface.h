@@ -13,10 +13,10 @@ struct surface_t {
 };
 typedef struct surface_t Surface;
 
-void Surface_from_path(Surface *self, char *path);
+void Surface_from_path(Surface *self, const char *path);
 
 void Surface_destroy(Surface *self);
 
-void Surface_char_projection(Surface *self, char *dest, size_t *len);
+void Surface_char_projection(const Surface *self, char *dest, size_t *len);
 
-uint32_t Surface_offset(Surface *self, uint32_t col, uint32_t row);
+uint32_t Surface_offset(const Surface *self, uint32_t col, uint32_t row);

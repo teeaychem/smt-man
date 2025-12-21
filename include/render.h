@@ -14,7 +14,7 @@
 
 typedef struct renderer_t Renderer;
 struct renderer_t {
-  uint32_t scale;
+  uint32_t tile_pixels;
   Surface sheet;
   Surface frame_buffer;
 
@@ -23,19 +23,19 @@ struct renderer_t {
   SDL_Texture *texture;
 };
 
-void Renderer_create(Renderer *renderer, uint32_t scale, const Pair_uint8 maze_size, char *sheet_path);
+void Renderer_create(Renderer *renderer, uint32_t tile_pixels, const Pair_uint8 maze_size, const char *sheet_path);
 
 void Renderer_destroy(Renderer *self);
 
-static inline uint32_t Renderer_buffer_index(Renderer *self, uint32_t x, uint32_t y) {
+static inline uint32_t Renderer_buffer_index(const Renderer *self, uint32_t x, uint32_t y) {
   return (y * self->frame_buffer.size.x) + x;
 }
 
 void Renderer_update(Renderer *self);
 
-void Renderer_tile_fill(Renderer *self, Pair_uint32 pos, uint32_t colour);
+void Renderer_tile_fill(Renderer *self, const Pair_uint32 pos, uint32_t colour);
 
-void Renderer_read_maze(Renderer *self, Maze *maze);
+void Renderer_read_maze(Renderer *self, const Maze *maze);
 
 void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 destination, uint32_t size, Pair_uint32 source, Pallete pallete);
 
@@ -48,5 +48,5 @@ void Renderer_tile_arc(Renderer *self, Pair_uint32 origin, uint32_t radius, Quad
 
 // Calculates the pixels to offset a render by in order for the render to be centred on a tile.
 static inline uint32_t Renderer_centre_offset(Renderer *self, uint32_t size) {
-  return size > self->scale ? (size - self->scale) / 2 : 0;
+  return size > self->tile_pixels ? (size - self->tile_pixels) / 2 : 0;
 }

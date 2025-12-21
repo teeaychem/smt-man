@@ -12,7 +12,7 @@ SheetOffsets sheet_data = {
         }},
 };
 
-Pair_uint32 Sheet_anima_offset(Anima *anima) {
+Pair_uint32 Sheet_anima_offset(const Anima *anima) {
 
   size_t offset = anima->tick % sheet_data.anima.direction.frames;
 

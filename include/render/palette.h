@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include <stdio.h>
 
 struct pallete_t {
   uint32_t a;
@@ -10,6 +9,8 @@ struct pallete_t {
   uint32_t d;
 };
 typedef struct pallete_t Pallete;
+
+// Methods
 
 static inline uint32_t Pallete_offset(uint32_t pixel, Pallete pallete) {
   uint32_t colour;
