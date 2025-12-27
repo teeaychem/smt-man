@@ -17,7 +17,9 @@ void Anima_default(Anima *anima, uint8_t id, uint8_t scale, Pair_uint8 location,
   *anima = (Anima){
       .id = id,
       .scale = scale,
-      .tick = 0,
+      .tick.action = 0,
+      .tick.frame = 0,
+      .tick.frame_pause = 7,
       .momentum = direction,
 
       .contact = {
@@ -102,12 +104,18 @@ void Anima_sync_abstract(Anima *self, Maze *maze, Pair_uint32 *sprite_location) 
 }
 
 void Anima_on_frame(Anima *self, Maze *maze, Pair_uint32 *sprite_location) {
+  self->tick.frames += 1;
+  if (self->tick.frames != self->tick.frames_per_action) {
+    return;
+  }
+
+  self->tick.frames = 0;
+  self->tick.actions += 1;
+
   bool centred = sprite_location->x % TILE_PIXELS == 0 && sprite_location->y % TILE_PIXELS == 0;
 
   // Ensure coherence
   Anima_instinct(self);
-
-  self->tick += 1;
 
   if (centred) {
     Anima_sync_abstract(self, maze, sprite_location);

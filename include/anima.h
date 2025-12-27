@@ -15,7 +15,14 @@ struct anima_t {
   // Identifier
   uint8_t id;
   uint8_t scale;
-  uint8_t tick;
+  struct {
+    /// Increments each time an action is taken.
+    uint8_t actions;
+    /// Increments on each frame.
+    uint8_t frames;
+    /// The number of actions to take, per frame.
+    uint8_t frames_per_action;
+  } tick;
   Direction momentum;
 
   // Tools for contacting the anima from a different thread

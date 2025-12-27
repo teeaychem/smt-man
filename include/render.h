@@ -31,7 +31,7 @@ static inline uint32_t Renderer_buffer_index(const Renderer *self, uint32_t x, u
   return (y * self->frame_buffer.size.x) + x;
 }
 
-void Renderer_update(Renderer *self);
+void Renderer_render_frame_buffer(Renderer *self);
 
 void Renderer_tile_fill(Renderer *self, const Pair_uint32 pos, uint32_t colour);
 

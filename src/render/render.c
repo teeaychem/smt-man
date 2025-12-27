@@ -56,17 +56,22 @@ void Renderer_destroy(Renderer *self) {
   // TODO: Free other allocations
 }
 
-void Renderer_update(Renderer *self) {
+void Renderer_render_frame_buffer(Renderer *self) {
 
-  int8_t *pixels = nullptr;
-  int pitch;
+  { // Write out the frame buffer
+    int8_t *pixels = nullptr;
+    int pitch;
 
-  SDL_LockTexture(self->texture, nullptr, (void **)&pixels, &pitch);
-  for (size_t i = 0, sp = 0, dp = 0; i < self->frame_buffer.size.y; i++, dp += self->frame_buffer.size.x, sp += (size_t)pitch) {
-    memcpy(pixels + sp, self->frame_buffer.pixels + dp, self->frame_buffer.size.x * sizeof(*self->frame_buffer.pixels));
+    SDL_LockTexture(self->texture, nullptr, (void **)&pixels, &pitch);
+    size_t i = 0;
+    size_t sp = 0;
+    size_t dp = 0;
+    for (; i < self->frame_buffer.size.y; i++, dp += self->frame_buffer.size.x, sp += (size_t)pitch) {
+      memcpy(pixels + sp, self->frame_buffer.pixels + dp, self->frame_buffer.size.x * sizeof(*self->frame_buffer.pixels));
+    }
+
+    SDL_UnlockTexture(self->texture);
   }
-
-  SDL_UnlockTexture(self->texture);
 
   auto render_result = SDL_RenderTexture(self->renderer, self->texture, nullptr, nullptr);
   if (!render_result) {

@@ -99,7 +99,7 @@ int main() { // int main(int argc, char *argv[]) {
           }
         }
 
-        Renderer_update(&renderer);
+        Renderer_render_frame_buffer(&renderer);
       }
 
       { // wait block
