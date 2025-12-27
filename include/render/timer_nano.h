@@ -3,68 +3,76 @@
 #include <SDL3/SDL.h>
 
 struct timer_nano_t {
-  Uint64 mStartedTicks;
-  Uint64 mPausedTicks;
+  bool is_paused;
+  uint64_t paused_ticks;
 
-  bool mPaused;
-  bool mStarted;
+  bool is_started;
+  uint64_t started_ticks;
 };
 typedef struct timer_nano_t TimerNano;
 
 static inline TimerNano TimerNano_default() {
-  TimerNano timer = {.mStartedTicks = 0, .mPausedTicks = 0, .mPaused = false, .mStarted = false};
+  TimerNano timer = {
+      .is_paused = false,
+      .paused_ticks = 0,
+
+      .started_ticks = 0,
+      .is_started = false,
+  };
   return timer;
 }
 
 static inline void TimerNano_start(TimerNano *self) {
-  self->mStarted = true;
-  self->mPaused = false;
-  self->mStartedTicks = SDL_GetTicksNS();
-  self->mPausedTicks = 0;
+  self->is_paused = false;
+  self->paused_ticks = 0;
+
+  self->is_started = true;
+  self->started_ticks = SDL_GetTicksNS();
 }
 
 static inline void TimerNano_stop(TimerNano *self) {
-  self->mStarted = false;
-  self->mPaused = false;
-  self->mStartedTicks = 0;
-  self->mPausedTicks = 0;
+  self->is_paused = false;
+  self->paused_ticks = 0;
+
+  self->is_started = false;
+  self->started_ticks = 0;
 }
 
 static inline void TimerNano_pause(TimerNano *self) {
-  if (self->mStarted && !self->mPaused) {
-    self->mStarted = false;
-    self->mPaused = true;
-    self->mPausedTicks = SDL_GetTicksNS() - self->mStartedTicks;
-    self->mStartedTicks = 0;
+  if (self->is_started && !self->is_paused) {
+    self->is_paused = true;
+    self->paused_ticks = SDL_GetTicksNS() - self->started_ticks;
+
+    self->is_started = false;
+    self->started_ticks = 0;
   }
 }
 
 static inline void TimerNano_resume(TimerNano *self) {
-  if (self->mStarted && self->mPaused) {
-    self->mPaused = false;
-    self->mStartedTicks = SDL_GetTicksNS() - self->mPausedTicks;
-    self->mPausedTicks = 0;
+  if (self->is_started && self->is_paused) {
+    self->is_paused = false;
+    self->paused_ticks = 0;
+
+    self->started_ticks = SDL_GetTicksNS() - self->paused_ticks;
   }
 }
 
-static inline Uint64 TimerNano_get_ticks(TimerNano *self) {
-  Uint64 time = 0;
-
-  if (self->mStarted) {
-    if (self->mPaused) {
-      time = self->mPausedTicks;
+static inline uint64_t TimerNano_get_ticks(TimerNano *self) {
+  if (self->is_started) {
+    if (self->is_paused) {
+      return self->paused_ticks;
     } else {
-      time = SDL_GetTicksNS() - self->mStartedTicks;
+      return SDL_GetTicksNS() - self->started_ticks;
     }
+  } else {
+    return 0;
   }
-
-  return time;
 }
 
 static inline bool TimerNano_is_started(TimerNano *self) {
-  return self->mStarted;
+  return self->is_started;
 }
 
 static inline bool TimerNano_is_paused(TimerNano *self) {
-  return self->mPaused && self->mStarted;
+  return self->is_paused && self->is_started;
 }
