@@ -168,30 +168,37 @@ void Renderer_read_maze(Renderer *self, const Maze *maze) {
   }
 }
 
-void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 offset, Pallete pallete) {
+void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 offset, Turn turn, Pallete pallete) {
 
   uint32_t pixel_fb;
   uint32_t pixel_s;
   uint32_t centre_offset = Renderer_centre_offset(size);
+  uint32_t fb_x_offset;
+  uint32_t fb_y_offset;
 
   for (uint32_t row = 0; row < size; ++row) {
     for (uint32_t col = 0; col < size; ++col) {
 
-      switch (ROTATION_TMP) {
-      case FIRST: {
-        pixel_fb = Surface_offset(&self->frame_buffer, location.x + col - centre_offset, location.y + row - centre_offset);
+      switch (turn) {
+      case ONE: {
+        fb_x_offset = col;
+        fb_y_offset = row;
       } break;
-      case SECOND: {
-pixel_fb = Surface_offset(&self->frame_buffer, location.x + (size - row - 1) - centre_offset, location.y + (size - col - 1) - centre_offset);
+      case TURN_QUARTER: {
+        fb_x_offset = size - row - 1;
+        fb_y_offset = size - col - 1;
       } break;
-      case THIRD: {
-        pixel_fb = Surface_offset(&self->frame_buffer, location.x + (size - col - 1) - centre_offset, location.y + (size - row - 1) - centre_offset);
+      case HALF: {
+        fb_x_offset = size - col - 1;
+        fb_y_offset = size - row - 1;
       } break;
-      case FOURTH: {
-        pixel_fb = Surface_offset(&self->frame_buffer, location.x + row - centre_offset, location.y + col - centre_offset);
-
+      case THREE_QUARTER: {
+        fb_x_offset = row;
+        fb_y_offset = col;
       } break;
       }
+
+      pixel_fb = Surface_offset(&self->frame_buffer, location.x + fb_x_offset - centre_offset, location.y + fb_y_offset - centre_offset);
 
       if (self->frame_buffer.pixels[pixel_fb] == 0x00000000) {
         pixel_s = Surface_offset(&self->sheet, offset.x + col, offset.y + row);
@@ -202,32 +209,39 @@ pixel_fb = Surface_offset(&self->frame_buffer, location.x + (size - row - 1) - c
   }
 }
 
-void Renderer_erase_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 offset, Pallete pallete) {
+void Renderer_erase_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 offset, Turn turn, Pallete pallete) {
 
   uint32_t pixel_fb;
   uint32_t pixel_s;
   uint32_t centre_offset = Renderer_centre_offset(size);
+  uint32_t fb_x_offset;
+  uint32_t fb_y_offset;
 
   for (uint32_t row = 0; row < size; ++row) {
     for (uint32_t col = 0; col < size; ++col) {
 
       pixel_s = Surface_offset(&self->sheet, offset.x + col, offset.y + row);
 
-      switch (ROTATION_TMP) {
-      case FIRST: {
-        pixel_fb = Surface_offset(&self->frame_buffer, location.x + col - centre_offset, location.y + row - centre_offset);
+      switch (turn) {
+      case ONE: {
+        fb_x_offset = col;
+        fb_y_offset = row;
       } break;
-      case SECOND: {
-pixel_fb = Surface_offset(&self->frame_buffer, location.x + (size - row - 1) - centre_offset, location.y + (size - col - 1) - centre_offset);
+      case TURN_QUARTER: {
+        fb_x_offset = size - row - 1;
+        fb_y_offset = size - col - 1;
       } break;
-      case THIRD: {
-        pixel_fb = Surface_offset(&self->frame_buffer, location.x + (size - col - 1) - centre_offset, location.y + (size - row - 1) - centre_offset);
+      case HALF: {
+        fb_x_offset = size - col - 1;
+        fb_y_offset = size - row - 1;
       } break;
-      case FOURTH: {
-        pixel_fb = Surface_offset(&self->frame_buffer, location.x + row - centre_offset, location.y + col - centre_offset);
-
+      case THREE_QUARTER: {
+        fb_x_offset = row;
+        fb_y_offset = col;
       } break;
       }
+
+      pixel_fb = Surface_offset(&self->frame_buffer, location.x + fb_x_offset - centre_offset, location.y + fb_y_offset - centre_offset);
 
       if (self->frame_buffer.pixels[pixel_fb] == Pallete_offset(self->sheet.pixels[pixel_s], pallete)) {
         self->frame_buffer.pixels[pixel_fb] = 0x00000000;

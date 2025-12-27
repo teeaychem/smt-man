@@ -18,6 +18,15 @@ enum quadrant_e {
 };
 typedef enum quadrant_e Quadrant;
 
+/// Turns
+enum turn_e {
+  TURN_QUARTER,
+  TURN_HALF,
+  TURN_THREE_QUARTER,
+  TURN_ONE,
+};
+typedef enum turn_e Turn;
+
 /// The horizontal or vertical plane
 enum plane_e {
   HORIZONTAL,

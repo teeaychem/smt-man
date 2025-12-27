@@ -90,6 +90,7 @@ int main() { // int main(int argc, char *argv[]) {
                                     anima_sprite_location[id],
                                     sheet_data.anima.size,
                                     Sheet_anima_offset(&animas[id]),
+                                    TURN_ONE,
                                     anima_palletes[id]);
 
           Anima_on_frame(&animas[id], &maze, &anima_sprite_location[id]);
@@ -98,6 +99,7 @@ int main() { // int main(int argc, char *argv[]) {
                                    anima_sprite_location[id],
                                    sheet_data.anima.size,
                                    Sheet_anima_offset(&animas[id]),
+                                   TURN_ONE,
                                    anima_palletes[id]);
 
           if (atomic_load(&animas[id].contact.flag_suspend)) {

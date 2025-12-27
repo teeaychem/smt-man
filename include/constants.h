@@ -3,7 +3,6 @@
 #include <pthread.h>
 #include <stdint.h>
 
-#include "enums.h"
 #include "generic/pairs.h"
 
 constexpr uint8_t ANIMA_COUNT = 4;
@@ -19,5 +18,3 @@ constexpr int32_t TILE_PIXELS = 8;
 constexpr int UI_SCALE = 4;
 
 extern pthread_t ANIMA_THREADS[ANIMA_COUNT];
-
-constexpr Quadrant ROTATION_TMP = FOURTH;
