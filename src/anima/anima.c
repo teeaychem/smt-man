@@ -1,10 +1,10 @@
 #include <stdatomic.h>
 #include <stdint.h>
 
-#include "anima.h"
 #include "enums.h"
 #include "generic/pairs.h"
 #include "logic.h"
+#include "lyf/anima.h"
 #include "maze.h"
 
 void Anima_default(Anima *anima, uint8_t id, uint8_t scale, Pair_uint8 location, Direction direction) {
@@ -16,7 +16,7 @@ void Anima_default(Anima *anima, uint8_t id, uint8_t scale, Pair_uint8 location,
 
   *anima = (Anima){
       .id = id,
-      .scale = scale,
+      .pixel_size = scale,
       .tick.actions = 0,
       .tick.frames = 0,
       .tick.frames_per_action = 7,

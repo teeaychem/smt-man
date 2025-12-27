@@ -69,9 +69,11 @@ void setup_anima(Anima animas[ANIMA_COUNT], uint8_t id, Pair_uint8 location) {
 
 // Public
 
-void setup_resources(Renderer *renderer, Maze *maze, Anima animas[ANIMA_COUNT], Pallete anima_palletes[ANIMA_COUNT]) { // Resource setup
+void setup_resources(Renderer *renderer, Maze *maze) { // Resource setup
   char *source_path;
+
   setup_source_path(&source_path);
+
   setup_maze(maze, source_path);
 
   { // Renderer
@@ -80,6 +82,11 @@ void setup_resources(Renderer *renderer, Maze *maze, Anima animas[ANIMA_COUNT], 
 
     Renderer_create(renderer, maze->size, path_buffer);
   }
+
+  free(source_path);
+}
+
+void setup_animas(Anima animas[ANIMA_COUNT], Pallete anima_palletes[ANIMA_COUNT]) { // Resource setup
 
   setup_anima(animas, 0, Pair_uint8_create(1, 4));
   anima_palletes[0] = (Pallete){
@@ -112,8 +119,6 @@ void setup_resources(Renderer *renderer, Maze *maze, Anima animas[ANIMA_COUNT], 
       .c = 0x00000000,
       .d = 0xff808080,
   };
-
-  free(source_path);
 }
 
 void setup_sprites(Anima animas[ANIMA_COUNT], Pair_uint32 anima_sprite_location[ANIMA_COUNT]) { // Sprite setup

@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-#include "anima.h"
+#include "lyf/anima.h"
 #include "generic/pairs.h"
 
 struct sheet_offsets_t {

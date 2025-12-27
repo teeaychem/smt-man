@@ -7,22 +7,16 @@
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
 
-#include "anima/mind.h"
 #include "enums.h"
 #include "generic/pairs.h"
+#include "lyf/anima/mind.h"
+#include "lyf/tick.h"
 
 struct anima_t {
   // Identifier
   uint8_t id;
-  uint8_t scale;
-  struct {
-    /// Increments each time an action is taken.
-    uint8_t actions;
-    /// Increments on each frame.
-    uint8_t frames;
-    /// The number of actions to take, per frame.
-    uint8_t frames_per_action;
-  } tick;
+  uint8_t pixel_size;
+  Tick tick;
   Direction momentum;
 
   // Tools for contacting the anima from a different thread

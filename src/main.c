@@ -7,6 +7,7 @@
 #include "constants.h"
 #include "generic/pairs.h"
 #include "logic/synchronization.h"
+#include "lyf/persona.h"
 #include "render.h"
 #include "render/palette.h"
 #include "render/rgb_momentum.h"
@@ -22,6 +23,8 @@ int main() { // int main(int argc, char *argv[]) {
   Situation situation = {};
 
   Anima animas[ANIMA_COUNT];
+  Persona persona;
+
   Pallete anima_palletes[ANIMA_COUNT];
   Pair_uint32 anima_sprite_location[ANIMA_COUNT] = {};
 
@@ -29,8 +32,12 @@ int main() { // int main(int argc, char *argv[]) {
   RGBMomentum colour = {};
   Maze maze = {};
 
-  setup_resources(&renderer, &maze, animas, anima_palletes);
-  setup_sprites(animas, anima_sprite_location);
+  { // Setup block
+    setup_resources(&renderer, &maze);
+    setup_sprites(animas, anima_sprite_location);
+    setup_animas(animas, anima_palletes);
+    Persona_default(&persona, TILE_PIXELS, Pair_uint8_create(1, 4), EAST);
+  }
 
   { // Scratch block
     g_message("scratch begin...");
