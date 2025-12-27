@@ -41,7 +41,7 @@ void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 destination, uint32_t 
 
 void Renderer_erase_from_sheet(Renderer *self, Pair_uint32 destination, uint32_t size, Pair_uint32 source, Pallete pallete);
 
-void Renderer_tile_line(Renderer *self, uint32_t x, uint32_t y, Direction direction, uint32_t length, uint32_t colour);
+void Renderer_tile_line(Renderer *self, uint32_t x, uint32_t y, Plane plane, uint32_t length, uint32_t colour);
 
 // INVARIANT: The tile has an even number of pixels, and the origin is given by: (x += width/2, y += height/2).
 void Renderer_tile_arc(Renderer *self, Pair_uint32 origin, uint32_t radius, Quadrant quadrant, uint32_t colour);

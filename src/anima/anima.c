@@ -17,9 +17,9 @@ void Anima_default(Anima *anima, uint8_t id, uint8_t scale, Pair_uint8 location,
   *anima = (Anima){
       .id = id,
       .scale = scale,
-      .tick.action = 0,
-      .tick.frame = 0,
-      .tick.frame_pause = 7,
+      .tick.actions = 0,
+      .tick.frames = 0,
+      .tick.frames_per_action = 7,
       .momentum = direction,
 
       .contact = {

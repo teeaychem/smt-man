@@ -17,3 +17,10 @@ enum quadrant_e {
   FOURTH,
 };
 typedef enum quadrant_e Quadrant;
+
+/// The horizontal or vertical plane
+enum plane_e {
+  HORIZONTAL,
+  VERTICAL,
+};
+typedef enum plane_e Plane;
