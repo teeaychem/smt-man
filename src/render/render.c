@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "SDL3/SDL_error.h"
+#include <SDL3/SDL_error.h>
 
 #include "generic/pairs.h"
 #include "render.h"

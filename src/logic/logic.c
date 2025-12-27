@@ -236,7 +236,7 @@ void Lang_assert_anima_locations(struct z3_lang *lang, Z3_context ctx, Z3_optimi
 }
 
 // Require a non-origin tile on non-anima tiles
-void Lang_assert_all_non_anima_are_non_origin(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, Situation *situation, Maze *maze) {
+void Lang_assert_all_non_anima_are_link(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, Situation *situation, Maze *maze) {
 
   Z3_ast u8_col_row[2] = {};
 
@@ -256,7 +256,7 @@ void Lang_assert_all_non_anima_are_non_origin(struct z3_lang *lang, Z3_context c
 
       Z3_ast tile_path_value = Z3_mk_app(ctx, lang->path.tile_is_f, ARRAY_LEN(u8_col_row), u8_col_row);
 
-      Z3_ast value_is_non_origin[7] = {
+      Z3_ast value_is_link[7] = {
           Z3_mk_eq(ctx, tile_path_value, lang->path.up_dn),
           Z3_mk_eq(ctx, tile_path_value, lang->path.rt_lt),
           Z3_mk_eq(ctx, tile_path_value, lang->path.up_rt),
@@ -266,13 +266,13 @@ void Lang_assert_all_non_anima_are_non_origin(struct z3_lang *lang, Z3_context c
           Z3_mk_eq(ctx, tile_path_value, lang->path.et_et),
       };
 
-      Z3_optimize_assert(ctx, optimizer, Z3_mk_or(ctx, ARRAY_LEN(value_is_non_origin), value_is_non_origin));
+      Z3_optimize_assert(ctx, optimizer, Z3_mk_or(ctx, ARRAY_LEN(value_is_link), value_is_link));
     skip_tile_assertion:
     }
   }
 }
 
-void Lang_assert_all_anima_tiles_are_origin_tiles(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer) {
+void Lang_assert_all_anima_tiles_are_origin(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer) {
 
   for (size_t anima_idx = 0; anima_idx < ANIMA_COUNT; ++anima_idx) {
 

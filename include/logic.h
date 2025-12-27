@@ -1,7 +1,7 @@
 #pragma once
 
-#include "glib.h"
-#include "z3.h"
+#include <glib.h>
+#include <z3.h>
 
 #include "constants.h"
 #include "logic/situation.h"
@@ -55,12 +55,18 @@ struct z3_lang {
     /// Origin left
     Z3_ast og_lt;
 
+    /// Up down
     Z3_ast up_dn;
+    /// Right left
     Z3_ast rt_lt;
 
+    /// Up right
     Z3_ast up_rt;
+    /// Down right
     Z3_ast dn_rt;
+    /// Down left
     Z3_ast dn_lt;
+    /// Up left
     Z3_ast up_lt;
 
     /// Empty empty
@@ -75,15 +81,19 @@ struct z3_lang {
 
 void Lang_base_setup(struct z3_lang *lang, Z3_context ctx);
 void Lang_path_setup(struct z3_lang *lang, Z3_context ctx);
+void Lang_anima_setup(struct z3_lang *lang, Z3_context ctx);
+
 void Lang_assert_shortest_path_empty_hints(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, Maze *maze);
 void Lang_assert_path_non_empty_hints(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, Maze *maze);
 
 //
 
-void Lang_anima_setup(struct z3_lang *lang, Z3_context ctx);
+/// Assert the row and column values for each anima
 void Lang_assert_anima_locations(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, Situation *situation);
-void Lang_assert_all_non_anima_are_non_origin(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, Situation *situation, Maze *maze);
-void Lang_assert_all_anima_tiles_are_origin_tiles(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer);
+
+/// For each tile which is not the location of an anima is a link tile.
+void Lang_assert_all_non_anima_are_link(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, Situation *situation, Maze *maze);
+void Lang_assert_all_anima_tiles_are_origin(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer);
 void Lang_assert_all_origin_are_anima(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, Maze *maze);
 
 //

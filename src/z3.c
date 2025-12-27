@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include "glib.h"
+#include <glib.h>
 
 #include "logic.h"
 #include "maze.h"
@@ -46,8 +46,8 @@ void z3_tmp(Maze *maze, Situation *situation) {
   Lang_assert_shortest_path_empty_hints(&lang, ctx, optimizer, maze);
   Lang_assert_path_non_empty_hints(&lang, ctx, optimizer, maze);
 
-  Lang_assert_all_non_anima_are_non_origin(&lang, ctx, optimizer, situation, maze);
-  Lang_assert_all_anima_tiles_are_origin_tiles(&lang, ctx, optimizer);
+  Lang_assert_all_non_anima_are_link(&lang, ctx, optimizer, situation, maze);
+  Lang_assert_all_anima_tiles_are_origin(&lang, ctx, optimizer);
 
   Lang_assert_anima_locations(&lang, ctx, optimizer, situation);
 

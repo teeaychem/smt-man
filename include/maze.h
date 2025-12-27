@@ -3,9 +3,10 @@
 #include <assert.h>
 #include <stdint.h>
 
+#include <glib.h>
+
 #include "enums.h"
 #include "generic/pairs.h"
-#include "glib.h"
 #include "utils.h"
 
 struct tile_edge_data_t {

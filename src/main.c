@@ -30,7 +30,7 @@ int main() { // int main(int argc, char *argv[]) {
   Maze maze = {};
 
   setup_resources(&renderer, &maze, animas, anima_palletes);
-  setup_sprites(&renderer, animas, anima_sprite_location);
+  setup_sprites(animas, anima_sprite_location);
 
   { // Scratch block
     g_message("scratch begin...");

@@ -3,9 +3,11 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include <glib.h>
+
 #include "constants.h"
 #include "generic/pairs.h"
-#include "glib.h"
+
 #include "maze.h"
 
 void next_line(FILE *file) {

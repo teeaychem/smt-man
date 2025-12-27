@@ -1,7 +1,4 @@
 /// Generic struct setup
-
-#include "constants.h"
-
 #define PAIR_IMPLEMENTATION
 #include "generic/pairs.h"
 #undef PAIR_IMPLEMENTATION
@@ -12,13 +9,15 @@
 
 /// Other setup
 
+#include "constants.h"
+
 #include "setup.h"
 
 #include <pthread.h>
 #include <stdatomic.h>
 #include <unistd.h>
 
-#include "cwalk.h"
+#include <cwalk.h>
 #include <whereami.h>
 
 // Private
@@ -117,7 +116,7 @@ void setup_resources(Renderer *renderer, Maze *maze, Anima animas[ANIMA_COUNT], 
   free(source_path);
 }
 
-void setup_sprites(Renderer *renderer, Anima animas[ANIMA_COUNT], Pair_uint32 anima_sprite_location[ANIMA_COUNT]) { // Sprite setup
+void setup_sprites(Anima animas[ANIMA_COUNT], Pair_uint32 anima_sprite_location[ANIMA_COUNT]) { // Sprite setup
   for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
     Pair_uint8 location = atomic_load(&animas[idx].mind.view.anima[idx].location);
     anima_sprite_location[idx] = (Pair_uint32){.x = (location.x * TILE_PIXELS),
