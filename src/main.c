@@ -56,7 +56,7 @@ int main() { // int main(int argc, char *argv[]) {
   Renderer_read_maze(&renderer, &maze);
 
   { // core block
-    bool break_from_core = false;
+    bool core_loop = true;
 
     uint64_t frame_nanoseconds = 0;
     TimerNano frame_cap_timer = TimerNano_default();
@@ -64,12 +64,12 @@ int main() { // int main(int argc, char *argv[]) {
     SDL_Event event;
     SDL_zero(event);
 
-    while (!break_from_core) {
+    while (core_loop) {
       TimerNano_start(&frame_cap_timer);
 
       while (SDL_PollEvent(&event)) {
         if (event.type == SDL_EVENT_QUIT) {
-          break_from_core = true;
+          core_loop = false;
         }
         Anima_handle_event(&animas[0], &event);
       }
