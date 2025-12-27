@@ -34,8 +34,9 @@ int main() { // int main(int argc, char *argv[]) {
 
   { // Setup block
     setup_resources(&renderer, &maze);
-    setup_sprites(animas, anima_sprite_location);
     setup_animas(animas, anima_palletes);
+    setup_sprites(animas, anima_sprite_location);
+
     Persona_default(&persona, TILE_PIXELS, Pair_uint8_create(1, 4), EAST);
   }
 
