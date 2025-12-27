@@ -43,6 +43,12 @@
               pkgs.cmake
               pkgs.pkg-config
             ];
+
+            shellHook = ''
+              echo ""
+              echo "smt-man smt-man smt-man!"
+              echo ""
+            '';
           };
         }
       );
