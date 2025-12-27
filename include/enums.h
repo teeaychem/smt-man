@@ -29,7 +29,7 @@ typedef enum turn_e Turn;
 
 /// The horizontal or vertical plane
 enum plane_e {
-  HORIZONTAL,
-  VERTICAL,
+  PLANE_HORIZONTAL,
+  PLANE_VERTICAL,
 };
 typedef enum plane_e Plane;
