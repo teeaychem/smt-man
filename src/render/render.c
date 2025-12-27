@@ -285,28 +285,28 @@ void Renderer_circle_draw(Renderer *self, Pair_uint32 *origin, Pair_uint32 *offs
 
   switch (quadrant) {
 
-  case FIRST: {
+  case QUADRANT_FIRST: {
     pixel = Renderer_buffer_index(self, origin->x + offset->x, origin->y - offset->y);
     self->frame_buffer.pixels[pixel] = colour;
 
     pixel = Renderer_buffer_index(self, origin->x + offset->y, origin->y - offset->x);
     self->frame_buffer.pixels[pixel] = colour;
   } break;
-  case SECOND: {
+  case QUADRANT_SECOND: {
     pixel = Renderer_buffer_index(self, origin->x - offset->y, origin->y - offset->x);
     self->frame_buffer.pixels[pixel] = colour;
 
     pixel = Renderer_buffer_index(self, origin->x - offset->x, origin->y - offset->y);
     self->frame_buffer.pixels[pixel] = colour;
   } break;
-  case THIRD: {
+  case QUADRANT_THIRD: {
     pixel = Renderer_buffer_index(self, origin->x - offset->x, origin->y + offset->y);
     self->frame_buffer.pixels[pixel] = colour;
 
     pixel = Renderer_buffer_index(self, origin->x - offset->y, origin->y + offset->x);
     self->frame_buffer.pixels[pixel] = colour;
   } break;
-  case FOURTH: {
+  case QUADRANT_FOURTH: {
     pixel = Renderer_buffer_index(self, origin->x + offset->x, origin->y + offset->y);
     self->frame_buffer.pixels[pixel] = colour;
 
@@ -324,17 +324,17 @@ void Renderer_tile_arc(Renderer *self, Pair_uint32 origin, uint32_t radius, Quad
   Pair_uint32 offset = {.x = 0, .y = radius};
 
   switch (quadrant) {
-  case FIRST: {
+  case QUADRANT_FIRST: {
     origin.y += (TILE_PIXELS - 1);
   } break;
-  case SECOND: {
+  case QUADRANT_SECOND: {
     origin.x += (TILE_PIXELS - 1);
     origin.y += (TILE_PIXELS - 1);
   } break;
-  case THIRD: {
+  case QUADRANT_THIRD: {
     origin.x += (TILE_PIXELS - 1);
   } break;
-  case FOURTH: {
+  case QUADRANT_FOURTH: {
   } break;
   }
 

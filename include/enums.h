@@ -11,10 +11,10 @@ typedef enum direction_e Direction;
 
 /// Quadrants of a circle
 enum quadrant_e {
-  FIRST,
-  SECOND,
-  THIRD,
-  FOURTH,
+  QUADRANT_FIRST,
+  QUADRANT_SECOND,
+  QUADRANT_THIRD,
+  QUADRANT_FOURTH,
 };
 typedef enum quadrant_e Quadrant;
 
