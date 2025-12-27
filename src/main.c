@@ -44,25 +44,24 @@ int main() { // int main(int argc, char *argv[]) {
     goto exit_block;
   }
 
-  bool quit = false;
-
-  SDL_Event event;
-
-  uint64_t frame_nanoseconds = 0;
-  TimerNano frame_cap_timer = TimerNano_default();
-
-  SDL_zero(event);
-
   // Draw the maze only once...
   Renderer_read_maze(&renderer, &maze);
 
   { // core block
-    while (!quit) {
+    bool break_from_core = false;
+
+    uint64_t frame_nanoseconds = 0;
+    TimerNano frame_cap_timer = TimerNano_default();
+
+    SDL_Event event;
+    SDL_zero(event);
+
+    while (!break_from_core) {
       TimerNano_start(&frame_cap_timer);
 
       while (SDL_PollEvent(&event)) {
         if (event.type == SDL_EVENT_QUIT) {
-          quit = true;
+          break_from_core = true;
         }
         Anima_handle_event(&animas[0], &event);
       }
