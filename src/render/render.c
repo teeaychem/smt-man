@@ -170,15 +170,31 @@ void Renderer_read_maze(Renderer *self, const Maze *maze) {
 
 void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 offset, Pallete pallete) {
 
+  uint32_t pixel_fb;
+  uint32_t pixel_s;
+  uint32_t centre_offset = Renderer_centre_offset(size);
+
   for (uint32_t row = 0; row < size; ++row) {
     for (uint32_t col = 0; col < size; ++col) {
 
-      uint32_t pixel_fb = Surface_offset(&self->frame_buffer,
-                                         location.x + col - Renderer_centre_offset(size),
-                                         location.y + row - Renderer_centre_offset(size));
+      switch (ROTATION_TMP) {
+      case FIRST: {
+        pixel_fb = Surface_offset(&self->frame_buffer, location.x + col - centre_offset, location.y + row - centre_offset);
+      } break;
+      case SECOND: {
+pixel_fb = Surface_offset(&self->frame_buffer, location.x + (size - row - 1) - centre_offset, location.y + (size - col - 1) - centre_offset);
+      } break;
+      case THIRD: {
+        pixel_fb = Surface_offset(&self->frame_buffer, location.x + (size - col - 1) - centre_offset, location.y + (size - row - 1) - centre_offset);
+      } break;
+      case FOURTH: {
+        pixel_fb = Surface_offset(&self->frame_buffer, location.x + row - centre_offset, location.y + col - centre_offset);
+
+      } break;
+      }
 
       if (self->frame_buffer.pixels[pixel_fb] == 0x00000000) {
-        uint32_t pixel_s = Surface_offset(&self->sheet, offset.x + col, offset.y + row);
+        pixel_s = Surface_offset(&self->sheet, offset.x + col, offset.y + row);
 
         self->frame_buffer.pixels[pixel_fb] = Pallete_offset(self->sheet.pixels[pixel_s], pallete);
       }
@@ -188,13 +204,30 @@ void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 location, uint32_t siz
 
 void Renderer_erase_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 offset, Pallete pallete) {
 
+  uint32_t pixel_fb;
+  uint32_t pixel_s;
+  uint32_t centre_offset = Renderer_centre_offset(size);
+
   for (uint32_t row = 0; row < size; ++row) {
     for (uint32_t col = 0; col < size; ++col) {
 
-      uint32_t pixel_fb = Surface_offset(&self->frame_buffer,
-                                         location.x + col - Renderer_centre_offset(size),
-                                         location.y + row - Renderer_centre_offset(size));
-      uint32_t pixel_s = Surface_offset(&self->sheet, offset.x + col, offset.y + row);
+      pixel_s = Surface_offset(&self->sheet, offset.x + col, offset.y + row);
+
+      switch (ROTATION_TMP) {
+      case FIRST: {
+        pixel_fb = Surface_offset(&self->frame_buffer, location.x + col - centre_offset, location.y + row - centre_offset);
+      } break;
+      case SECOND: {
+pixel_fb = Surface_offset(&self->frame_buffer, location.x + (size - row - 1) - centre_offset, location.y + (size - col - 1) - centre_offset);
+      } break;
+      case THIRD: {
+        pixel_fb = Surface_offset(&self->frame_buffer, location.x + (size - col - 1) - centre_offset, location.y + (size - row - 1) - centre_offset);
+      } break;
+      case FOURTH: {
+        pixel_fb = Surface_offset(&self->frame_buffer, location.x + row - centre_offset, location.y + col - centre_offset);
+
+      } break;
+      }
 
       if (self->frame_buffer.pixels[pixel_fb] == Pallete_offset(self->sheet.pixels[pixel_s], pallete)) {
         self->frame_buffer.pixels[pixel_fb] = 0x00000000;

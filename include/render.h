@@ -48,5 +48,13 @@ void Renderer_tile_arc(Renderer *self, Pair_uint32 origin, uint32_t radius, Quad
 
 // Calculates the pixels to offset a render by in order for the render to be centred on a tile.
 static inline uint32_t Renderer_centre_offset(uint32_t size) {
+  // Cache a handful of common cases
+  if (size == TILE_PIXELS * 2) {
+    return TILE_PIXELS / 2;
+  }
+  if (size == TILE_PIXELS) {
+    return 0;
+  }
+
   return size > TILE_PIXELS ? (size - TILE_PIXELS) / 2 : 0;
 }
