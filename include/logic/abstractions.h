@@ -2,7 +2,7 @@
 
 #include "enums.h"
 #include "generic/pairs.h"
-#include "lyf/anima/enums.h"
+#include "logic/enums.h"
 
 struct abstract_anima_t {
   _Atomic(Pair_uint8) location;
