@@ -11,7 +11,7 @@ void Mind_default(Mind *mind, uint8_t id, Pair_uint8 location, Direction directi
 
   mind->direction_intent = direction;
 
-  atomic_init(&mind->view.anima[id].momentum, direction);
+  atomic_init(&mind->view.anima[id].direction, direction);
 
   atomic_init(&mind->view.anima[id].location, location);
 

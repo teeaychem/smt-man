@@ -13,7 +13,8 @@ struct mind_t {
 
   struct z3_lang lang;
 
-  // Point of view, on the situation
+  Direction direction_intent;
+  /// Point of view, on the situation
   Situation view;
 };
 typedef struct mind_t Mind;

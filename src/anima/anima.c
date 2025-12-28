@@ -17,8 +17,8 @@ void Anima_default(Anima *anima, uint8_t id, uint8_t scale, Pair_uint8 location,
 
   *anima = (Anima){
       .id = id,
-      .pixel_size = scale,
-      .tick.actions = 0,
+      .sprite_size = scale,
+      .tick_action = 0,
       .momentum = direction,
 
       .contact = {
@@ -96,7 +96,7 @@ void Anima_sync_abstract(Anima *self, Maze *maze, Pair_uint32 *sprite_location) 
 
   { // Store block
     self->momentum = intent;
-    atomic_store(&self->mind.view.anima[self->id].momentum, intent);
+    atomic_store(&self->mind.view.anima[self->id].direction, intent);
     atomic_store(&self->mind.view.anima[self->id].velocity, velocity);
     atomic_store(&self->mind.view.anima[self->id].location, location);
   }
@@ -112,7 +112,7 @@ void Anima_on_frame(Anima *self, Maze *maze, Pair_uint32 *sprite_location) {
     return;
   }
 
-  self->tick.actions += 1;
+  self->tick_action += 1;
 
   bool centred = sprite_location->x % TILE_PIXELS == 0 && sprite_location->y % TILE_PIXELS == 0;
 
@@ -124,7 +124,7 @@ void Anima_on_frame(Anima *self, Maze *maze, Pair_uint32 *sprite_location) {
   }
 
   uint8_t velocity = atomic_load(&self->mind.view.anima[self->id].velocity);
-  auto momentum = atomic_load(&self->mind.view.anima[self->id].momentum);
+  auto momentum = atomic_load(&self->mind.view.anima[self->id].direction);
 
   switch (momentum) {
   case NORTH: {

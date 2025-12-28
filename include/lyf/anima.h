@@ -10,16 +10,18 @@
 #include "enums.h"
 #include "generic/pairs.h"
 #include "lyf/anima/mind.h"
-#include "lyf/tick.h"
 
 struct anima_t {
-  // Identifier
+  /// Uniqie identifier in [0..ANIMA_COUNT]
   uint8_t id;
-  uint8_t pixel_size;
-  Tick tick;
+  /// Size of the associated sprite, as a square
+  uint8_t sprite_size;
+  /// Incremented on each tick an action is performed
+  uint8_t tick_action;
+  ///
   Direction momentum;
 
-  // Tools for contacting the anima from a different thread
+  /// Tools for contacting the anima from a different thread
   struct {
     _Atomic(bool) flag_suspend;
     pthread_mutex_t mtx_suspend;

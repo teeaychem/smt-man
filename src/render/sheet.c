@@ -14,7 +14,7 @@ SheetOffsets sheet_data = {
 
 Pair_uint32 Sheet_anima_offset(const Anima *anima) {
 
-  size_t offset = anima->tick.actions % sheet_data.anima.direction.frames;
+  size_t offset = anima->tick_action % sheet_data.anima.direction.frames;
 
   switch (anima->momentum) {
 
