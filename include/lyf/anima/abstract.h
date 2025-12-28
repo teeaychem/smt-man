@@ -13,5 +13,6 @@ struct abstract_anima_t {
   _Atomic(AnimaStatus) status;
 
   _Atomic(uint8_t) velocity;
+  _Atomic(uint32_t) movement;
 };
 typedef struct abstract_anima_t AbstractAnima;

@@ -7,7 +7,7 @@
 
 constexpr uint8_t ANIMA_COUNT = 4;
 
-constexpr uint32_t FPS = 30;
+constexpr uint32_t FPS = 60;
 
 constexpr uint64_t NS_PER_FRAME = 1000000000 / FPS;
 

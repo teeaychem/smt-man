@@ -2,6 +2,7 @@
 #include <stdint.h>
 
 #include "enums.h"
+#include "generic/bitvec.h"
 #include "generic/pairs.h"
 #include "logic.h"
 #include "lyf/anima.h"
@@ -18,8 +19,6 @@ void Anima_default(Anima *anima, uint8_t id, uint8_t scale, Pair_uint8 location,
       .id = id,
       .pixel_size = scale,
       .tick.actions = 0,
-      .tick.frames = 0,
-      .tick.frames_per_action = 7,
       .momentum = direction,
 
       .contact = {
@@ -104,12 +103,15 @@ void Anima_sync_abstract(Anima *self, Maze *maze, Pair_uint32 *sprite_location) 
 }
 
 void Anima_on_frame(Anima *self, Maze *maze, Pair_uint32 *sprite_location) {
-  self->tick.frames += 1;
-  if (self->tick.frames != self->tick.frames_per_action) {
+
+  uint32_t movement = atomic_load(&self->mind.view.anima[self->id].movement);
+  movement = uint32_rotl1(movement);
+  atomic_store(&self->mind.view.anima[self->id].movement, movement);
+
+  if ((movement & 0x10000000) == 0) {
     return;
   }
 
-  self->tick.frames = 0;
   self->tick.actions += 1;
 
   bool centred = sprite_location->x % TILE_PIXELS == 0 && sprite_location->y % TILE_PIXELS == 0;
