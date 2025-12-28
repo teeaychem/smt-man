@@ -49,16 +49,16 @@ void Anima_handle_event(Anima *self, SDL_Event *event) {
 
     switch (event->key.key) {
     case SDLK_UP: {
-      atomic_store(&self->mind.view.anima[self->id].intent, NORTH);
+      self->mind.direction_intent = NORTH;
     } break;
     case SDLK_DOWN: {
-      atomic_store(&self->mind.view.anima[self->id].intent, SOUTH);
+      self->mind.direction_intent = SOUTH;
     } break;
     case SDLK_LEFT: {
-      atomic_store(&self->mind.view.anima[self->id].intent, WEST);
+      self->mind.direction_intent = WEST;
     } break;
     case SDLK_RIGHT: {
-      atomic_store(&self->mind.view.anima[self->id].intent, EAST);
+      self->mind.direction_intent = EAST;
     } break;
     }
   }
@@ -69,7 +69,7 @@ void Anima_sync_abstract(Anima *self, Maze *maze, Pair_uint32 *sprite_location) 
   Pair_uint8 location = {.x = (uint8_t)(sprite_location->x / TILE_PIXELS),
                          .y = (uint8_t)(sprite_location->y / TILE_PIXELS)};
 
-  Direction intent = atomic_load(&self->mind.view.anima[self->id].intent);
+  Direction intent = self->mind.direction_intent;
   uint8_t velocity = atomic_load(&self->mind.view.anima[self->id].velocity);
 
   bool intent_ok = false;

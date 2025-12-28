@@ -9,7 +9,8 @@ void Mind_default(Mind *mind, uint8_t id, Pair_uint8 location, Direction directi
 
   mind->id = id;
 
-  atomic_init(&mind->view.anima[id].intent, direction);
+  mind->direction_intent = direction;
+
   atomic_init(&mind->view.anima[id].momentum, direction);
 
   atomic_init(&mind->view.anima[id].location, location);
@@ -94,15 +95,13 @@ void Mind_deduct(Mind *self) {
   Z3_model_eval(self->ctx, model, Z3_mk_app(self->ctx, self->lang.anima.is_facing, 1, &anima_ast), false, &anima_direction);
 
   if (anima_direction == up) {
-    atomic_store(&self->view.anima[self->id].intent, NORTH);
+    self->direction_intent = NORTH;
   } else if (anima_direction == rt) {
-    atomic_store(&self->view.anima[self->id].intent, EAST);
-
+    self->direction_intent = EAST;
   } else if (anima_direction == dn) {
-    atomic_store(&self->view.anima[self->id].intent, SOUTH);
-
+    self->direction_intent = SOUTH;
   } else if (anima_direction == lt) {
-    atomic_store(&self->view.anima[self->id].intent, WEST);
+    self->direction_intent = WEST;
   } else {
     g_log(nullptr, G_LOG_LEVEL_WARNING, "No direction");
     exit(-1);
