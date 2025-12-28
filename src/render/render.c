@@ -180,7 +180,7 @@ void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 location, uint32_t siz
     for (uint32_t col = 0; col < size; ++col) {
 
       switch (turn) {
-      case ONE: {
+      case TURN_ONE: {
         fb_x_offset = col;
         fb_y_offset = row;
       } break;
@@ -188,11 +188,11 @@ void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 location, uint32_t siz
         fb_x_offset = size - row - 1;
         fb_y_offset = size - col - 1;
       } break;
-      case HALF: {
+      case TURN_HALF: {
         fb_x_offset = size - col - 1;
         fb_y_offset = size - row - 1;
       } break;
-      case THREE_QUARTER: {
+      case TURN_THREE_QUARTER: {
         fb_x_offset = row;
         fb_y_offset = col;
       } break;
@@ -223,7 +223,7 @@ void Renderer_erase_from_sheet(Renderer *self, Pair_uint32 location, uint32_t si
       pixel_s = Surface_offset(&self->sheet, offset.x + col, offset.y + row);
 
       switch (turn) {
-      case ONE: {
+      case TURN_ONE: {
         fb_x_offset = col;
         fb_y_offset = row;
       } break;
@@ -231,11 +231,11 @@ void Renderer_erase_from_sheet(Renderer *self, Pair_uint32 location, uint32_t si
         fb_x_offset = size - row - 1;
         fb_y_offset = size - col - 1;
       } break;
-      case HALF: {
+      case TURN_HALF: {
         fb_x_offset = size - col - 1;
         fb_y_offset = size - row - 1;
       } break;
-      case THREE_QUARTER: {
+      case TURN_THREE_QUARTER: {
         fb_x_offset = row;
         fb_y_offset = col;
       } break;
