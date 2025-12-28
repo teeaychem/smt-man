@@ -1,11 +1,14 @@
 #pragma once
 
+#include <stdint.h>
+
 /// Cardinal directions
-enum direction_e {
-  NORTH,
-  EAST,
-  SOUTH,
-  WEST,
+// Directions are flags
+enum direction_e : uint8_t {
+  NORTH = 1 << 0,
+  EAST = 1 << 1,
+  SOUTH = 1 << 2,
+  WEST = 1 << 3,
 };
 typedef enum direction_e Direction;
 
