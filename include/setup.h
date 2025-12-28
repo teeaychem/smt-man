@@ -1,9 +1,8 @@
 #pragma once
 
+#include "constants.h"
 #include "lyf/anima.h"
 #include "maze.h"
-
-#include "constants.h"
 #include "render.h"
 
 /// Setup functions

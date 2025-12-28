@@ -1,11 +1,15 @@
 /// Generic struct setup
-#define PAIR_IMPLEMENTATION
-#include "generic/pairs.h"
-#undef PAIR_IMPLEMENTATION
-
 #define ARITHMETIC_IMPLEMENTATION
 #include "generic/arithmetic.h"
 #undef ARITHMETIC_IMPLEMENTATION
+
+#define BITVEC_IMPLEMENTATION
+#include "generic/bitvec.h"
+#undef BITVEC_IMPLEMENTATION
+
+#define PAIR_IMPLEMENTATION
+#include "generic/pairs.h"
+#undef PAIR_IMPLEMENTATION
 
 /// Other setup
 
