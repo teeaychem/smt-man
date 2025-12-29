@@ -5,6 +5,7 @@
 
 #include <glib.h>
 
+#include "constants.h"
 #include "enums.h"
 #include "generic/pairs.h"
 #include "utils.h"
@@ -67,6 +68,8 @@ void Maze_detail(Maze *self);
 
 void Maze_destroy(Maze *self);
 
+bool Maze_tile_in_direction_is_path(Maze *self, Pair_uint8 location, Direction direction);
+
 static inline TileData *Maze_abstract_at(const Maze *self, uint8_t col, uint8_t row) {
   if (!(col < self->size.x)) {
     g_log(nullptr, G_LOG_LEVEL_CRITICAL, "Invalid col: %d", col);
@@ -91,4 +94,9 @@ static inline bool Maze_first_row(const Maze *self) {
 
 static inline bool Maze_last_row(const Maze *self) {
   return self->size.y - (self->padding_bot + 1);
+}
+
+static inline Pair_uint8 Maze_location_from_sprite(const Pair_uint32 *sprite_location) {
+  return (Pair_uint8){.x = (uint8_t)(sprite_location->x / TILE_PIXELS),
+                      .y = (uint8_t)(sprite_location->y / TILE_PIXELS)};
 }

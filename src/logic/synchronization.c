@@ -12,7 +12,7 @@ void Sync_situations(Situation *situation, Anima animas[ANIMA_COUNT]) {
     }
 
     { // To
-      atomic_store(&animas[idx].mind.view.persona.direction, atomic_load(&situation->persona.direction));
+      atomic_store(&animas[idx].mind.view.persona.direction_actual, atomic_load(&situation->persona.direction_actual));
       atomic_store(&animas[idx].mind.view.persona.location, atomic_load(&situation->persona.location));
       atomic_store(&animas[idx].mind.view.persona.movement_pattern, atomic_load(&situation->persona.movement_pattern));
     }

@@ -443,3 +443,23 @@ void Maze_detail(Maze *self) {
   Maze_detail_arc_outer(self);
   Maze_detail_arc_inner(self);
 }
+
+bool Maze_tile_in_direction_is_path(Maze *self, Pair_uint8 location, Direction direction) {
+  switch (direction) {
+  case DIRECTION_NONE: {
+    return true;
+  } break;
+  case NORTH: {
+    return (location.y != Maze_first_row(self) && Maze_abstract_is_path(self, location.x, location.y - 1));
+  } break;
+  case EAST: {
+    return (location.x + 2 < self->size.x) && Maze_abstract_is_path(self, location.x + 1, location.y);
+  } break;
+  case SOUTH: {
+    return (location.y != Maze_last_row(self)) && Maze_abstract_is_path(self, location.x, location.y + 1);
+  } break;
+  case WEST: {
+    return (0 < location.x) && Maze_abstract_is_path(self, location.x - 1, location.y);
+  } break;
+  }
+}

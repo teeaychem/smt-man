@@ -51,7 +51,7 @@ void Persona_on_frame(Persona *self, Maze *maze, Situation *situation, Pair_uint
   if (centred) {
   }
 
-  switch (atomic_load(&situation->persona.direction)) {
+  switch (atomic_load(&situation->persona.direction_actual)) {
   case DIRECTION_NONE: {
   } break;
   case NORTH: {
@@ -70,36 +70,15 @@ void Persona_on_frame(Persona *self, Maze *maze, Situation *situation, Pair_uint
 }
 
 void Persona_on_tile(Persona *self, Maze *maze, Situation *situation, Pair_uint32 *sprite_location) {
-  /// Scale sprite location
-  Pair_uint8 location = {.x = (uint8_t)(sprite_location->x / TILE_PIXELS),
-                         .y = (uint8_t)(sprite_location->y / TILE_PIXELS)};
 
-  bool intent_ok = false;
-  switch (self->direction_intent) {
-  case DIRECTION_NONE: {
-    intent_ok = false;
-  } break;
-  case NORTH: {
-    intent_ok = (location.y != Maze_first_row(maze)) && Maze_abstract_is_path(maze, location.x, location.y - 1);
-  } break;
-  case EAST: {
-    intent_ok = (location.x + 2 < maze->size.x) && Maze_abstract_is_path(maze, location.x + 1, location.y);
-  } break;
-  case SOUTH: {
-    intent_ok = (location.y != Maze_last_row(maze)) && Maze_abstract_is_path(maze, location.x, location.y + 1);
-  } break;
-  case WEST: {
-    intent_ok = (0 < location.x) && Maze_abstract_is_path(maze, location.x - 1, location.y);
-  } break;
-  }
+  Pair_uint8 location = Maze_location_from_sprite(sprite_location);
+  /// Update location
+  atomic_store(&situation->persona.location, location);
 
-  Direction direction = DIRECTION_NONE;
-  if (intent_ok) {
-    direction = self->direction_intent;
-  }
-
-  { // Store block
-    atomic_store(&situation->persona.direction, direction);
-    atomic_store(&situation->persona.location, location);
+  /// Update direction
+  if (Maze_tile_in_direction_is_path(maze, location, self->direction_intent)) {
+    atomic_store(&situation->persona.direction_actual, self->direction_intent);
+  } else {
+    atomic_store(&situation->persona.direction_actual, DIRECTION_NONE);
   }
 }
