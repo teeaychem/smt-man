@@ -74,25 +74,17 @@ int main() { // int main(int argc, char *argv[]) {
         Anima_handle_event(&animas[0], &event);
       }
 
-      { // pre_render_block
+      { /// Pre-render block
         Sync_situations(&situation, animas);
         rgb_momentum_advance(&colour);
       }
 
-      { // render_block
+      { /// Render_block
         SDL_RenderClear(renderer.renderer);
 
         SDL_SetRenderDrawColor(renderer.renderer, colour.state[0].value, colour.state[1].value, colour.state[2].value, 0x000000ff);
 
         for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
-
-          Renderer_erase_from_sheet(&renderer,
-                                    anima_sprite_location[id],
-                                    sheet_data.anima.size,
-                                    Sheet_anima_offset(&animas[id]),
-                                    TURN_ONE,
-                                    anima_palletes[id]);
-
           Anima_on_frame(&animas[id], &maze, &anima_sprite_location[id]);
 
           Renderer_draw_from_sheet(&renderer,
@@ -109,6 +101,17 @@ int main() { // int main(int argc, char *argv[]) {
         }
 
         Renderer_render_frame_buffer(&renderer);
+      }
+
+      { /// Post-render block
+        for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
+          Renderer_erase_from_sheet(&renderer,
+                                    anima_sprite_location[id],
+                                    sheet_data.anima.size,
+                                    Sheet_anima_offset(&animas[id]),
+                                    TURN_ONE,
+                                    anima_palletes[id]);
+        }
       }
 
       { // wait block
