@@ -11,5 +11,3 @@
 void setup_resources(Renderer *renderer, Maze *maze);
 
 void setup_animas(Anima animas[ANIMA_COUNT]);
-
-void setup_sprites(Anima animas[ANIMA_COUNT]);

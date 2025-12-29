@@ -17,7 +17,11 @@ void Anima_default(Anima *anima, uint8_t id, uint8_t scale, Pair_uint8 location,
 
   *anima = (Anima){
       .id = id,
+
       .sprite_size = scale,
+      .sprite_location = {.x = ((uint32_t)location.x) * TILE_PIXELS,
+                          .y = ((uint32_t)location.y) * TILE_PIXELS},
+
       .tick_action = 0,
 
       .contact = {

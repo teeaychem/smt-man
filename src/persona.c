@@ -3,9 +3,20 @@
 #include "generic/bitvec.h"
 #include <stdatomic.h>
 
-void Persona_default(Persona *persona, uint8_t pixel_size) {
+void Persona_default(Persona *persona, Situation *situation, uint8_t pixel_size) {
+  Pair_uint8 situation_location = atomic_load(&situation->persona.location);
+
   *persona = (Persona){
-      .pixel_size = pixel_size,
+      .direction_intent = EAST,
+      .sprite_location = {.x = ((uint32_t)situation_location.x) * TILE_PIXELS,
+                          .y = ((uint32_t)situation_location.y) * TILE_PIXELS},
+      .sprite_size = pixel_size,
+      .pallete = {
+          .a = 0x00000000,
+          .b = 0x00000000,
+          .c = 0x00000000,
+          .d = 0xff808080,
+      },
       .tick_action = 0,
   };
 }
@@ -14,7 +25,7 @@ void Persona_destroy(Persona *self) {
   assert(self != nullptr);
 }
 
-void Persona_handle_event(Persona *self, SDL_Event *event) {
+void Persona_handle_event(Persona *self, Maze *maze, Situation *situation, SDL_Event *event) {
   if (event->type == SDL_EVENT_KEY_DOWN && !event->key.repeat) {
 
     switch (event->key.key) {
@@ -34,7 +45,7 @@ void Persona_handle_event(Persona *self, SDL_Event *event) {
   }
 }
 
-void Persona_on_frame(Persona *self, Maze *maze, Situation *situation, Pair_uint32 *sprite_location) {
+void Persona_on_frame(Persona *self, Maze *maze, Situation *situation) {
 
   uint32_t movement = atomic_load(&situation->persona.movement_pattern);
   movement = uint32_rotl1(movement);
@@ -46,32 +57,39 @@ void Persona_on_frame(Persona *self, Maze *maze, Situation *situation, Pair_uint
 
   self->tick_action += 1;
 
-  bool centred = sprite_location->x % TILE_PIXELS == 0 && sprite_location->y % TILE_PIXELS == 0;
+  bool centred = self->sprite_location.x % TILE_PIXELS == 0 && self->sprite_location.y % TILE_PIXELS == 0;
 
   if (centred) {
+    situation->persona.location = Maze_location_from_sprite(&self->sprite_location);
+
+    if (Maze_tile_in_direction_is_path(maze, situation->persona.location, self->direction_intent)) {
+      atomic_store(&situation->persona.direction_actual, self->direction_intent);
+    } else {
+      atomic_store(&situation->persona.direction_actual, DIRECTION_NONE);
+    }
   }
 
   switch (atomic_load(&situation->persona.direction_actual)) {
   case DIRECTION_NONE: {
   } break;
   case NORTH: {
-    sprite_location->y -= SPRITE_VELOCITY;
+    self->sprite_location.y -= SPRITE_VELOCITY;
   } break;
   case EAST: {
-    sprite_location->x += SPRITE_VELOCITY;
+    self->sprite_location.x += SPRITE_VELOCITY;
   } break;
   case SOUTH: {
-    sprite_location->y += SPRITE_VELOCITY;
+    self->sprite_location.y += SPRITE_VELOCITY;
   } break;
   case WEST: {
-    sprite_location->x -= SPRITE_VELOCITY;
+    self->sprite_location.x -= SPRITE_VELOCITY;
   } break;
   }
 }
 
-void Persona_on_tile(Persona *self, Maze *maze, Situation *situation, Pair_uint32 *sprite_location) {
+void Persona_on_tile(Persona *self, Maze *maze, Situation *situation) {
 
-  Pair_uint8 location = Maze_location_from_sprite(sprite_location);
+  Pair_uint8 location = Maze_location_from_sprite(&self->sprite_location);
   /// Update location
   atomic_store(&situation->persona.location, location);
 

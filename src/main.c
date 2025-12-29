@@ -31,14 +31,14 @@ int main() { // int main(int argc, char *argv[]) {
   { // Setup block
     setup_resources(&renderer, &maze);
 
+    {
+      situation.persona.direction_actual = EAST;
+      situation.persona.location = (Pair_uint8){.x = 13, .y = 20};
+      situation.persona.movement_pattern = 0x552a552a;
+    }
+
+    Persona_default(&persona, &situation, TILE_PIXELS);
     setup_animas(animas);
-
-    Persona_default(&persona, TILE_PIXELS);
-    situation.persona.direction_actual = EAST;
-    situation.persona.location = (Pair_uint8){.x = 5, .y = 5};
-    situation.persona.movement_pattern = 0x552a552a;
-
-    setup_sprites(animas);
   }
 
   { // Scratch block
@@ -73,11 +73,17 @@ int main() { // int main(int argc, char *argv[]) {
           core_loop = false;
         }
         Anima_handle_event(&animas[0], &event);
+        Persona_handle_event(&persona, &maze, &situation, &event);
       }
 
       { /// Pre-render block
         Sync_situations(&situation, animas);
         rgb_momentum_advance(&colour);
+
+        for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
+          Anima_on_frame(&animas[id], &maze);
+        }
+        Persona_on_frame(&persona, &maze, &situation);
       }
 
       { /// Render_block
@@ -86,8 +92,6 @@ int main() { // int main(int argc, char *argv[]) {
         SDL_SetRenderDrawColor(renderer.renderer, colour.state[0].value, colour.state[1].value, colour.state[2].value, 0x000000ff);
 
         for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
-          Anima_on_frame(&animas[id], &maze);
-
           Renderer_draw_from_sheet(&renderer,
                                    animas[id].sprite_location,
                                    sheet_data.anima.size,
@@ -100,11 +104,23 @@ int main() { // int main(int argc, char *argv[]) {
             pthread_cond_broadcast(&animas[id].contact.cond_resume);
           }
         }
+        Renderer_draw_from_sheet(&renderer,
+                                 persona.sprite_location,
+                                 sheet_data.anima.size,
+                                 sheet_data.anima.direction.up[0],
+                                 TURN_ONE,
+                                 persona.pallete);
 
         Renderer_render_frame_buffer(&renderer);
       }
 
       { /// Post-render block
+        Renderer_erase_from_sheet(&renderer,
+                                  persona.sprite_location,
+                                  sheet_data.anima.size,
+                                  sheet_data.anima.direction.up[0],
+                                  TURN_ONE,
+                                  persona.pallete);
         for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
           Renderer_erase_from_sheet(&renderer,
                                     animas[id].sprite_location,

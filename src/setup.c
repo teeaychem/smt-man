@@ -12,9 +12,6 @@
 #undef PAIR_IMPLEMENTATION
 
 /// Other setup
-
-#include "constants.h"
-
 #include "setup.h"
 
 #include <pthread.h>
@@ -23,6 +20,8 @@
 
 #include <cwalk.h>
 #include <whereami.h>
+
+#include "constants.h"
 
 // Private
 
@@ -123,12 +122,4 @@ void setup_animas(Anima animas[ANIMA_COUNT]) { // Resource setup
       .c = 0x00000000,
       .d = 0xff808080,
   };
-}
-
-void setup_sprites(Anima animas[ANIMA_COUNT]) { // Sprite setup
-  for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
-    Pair_uint8 location = atomic_load(&animas[idx].mind.view.anima[idx].location);
-    animas[idx].sprite_location = (Pair_uint32){.x = (location.x * TILE_PIXELS),
-                                                (location.y * TILE_PIXELS)};
-  }
 }
