@@ -46,7 +46,7 @@ void Anima_handle_event(Anima *self, SDL_Event *event) {
   assert(self != nullptr && event != nullptr);
 }
 
-void Anima_on_frame(Anima *self, Maze *maze, Pair_uint32 *sprite_location) {
+void Anima_on_frame(Anima *self, Maze *maze) {
 
   uint32_t movement = atomic_load(&self->mind.view.anima[self->id].movement_pattern);
   movement = uint32_rotl1(movement);
@@ -58,36 +58,36 @@ void Anima_on_frame(Anima *self, Maze *maze, Pair_uint32 *sprite_location) {
 
   self->tick_action += 1;
 
-  bool centred = sprite_location->x % TILE_PIXELS == 0 && sprite_location->y % TILE_PIXELS == 0;
+  bool centred = self->sprite_location.x % TILE_PIXELS == 0 && self->sprite_location.y % TILE_PIXELS == 0;
 
   // Ensure coherence
   Anima_instinct(self);
 
   if (centred) {
-    Anima_on_tile(self, maze, sprite_location);
+    Anima_on_tile(self, maze);
   }
 
   switch (atomic_load(&self->mind.view.anima[self->id].direction_actual)) {
   case DIRECTION_NONE: {
   } break;
   case NORTH: {
-    sprite_location->y -= SPRITE_VELOCITY;
+    self->sprite_location.y -= SPRITE_VELOCITY;
   } break;
   case EAST: {
-    sprite_location->x += SPRITE_VELOCITY;
+    self->sprite_location.x += SPRITE_VELOCITY;
   } break;
   case SOUTH: {
-    sprite_location->y += SPRITE_VELOCITY;
+    self->sprite_location.y += SPRITE_VELOCITY;
   } break;
   case WEST: {
-    sprite_location->x -= SPRITE_VELOCITY;
+    self->sprite_location.x -= SPRITE_VELOCITY;
   } break;
   }
 }
 
-void Anima_on_tile(Anima *self, Maze *maze, Pair_uint32 *sprite_location) {
+void Anima_on_tile(Anima *self, Maze *maze) {
 
-  Pair_uint8 location = Maze_location_from_sprite(sprite_location);
+  Pair_uint8 location = Maze_location_from_sprite(&self->sprite_location);
   /// Update location
   atomic_store(&self->mind.view.anima[self->id].location, location);
 

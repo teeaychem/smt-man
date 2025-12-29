@@ -90,10 +90,10 @@ void setup_resources(Renderer *renderer, Maze *maze) { // Resource setup
   free(source_path);
 }
 
-void setup_animas(Anima animas[ANIMA_COUNT], Pallete anima_palletes[ANIMA_COUNT]) { // Resource setup
+void setup_animas(Anima animas[ANIMA_COUNT]) { // Resource setup
 
   setup_anima(animas, 0, Pair_uint8_create(1, 4));
-  anima_palletes[0] = (Pallete){
+  animas[0].pallete = (Pallete){
       .a = 0x00000000,
       .b = 0x00000000,
       .c = 0x00000000,
@@ -101,7 +101,7 @@ void setup_animas(Anima animas[ANIMA_COUNT], Pallete anima_palletes[ANIMA_COUNT]
   };
 
   setup_anima(animas, 1, Pair_uint8_create(16, 26));
-  anima_palletes[1] = (Pallete){
+  animas[1].pallete = (Pallete){
       .a = 0x00000000,
       .b = 0x00000000,
       .c = 0x00000000,
@@ -109,7 +109,7 @@ void setup_animas(Anima animas[ANIMA_COUNT], Pallete anima_palletes[ANIMA_COUNT]
   };
 
   setup_anima(animas, 2, Pair_uint8_create(21, 12));
-  anima_palletes[2] = (Pallete){
+  animas[2].pallete = (Pallete){
       .a = 0x00000000,
       .b = 0x00000000,
       .c = 0x00000000,
@@ -117,7 +117,7 @@ void setup_animas(Anima animas[ANIMA_COUNT], Pallete anima_palletes[ANIMA_COUNT]
   };
 
   setup_anima(animas, 3, Pair_uint8_create(4, 29));
-  anima_palletes[3] = (Pallete){
+  animas[3].pallete = (Pallete){
       .a = 0x00000000,
       .b = 0x00000000,
       .c = 0x00000000,
@@ -125,10 +125,10 @@ void setup_animas(Anima animas[ANIMA_COUNT], Pallete anima_palletes[ANIMA_COUNT]
   };
 }
 
-void setup_sprites(Anima animas[ANIMA_COUNT], Pair_uint32 anima_sprite_location[ANIMA_COUNT]) { // Sprite setup
+void setup_sprites(Anima animas[ANIMA_COUNT]) { // Sprite setup
   for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
     Pair_uint8 location = atomic_load(&animas[idx].mind.view.anima[idx].location);
-    anima_sprite_location[idx] = (Pair_uint32){.x = (location.x * TILE_PIXELS),
-                                               (location.y * TILE_PIXELS)};
+    animas[idx].sprite_location = (Pair_uint32){.x = (location.x * TILE_PIXELS),
+                                                (location.y * TILE_PIXELS)};
   }
 }

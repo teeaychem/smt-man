@@ -9,7 +9,6 @@
 #include "logic/synchronization.h"
 #include "lyf/persona.h"
 #include "render.h"
-#include "render/palette.h"
 #include "render/rgb_momentum.h"
 #include "render/sheet.h"
 #include "render/timer_nano.h"
@@ -25,19 +24,21 @@ int main() { // int main(int argc, char *argv[]) {
   Anima animas[ANIMA_COUNT];
   Persona persona;
 
-  Pallete anima_palletes[ANIMA_COUNT];
-  Pair_uint32 anima_sprite_location[ANIMA_COUNT] = {};
-
   Renderer renderer = {};
   RGBMomentum colour = {};
   Maze maze = {};
 
   { // Setup block
     setup_resources(&renderer, &maze);
-    setup_animas(animas, anima_palletes);
-    setup_sprites(animas, anima_sprite_location);
+
+    setup_animas(animas);
 
     Persona_default(&persona, TILE_PIXELS);
+    situation.persona.direction_actual = EAST;
+    situation.persona.location = (Pair_uint8){.x = 5, .y = 5};
+    situation.persona.movement_pattern = 0x552a552a;
+
+    setup_sprites(animas);
   }
 
   { // Scratch block
@@ -85,14 +86,14 @@ int main() { // int main(int argc, char *argv[]) {
         SDL_SetRenderDrawColor(renderer.renderer, colour.state[0].value, colour.state[1].value, colour.state[2].value, 0x000000ff);
 
         for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
-          Anima_on_frame(&animas[id], &maze, &anima_sprite_location[id]);
+          Anima_on_frame(&animas[id], &maze);
 
           Renderer_draw_from_sheet(&renderer,
-                                   anima_sprite_location[id],
+                                   animas[id].sprite_location,
                                    sheet_data.anima.size,
                                    Sheet_anima_offset(&animas[id]),
                                    TURN_ONE,
-                                   anima_palletes[id]);
+                                   animas[id].pallete);
 
           if (atomic_load(&animas[id].contact.flag_suspend)) {
             atomic_store(&animas[id].contact.flag_suspend, false);
@@ -106,11 +107,11 @@ int main() { // int main(int argc, char *argv[]) {
       { /// Post-render block
         for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
           Renderer_erase_from_sheet(&renderer,
-                                    anima_sprite_location[id],
+                                    animas[id].sprite_location,
                                     sheet_data.anima.size,
                                     Sheet_anima_offset(&animas[id]),
                                     TURN_ONE,
-                                    anima_palletes[id]);
+                                    animas[id].pallete);
         }
       }
 
