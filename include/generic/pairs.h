@@ -22,6 +22,10 @@ Pair_uint8 Pair_uint8_steps_in_direction(const Pair_uint8 *origin, Direction dir
   Pair_uint8 destination = {.x = origin->x, .y = origin->y};
 
   switch (direction) {
+  case DIRECTION_NONE: {
+    // No change
+  } break;
+
   case NORTH: {
     destination.y = (steps <= origin->y) ? (origin->y - steps) : 0;
   } break;

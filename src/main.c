@@ -42,7 +42,7 @@ int main() { // int main(int argc, char *argv[]) {
 
   { // Scratch block
     g_message("scratch begin...");
-    Sync_situation_animas(&situation, animas);
+    Sync_situations(&situation, animas);
     z3_tmp(&maze, &situation);
     g_message("scratch end...");
   }
@@ -75,7 +75,7 @@ int main() { // int main(int argc, char *argv[]) {
       }
 
       { // pre_render_block
-        Sync_situation_animas(&situation, animas);
+        Sync_situations(&situation, animas);
         rgb_momentum_advance(&colour);
       }
 

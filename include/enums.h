@@ -5,6 +5,7 @@
 /// Cardinal directions
 // Directions are flags
 enum direction_e : uint8_t {
+  DIRECTION_NONE = 0,
   NORTH = 1 << 0,
   EAST = 1 << 1,
   SOUTH = 1 << 2,

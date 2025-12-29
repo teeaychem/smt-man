@@ -18,3 +18,5 @@ constexpr int32_t TILE_PIXELS = 8;
 constexpr int UI_SCALE = 4;
 
 extern pthread_t ANIMA_THREADS[ANIMA_COUNT];
+
+constexpr int32_t SPRITE_VELOCITY = 1;

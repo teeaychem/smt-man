@@ -1,3 +1,5 @@
+#include <stdatomic.h>
+
 #include "render/sheet.h"
 
 SheetOffsets sheet_data = {
@@ -16,8 +18,10 @@ Pair_uint32 Sheet_anima_offset(const Anima *anima) {
 
   size_t offset = anima->tick_action % sheet_data.anima.direction.frames;
 
-  switch (anima->momentum) {
-
+  switch (atomic_load(&anima->mind.view.anima[anima->id].direction_actual)) {
+  case DIRECTION_NONE: {
+    return sheet_data.anima.direction.up[offset];
+  } break;
   case NORTH: {
     return sheet_data.anima.direction.up[offset];
   } break;

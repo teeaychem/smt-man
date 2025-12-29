@@ -11,14 +11,13 @@ void Mind_default(Mind *mind, uint8_t id, Pair_uint8 location, Direction directi
 
   mind->direction_intent = direction;
 
-  atomic_init(&mind->view.anima[id].direction, direction);
+  atomic_init(&mind->view.anima[id].direction_actual, direction);
 
   atomic_init(&mind->view.anima[id].location, location);
 
   atomic_init(&mind->view.anima[id].status, ANIMA_STATUS_SEARCH);
 
-  atomic_init(&mind->view.anima[id].velocity, 1);
-  atomic_init(&mind->view.anima[id].movement, 0x552a552a);
+  atomic_init(&mind->view.anima[id].movement_pattern, 0x552a552a);
 }
 
 void Mind_touch(Mind *self) {

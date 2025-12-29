@@ -18,13 +18,13 @@ struct anima_t {
   uint8_t sprite_size;
   /// Incremented on each tick an action is performed
   uint8_t tick_action;
-  ///
-  Direction momentum;
 
   /// Tools for contacting the anima from a different thread
   struct {
     _Atomic(bool) flag_suspend;
+
     pthread_mutex_t mtx_suspend;
+
     pthread_cond_t cond_resume;
   } contact;
 
@@ -42,6 +42,6 @@ void Anima_handle_event(Anima *self, SDL_Event *event);
 
 void Anima_on_frame(Anima *self, Maze *maze, Pair_uint32 *sprite_location);
 
-void Anima_sync_abstract(Anima *self, Maze *maze, Pair_uint32 *sprite_location);
+void Anima_on_tile(Anima *self, Maze *maze, Pair_uint32 *sprite_location);
 
 void Anima_instinct(Anima *self);
