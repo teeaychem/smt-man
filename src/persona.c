@@ -96,6 +96,8 @@ void Persona_on_tile(Persona *self, Maze *maze, Situation *situation) {
   /// Update direction
   if (Maze_tile_in_direction_is_path(maze, location, self->direction_intent)) {
     atomic_store(&situation->persona.direction_actual, self->direction_intent);
+  } else if (Maze_tile_in_direction_is_path(maze, location, situation->persona.direction_actual)) {
+    // Keep current direction.
   } else {
     atomic_store(&situation->persona.direction_actual, DIRECTION_NONE);
   }
