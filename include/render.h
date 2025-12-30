@@ -10,6 +10,7 @@
 #include "enums.h"
 #include "generic/pairs.h"
 #include "logic/situation.h"
+#include "lyf/anima.h"
 #include "lyf/persona.h"
 #include "maze.h"
 #include "render/palette.h"
@@ -70,5 +71,7 @@ static inline uint32_t Renderer_centre_offset(uint32_t size) {
 static inline bool Renderer_u32_location_is_tile(Pair_uint32 location) {
   return location.x % TILE_PIXELS == 0 && location.y % TILE_PIXELS == 0;
 }
+
+void Renderer_anima(Renderer *self, Anima animas[ANIMA_COUNT], uint8_t id, RenderAction action);
 
 void Renderer_persona(Renderer *self, Persona *persona, Situation *situation, RenderAction action);

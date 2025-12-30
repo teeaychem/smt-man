@@ -360,12 +360,29 @@ void Renderer_tile_arc(Renderer *self, Pair_uint32 origin, uint32_t radius, Quad
   }
 }
 
+void Renderer_anima(Renderer *self, Anima animas[ANIMA_COUNT], uint8_t id, RenderAction action) {
+
+  Pair_uint32 location = animas[id].sprite_location;
+  uint8_t size = animas[id].sprite_size;
+  Pair_uint32 offset = Sheet_anima_offset(&animas[id]);
+  Pallete pallete = animas[id].pallete;
+
+  switch (action) {
+  case RENDER_DRAW: {
+    Renderer_draw_from_sheet(self, location, size, offset, TURN_ONE, pallete);
+  } break;
+  case RENDER_ERASE: {
+    Renderer_erase_from_sheet(self, location, size, offset, TURN_ONE, pallete);
+  } break;
+  }
+}
+
 void Renderer_persona(Renderer *self, Persona *persona, Situation *situation, RenderAction action) {
 
-  auto location = persona->sprite_location;
-  auto size = persona->sprite_size;
-  auto offset = Sheet_persona_offset(persona, situation);
-  auto pallete = persona->pallete;
+  Pair_uint32 location = persona->sprite_location;
+  uint8_t size = persona->sprite_size;
+  Pair_uint32 offset = Sheet_persona_offset(persona, situation);
+  Pallete pallete = persona->pallete;
 
   Turn rotation = {};
   switch (situation->persona.direction_actual) {
@@ -387,7 +404,6 @@ void Renderer_persona(Renderer *self, Persona *persona, Situation *situation, Re
   }
 
   switch (action) {
-
   case RENDER_DRAW: {
     Renderer_draw_from_sheet(self, location, size, offset, rotation, pallete);
   } break;

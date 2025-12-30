@@ -10,7 +10,6 @@
 #include "lyf/persona.h"
 #include "render.h"
 #include "render/rgb_momentum.h"
-#include "render/sheet.h"
 #include "render/timer_nano.h"
 #include "temp.h"
 
@@ -84,6 +83,13 @@ int main() { // int main(int argc, char *argv[]) {
           Anima_on_frame(&animas[id], &maze);
         }
         Persona_on_frame(&persona, &maze, &situation);
+
+        for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
+          if (atomic_load(&animas[id].contact.flag_suspend)) {
+            atomic_store(&animas[id].contact.flag_suspend, false);
+            pthread_cond_broadcast(&animas[id].contact.cond_resume);
+          }
+        }
       }
 
       { /// Render_block
@@ -92,17 +98,7 @@ int main() { // int main(int argc, char *argv[]) {
         SDL_SetRenderDrawColor(renderer.renderer, colour.state[0].value, colour.state[1].value, colour.state[2].value, 0x000000ff);
 
         for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
-          Renderer_draw_from_sheet(&renderer,
-                                   animas[id].sprite_location,
-                                   animas[id].sprite_size,
-                                   Sheet_anima_offset(&animas[id]),
-                                   TURN_ONE,
-                                   animas[id].pallete);
-
-          if (atomic_load(&animas[id].contact.flag_suspend)) {
-            atomic_store(&animas[id].contact.flag_suspend, false);
-            pthread_cond_broadcast(&animas[id].contact.cond_resume);
-          }
+          Renderer_anima(&renderer, animas, id, RENDER_DRAW);
         }
         Renderer_persona(&renderer, &persona, &situation, RENDER_DRAW);
 
@@ -112,12 +108,7 @@ int main() { // int main(int argc, char *argv[]) {
       { /// Post-render block
         Renderer_persona(&renderer, &persona, &situation, RENDER_ERASE);
         for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
-          Renderer_erase_from_sheet(&renderer,
-                                    animas[id].sprite_location,
-                                    animas[id].sprite_size,
-                                    Sheet_anima_offset(&animas[id]),
-                                    TURN_ONE,
-                                    animas[id].pallete);
+          Renderer_anima(&renderer, animas, id, RENDER_ERASE);
         }
       }
 
