@@ -24,7 +24,7 @@ struct persona_t {
 };
 typedef struct persona_t Persona;
 
-void Persona_default(Persona *persona, Situation *situation, uint8_t pixel_size);
+void Persona_default(Persona *persona, Situation *situation, uint8_t sprite_size);
 
 void Persona_destroy(Persona *self);
 

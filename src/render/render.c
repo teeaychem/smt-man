@@ -6,6 +6,7 @@
 
 #include "generic/pairs.h"
 #include "render.h"
+#include "render/sheet.h"
 
 void Renderer_create(Renderer *renderer, const Pair_uint8 maze_dimensions, const char *sheet_path) {
 
@@ -356,5 +357,42 @@ void Renderer_tile_arc(Renderer *self, Pair_uint32 origin, uint32_t radius, Quad
     offset.x += 1;
 
     Renderer_circle_draw(self, &origin, &offset, quadrant, colour);
+  }
+}
+
+void Renderer_persona(Renderer *self, Persona *persona, Situation *situation, RenderAction action) {
+
+  auto location = persona->sprite_location;
+  auto size = persona->sprite_size;
+  auto offset = Sheet_persona_offset(persona, situation);
+  auto pallete = persona->pallete;
+
+  Turn rotation = {};
+  switch (situation->persona.direction_actual) {
+  case DIRECTION_NONE: {
+    // Do nothing
+  } break;
+  case DIRECTION_N: {
+    rotation = TURN_QUARTER;
+  } break;
+  case DIRECTION_E: {
+    rotation = TURN_ONE;
+  } break;
+  case DIRECTION_S: {
+    rotation = TURN_THREE_QUARTER;
+  } break;
+  case DIRECTION_W: {
+    rotation = TURN_HALF;
+  } break;
+  }
+
+  switch (action) {
+
+  case RENDER_DRAW: {
+    Renderer_draw_from_sheet(self, location, size, offset, rotation, pallete);
+  } break;
+  case RENDER_ERASE: {
+    Renderer_erase_from_sheet(self, location, size, offset, rotation, pallete);
+  } break;
   }
 }

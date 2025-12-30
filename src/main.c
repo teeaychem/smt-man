@@ -37,7 +37,7 @@ int main() { // int main(int argc, char *argv[]) {
       situation.persona.movement_pattern = 0x552a552a;
     }
 
-    Persona_default(&persona, &situation, TILE_PIXELS);
+    Persona_default(&persona, &situation, 16);
     setup_animas(animas);
   }
 
@@ -94,7 +94,7 @@ int main() { // int main(int argc, char *argv[]) {
         for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
           Renderer_draw_from_sheet(&renderer,
                                    animas[id].sprite_location,
-                                   sheet_data.anima.size,
+                                   animas[id].sprite_size,
                                    Sheet_anima_offset(&animas[id]),
                                    TURN_ONE,
                                    animas[id].pallete);
@@ -104,27 +104,17 @@ int main() { // int main(int argc, char *argv[]) {
             pthread_cond_broadcast(&animas[id].contact.cond_resume);
           }
         }
-        Renderer_draw_from_sheet(&renderer,
-                                 persona.sprite_location,
-                                 sheet_data.anima.size,
-                                 sheet_data.anima.direction.up[0],
-                                 TURN_ONE,
-                                 persona.pallete);
+        Renderer_persona(&renderer, &persona, &situation, RENDER_DRAW);
 
         Renderer_render_frame_buffer(&renderer);
       }
 
       { /// Post-render block
-        Renderer_erase_from_sheet(&renderer,
-                                  persona.sprite_location,
-                                  sheet_data.anima.size,
-                                  sheet_data.anima.direction.up[0],
-                                  TURN_ONE,
-                                  persona.pallete);
+        Renderer_persona(&renderer, &persona, &situation, RENDER_ERASE);
         for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
           Renderer_erase_from_sheet(&renderer,
                                     animas[id].sprite_location,
-                                    sheet_data.anima.size,
+                                    animas[id].sprite_size,
                                     Sheet_anima_offset(&animas[id]),
                                     TURN_ONE,
                                     animas[id].pallete);

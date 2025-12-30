@@ -4,19 +4,19 @@
 #include "render.h"
 #include <stdatomic.h>
 
-void Persona_default(Persona *persona, Situation *situation, uint8_t pixel_size) {
+void Persona_default(Persona *persona, Situation *situation, uint8_t sprite_size) {
   Pair_uint8 situation_location = atomic_load(&situation->persona.location);
 
   *persona = (Persona){
       .direction_intent = DIRECTION_E,
       .sprite_location = {.x = ((uint32_t)situation_location.x) * TILE_PIXELS,
                           .y = ((uint32_t)situation_location.y) * TILE_PIXELS},
-      .sprite_size = pixel_size,
+      .sprite_size = sprite_size,
       .pallete = {
           .a = 0x00000000,
           .b = 0x00000000,
           .c = 0x00000000,
-          .d = 0xff808080,
+          .d = 0xff00ffff,
       },
       .tick_action = 0,
   };

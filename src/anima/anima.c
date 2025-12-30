@@ -9,7 +9,7 @@
 #include "maze.h"
 #include "render.h"
 
-void Anima_default(Anima *anima, uint8_t id, uint8_t scale, Pair_uint8 location, Direction direction) {
+void Anima_default(Anima *anima, uint8_t id, uint8_t sprite_size, Pair_uint8 location, Direction direction) {
   g_log(nullptr, G_LOG_LEVEL_INFO, "Creating anima: %d", id);
 
   Z3_context ctx = z3_mk_anima_ctx();
@@ -19,7 +19,7 @@ void Anima_default(Anima *anima, uint8_t id, uint8_t scale, Pair_uint8 location,
   *anima = (Anima){
       .id = id,
 
-      .sprite_size = scale,
+      .sprite_size = sprite_size,
       .sprite_location = {.x = ((uint32_t)location.x) * TILE_PIXELS,
                           .y = ((uint32_t)location.y) * TILE_PIXELS},
 
