@@ -7,6 +7,7 @@
 #include "logic.h"
 #include "lyf/anima.h"
 #include "maze.h"
+#include "render.h"
 
 void Anima_default(Anima *anima, uint8_t id, uint8_t scale, Pair_uint8 location, Direction direction) {
   g_log(nullptr, G_LOG_LEVEL_INFO, "Creating anima: %d", id);
@@ -62,12 +63,10 @@ void Anima_on_frame(Anima *self, Maze *maze) {
 
   self->tick_action += 1;
 
-  bool centred = self->sprite_location.x % TILE_PIXELS == 0 && self->sprite_location.y % TILE_PIXELS == 0;
-
   // Ensure coherence
   Anima_instinct(self);
 
-  if (centred) {
+  if (Renderer_u32_location_is_tile(self->sprite_location)) {
     Anima_on_tile(self, maze);
   }
 

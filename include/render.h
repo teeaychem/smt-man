@@ -58,3 +58,7 @@ static inline uint32_t Renderer_centre_offset(uint32_t size) {
 
   return size > TILE_PIXELS ? (size - TILE_PIXELS) / 2 : 0;
 }
+
+static inline bool Renderer_u32_location_is_tile(Pair_uint32 location) {
+  return location.x % TILE_PIXELS == 0 && location.y % TILE_PIXELS == 0;
+}

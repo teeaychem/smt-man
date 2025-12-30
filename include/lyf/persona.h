@@ -33,3 +33,5 @@ void Persona_handle_event(Persona *self, Maze *maze, Situation *situation, SDL_E
 void Persona_on_frame(Persona *self, Maze *maze, Situation *situation);
 
 void Persona_on_tile(Persona *self, Maze *maze, Situation *situation);
+
+void Persona_off_tile(Persona *self, Maze *maze, Situation *situation);

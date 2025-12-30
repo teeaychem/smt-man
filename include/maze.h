@@ -97,6 +97,23 @@ static inline bool Maze_last_row(const Maze *self) {
 }
 
 static inline Pair_uint8 Maze_location_from_sprite(const Pair_uint32 *sprite_location) {
-  return (Pair_uint8){.x = (uint8_t)(sprite_location->x / TILE_PIXELS),
-                      .y = (uint8_t)(sprite_location->y / TILE_PIXELS)};
+
+  uint32_t x_mod = sprite_location->x % TILE_PIXELS;
+  uint32_t y_mod = sprite_location->y % TILE_PIXELS;
+
+  Pair_uint8 maze_location = {};
+
+  if (x_mod < TILE_PIXELS / 2) {
+    maze_location.x = (uint8_t)((sprite_location->x - x_mod) / TILE_PIXELS);
+  } else {
+    maze_location.x = (uint8_t)((sprite_location->x + (TILE_PIXELS - x_mod)) / TILE_PIXELS);
+  }
+
+  if (y_mod < TILE_PIXELS / 2) {
+    maze_location.y = (uint8_t)((sprite_location->y - y_mod) / TILE_PIXELS);
+  } else {
+    maze_location.y = (uint8_t)((sprite_location->y + (TILE_PIXELS - y_mod)) / TILE_PIXELS);
+  }
+
+  return maze_location;
 }
