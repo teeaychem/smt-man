@@ -6,10 +6,10 @@
 // Directions are flags
 enum direction_e : uint8_t {
   DIRECTION_NONE = 0,
-  NORTH = 1 << 0,
-  EAST = 1 << 1,
-  SOUTH = 1 << 2,
-  WEST = 1 << 3,
+  DIRECTION_N = 1,
+  DIRECTION_E = 1 << 1,
+  DIRECTION_S = 1 << 2,
+  DIRECTION_W = 1 << 3,
 };
 typedef enum direction_e Direction;
 

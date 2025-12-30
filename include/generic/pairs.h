@@ -26,19 +26,19 @@ Pair_uint8 Pair_uint8_steps_in_direction(const Pair_uint8 *origin, Direction dir
     // No change
   } break;
 
-  case NORTH: {
+  case DIRECTION_N: {
     destination.y = (steps <= origin->y) ? (origin->y - steps) : 0;
   } break;
 
-  case WEST: {
+  case DIRECTION_W: {
     destination.x = (steps <= (UINT8_MAX - origin->x)) ? origin->x + steps : UINT8_MAX;
   } break;
 
-  case SOUTH: {
+  case DIRECTION_S: {
     destination.y = (steps <= (UINT8_MAX - origin->y)) ? origin->y + steps : UINT8_MAX;
   } break;
 
-  case EAST: {
+  case DIRECTION_E: {
     destination.x = (steps <= origin->x) ? (origin->x - steps) : 0;
   } break;
   }

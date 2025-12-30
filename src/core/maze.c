@@ -449,16 +449,16 @@ bool Maze_tile_in_direction_is_path(Maze *self, Pair_uint8 location, Direction d
   case DIRECTION_NONE: {
     return true;
   } break;
-  case NORTH: {
+  case DIRECTION_N: {
     return (location.y != Maze_first_row(self) && Maze_abstract_is_path(self, location.x, location.y - 1));
   } break;
-  case EAST: {
+  case DIRECTION_E: {
     return (location.x + 2 < self->size.x) && Maze_abstract_is_path(self, location.x + 1, location.y);
   } break;
-  case SOUTH: {
+  case DIRECTION_S: {
     return (location.y != Maze_last_row(self)) && Maze_abstract_is_path(self, location.x, location.y + 1);
   } break;
-  case WEST: {
+  case DIRECTION_W: {
     return (0 < location.x) && Maze_abstract_is_path(self, location.x - 1, location.y);
   } break;
   }

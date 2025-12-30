@@ -32,7 +32,7 @@ int main() { // int main(int argc, char *argv[]) {
     setup_resources(&renderer, &maze);
 
     {
-      situation.persona.direction_actual = EAST;
+      situation.persona.direction_actual = DIRECTION_E;
       situation.persona.location = (Pair_uint8){.x = 13, .y = 20};
       situation.persona.movement_pattern = 0x552a552a;
     }

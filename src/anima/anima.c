@@ -73,17 +73,18 @@ void Anima_on_frame(Anima *self, Maze *maze) {
 
   switch (atomic_load(&self->mind.view.anima[self->id].direction_actual)) {
   case DIRECTION_NONE: {
+    // Do nothing
   } break;
-  case NORTH: {
+  case DIRECTION_N: {
     self->sprite_location.y -= SPRITE_VELOCITY;
   } break;
-  case EAST: {
+  case DIRECTION_E: {
     self->sprite_location.x += SPRITE_VELOCITY;
   } break;
-  case SOUTH: {
+  case DIRECTION_S: {
     self->sprite_location.y += SPRITE_VELOCITY;
   } break;
-  case WEST: {
+  case DIRECTION_W: {
     self->sprite_location.x -= SPRITE_VELOCITY;
   } break;
   }

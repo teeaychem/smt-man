@@ -22,16 +22,16 @@ Pair_uint32 Sheet_anima_offset(const Anima *anima) {
   case DIRECTION_NONE: {
     return sheet_data.anima.direction.up[offset];
   } break;
-  case NORTH: {
+  case DIRECTION_N: {
     return sheet_data.anima.direction.up[offset];
   } break;
-  case EAST: {
+  case DIRECTION_E: {
     return sheet_data.anima.direction.rt[offset];
   } break;
-  case SOUTH: {
+  case DIRECTION_S: {
     return sheet_data.anima.direction.dn[offset];
   } break;
-  case WEST: {
+  case DIRECTION_W: {
     return sheet_data.anima.direction.lt[offset];
   } break;
   }

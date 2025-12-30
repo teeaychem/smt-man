@@ -7,7 +7,7 @@ void Persona_default(Persona *persona, Situation *situation, uint8_t pixel_size)
   Pair_uint8 situation_location = atomic_load(&situation->persona.location);
 
   *persona = (Persona){
-      .direction_intent = EAST,
+      .direction_intent = DIRECTION_E,
       .sprite_location = {.x = ((uint32_t)situation_location.x) * TILE_PIXELS,
                           .y = ((uint32_t)situation_location.y) * TILE_PIXELS},
       .sprite_size = pixel_size,
@@ -30,16 +30,16 @@ void Persona_handle_event(Persona *self, Maze *maze, Situation *situation, SDL_E
 
     switch (event->key.key) {
     case SDLK_UP: {
-      self->direction_intent = NORTH;
+      self->direction_intent = DIRECTION_N;
     } break;
     case SDLK_DOWN: {
-      self->direction_intent = SOUTH;
+      self->direction_intent = DIRECTION_S;
     } break;
     case SDLK_LEFT: {
-      self->direction_intent = WEST;
+      self->direction_intent = DIRECTION_W;
     } break;
     case SDLK_RIGHT: {
-      self->direction_intent = EAST;
+      self->direction_intent = DIRECTION_E;
     } break;
     }
   }
@@ -72,16 +72,16 @@ void Persona_on_frame(Persona *self, Maze *maze, Situation *situation) {
   switch (atomic_load(&situation->persona.direction_actual)) {
   case DIRECTION_NONE: {
   } break;
-  case NORTH: {
+  case DIRECTION_N: {
     self->sprite_location.y -= SPRITE_VELOCITY;
   } break;
-  case EAST: {
+  case DIRECTION_E: {
     self->sprite_location.x += SPRITE_VELOCITY;
   } break;
-  case SOUTH: {
+  case DIRECTION_S: {
     self->sprite_location.y += SPRITE_VELOCITY;
   } break;
-  case WEST: {
+  case DIRECTION_W: {
     self->sprite_location.x -= SPRITE_VELOCITY;
   } break;
   }
