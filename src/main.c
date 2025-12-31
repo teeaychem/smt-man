@@ -55,6 +55,7 @@ int main() { // int main(int argc, char *argv[]) {
 
   // Draw the maze only once...
   Renderer_read_maze(&renderer, &maze);
+  Renderer_write_maze(&renderer, &maze);
 
   { // core block
     bool core_loop = true;

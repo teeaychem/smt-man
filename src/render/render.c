@@ -85,15 +85,12 @@ void Renderer_render_frame_buffer(Renderer *self) {
   SDL_RenderPresent(self->renderer);
 }
 
-void Renderer_read_maze(Renderer *self, const Maze *maze) {
+void Renderer_read_maze(Renderer *self, Maze *maze) {
   // For each tile...
   uint32_t indent = TILE_PIXELS / 2;
 
   for (uint8_t col = 0; col < maze->size.x; ++col) {
-    uint32_t col_scaled = (col * TILE_PIXELS);
-
     for (uint8_t row = 0; row < maze->size.y; ++row) {
-      uint32_t row_scaled = (row * TILE_PIXELS);
 
       TileData *tile_data = Maze_abstract_at(maze, col, row);
 
@@ -106,63 +103,116 @@ void Renderer_read_maze(Renderer *self, const Maze *maze) {
         case TILE_STYLE_LINE: {
 
           if (row == 0) {
-            Renderer_tile_line(self, col_scaled, row_scaled + indent - 1, PLANE_H, TILE_PIXELS, 0xffffffff);
+            tile_data->value.edge_value.indent = indent - 1;
+            tile_data->value.edge_value.edge_line_plane = PLANE_H;
           } else if (row == (maze->size.y - 1)) {
-            Renderer_tile_line(self, col_scaled, row_scaled + indent, PLANE_H, TILE_PIXELS, 0xffffffff);
+            tile_data->value.edge_value.indent = indent;
+            tile_data->value.edge_value.edge_line_plane = PLANE_H;
           } else {
             if (Maze_abstract_at(maze, col, row + 1)->type == TILE_PATH) {
-              Renderer_tile_line(self, col_scaled, row_scaled + indent - 1, PLANE_H, TILE_PIXELS, 0xffffffff);
+              tile_data->value.edge_value.indent = indent - 1;
+              tile_data->value.edge_value.edge_line_plane = PLANE_H;
             } else if (Maze_abstract_at(maze, col, row - 1)->type == TILE_PATH) {
-              Renderer_tile_line(self, col_scaled, row_scaled + indent, PLANE_H, TILE_PIXELS, 0xffffffff);
+              tile_data->value.edge_value.indent = indent;
+              tile_data->value.edge_value.edge_line_plane = PLANE_H;
             } else if (col + 1 < maze->size.x && Maze_abstract_at(maze, col + 1, row)->type == TILE_PATH) {
-              Renderer_tile_line(self, col_scaled + indent - 1, row_scaled, PLANE_V, TILE_PIXELS, 0xffffffff);
+              tile_data->value.edge_value.indent = indent - 1;
+              tile_data->value.edge_value.edge_line_plane = PLANE_V;
             } else if (0 < col && Maze_abstract_at(maze, col - 1, row)->type == TILE_PATH) {
-              Renderer_tile_line(self, col_scaled + indent, row_scaled, PLANE_V, TILE_PIXELS, 0xffffffff);
+              tile_data->value.edge_value.indent = indent;
+              tile_data->value.edge_value.edge_line_plane = PLANE_V;
             } else {
-              printf("??? %d %d\n", row, col);
+              /* printf("??? %d %d\n", row, col); */
             }
+          }
+        } break;
+
+        case TILE_STYLE_ARC: {
+          if ((row == 0) || (row == (maze->size.y - 1)) ||
+              (col == 0) || (col + 1 == maze->size.x)) {
+            tile_data->value.edge_value.indent = indent;
+            /* Renderer_tile_arc(self, tile_position, indent, tile_data->value.edge_value.edge_arc_quadrant, 0xffffffff); */
+          } else {
+            tile_data->value.edge_value.indent = indent - 1;
+            /* Renderer_tile_arc(self, tile_position, indent - 1, tile_data->value.edge_value.edge_arc_quadrant, 0xffffffff); */
+          }
+        } break;
+        }
+
+      } break;
+
+      case TILE_EMPTY: {
+        // Do nothing
+      } break;
+
+      case TILE_INFO: {
+        // Do nothing
+      } break;
+      case TILE_PATH: {
+        // Do nothing
+      } break;
+      }
+    }
+  }
+}
+
+void Renderer_write_maze(Renderer *self, const Maze *maze) {
+  // For each tile...
+
+  for (uint8_t col = 0; col < maze->size.x; ++col) {
+    uint32_t col_scaled = (col * TILE_PIXELS);
+
+    for (uint8_t row = 0; row < maze->size.y; ++row) {
+      uint32_t row_scaled = (row * TILE_PIXELS);
+      Pair_uint32 tile_position = {.x = col_scaled, .y = row_scaled};
+
+      TileData *tile_data = Maze_abstract_at(maze, col, row);
+
+      switch (tile_data->type) {
+
+      case TILE_EDGE: {
+
+        switch (tile_data->value.edge_value.edge_style) {
+
+        case TILE_STYLE_LINE: {
+          auto plane = tile_data->value.edge_value.edge_line_plane;
+          auto indent = tile_data->value.edge_value.indent;
+
+          switch (plane) {
+
+          case PLANE_H: {
+            Renderer_tile_line(self, col_scaled, row_scaled + indent, plane, TILE_PIXELS, 0xffffffff);
+          } break;
+          case PLANE_V: {
+            Renderer_tile_line(self, col_scaled + indent, row_scaled, plane, TILE_PIXELS, 0xffffffff);
+          } break;
           }
 
         } break;
         case TILE_STYLE_ARC: {
-          Pair_uint32 tile_position = {.x = col_scaled, .y = row_scaled};
+
+          auto indent = tile_data->value.edge_value.indent;
 
           if ((row == 0) || (row == (maze->size.y - 1)) ||
               (col == 0) || (col + 1 == maze->size.x)) {
-            Renderer_tile_arc(self, tile_position, indent, tile_data->value.edge_value.edge_arc_value, 0xffffffff);
+            Renderer_tile_arc(self, tile_position, indent, tile_data->value.edge_value.edge_arc_quadrant, 0xffffffff);
           } else {
-            Renderer_tile_arc(self, tile_position, indent - 1, tile_data->value.edge_value.edge_arc_value, 0xffffffff);
+            Renderer_tile_arc(self, tile_position, indent, tile_data->value.edge_value.edge_arc_quadrant, 0xffffffff);
           }
         } break;
         }
 
       } break;
       case TILE_EMPTY: {
-        for (uint32_t pxl_y = 0; pxl_y < TILE_PIXELS; ++pxl_y) {
-          uint32_t y_offset = (row_scaled + pxl_y) * self->frame_buffer.size.x;
-          for (uint32_t pxl_x = 0; pxl_x < TILE_PIXELS; ++pxl_x) {
-            uint32_t x_offset = pxl_x + col_scaled;
-            self->frame_buffer.pixels[y_offset + x_offset] = 0x00ff00ff;
-          }
-        }
+        Surface_fill_tile(&self->frame_buffer, tile_position, TILE_PIXELS, 0x00000000);
       } break;
+
       case TILE_INFO: {
-        for (uint32_t pxl_y = 0; pxl_y < TILE_PIXELS; ++pxl_y) {
-          uint32_t y_offset = (row_scaled + pxl_y) * self->frame_buffer.size.x;
-          for (uint32_t pxl_x = 0; pxl_x < TILE_PIXELS; ++pxl_x) {
-            uint32_t x_offset = pxl_x + col_scaled;
-            self->frame_buffer.pixels[y_offset + x_offset] = 0x00ff00ff;
-          }
-        }
+        Surface_fill_tile(&self->frame_buffer, tile_position, TILE_PIXELS, 0x00ffffff);
       } break;
+
       case TILE_PATH: {
-        for (uint32_t pxl_y = 0; pxl_y < TILE_PIXELS; ++pxl_y) {
-          uint32_t y_offset = (row_scaled + pxl_y) * self->frame_buffer.size.x;
-          for (uint32_t pxl_x = 0; pxl_x < TILE_PIXELS; ++pxl_x) {
-            uint32_t x_offset = pxl_x + col_scaled;
-            self->frame_buffer.pixels[y_offset + x_offset] = 0x00000000;
-          }
-        }
+        Surface_fill_tile(&self->frame_buffer, tile_position, TILE_PIXELS, 0x00000000);
       } break;
       }
     }

@@ -200,7 +200,7 @@ void Maze_abstract_stdout(Maze *self) {
 
 void Tile_set_arc(TileData *tile, Quadrant quadrant) {
   tile->value.edge_value.edge_style = TILE_STYLE_ARC;
-  tile->value.edge_value.edge_arc_value = quadrant;
+  tile->value.edge_value.edge_arc_quadrant = quadrant;
 }
 
 void Maze_detail_arc_outer(Maze *self) {

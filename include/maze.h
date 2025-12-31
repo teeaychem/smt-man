@@ -8,9 +8,10 @@
 #include "constants.h"
 #include "enums.h"
 #include "generic/pairs.h"
-#include "utils.h"
 
 struct tile_edge_data_t {
+
+  uint32_t indent;
 
   enum {
     TILE_LINES_ONE = 0,
@@ -23,8 +24,8 @@ struct tile_edge_data_t {
   } edge_style;
 
   union {
-    Direction edge_line_value;
-    Quadrant edge_arc_value;
+    Plane edge_line_plane;
+    Quadrant edge_arc_quadrant;
   };
 };
 

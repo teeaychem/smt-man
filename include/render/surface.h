@@ -28,6 +28,8 @@ void Surface_transpose_mut(Surface *self, const uint32_t size);
 
 void Surface_pallete_mut(Surface *self, const uint32_t size, Pallete pallete);
 
+void Surface_fill_tile(Surface *self, const Pair_uint32 destination, const uint32_t size, const uint32_t colour);
+
 /// Static inline
 
 static inline uint32_t Surface_offset(const Surface *self, const uint32_t col, const uint32_t row) {

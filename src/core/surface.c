@@ -88,3 +88,11 @@ void Surface_pallete_mut(Surface *self, const uint32_t size, const Pallete palle
     }
   }
 }
+
+void Surface_fill_tile(Surface *self, const Pair_uint32 destination, const uint32_t size, const uint32_t colour) {
+  for (uint32_t i = 0; i < size; ++i) {
+    for (uint32_t j = 0; j < size; ++j) {
+      self->pixels[Surface_offset(self, destination.x + j, destination.y + i)] = colour;
+    }
+  }
+}
