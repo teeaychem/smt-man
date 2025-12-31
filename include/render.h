@@ -20,6 +20,7 @@ typedef struct renderer_t Renderer;
 struct renderer_t {
   Surface sheet;
   Surface frame_buffer;
+  Surface pre_buffer;
 
   SDL_Window *window;
   SDL_Renderer *renderer;
@@ -48,8 +49,6 @@ void Renderer_read_maze(Renderer *self, const Maze *maze);
 
 void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 destination, uint32_t size, Pair_uint32 source, Turn turn, Pallete pallete);
 
-void Renderer_erase_from_sheet(Renderer *self, Pair_uint32 destination, uint32_t size, Pair_uint32 source, Turn turn, Pallete pallete);
-
 void Renderer_tile_line(Renderer *self, uint32_t x, uint32_t y, Plane plane, uint32_t length, uint32_t colour);
 
 // INVARIANT: The tile has an even number of pixels, and the origin is given by: (x += width/2, y += height/2).
@@ -75,3 +74,9 @@ static inline bool Renderer_u32_location_is_tile(Pair_uint32 location) {
 void Renderer_anima(Renderer *self, Anima animas[ANIMA_COUNT], uint8_t id, RenderAction action);
 
 void Renderer_persona(Renderer *self, Persona *persona, Situation *situation, RenderAction action);
+
+void Renderer_sprite_fill(Renderer *self, Pair_uint32 location, uint32_t size, uint32_t colour);
+
+void Renderer_draw_from_pre_buffer(Renderer *self, Pair_uint32 location, uint32_t size);
+
+void Renderer_pre_buffer_map_sprite(Renderer *self, Pair_uint32 sprite_offset, uint8_t size);

@@ -17,6 +17,8 @@ void Renderer_create(Renderer *renderer, const Pair_uint8 maze_dimensions, const
   *renderer = (Renderer){
       .frame_buffer = {.size = pixel_dimensions,
                        .pixels = malloc(pixel_dimensions.x * pixel_dimensions.y * sizeof(*renderer->frame_buffer.pixels))},
+      .pre_buffer = {.size = {TILE_PIXELS * 4, TILE_PIXELS * 4},
+                     .pixels = malloc((TILE_PIXELS * 4) * (TILE_PIXELS * 4) * sizeof(*renderer->pre_buffer.pixels))},
       .sheet = sheet,
   };
   if (renderer->frame_buffer.pixels == nullptr) {
@@ -210,47 +212,6 @@ void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 location, uint32_t siz
   }
 }
 
-void Renderer_erase_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 offset, Turn turn, Pallete pallete) {
-
-  uint32_t pixel_fb;
-  uint32_t pixel_s;
-  uint32_t centre_offset = Renderer_centre_offset(size);
-  uint32_t fb_x_offset;
-  uint32_t fb_y_offset;
-
-  for (uint32_t row = 0; row < size; ++row) {
-    for (uint32_t col = 0; col < size; ++col) {
-
-      pixel_s = Surface_offset(&self->sheet, offset.x + col, offset.y + row);
-
-      switch (turn) {
-      case TURN_ONE: {
-        fb_x_offset = col;
-        fb_y_offset = row;
-      } break;
-      case TURN_QUARTER: {
-        fb_x_offset = size - row - 1;
-        fb_y_offset = size - col - 1;
-      } break;
-      case TURN_HALF: {
-        fb_x_offset = size - col - 1;
-        fb_y_offset = size - row - 1;
-      } break;
-      case TURN_THREE_QUARTER: {
-        fb_x_offset = row;
-        fb_y_offset = col;
-      } break;
-      }
-
-      pixel_fb = Surface_offset(&self->frame_buffer, location.x + fb_x_offset - centre_offset, location.y + fb_y_offset - centre_offset);
-
-      if (self->frame_buffer.pixels[pixel_fb] == Pallete_offset(self->sheet.pixels[pixel_s], pallete)) {
-        self->frame_buffer.pixels[pixel_fb] = 0x00000000;
-      }
-    }
-  }
-}
-
 void Renderer_tile_fill(Renderer *self, const Pair_uint32 origin, uint32_t colour) {
 
   for (size_t row = 0; row < TILE_PIXELS; ++row) {
@@ -362,53 +323,89 @@ void Renderer_tile_arc(Renderer *self, Pair_uint32 origin, uint32_t radius, Quad
 
 void Renderer_anima(Renderer *self, Anima animas[ANIMA_COUNT], uint8_t id, RenderAction action) {
 
-  Pair_uint32 location = animas[id].sprite_location;
-  uint8_t size = animas[id].sprite_size;
-  Pair_uint32 offset = Sheet_anima_offset(&animas[id]);
-  Pallete pallete = animas[id].pallete;
-
   switch (action) {
   case RENDER_DRAW: {
-    Renderer_draw_from_sheet(self, location, size, offset, TURN_ONE, pallete);
+    Renderer_pre_buffer_map_sprite(self, Sheet_anima_offset(&animas[id]), animas[id].sprite_size);
+    Surface_pallete_mut(&self->pre_buffer, animas[id].sprite_size, animas[id].pallete);
+
+    Renderer_draw_from_pre_buffer(self, animas[id].sprite_location, animas[id].sprite_size);
   } break;
   case RENDER_ERASE: {
-    Renderer_erase_from_sheet(self, location, size, offset, TURN_ONE, pallete);
+    Renderer_sprite_fill(self, animas[id].sprite_location, animas[id].sprite_size, 0x00000000);
   } break;
   }
 }
 
 void Renderer_persona(Renderer *self, Persona *persona, Situation *situation, RenderAction action) {
 
-  Pair_uint32 location = persona->sprite_location;
-  uint8_t size = persona->sprite_size;
-  Pair_uint32 offset = Sheet_persona_offset(persona, situation);
-  Pallete pallete = persona->pallete;
-
-  Turn rotation = {};
-  switch (situation->persona.direction_actual) {
-  case DIRECTION_NONE: {
-    // Do nothing
-  } break;
-  case DIRECTION_N: {
-    rotation = TURN_QUARTER;
-  } break;
-  case DIRECTION_E: {
-    rotation = TURN_ONE;
-  } break;
-  case DIRECTION_S: {
-    rotation = TURN_THREE_QUARTER;
-  } break;
-  case DIRECTION_W: {
-    rotation = TURN_HALF;
-  } break;
-  }
-
   switch (action) {
   case RENDER_DRAW: {
-    Renderer_draw_from_sheet(self, location, size, offset, rotation, pallete);
+    Renderer_pre_buffer_map_sprite(self, Sheet_persona_offset(persona, situation), persona->sprite_size);
+
+    switch (situation->persona.direction_actual) {
+    case DIRECTION_NONE: {
+      // Do nothing
+    } break;
+    case DIRECTION_N: {
+      Surface_mirror_mut(&self->pre_buffer, persona->sprite_size);
+      Surface_transpose_mut(&self->pre_buffer, persona->sprite_size);
+    } break;
+    case DIRECTION_E: {
+      // No transformation
+    } break;
+    case DIRECTION_S: {
+      Surface_transpose_mut(&self->pre_buffer, persona->sprite_size);
+    } break;
+    case DIRECTION_W: {
+      Surface_mirror_mut(&self->pre_buffer, persona->sprite_size);
+    } break;
+    }
+
+    Surface_pallete_mut(&self->pre_buffer, persona->sprite_size, persona->pallete);
+    Renderer_draw_from_pre_buffer(self, persona->sprite_location, persona->sprite_size);
   } break;
   case RENDER_ERASE: {
-    Renderer_erase_from_sheet(self, location, size, offset, rotation, pallete);
+    Renderer_sprite_fill(self, persona->sprite_location, persona->sprite_size, 0x00000000);
   } break;
+  }
+}
+
+void Renderer_pre_buffer_map_sprite(Renderer *self, Pair_uint32 sprite_offset, uint8_t size) {
+
+  for (uint32_t idx = 0; idx < size; ++idx) {
+    uint32_t pre_offset = Surface_offset(&self->pre_buffer, 0, idx);
+    uint32_t sheet_offset = Surface_offset(&self->sheet, sprite_offset.x, sprite_offset.y + idx);
+
+    memcpy(&self->pre_buffer.pixels[pre_offset], &self->sheet.pixels[sheet_offset], size * sizeof(*self->pre_buffer.pixels));
+  }
+}
+
+void Renderer_draw_from_pre_buffer(Renderer *self, Pair_uint32 location, uint32_t size) {
+  uint32_t pixel_fb;
+  uint32_t pixel_s;
+  uint32_t centre_offset = Renderer_centre_offset(size);
+
+  for (uint32_t row = 0; row < size; ++row) {
+    for (uint32_t col = 0; col < size; ++col) {
+      pixel_fb = Surface_offset(&self->frame_buffer, location.x + col - centre_offset, location.y + row - centre_offset);
+
+      if (self->frame_buffer.pixels[pixel_fb] == 0x00000000) {
+        pixel_s = Surface_offset(&self->pre_buffer, col, row);
+        self->frame_buffer.pixels[pixel_fb] = self->pre_buffer.pixels[pixel_s];
+      }
+    }
+  }
+}
+
+void Renderer_sprite_fill(Renderer *self, Pair_uint32 location, uint32_t size, uint32_t colour) {
+  uint32_t centre_offset = Renderer_centre_offset(size);
+  location.x -= centre_offset;
+  location.y -= centre_offset;
+
+  for (uint32_t row = 0; row < size; ++row) {
+    for (uint32_t col = 0; col < size; ++col) {
+      size_t pixel = Surface_offset(&self->frame_buffer, location.x + row, location.y + col);
+      self->frame_buffer.pixels[pixel] = colour;
+    }
   }
 }
