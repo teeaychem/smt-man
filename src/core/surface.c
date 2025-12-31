@@ -1,6 +1,8 @@
+#include <assert.h>
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "constants.h"
 #include "render/surface.h"
 
 void Surface_from_path(Surface *self, const char *path) {
@@ -94,5 +96,101 @@ void Surface_fill_tile(Surface *self, const Pair_uint32 destination, const uint3
     for (uint32_t j = 0; j < size; ++j) {
       self->pixels[Surface_offset(self, destination.x + j, destination.y + i)] = colour;
     }
+  }
+}
+
+void Surface_tile_line(Surface *self, const uint32_t x, const uint32_t y, const Plane plane, const uint32_t length, const uint32_t colour) {
+
+  switch (plane) {
+  case PLANE_H: {
+    for (uint32_t idx = 0; idx < length; ++idx) {
+      self->pixels[Surface_offset(self, x + idx, y)] = colour;
+    }
+  } break;
+  case PLANE_V: {
+    for (uint32_t idx = 0; idx < length; ++idx) {
+      self->pixels[Surface_offset(self, x, y + idx)] = colour;
+    }
+  } break;
+  }
+}
+
+void Surface_circle_draw(Surface *self, Pair_uint32 *origin, Pair_uint32 *offset, Quadrant quadrant, uint32_t colour) {
+
+  switch (quadrant) {
+
+  case QUADRANT_1: {
+    uint32_t pixel_a = Surface_offset(self, origin->x + offset->x, origin->y - offset->y);
+    self->pixels[pixel_a] = colour;
+
+    uint32_t pixel_b = Surface_offset(self, origin->x + offset->y, origin->y - offset->x);
+    self->pixels[pixel_b] = colour;
+  } break;
+  case QUADRANT_2: {
+    uint32_t pixel_a = Surface_offset(self, origin->x - offset->y, origin->y - offset->x);
+    self->pixels[pixel_a] = colour;
+
+    uint32_t pixel_b = Surface_offset(self, origin->x - offset->x, origin->y - offset->y);
+    self->pixels[pixel_b] = colour;
+  } break;
+  case QUADRANT_3: {
+    uint32_t pixel_a = Surface_offset(self, origin->x - offset->x, origin->y + offset->y);
+    self->pixels[pixel_a] = colour;
+
+    uint32_t pixel_b = Surface_offset(self, origin->x - offset->y, origin->y + offset->x);
+    self->pixels[pixel_b] = colour;
+  } break;
+  case QUADRANT_4: {
+    uint32_t pixel_a = Surface_offset(self, origin->x + offset->x, origin->y + offset->y);
+    self->pixels[pixel_a] = colour;
+
+    uint32_t pixel_b = Surface_offset(self, origin->x + offset->y, origin->y + offset->x);
+    self->pixels[pixel_b] = colour;
+
+  } break;
+  }
+}
+
+void Surface_tile_arc(Surface *self, const Pair_uint32 origin, const uint32_t radius, const Quadrant quadrant, const uint32_t colour) {
+
+  assert(radius <= INT32_MAX);
+
+  Pair_uint32 offset = {.x = 0, .y = radius};
+
+  Pair_uint32 origin_offset = origin;
+
+  switch (quadrant) {
+  case QUADRANT_1: {
+    origin_offset.y += (TILE_PIXELS - 1);
+  } break;
+  case QUADRANT_2: {
+    origin_offset.x += (TILE_PIXELS - 1);
+    origin_offset.y += (TILE_PIXELS - 1);
+  } break;
+  case QUADRANT_3: {
+    origin_offset.x += (TILE_PIXELS - 1);
+  } break;
+  case QUADRANT_4: {
+  } break;
+  }
+
+  int32_t direction_relative = 1 - (int32_t)radius;
+  int32_t turn_left = 3;
+  int32_t turn_right = -((int32_t)radius << 1) + 5;
+
+  Surface_circle_draw(self, &origin_offset, &offset, quadrant, colour);
+  while (offset.y > offset.x) {
+    if (direction_relative <= 0) {
+      direction_relative += turn_left;
+    } else {
+      direction_relative += turn_right;
+      turn_right += 2;
+      offset.y -= 1;
+    }
+    turn_left += 2;
+    turn_right += 2;
+    offset.x += 1;
+
+    Surface_circle_draw(self, &origin_offset, &offset, quadrant, colour);
   }
 }

@@ -110,10 +110,10 @@ void Renderer_write_maze(Renderer *self, const Maze *maze) {
           switch (plane) {
 
           case PLANE_H: {
-            Renderer_tile_line(self, col_scaled, row_scaled + indent, plane, TILE_PIXELS, 0xffffffff);
+            Surface_tile_line(&self->frame_buffer, col_scaled, row_scaled + indent, plane, TILE_PIXELS, 0xffffffff);
           } break;
           case PLANE_V: {
-            Renderer_tile_line(self, col_scaled + indent, row_scaled, plane, TILE_PIXELS, 0xffffffff);
+            Surface_tile_line(&self->frame_buffer, col_scaled + indent, row_scaled, plane, TILE_PIXELS, 0xffffffff);
           } break;
           }
 
@@ -124,9 +124,9 @@ void Renderer_write_maze(Renderer *self, const Maze *maze) {
 
           if ((row == 0) || (row == (maze->size.y - 1)) ||
               (col == 0) || (col + 1 == maze->size.x)) {
-            Renderer_tile_arc(self, tile_position, indent, tile_data->value.edge_value.edge_arc_quadrant, 0xffffffff);
+            Surface_tile_arc(&self->frame_buffer, tile_position, indent, tile_data->value.edge_value.edge_arc_quadrant, 0xffffffff);
           } else {
-            Renderer_tile_arc(self, tile_position, indent, tile_data->value.edge_value.edge_arc_quadrant, 0xffffffff);
+            Surface_tile_arc(&self->frame_buffer, tile_position, indent, tile_data->value.edge_value.edge_arc_quadrant, 0xffffffff);
           }
         } break;
         }
@@ -164,114 +164,6 @@ void Renderer_draw_from_sheet(Renderer *self, const Pair_uint32 destination, con
         self->frame_buffer.pixels[pixel_fb] = Pallete_offset(self->sheet.pixels[pixel_s], pallete);
       }
     }
-  }
-}
-
-void Renderer_tile_fill(Renderer *self, const Pair_uint32 origin, const uint32_t colour) {
-
-  for (size_t row = 0; row < TILE_PIXELS; ++row) {
-    for (size_t col = 0; col < TILE_PIXELS; ++col) {
-      size_t pixel = (origin.y + col) * origin.x + row;
-      if ((self->frame_buffer.pixels[pixel] | 0x00000000) == 0x00000000) {
-        self->frame_buffer.pixels[pixel] = colour;
-      }
-    }
-  }
-}
-
-void Renderer_tile_line(Renderer *self, const uint32_t x, const uint32_t y, const Plane plane, const uint32_t length, const uint32_t colour) {
-
-  switch (plane) {
-  case PLANE_H: {
-    for (uint32_t idx = 0; idx < length; ++idx) {
-      self->frame_buffer.pixels[Surface_offset(&self->frame_buffer, x + idx, y)] = colour;
-    }
-  } break;
-  case PLANE_V: {
-    for (uint32_t idx = 0; idx < length; ++idx) {
-      self->frame_buffer.pixels[Surface_offset(&self->frame_buffer, x, y + idx)] = colour;
-    }
-  } break;
-  }
-}
-
-void Renderer_circle_draw(Renderer *self, Pair_uint32 *origin, Pair_uint32 *offset, Quadrant quadrant, uint32_t colour) {
-
-  switch (quadrant) {
-
-  case QUADRANT_1: {
-    uint32_t pixel_a = Surface_offset(&self->frame_buffer, origin->x + offset->x, origin->y - offset->y);
-    self->frame_buffer.pixels[pixel_a] = colour;
-
-    uint32_t pixel_b = Surface_offset(&self->frame_buffer, origin->x + offset->y, origin->y - offset->x);
-    self->frame_buffer.pixels[pixel_b] = colour;
-  } break;
-  case QUADRANT_2: {
-    uint32_t pixel_a = Surface_offset(&self->frame_buffer, origin->x - offset->y, origin->y - offset->x);
-    self->frame_buffer.pixels[pixel_a] = colour;
-
-    uint32_t pixel_b = Surface_offset(&self->frame_buffer, origin->x - offset->x, origin->y - offset->y);
-    self->frame_buffer.pixels[pixel_b] = colour;
-  } break;
-  case QUADRANT_3: {
-    uint32_t pixel_a = Surface_offset(&self->frame_buffer, origin->x - offset->x, origin->y + offset->y);
-    self->frame_buffer.pixels[pixel_a] = colour;
-
-    uint32_t pixel_b = Surface_offset(&self->frame_buffer, origin->x - offset->y, origin->y + offset->x);
-    self->frame_buffer.pixels[pixel_b] = colour;
-  } break;
-  case QUADRANT_4: {
-    uint32_t pixel_a = Surface_offset(&self->frame_buffer, origin->x + offset->x, origin->y + offset->y);
-    self->frame_buffer.pixels[pixel_a] = colour;
-
-    uint32_t pixel_b = Surface_offset(&self->frame_buffer, origin->x + offset->y, origin->y + offset->x);
-    self->frame_buffer.pixels[pixel_b] = colour;
-
-  } break;
-  }
-}
-
-void Renderer_tile_arc(Renderer *self, const Pair_uint32 origin, const uint32_t radius, const Quadrant quadrant, const uint32_t colour) {
-
-  assert(radius <= INT32_MAX);
-
-  Pair_uint32 offset = {.x = 0, .y = radius};
-
-  Pair_uint32 origin_offset = origin;
-
-  switch (quadrant) {
-  case QUADRANT_1: {
-    origin_offset.y += (TILE_PIXELS - 1);
-  } break;
-  case QUADRANT_2: {
-    origin_offset.x += (TILE_PIXELS - 1);
-    origin_offset.y += (TILE_PIXELS - 1);
-  } break;
-  case QUADRANT_3: {
-    origin_offset.x += (TILE_PIXELS - 1);
-  } break;
-  case QUADRANT_4: {
-  } break;
-  }
-
-  int32_t direction_relative = 1 - (int32_t)radius;
-  int32_t turn_left = 3;
-  int32_t turn_right = -((int32_t)radius << 1) + 5;
-
-  Renderer_circle_draw(self, &origin_offset, &offset, quadrant, colour);
-  while (offset.y > offset.x) {
-    if (direction_relative <= 0) {
-      direction_relative += turn_left;
-    } else {
-      direction_relative += turn_right;
-      turn_right += 2;
-      offset.y -= 1;
-    }
-    turn_left += 2;
-    turn_right += 2;
-    offset.x += 1;
-
-    Renderer_circle_draw(self, &origin_offset, &offset, quadrant, colour);
   }
 }
 

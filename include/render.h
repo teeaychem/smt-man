@@ -41,14 +41,7 @@ void Renderer_write_maze(Renderer *self, const Maze *maze);
 
 void Renderer_render_frame_buffer(Renderer *self);
 
-void Renderer_tile_fill(Renderer *self, const Pair_uint32 pos, const uint32_t colour);
-
 void Renderer_draw_from_sheet(Renderer *self, const Pair_uint32 destination, const uint32_t size, const Pair_uint32 source, const Pallete pallete);
-
-void Renderer_tile_line(Renderer *self, const uint32_t x, const uint32_t y, const Plane plane, const uint32_t length, const uint32_t colour);
-
-// INVARIANT: The tile has an even number of pixels, and the origin is given by: (x += width/2, y += height/2).
-void Renderer_tile_arc(Renderer *self, const Pair_uint32 origin, const uint32_t radius, const Quadrant quadrant, const uint32_t colour);
 
 void Renderer_anima(Renderer *self, const Anima animas[ANIMA_COUNT], const uint8_t id, const RenderAction action);
 

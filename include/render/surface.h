@@ -30,6 +30,13 @@ void Surface_pallete_mut(Surface *self, const uint32_t size, Pallete pallete);
 
 void Surface_fill_tile(Surface *self, const Pair_uint32 destination, const uint32_t size, const uint32_t colour);
 
+void Surface_tile_line(Surface *self, const uint32_t x, const uint32_t y, const Plane plane, const uint32_t length, const uint32_t colour);
+
+void Surface_circle_draw(Surface *self, Pair_uint32 *origin, Pair_uint32 *offset, Quadrant quadrant, uint32_t colour);
+
+// INVARIANT: The tile has an even number of pixels, and the origin is given by: (x += width/2, y += height/2).
+void Surface_tile_arc(Surface *self, const Pair_uint32 origin, const uint32_t radius, const Quadrant quadrant, const uint32_t colour);
+
 /// Static inline
 
 static inline uint32_t Surface_offset(const Surface *self, const uint32_t col, const uint32_t row) {
