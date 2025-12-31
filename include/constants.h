@@ -11,7 +11,7 @@ constexpr uint32_t FPS = 60;
 
 constexpr uint64_t NS_PER_FRAME = 1000000000 / FPS;
 
-constexpr Pair_uint32 STANDARD_TILE_DIMENSIONS = {.x = 28, .y = 36};
+constexpr Pair_uint32 STANDARD_TILE_DIMENSIONS = {.x = 28, .y = 31};
 
 constexpr int32_t TILE_PIXELS = 8;
 

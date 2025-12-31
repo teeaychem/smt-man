@@ -105,9 +105,9 @@ void Renderer_read_maze(Renderer *self, const Maze *maze) {
 
         case TILE_STYLE_LINE: {
 
-          if (row == maze->padding_top) {
+          if (row == 0) {
             Renderer_tile_line(self, col_scaled, row_scaled + indent - 1, PLANE_HORIZONTAL, TILE_PIXELS, 0xffffffff);
-          } else if (row == (maze->size.y - maze->padding_bot - 1)) {
+          } else if (row == (maze->size.y - 1)) {
             Renderer_tile_line(self, col_scaled, row_scaled + indent, PLANE_HORIZONTAL, TILE_PIXELS, 0xffffffff);
           } else {
             if (Maze_abstract_at(maze, col, row + 1)->type == TILE_PATH) {
@@ -127,7 +127,7 @@ void Renderer_read_maze(Renderer *self, const Maze *maze) {
         case TILE_STYLE_ARC: {
           Pair_uint32 tile_position = {.x = col_scaled, .y = row_scaled};
 
-          if ((row == maze->padding_top) || (row == (maze->size.y - maze->padding_bot - 1)) ||
+          if ((row == 0) || (row == (maze->size.y - 1)) ||
               (col == 0) || (col + 1 == maze->size.x)) {
             Renderer_tile_arc(self, tile_position, indent, tile_data->value.edge_value.edge_arc_value, 0xffffffff);
           } else {

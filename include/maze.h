@@ -55,8 +55,6 @@ typedef struct tile_data_t TileData;
 struct maze_t {
   Pair_uint8 size;
   TileData *tiles;
-  uint8_t padding_top;
-  uint8_t padding_bot;
 };
 typedef struct maze_t Maze;
 
@@ -70,15 +68,17 @@ void Maze_destroy(Maze *self);
 
 bool Maze_tile_in_direction_is_path(const Maze *self, const Pair_uint8 location, const Direction direction);
 
+/// Satic inline
+
 static inline TileData *Maze_abstract_at(const Maze *self, const uint8_t col, const uint8_t row) {
   if (!(col < self->size.x)) {
     g_log(nullptr, G_LOG_LEVEL_CRITICAL, "Invalid col: %d", col);
-    pause_panic();
+    exit(-2);
   }
 
   if (!(row < self->size.y)) {
     g_log(nullptr, G_LOG_LEVEL_CRITICAL, "Invalid row: %d", row);
-    pause_panic();
+    exit(-2);
   }
 
   return &self->tiles[(row * self->size.x) + col];
@@ -86,14 +86,6 @@ static inline TileData *Maze_abstract_at(const Maze *self, const uint8_t col, co
 
 static inline bool Maze_abstract_is_path(const Maze *self, const uint8_t col, const uint8_t row) {
   return Maze_abstract_at(self, col, row)->type == TILE_PATH;
-}
-
-static inline bool Maze_first_row(const Maze *self) {
-  return self->padding_top;
-}
-
-static inline bool Maze_last_row(const Maze *self) {
-  return self->size.y - (self->padding_bot + 1);
 }
 
 static inline Pair_uint8 Maze_location_from_sprite(const Pair_uint32 *sprite_location) {

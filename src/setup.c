@@ -87,6 +87,7 @@ void setup_resources(Renderer *renderer, Maze *maze) { // Resource setup
   }
 
   free(source_path);
+  g_log(nullptr, G_LOG_LEVEL_DEBUG, "Resource setup ok");
 }
 
 void setup_animas(Anima animas[ANIMA_COUNT]) { // Resource setup

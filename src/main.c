@@ -32,7 +32,7 @@ int main() { // int main(int argc, char *argv[]) {
 
     {
       situation.persona.direction_actual = DIRECTION_E;
-      situation.persona.location = (Pair_uint8){.x = 13, .y = 20};
+      situation.persona.location = (Pair_uint8){.x = 13, .y = 17};
       situation.persona.movement_pattern = 0x552a552a;
     }
 
@@ -51,6 +51,7 @@ int main() { // int main(int argc, char *argv[]) {
     exit_code = 1;
     goto exit_block;
   }
+  g_log(nullptr, G_LOG_LEVEL_DEBUG, "SDL initialization ok");
 
   // Draw the maze only once...
   Renderer_read_maze(&renderer, &maze);
