@@ -171,41 +171,19 @@ void Renderer_read_maze(Renderer *self, const Maze *maze) {
   }
 }
 
-void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 offset, Turn turn, Pallete pallete) {
+void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 offset, Pallete pallete) {
 
   uint32_t pixel_fb;
   uint32_t pixel_s;
   uint32_t centre_offset = Renderer_centre_offset(size);
-  uint32_t fb_x_offset;
-  uint32_t fb_y_offset;
 
   for (uint32_t row = 0; row < size; ++row) {
     for (uint32_t col = 0; col < size; ++col) {
 
-      switch (turn) {
-      case TURN_ONE: {
-        fb_x_offset = col;
-        fb_y_offset = row;
-      } break;
-      case TURN_QUARTER: {
-        fb_x_offset = size - row - 1;
-        fb_y_offset = size - col - 1;
-      } break;
-      case TURN_HALF: {
-        fb_x_offset = size - col - 1;
-        fb_y_offset = size - row - 1;
-      } break;
-      case TURN_THREE_QUARTER: {
-        fb_x_offset = row;
-        fb_y_offset = col;
-      } break;
-      }
-
-      pixel_fb = Surface_offset(&self->frame_buffer, location.x + fb_x_offset - centre_offset, location.y + fb_y_offset - centre_offset);
+      pixel_fb = Surface_offset(&self->frame_buffer, location.x + col - centre_offset, location.y + row - centre_offset);
 
       if (self->frame_buffer.pixels[pixel_fb] == 0x00000000) {
         pixel_s = Surface_offset(&self->sheet, offset.x + col, offset.y + row);
-
         self->frame_buffer.pixels[pixel_fb] = Pallete_offset(self->sheet.pixels[pixel_s], pallete);
       }
     }
