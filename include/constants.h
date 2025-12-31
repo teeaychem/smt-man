@@ -23,6 +23,6 @@ constexpr int32_t SPRITE_VELOCITY = 1;
 
 constexpr uint32_t SPRITE_BUFFER_SIZE = TILE_PIXELS * 4;
 
-constexpr uint32_t REMDER_TOP = 3;
+constexpr uint32_t RENDER_TOP = 0;
 
-constexpr uint32_t REMDER_BOT = 2;
+constexpr uint32_t RENDER_BOT = 2;

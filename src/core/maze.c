@@ -212,14 +212,14 @@ void Maze_detail_arc_outer(Maze *self) {
     { // TOP
       tile = Maze_abstract_at(self, col, 0);
       if (tile->type == TILE_EDGE) {
-        Tile_set_arc(tile, QUADRANT_SECOND);
+        Tile_set_arc(tile, QUADRANT_2);
       }
     }
 
     { // BOTTOM
       tile = Maze_abstract_at(self, col, self->size.y - 1);
       if (tile->type == TILE_EDGE) {
-        Tile_set_arc(tile, QUADRANT_THIRD);
+        Tile_set_arc(tile, QUADRANT_3);
       }
     }
 
@@ -232,20 +232,20 @@ void Maze_detail_arc_outer(Maze *self) {
             if ((Maze_abstract_at(self, col, row - 1)->type == TILE_EDGE) &&
                 (Maze_abstract_at(self, col, row + 1)->type == TILE_EDGE)) {
               if (Maze_abstract_at(self, col + 1, row - 1)->type != TILE_EDGE) {
-                Tile_set_arc(tile, QUADRANT_THIRD);
+                Tile_set_arc(tile, QUADRANT_3);
               } else if (Maze_abstract_at(self, col + 1, row + 1)->type != TILE_EDGE) {
-                Tile_set_arc(tile, QUADRANT_SECOND);
+                Tile_set_arc(tile, QUADRANT_2);
               }
             }
 
             if ((Maze_abstract_at(self, col, row - 1)->type != TILE_EDGE) &&
                 (Maze_abstract_at(self, col, row + 1)->type == TILE_EDGE)) {
-              Tile_set_arc(tile, QUADRANT_SECOND);
+              Tile_set_arc(tile, QUADRANT_2);
             }
 
             if ((Maze_abstract_at(self, col, row - 1)->type == TILE_EDGE) &&
                 (Maze_abstract_at(self, col, row + 1)->type != TILE_EDGE)) {
-              Tile_set_arc(tile, QUADRANT_THIRD);
+              Tile_set_arc(tile, QUADRANT_3);
             }
           }
         }
@@ -260,14 +260,14 @@ void Maze_detail_arc_outer(Maze *self) {
     { // TOP
       tile = Maze_abstract_at(self, col, 0);
       if (tile->type == TILE_EDGE) {
-        Tile_set_arc(tile, QUADRANT_FIRST);
+        Tile_set_arc(tile, QUADRANT_1);
       }
     }
 
     { // BOTTOM
       tile = Maze_abstract_at(self, col, self->size.y - 1);
       if (tile->type == TILE_EDGE) {
-        Tile_set_arc(tile, QUADRANT_FOURTH);
+        Tile_set_arc(tile, QUADRANT_4);
       }
     }
 
@@ -280,20 +280,20 @@ void Maze_detail_arc_outer(Maze *self) {
             if ((Maze_abstract_at(self, col, row - 1)->type == TILE_EDGE) &&
                 (Maze_abstract_at(self, col, row + 1)->type == TILE_EDGE)) {
               if (Maze_abstract_at(self, col - 1, row - 1)->type != TILE_EDGE) {
-                Tile_set_arc(tile, QUADRANT_FOURTH);
+                Tile_set_arc(tile, QUADRANT_4);
               } else if (Maze_abstract_at(self, col - 1, row + 1)->type != TILE_EDGE) {
-                Tile_set_arc(tile, QUADRANT_FIRST);
+                Tile_set_arc(tile, QUADRANT_1);
               }
             }
 
             if ((Maze_abstract_at(self, col, row - 1)->type != TILE_EDGE) &&
                 (Maze_abstract_at(self, col, row + 1)->type == TILE_EDGE)) {
-              Tile_set_arc(tile, QUADRANT_FIRST);
+              Tile_set_arc(tile, QUADRANT_1);
             }
 
             if ((Maze_abstract_at(self, col, row - 1)->type == TILE_EDGE) &&
                 (Maze_abstract_at(self, col, row + 1)->type != TILE_EDGE)) {
-              Tile_set_arc(tile, QUADRANT_FOURTH);
+              Tile_set_arc(tile, QUADRANT_4);
             }
           }
         }
@@ -308,14 +308,14 @@ void Maze_detail_arc_outer(Maze *self) {
     { // LEFT
       tile = Maze_abstract_at(self, 0, row);
       if (tile->type == TILE_EDGE) {
-        Tile_set_arc(tile, QUADRANT_SECOND);
+        Tile_set_arc(tile, QUADRANT_2);
       }
     }
 
     { // RIGHT
       tile = Maze_abstract_at(self, self->size.x - 1, row);
       if (tile->type == TILE_EDGE) {
-        Tile_set_arc(tile, QUADRANT_FIRST);
+        Tile_set_arc(tile, QUADRANT_1);
       }
     }
 
@@ -328,9 +328,9 @@ void Maze_detail_arc_outer(Maze *self) {
             if ((Maze_abstract_at(self, col - 1, row)->type == TILE_EDGE) &&
                 (Maze_abstract_at(self, col + 1, row)->type == TILE_EDGE)) {
               if (Maze_abstract_at(self, col + 1, row + 1)->type != TILE_EDGE) {
-                Tile_set_arc(tile, QUADRANT_SECOND);
+                Tile_set_arc(tile, QUADRANT_2);
               } else if (Maze_abstract_at(self, col - 1, row + 1)->type != TILE_EDGE) {
-                Tile_set_arc(tile, QUADRANT_FIRST);
+                Tile_set_arc(tile, QUADRANT_1);
               }
             }
           }
@@ -346,14 +346,14 @@ void Maze_detail_arc_outer(Maze *self) {
     { // LEFT
       tile = Maze_abstract_at(self, 0, row);
       if (tile->type == TILE_EDGE) {
-        Tile_set_arc(tile, QUADRANT_THIRD);
+        Tile_set_arc(tile, QUADRANT_3);
       }
     }
 
     { // RIGHT
       tile = Maze_abstract_at(self, self->size.x - 1, row);
       if (tile->type == TILE_EDGE) {
-        Tile_set_arc(tile, QUADRANT_FOURTH);
+        Tile_set_arc(tile, QUADRANT_4);
       }
     }
 
@@ -366,9 +366,9 @@ void Maze_detail_arc_outer(Maze *self) {
             if ((Maze_abstract_at(self, col - 1, row)->type == TILE_EDGE) &&
                 (Maze_abstract_at(self, col + 1, row)->type == TILE_EDGE)) {
               if (Maze_abstract_at(self, col + 1, row - 1)->type != TILE_EDGE) {
-                Tile_set_arc(tile, QUADRANT_THIRD);
+                Tile_set_arc(tile, QUADRANT_3);
               } else if (Maze_abstract_at(self, col - 1, row - 1)->type != TILE_EDGE) {
-                Tile_set_arc(tile, QUADRANT_FOURTH);
+                Tile_set_arc(tile, QUADRANT_4);
               }
             }
           }
@@ -391,22 +391,22 @@ void Maze_detail_arc_inner(Maze *self) {
 
         if ((left_is_edge && down_is_edge) &&
             ((!right_is_edge && !up_is_edge) || (Maze_abstract_at(self, col - 1, row + 1)->type == TILE_PATH))) {
-          Tile_set_arc(tile, QUADRANT_FIRST);
+          Tile_set_arc(tile, QUADRANT_1);
         }
 
         else if ((right_is_edge && down_is_edge) &&
                  ((!left_is_edge && !up_is_edge) || (Maze_abstract_at(self, col + 1, row + 1)->type == TILE_PATH))) {
-          Tile_set_arc(tile, QUADRANT_SECOND);
+          Tile_set_arc(tile, QUADRANT_2);
         }
 
         else if ((right_is_edge && up_is_edge) &&
                  ((!left_is_edge && !down_is_edge) || (Maze_abstract_at(self, col + 1, row - 1)->type == TILE_PATH))) {
-          Tile_set_arc(tile, QUADRANT_THIRD);
+          Tile_set_arc(tile, QUADRANT_3);
         }
 
         else if ((left_is_edge && up_is_edge) &&
                  ((!right_is_edge && !down_is_edge) || (Maze_abstract_at(self, col - 1, row - 1)->type != TILE_EDGE))) {
-          Tile_set_arc(tile, QUADRANT_FOURTH);
+          Tile_set_arc(tile, QUADRANT_4);
         }
       }
     }

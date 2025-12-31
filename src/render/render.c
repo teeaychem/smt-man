@@ -12,7 +12,7 @@ void Renderer_create(Renderer *renderer, const Pair_uint8 maze_dimensions, const
 
   Surface sheet = {};
   Surface_from_path(&sheet, sheet_path);
-  Pair_uint32 pixel_dimensions = {.x = maze_dimensions.x * TILE_PIXELS, .y = (maze_dimensions.y + (REMDER_TOP + REMDER_BOT)) * TILE_PIXELS};
+  Pair_uint32 pixel_dimensions = {.x = maze_dimensions.x * TILE_PIXELS, .y = (maze_dimensions.y + (RENDER_TOP + RENDER_BOT)) * TILE_PIXELS};
 
   *renderer = (Renderer){
       .frame_buffer = {.size = pixel_dimensions,
@@ -106,18 +106,18 @@ void Renderer_read_maze(Renderer *self, const Maze *maze) {
         case TILE_STYLE_LINE: {
 
           if (row == 0) {
-            Renderer_tile_line(self, col_scaled, row_scaled + indent - 1, PLANE_HORIZONTAL, TILE_PIXELS, 0xffffffff);
+            Renderer_tile_line(self, col_scaled, row_scaled + indent - 1, PLANE_H, TILE_PIXELS, 0xffffffff);
           } else if (row == (maze->size.y - 1)) {
-            Renderer_tile_line(self, col_scaled, row_scaled + indent, PLANE_HORIZONTAL, TILE_PIXELS, 0xffffffff);
+            Renderer_tile_line(self, col_scaled, row_scaled + indent, PLANE_H, TILE_PIXELS, 0xffffffff);
           } else {
             if (Maze_abstract_at(maze, col, row + 1)->type == TILE_PATH) {
-              Renderer_tile_line(self, col_scaled, row_scaled + indent - 1, PLANE_HORIZONTAL, TILE_PIXELS, 0xffffffff);
+              Renderer_tile_line(self, col_scaled, row_scaled + indent - 1, PLANE_H, TILE_PIXELS, 0xffffffff);
             } else if (Maze_abstract_at(maze, col, row - 1)->type == TILE_PATH) {
-              Renderer_tile_line(self, col_scaled, row_scaled + indent, PLANE_HORIZONTAL, TILE_PIXELS, 0xffffffff);
+              Renderer_tile_line(self, col_scaled, row_scaled + indent, PLANE_H, TILE_PIXELS, 0xffffffff);
             } else if (col + 1 < maze->size.x && Maze_abstract_at(maze, col + 1, row)->type == TILE_PATH) {
-              Renderer_tile_line(self, col_scaled + indent - 1, row_scaled, PLANE_VERTICAL, TILE_PIXELS, 0xffffffff);
+              Renderer_tile_line(self, col_scaled + indent - 1, row_scaled, PLANE_V, TILE_PIXELS, 0xffffffff);
             } else if (0 < col && Maze_abstract_at(maze, col - 1, row)->type == TILE_PATH) {
-              Renderer_tile_line(self, col_scaled + indent, row_scaled, PLANE_VERTICAL, TILE_PIXELS, 0xffffffff);
+              Renderer_tile_line(self, col_scaled + indent, row_scaled, PLANE_V, TILE_PIXELS, 0xffffffff);
             } else {
               printf("??? %d %d\n", row, col);
             }
@@ -203,12 +203,12 @@ void Renderer_tile_fill(Renderer *self, const Pair_uint32 origin, const uint32_t
 void Renderer_tile_line(Renderer *self, const uint32_t x, const uint32_t y, const Plane plane, const uint32_t length, const uint32_t colour) {
 
   switch (plane) {
-  case PLANE_HORIZONTAL: {
+  case PLANE_H: {
     for (uint32_t idx = 0; idx < length; ++idx) {
       self->frame_buffer.pixels[Surface_offset(&self->frame_buffer, x + idx, y)] = colour;
     }
   } break;
-  case PLANE_VERTICAL: {
+  case PLANE_V: {
     for (uint32_t idx = 0; idx < length; ++idx) {
       self->frame_buffer.pixels[Surface_offset(&self->frame_buffer, x, y + idx)] = colour;
     }
@@ -220,28 +220,28 @@ void Renderer_circle_draw(Renderer *self, Pair_uint32 *origin, Pair_uint32 *offs
 
   switch (quadrant) {
 
-  case QUADRANT_FIRST: {
+  case QUADRANT_1: {
     uint32_t pixel_a = Surface_offset(&self->frame_buffer, origin->x + offset->x, origin->y - offset->y);
     self->frame_buffer.pixels[pixel_a] = colour;
 
     uint32_t pixel_b = Surface_offset(&self->frame_buffer, origin->x + offset->y, origin->y - offset->x);
     self->frame_buffer.pixels[pixel_b] = colour;
   } break;
-  case QUADRANT_SECOND: {
+  case QUADRANT_2: {
     uint32_t pixel_a = Surface_offset(&self->frame_buffer, origin->x - offset->y, origin->y - offset->x);
     self->frame_buffer.pixels[pixel_a] = colour;
 
     uint32_t pixel_b = Surface_offset(&self->frame_buffer, origin->x - offset->x, origin->y - offset->y);
     self->frame_buffer.pixels[pixel_b] = colour;
   } break;
-  case QUADRANT_THIRD: {
+  case QUADRANT_3: {
     uint32_t pixel_a = Surface_offset(&self->frame_buffer, origin->x - offset->x, origin->y + offset->y);
     self->frame_buffer.pixels[pixel_a] = colour;
 
     uint32_t pixel_b = Surface_offset(&self->frame_buffer, origin->x - offset->y, origin->y + offset->x);
     self->frame_buffer.pixels[pixel_b] = colour;
   } break;
-  case QUADRANT_FOURTH: {
+  case QUADRANT_4: {
     uint32_t pixel_a = Surface_offset(&self->frame_buffer, origin->x + offset->x, origin->y + offset->y);
     self->frame_buffer.pixels[pixel_a] = colour;
 
@@ -261,17 +261,17 @@ void Renderer_tile_arc(Renderer *self, const Pair_uint32 origin, const uint32_t 
   Pair_uint32 origin_offset = origin;
 
   switch (quadrant) {
-  case QUADRANT_FIRST: {
+  case QUADRANT_1: {
     origin_offset.y += (TILE_PIXELS - 1);
   } break;
-  case QUADRANT_SECOND: {
+  case QUADRANT_2: {
     origin_offset.x += (TILE_PIXELS - 1);
     origin_offset.y += (TILE_PIXELS - 1);
   } break;
-  case QUADRANT_THIRD: {
+  case QUADRANT_3: {
     origin_offset.x += (TILE_PIXELS - 1);
   } break;
-  case QUADRANT_FOURTH: {
+  case QUADRANT_4: {
   } break;
   }
 

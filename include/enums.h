@@ -15,25 +15,25 @@ typedef enum direction_e Direction;
 
 /// Quadrants of a circle
 enum quadrant_e {
-  QUADRANT_FIRST,
-  QUADRANT_SECOND,
-  QUADRANT_THIRD,
-  QUADRANT_FOURTH,
+  QUADRANT_1,
+  QUADRANT_2,
+  QUADRANT_3,
+  QUADRANT_4,
 };
 typedef enum quadrant_e Quadrant;
 
 /// Turns
 enum turn_e {
-  TURN_QUARTER,
-  TURN_HALF,
-  TURN_THREE_QUARTER,
-  TURN_ONE,
+  TURN_0Q,
+  TURN_1Q,
+  TURN_2Q,
+  TURN_3Q,
 };
 typedef enum turn_e Turn;
 
 /// The horizontal or vertical plane
 enum plane_e {
-  PLANE_HORIZONTAL,
-  PLANE_VERTICAL,
+  PLANE_H, // HORIZONTAL
+  PLANE_V, // VERTICAL
 };
 typedef enum plane_e Plane;
