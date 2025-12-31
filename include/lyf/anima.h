@@ -39,14 +39,14 @@ typedef struct anima_t Anima;
 
 // Methods
 
-void Anima_default(Anima *anima, uint8_t id, uint8_t sprite_size, Pair_uint8 location, Direction direction);
+void Anima_default(Anima *anima, const uint8_t id, const uint8_t sprite_size, const Pair_uint8 location, const Direction direction);
 
 void Anima_destroy(Anima *self);
 
-void Anima_handle_event(Anima *self, SDL_Event *event);
+void Anima_handle_event(Anima *self, const SDL_Event *event);
 
-void Anima_on_frame(Anima *self, Maze *maze);
+void Anima_on_frame(Anima *self, const Maze *maze);
 
-void Anima_on_tile(Anima *self, Maze *maze);
+void Anima_on_tile(Anima *self, const Maze *maze);
 
 void Anima_instinct(Anima *self);

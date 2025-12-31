@@ -17,7 +17,7 @@ void next_line(FILE *file) {
   }
 }
 
-void Maze_create(Maze *maze, char *path) {
+void Maze_create(Maze *maze, const char *path) {
 
   *maze = (Maze){
       .size = {},
@@ -444,7 +444,7 @@ void Maze_detail(Maze *self) {
   Maze_detail_arc_inner(self);
 }
 
-bool Maze_tile_in_direction_is_path(Maze *self, Pair_uint8 location, Direction direction) {
+bool Maze_tile_in_direction_is_path(const Maze *self, const Pair_uint8 location, const Direction direction) {
   switch (direction) {
   case DIRECTION_NONE: {
     return true;

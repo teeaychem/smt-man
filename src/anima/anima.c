@@ -9,7 +9,7 @@
 #include "maze.h"
 #include "render.h"
 
-void Anima_default(Anima *anima, uint8_t id, uint8_t sprite_size, Pair_uint8 location, Direction direction) {
+void Anima_default(Anima *anima, const uint8_t id, const uint8_t sprite_size, const Pair_uint8 location, const Direction direction) {
   g_log(nullptr, G_LOG_LEVEL_INFO, "Creating anima: %d", id);
 
   Z3_context ctx = z3_mk_anima_ctx();
@@ -47,11 +47,11 @@ void Anima_destroy(Anima *self) {
   assert(self != nullptr);
 }
 
-void Anima_handle_event(Anima *self, SDL_Event *event) {
+void Anima_handle_event(Anima *self, const SDL_Event *event) {
   assert(self != nullptr && event != nullptr);
 }
 
-void Anima_on_frame(Anima *self, Maze *maze) {
+void Anima_on_frame(Anima *self, const Maze *maze) {
 
   uint32_t movement = atomic_load(&self->mind.view.anima[self->id].movement_pattern);
   movement = uint32_rotl1(movement);
@@ -89,7 +89,7 @@ void Anima_on_frame(Anima *self, Maze *maze) {
   }
 }
 
-void Anima_on_tile(Anima *self, Maze *maze) {
+void Anima_on_tile(Anima *self, const Maze *maze) {
 
   Pair_uint8 location = Maze_location_from_sprite(&self->sprite_location);
   /// Update location

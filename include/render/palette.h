@@ -12,7 +12,7 @@ typedef struct pallete_t Pallete;
 
 // Methods
 
-static inline uint32_t Pallete_offset(uint32_t pixel, Pallete pallete) {
+static inline uint32_t Pallete_offset(const uint32_t pixel, const Pallete pallete) {
   uint32_t colour;
   switch (pixel) {
   case 0x000000ff: {

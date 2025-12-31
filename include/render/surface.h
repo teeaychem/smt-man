@@ -14,16 +14,22 @@ struct surface_t {
 };
 typedef struct surface_t Surface;
 
+/// Methods
+
 void Surface_from_path(Surface *self, const char *path);
 
 void Surface_destroy(Surface *self);
 
-void Surface_char_projection(const Surface *self, char *dest, size_t *len);
+void Surface_char_projection(const Surface *self, char *destination, size_t *length);
 
-void Surface_mirror_mut(Surface *self, uint32_t size);
+void Surface_mirror_mut(Surface *self, const uint32_t size);
 
-void Surface_transpose_mut(Surface *self, uint32_t size);
+void Surface_transpose_mut(Surface *self, const uint32_t size);
 
-void Surface_pallete_mut(Surface *self, uint32_t size, Pallete pallete);
+void Surface_pallete_mut(Surface *self, const uint32_t size, Pallete pallete);
 
-uint32_t Surface_offset(const Surface *self, uint32_t col, uint32_t row);
+/// Static inline
+
+static inline uint32_t Surface_offset(const Surface *self, const uint32_t col, const uint32_t row) {
+  return (row * self->size.x) + col;
+}

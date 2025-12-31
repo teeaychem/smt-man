@@ -87,8 +87,6 @@ void Renderer_render_frame_buffer(Renderer *self) {
 
 void Renderer_read_maze(Renderer *self, const Maze *maze) {
   // For each tile...
-  printf("Tile scale: %d\n", self->frame_buffer.size.x / maze->size.x);
-
   uint32_t indent = TILE_PIXELS / 2;
 
   for (uint8_t col = 0; col < maze->size.x; ++col) {
@@ -108,18 +106,18 @@ void Renderer_read_maze(Renderer *self, const Maze *maze) {
         case TILE_STYLE_LINE: {
 
           if (row == maze->padding_top) {
-            Renderer_tile_line(self, col_scaled, row_scaled + indent - 1, PLANE_HORIZONTAL, TILE_PIXELS, 0xFFFFFFFF);
+            Renderer_tile_line(self, col_scaled, row_scaled + indent - 1, PLANE_HORIZONTAL, TILE_PIXELS, 0xffffffff);
           } else if (row == (maze->size.y - maze->padding_bot - 1)) {
-            Renderer_tile_line(self, col_scaled, row_scaled + indent, PLANE_HORIZONTAL, TILE_PIXELS, 0xFFFFFFFF);
+            Renderer_tile_line(self, col_scaled, row_scaled + indent, PLANE_HORIZONTAL, TILE_PIXELS, 0xffffffff);
           } else {
             if (Maze_abstract_at(maze, col, row + 1)->type == TILE_PATH) {
-              Renderer_tile_line(self, col_scaled, row_scaled + indent - 1, PLANE_HORIZONTAL, TILE_PIXELS, 0xFFFFFFFF);
+              Renderer_tile_line(self, col_scaled, row_scaled + indent - 1, PLANE_HORIZONTAL, TILE_PIXELS, 0xffffffff);
             } else if (Maze_abstract_at(maze, col, row - 1)->type == TILE_PATH) {
-              Renderer_tile_line(self, col_scaled, row_scaled + indent, PLANE_HORIZONTAL, TILE_PIXELS, 0xFFFFFFFF);
+              Renderer_tile_line(self, col_scaled, row_scaled + indent, PLANE_HORIZONTAL, TILE_PIXELS, 0xffffffff);
             } else if (col + 1 < maze->size.x && Maze_abstract_at(maze, col + 1, row)->type == TILE_PATH) {
-              Renderer_tile_line(self, col_scaled + indent - 1, row_scaled, PLANE_VERTICAL, TILE_PIXELS, 0xFFFFFFFF);
+              Renderer_tile_line(self, col_scaled + indent - 1, row_scaled, PLANE_VERTICAL, TILE_PIXELS, 0xffffffff);
             } else if (0 < col && Maze_abstract_at(maze, col - 1, row)->type == TILE_PATH) {
-              Renderer_tile_line(self, col_scaled + indent, row_scaled, PLANE_VERTICAL, TILE_PIXELS, 0xFFFFFFFF);
+              Renderer_tile_line(self, col_scaled + indent, row_scaled, PLANE_VERTICAL, TILE_PIXELS, 0xffffffff);
             } else {
               printf("??? %d %d\n", row, col);
             }
@@ -131,9 +129,9 @@ void Renderer_read_maze(Renderer *self, const Maze *maze) {
 
           if ((row == maze->padding_top) || (row == (maze->size.y - maze->padding_bot - 1)) ||
               (col == 0) || (col + 1 == maze->size.x)) {
-            Renderer_tile_arc(self, tile_position, indent, tile_data->value.edge_value.edge_arc_value, 0xFFFFFFFF);
+            Renderer_tile_arc(self, tile_position, indent, tile_data->value.edge_value.edge_arc_value, 0xffffffff);
           } else {
-            Renderer_tile_arc(self, tile_position, indent - 1, tile_data->value.edge_value.edge_arc_value, 0xFFFFFFFF);
+            Renderer_tile_arc(self, tile_position, indent - 1, tile_data->value.edge_value.edge_arc_value, 0xffffffff);
           }
         } break;
         }
@@ -144,7 +142,7 @@ void Renderer_read_maze(Renderer *self, const Maze *maze) {
           uint32_t y_offset = (row_scaled + pxl_y) * self->frame_buffer.size.x;
           for (uint32_t pxl_x = 0; pxl_x < TILE_PIXELS; ++pxl_x) {
             uint32_t x_offset = pxl_x + col_scaled;
-            self->frame_buffer.pixels[y_offset + x_offset] = 0x00f00fff;
+            self->frame_buffer.pixels[y_offset + x_offset] = 0x00ff00ff;
           }
         }
       } break;

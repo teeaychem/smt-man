@@ -62,15 +62,15 @@ typedef struct maze_t Maze;
 
 // Methods
 
-void Maze_create(Maze *maze, char *path);
+void Maze_create(Maze *maze, const char *path);
 
 void Maze_detail(Maze *self);
 
 void Maze_destroy(Maze *self);
 
-bool Maze_tile_in_direction_is_path(Maze *self, Pair_uint8 location, Direction direction);
+bool Maze_tile_in_direction_is_path(const Maze *self, const Pair_uint8 location, const Direction direction);
 
-static inline TileData *Maze_abstract_at(const Maze *self, uint8_t col, uint8_t row) {
+static inline TileData *Maze_abstract_at(const Maze *self, const uint8_t col, const uint8_t row) {
   if (!(col < self->size.x)) {
     g_log(nullptr, G_LOG_LEVEL_CRITICAL, "Invalid col: %d", col);
     pause_panic();
@@ -84,7 +84,7 @@ static inline TileData *Maze_abstract_at(const Maze *self, uint8_t col, uint8_t 
   return &self->tiles[(row * self->size.x) + col];
 }
 
-static inline bool Maze_abstract_is_path(const Maze *self, uint8_t col, uint8_t row) {
+static inline bool Maze_abstract_is_path(const Maze *self, const uint8_t col, const uint8_t row) {
   return Maze_abstract_at(self, col, row)->type == TILE_PATH;
 }
 

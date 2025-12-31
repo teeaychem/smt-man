@@ -34,31 +34,27 @@ void Surface_destroy(Surface *self) {
   self->size.y = 0;
 }
 
-void Surface_char_projection(const Surface *self, char *dest, size_t *len) {
+void Surface_char_projection(const Surface *self, char *destination, size_t *length) {
 
   size_t size = (self->size.x * (self->size.y + 1)) + 1;
-  *len = size;
+  *length = size;
 
-  dest = malloc(size * sizeof(*dest));
-  memset(dest, ' ', size);
-  dest[size - 1] = '\0';
+  destination = malloc(size * sizeof(*destination));
+  memset(destination, ' ', size);
+  destination[size - 1] = '\0';
 
   size_t idx = 0;
   for (uint32_t r = 0; r < self->size.y; ++r) {
     for (uint32_t c = 0; c < self->size.x; ++c, ++idx) {
       if ((self->pixels)[r * self->size.x + c] != 0x00000000) {
-        dest[idx] = '#';
+        destination[idx] = '#';
       }
     }
-    dest[idx++] = '\n';
+    destination[idx++] = '\n';
   }
 }
 
-inline uint32_t Surface_offset(const Surface *self, uint32_t col, uint32_t row) {
-  return (row * self->size.x) + col;
-}
-
-void Surface_mirror_mut(Surface *self, uint32_t size) {
+void Surface_mirror_mut(Surface *self, const uint32_t size) {
   for (uint32_t i = 0; i < size; ++i) {
     for (uint32_t j = 0; j < size / 2; ++j) {
       uint32_t tmp = self->pixels[Surface_offset(self, j, i)];
@@ -68,7 +64,7 @@ void Surface_mirror_mut(Surface *self, uint32_t size) {
   }
 }
 
-void Surface_transpose_mut(Surface *self, uint32_t size) {
+void Surface_transpose_mut(Surface *self, const uint32_t size) {
   for (uint32_t i = 0; i < size; ++i) {
     for (uint32_t j = i + 1; j < size; ++j) {
       uint32_t tmp = self->pixels[Surface_offset(self, j, i)];
@@ -78,7 +74,7 @@ void Surface_transpose_mut(Surface *self, uint32_t size) {
   }
 }
 
-void Surface_pallete_mut(Surface *self, uint32_t size, Pallete pallete) {
+void Surface_pallete_mut(Surface *self, const uint32_t size, const Pallete pallete) {
   for (uint32_t i = 0; i < size; ++i) {
     for (uint32_t j = 0; j < size; ++j) {
 
