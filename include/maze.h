@@ -13,12 +13,14 @@ struct tile_edge_data_t {
 
   uint32_t indent;
 
-  enum {
-    TILE_LINES_ONE = 0,
-    TILE_LINES_TWO,
+  enum : uint8_t {
+    TILE_LINES_NONE = 0,
+    TILE_LINES_INNER = 1,
+    TILE_LINES_OUTER = 2,
   } lines;
 
   enum {
+    TILE_STYLE_NONE,
     TILE_STYLE_LINE,
     TILE_STYLE_ARC,
   } edge_style;

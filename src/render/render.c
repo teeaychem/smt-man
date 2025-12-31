@@ -103,6 +103,9 @@ void Renderer_write_maze(Renderer *self, const Maze *maze) {
 
         switch (tile_data->value.edge_value.edge_style) {
 
+        case TILE_STYLE_NONE: {
+        } break;
+
         case TILE_STYLE_LINE: {
           auto plane = tile_data->value.edge_value.edge_line_plane;
           auto indent = tile_data->value.edge_value.indent;
@@ -119,15 +122,7 @@ void Renderer_write_maze(Renderer *self, const Maze *maze) {
 
         } break;
         case TILE_STYLE_ARC: {
-
-          auto indent = tile_data->value.edge_value.indent;
-
-          if ((row == 0) || (row == (maze->size.y - 1)) ||
-              (col == 0) || (col + 1 == maze->size.x)) {
-            Surface_tile_arc(&self->frame_buffer, tile_position, indent, tile_data->value.edge_value.edge_arc_quadrant, 0xffffffff);
-          } else {
-            Surface_tile_arc(&self->frame_buffer, tile_position, indent, tile_data->value.edge_value.edge_arc_quadrant, 0xffffffff);
-          }
+          Surface_tile_fixed_arc(&self->frame_buffer, tile_position, tile_data, 0xffffffff);
         } break;
         }
 

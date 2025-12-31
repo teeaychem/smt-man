@@ -6,6 +6,7 @@
 #include <png.h>
 
 #include "generic/pairs.h"
+#include "maze.h"
 #include "render/palette.h"
 
 struct surface_t {
@@ -36,6 +37,8 @@ void Surface_circle_draw(Surface *self, Pair_uint32 *origin, Pair_uint32 *offset
 
 // INVARIANT: The tile has an even number of pixels, and the origin is given by: (x += width/2, y += height/2).
 void Surface_tile_arc(Surface *self, const Pair_uint32 origin, const uint32_t radius, const Quadrant quadrant, const uint32_t colour);
+
+void Surface_tile_fixed_arc(Surface *self, const Pair_uint32 origin, const TileData *tile_data, const uint32_t colour);
 
 /// Static inline
 

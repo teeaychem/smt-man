@@ -194,3 +194,48 @@ void Surface_tile_arc(Surface *self, const Pair_uint32 origin, const uint32_t ra
     Surface_circle_draw(self, &origin_offset, &offset, quadrant, colour);
   }
 }
+
+void Surface_tile_fixed_arc_length(Surface *self, const Pair_uint32 origin, const TileData *tile_data, const uint32_t colour, uint32_t length) {
+  uint32_t corner_y_12 = origin.y + (TILE_PIXELS - (length + 1));
+  uint32_t corner_y_34 = origin.y + length;
+
+  uint32_t corner_x_23 = origin.x + (TILE_PIXELS - (length + 1));
+  uint32_t corner_x_14 = origin.x + length;
+
+  switch (tile_data->value.edge_value.edge_arc_quadrant) {
+  case QUADRANT_1: {
+    Surface_tile_line(self, origin.x, corner_y_12 - 1, PLANE_H, length, colour);
+    Surface_tile_line(self, corner_x_14 + 1, corner_y_12 + 1, PLANE_V, length, colour);
+    Surface_tile_line(self, corner_x_14, corner_y_12, PLANE_H, 1, colour);
+  } break;
+
+  case QUADRANT_2: {
+    Surface_tile_line(self, corner_x_23 + 1, corner_y_12 - 1, PLANE_H, length, colour);
+    Surface_tile_line(self, corner_x_23 - 1, corner_y_12 + 1, PLANE_V, length, colour);
+    Surface_tile_line(self, corner_x_23, corner_y_12, PLANE_H, 1, colour);
+  } break;
+
+  case QUADRANT_3: {
+    Surface_tile_line(self, corner_x_23 + 1, corner_y_34 + 1, PLANE_H, length, colour);
+    Surface_tile_line(self, corner_x_23 - 1, origin.y, PLANE_V, length, colour);
+    Surface_tile_line(self, corner_x_23, corner_y_34, PLANE_H, 1, colour);
+  } break;
+
+  case QUADRANT_4: {
+    Surface_tile_line(self, origin.x, corner_y_34 + 1, PLANE_H, length, colour);
+    Surface_tile_line(self, corner_x_14 + 1, origin.y, PLANE_V, length, colour);
+    Surface_tile_line(self, corner_x_14, corner_y_34, PLANE_H, 1, colour);
+  } break;
+  }
+}
+
+void Surface_tile_fixed_arc(Surface *self, const Pair_uint32 origin, const TileData *tile_data, const uint32_t colour) {
+
+  if (tile_data->value.edge_value.lines == TILE_LINES_INNER) {
+    Surface_tile_fixed_arc_length(self, origin, tile_data, colour, TILE_PIXELS / 4);
+  }
+
+  if (tile_data->value.edge_value.lines == TILE_LINES_OUTER) {
+    Surface_tile_fixed_arc_length(self, origin, tile_data, colour, (TILE_PIXELS / 4) + 1);
+  }
+}
