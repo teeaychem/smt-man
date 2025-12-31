@@ -29,6 +29,7 @@ int main() { // int main(int argc, char *argv[]) {
 
   { // Setup block
     setup_resources(&renderer, &maze);
+    Maze_complete_data(&maze);
 
     {
       situation.persona.direction_actual = DIRECTION_E;
@@ -54,7 +55,7 @@ int main() { // int main(int argc, char *argv[]) {
   g_log(nullptr, G_LOG_LEVEL_DEBUG, "SDL initialization ok");
 
   // Draw the maze only once...
-  Renderer_read_maze(&renderer, &maze);
+
   Renderer_write_maze(&renderer, &maze);
 
   { // core block

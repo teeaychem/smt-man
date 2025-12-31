@@ -161,7 +161,7 @@ void Maze_create(Maze *maze, const char *path) {
 
   if (pos_y != maze->size.y) {
     g_log(nullptr, G_LOG_LEVEL_CRITICAL,
-"Invalid height.\n\tHave: %d\n\tExpected: %d\n\tMaze: %s", pos_y, maze->size.y, path);
+          "Invalid height.\n\tHave: %d\n\tExpected: %d\n\tMaze: %s", pos_y, maze->size.y, path);
     exit(-1);
   }
 
@@ -435,5 +435,94 @@ bool Maze_tile_in_direction_is_path(const Maze *self, const Pair_uint8 location,
   case DIRECTION_W: {
     return (0 < location.x) && Maze_abstract_is_path(self, location.x - 1, location.y);
   } break;
+  }
+}
+
+void Maze_complete_line_data(const Maze *self, TileData *tile_data, const uint8_t col, const uint8_t row) {
+
+  assert(tile_data->type == TILE_EDGE);
+  assert(tile_data->value.edge_value.edge_style == TILE_STYLE_LINE);
+
+  // Top row
+  if (row == 0) {
+    tile_data->value.edge_value.indent = MAZE_INDENT - 1;
+    tile_data->value.edge_value.edge_line_plane = PLANE_H;
+  }
+  // Bottom row
+  else if (row == (self->size.y - 1)) {
+    tile_data->value.edge_value.indent = MAZE_INDENT;
+    tile_data->value.edge_value.edge_line_plane = PLANE_H;
+  }
+  // Intermediate rows
+  else {
+    // Above path
+    if (Maze_abstract_at(self, col, row + 1)->type == TILE_PATH) {
+      tile_data->value.edge_value.indent = MAZE_INDENT - 1;
+      tile_data->value.edge_value.edge_line_plane = PLANE_H;
+    }
+    // Below path
+    else if (Maze_abstract_at(self, col, row - 1)->type == TILE_PATH) {
+      tile_data->value.edge_value.indent = MAZE_INDENT;
+      tile_data->value.edge_value.edge_line_plane = PLANE_H;
+    }
+    // Left of path
+    else if (col + 1 < self->size.x && Maze_abstract_at(self, col + 1, row)->type == TILE_PATH) {
+      tile_data->value.edge_value.indent = MAZE_INDENT - 1;
+      tile_data->value.edge_value.edge_line_plane = PLANE_V;
+    }
+    // Right of path
+    else if (0 < col && Maze_abstract_at(self, col - 1, row)->type == TILE_PATH) {
+      tile_data->value.edge_value.indent = MAZE_INDENT;
+      tile_data->value.edge_value.edge_line_plane = PLANE_V;
+    }
+    // An issue
+    else {
+      // printf("??? %d %d\n", row, col);
+    }
+  }
+}
+
+void Maze_complete_data(const Maze *self) {
+  // For each tile...
+
+  for (uint8_t col = 0; col < self->size.x; ++col) {
+    for (uint8_t row = 0; row < self->size.y; ++row) {
+
+      TileData *tile_data = Maze_abstract_at(self, col, row);
+
+      switch (tile_data->type) {
+
+      case TILE_EDGE: {
+
+        switch (tile_data->value.edge_value.edge_style) {
+
+        case TILE_STYLE_LINE: {
+          Maze_complete_line_data(self, tile_data, col, row);
+        } break;
+
+        case TILE_STYLE_ARC: {
+          if ((row == 0) || (row == (self->size.y - 1)) ||
+              (col == 0) || (col + 1 == self->size.x)) {
+            tile_data->value.edge_value.indent = MAZE_INDENT;
+          } else {
+            tile_data->value.edge_value.indent = MAZE_INDENT - 1;
+          }
+        } break;
+        }
+
+      } break;
+
+      case TILE_EMPTY: {
+        // Do nothing
+      } break;
+
+      case TILE_INFO: {
+        // Do nothing
+      } break;
+      case TILE_PATH: {
+        // Do nothing
+      } break;
+      }
+    }
   }
 }

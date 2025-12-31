@@ -69,6 +69,10 @@ void Maze_destroy(Maze *self);
 
 bool Maze_tile_in_direction_is_path(const Maze *self, const Pair_uint8 location, const Direction direction);
 
+void Maze_complete_line_data(const Maze *self, TileData *tile_data, const uint8_t col, const uint8_t row);
+
+void Maze_complete_data(const Maze *self);
+
 /// Satic inline
 
 static inline TileData *Maze_abstract_at(const Maze *self, const uint8_t col, const uint8_t row) {
