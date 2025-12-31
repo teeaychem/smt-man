@@ -177,7 +177,7 @@ void Renderer_anima(Renderer *self, const Anima animas[ANIMA_COUNT], const uint8
     Renderer_draw_from_sprite_buffer(self, animas[id].sprite_location, animas[id].sprite_size);
   } break;
   case RENDER_ERASE: {
-    Renderer_sprite_fill(self, animas[id].sprite_location, animas[id].sprite_size, 0x00000000);
+    Renderer_sprite_fill(self, animas[id].sprite_location, animas[id].sprite_size, 0x00000000, false);
   } break;
   }
 }
@@ -211,7 +211,7 @@ void Renderer_persona(Renderer *self, const Persona *persona, const Situation *s
     Renderer_draw_from_sprite_buffer(self, persona->sprite_location, persona->sprite_size);
   } break;
   case RENDER_ERASE: {
-    Renderer_sprite_fill(self, persona->sprite_location, persona->sprite_size, 0x00000000);
+    Renderer_sprite_fill(self, persona->sprite_location, persona->sprite_size, 0x00000000, false);
   } break;
   }
 }
@@ -243,16 +243,11 @@ void Renderer_draw_from_sprite_buffer(Renderer *self, const Pair_uint32 destinat
   }
 }
 
-void Renderer_sprite_fill(Renderer *self, const Pair_uint32 location, const uint32_t size, const uint32_t colour) {
+void Renderer_sprite_fill(Renderer *self, const Pair_uint32 location, const uint32_t size, const uint32_t colour, const bool edge) {
   uint32_t centre_offset = Renderer_centre_offset(size);
 
-  Pair_uint32 location_offset = {.x = location.x - centre_offset,
-                                 .y = location.y - centre_offset};
+  Pair_uint32 location_offset = {.x = location.x - centre_offset + (edge ? 0 : 1),
+                                 .y = location.y - centre_offset + (edge ? 0 : 1)};
 
-  for (uint32_t row = 0; row < size; ++row) {
-    for (uint32_t col = 0; col < size; ++col) {
-      size_t pixel = Surface_offset(&self->frame_buffer, location_offset.x + row, location_offset.y + col);
-      self->frame_buffer.pixels[pixel] = colour;
-    }
-  }
+  Surface_fill_tile(&self->frame_buffer, location_offset, size - (edge ? 0 : 2), colour);
 }

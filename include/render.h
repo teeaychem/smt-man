@@ -47,7 +47,7 @@ void Renderer_anima(Renderer *self, const Anima animas[ANIMA_COUNT], const uint8
 
 void Renderer_persona(Renderer *self, const Persona *persona, const Situation *situation, const RenderAction action);
 
-void Renderer_sprite_fill(Renderer *self, const Pair_uint32 location, const uint32_t size, const uint32_t colour);
+void Renderer_sprite_fill(Renderer *self, const Pair_uint32 location, const uint32_t size, const uint32_t colour, const bool edge);
 
 void Renderer_draw_from_sprite_buffer(Renderer *self, const Pair_uint32 destination, const uint32_t size);
 
