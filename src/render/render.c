@@ -12,13 +12,13 @@ void Renderer_create(Renderer *renderer, const Pair_uint8 maze_dimensions, const
 
   Surface sheet = {};
   Surface_from_path(&sheet, sheet_path);
-  Pair_uint32 pixel_dimensions = {.x = maze_dimensions.x * TILE_PIXELS, .y = maze_dimensions.y * TILE_PIXELS};
+  Pair_uint32 pixel_dimensions = {.x = maze_dimensions.x * TILE_PIXELS, .y = (maze_dimensions.y + (REMDER_TOP + REMDER_BOT)) * TILE_PIXELS};
 
   *renderer = (Renderer){
       .frame_buffer = {.size = pixel_dimensions,
                        .pixels = malloc(pixel_dimensions.x * pixel_dimensions.y * sizeof(*renderer->frame_buffer.pixels))},
-      .pre_buffer = {.size = {TILE_PIXELS * 4, TILE_PIXELS * 4},
-                     .pixels = malloc((TILE_PIXELS * 4) * (TILE_PIXELS * 4) * sizeof(*renderer->pre_buffer.pixels))},
+      .sprite_buffer = {.size = {SPRITE_BUFFER_SIZE, SPRITE_BUFFER_SIZE},
+                        .pixels = malloc(SPRITE_BUFFER_SIZE * SPRITE_BUFFER_SIZE * sizeof(*renderer->sprite_buffer.pixels))},
       .sheet = sheet,
   };
   if (renderer->frame_buffer.pixels == nullptr) {
@@ -301,7 +301,7 @@ void Renderer_anima(Renderer *self, const Anima animas[ANIMA_COUNT], const uint8
   switch (action) {
   case RENDER_DRAW: {
     Renderer_sprite_buffer_map_to(self, Sheet_anima_offset(&animas[id]), animas[id].sprite_size);
-    Surface_pallete_mut(&self->pre_buffer, animas[id].sprite_size, animas[id].pallete);
+    Surface_pallete_mut(&self->sprite_buffer, animas[id].sprite_size, animas[id].pallete);
 
     Renderer_draw_from_sprite_buffer(self, animas[id].sprite_location, animas[id].sprite_size);
   } break;
@@ -322,21 +322,21 @@ void Renderer_persona(Renderer *self, const Persona *persona, const Situation *s
       // Do nothing
     } break;
     case DIRECTION_N: {
-      Surface_mirror_mut(&self->pre_buffer, persona->sprite_size);
-      Surface_transpose_mut(&self->pre_buffer, persona->sprite_size);
+      Surface_mirror_mut(&self->sprite_buffer, persona->sprite_size);
+      Surface_transpose_mut(&self->sprite_buffer, persona->sprite_size);
     } break;
     case DIRECTION_E: {
       // No transformation
     } break;
     case DIRECTION_S: {
-      Surface_transpose_mut(&self->pre_buffer, persona->sprite_size);
+      Surface_transpose_mut(&self->sprite_buffer, persona->sprite_size);
     } break;
     case DIRECTION_W: {
-      Surface_mirror_mut(&self->pre_buffer, persona->sprite_size);
+      Surface_mirror_mut(&self->sprite_buffer, persona->sprite_size);
     } break;
     }
 
-    Surface_pallete_mut(&self->pre_buffer, persona->sprite_size, persona->pallete);
+    Surface_pallete_mut(&self->sprite_buffer, persona->sprite_size, persona->pallete);
     Renderer_draw_from_sprite_buffer(self, persona->sprite_location, persona->sprite_size);
   } break;
   case RENDER_ERASE: {
@@ -348,10 +348,10 @@ void Renderer_persona(Renderer *self, const Persona *persona, const Situation *s
 void Renderer_sprite_buffer_map_to(Renderer *self, const Pair_uint32 sprite_offset, const uint8_t size) {
 
   for (uint32_t idx = 0; idx < size; ++idx) {
-    uint32_t pre_offset = Surface_offset(&self->pre_buffer, 0, idx);
+    uint32_t pre_offset = Surface_offset(&self->sprite_buffer, 0, idx);
     uint32_t sheet_offset = Surface_offset(&self->sheet, sprite_offset.x, sprite_offset.y + idx);
 
-    memcpy(&self->pre_buffer.pixels[pre_offset], &self->sheet.pixels[sheet_offset], size * sizeof(*self->pre_buffer.pixels));
+    memcpy(&self->sprite_buffer.pixels[pre_offset], &self->sheet.pixels[sheet_offset], size * sizeof(*self->sprite_buffer.pixels));
   }
 }
 
@@ -365,8 +365,8 @@ void Renderer_draw_from_sprite_buffer(Renderer *self, const Pair_uint32 destinat
       pixel_fb = Surface_offset(&self->frame_buffer, destination.x + col - centre_offset, destination.y + row - centre_offset);
 
       if (self->frame_buffer.pixels[pixel_fb] == 0x00000000) {
-        pixel_s = Surface_offset(&self->pre_buffer, col, row);
-        self->frame_buffer.pixels[pixel_fb] = self->pre_buffer.pixels[pixel_s];
+        pixel_s = Surface_offset(&self->sprite_buffer, col, row);
+        self->frame_buffer.pixels[pixel_fb] = self->sprite_buffer.pixels[pixel_s];
       }
     }
   }

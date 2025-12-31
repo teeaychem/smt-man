@@ -27,7 +27,7 @@ void z3_display_path(struct z3_lang *lang, Z3_context ctx, Z3_model model, Maze 
         putchar('x');
       }
     }
-    putchar('\n');
+    printf("|\n");
   }
 }
 

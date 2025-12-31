@@ -20,7 +20,7 @@ typedef struct renderer_t Renderer;
 struct renderer_t {
   Surface sheet;
   Surface frame_buffer;
-  Surface pre_buffer;
+  Surface sprite_buffer;
 
   SDL_Window *window;
   SDL_Renderer *renderer;

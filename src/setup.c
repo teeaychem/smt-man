@@ -92,7 +92,7 @@ void setup_resources(Renderer *renderer, Maze *maze) { // Resource setup
 
 void setup_animas(Anima animas[ANIMA_COUNT]) { // Resource setup
 
-  setup_anima(animas, 0, Pair_uint8_create(1, 4));
+  setup_anima(animas, 0, Pair_uint8_create(1, 1));
   animas[0].pallete = (Pallete){
       .a = 0x00000000,
       .b = 0x00000000,

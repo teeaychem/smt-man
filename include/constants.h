@@ -20,3 +20,9 @@ constexpr int UI_SCALE = 4;
 extern pthread_t ANIMA_THREADS[ANIMA_COUNT];
 
 constexpr int32_t SPRITE_VELOCITY = 1;
+
+constexpr uint32_t SPRITE_BUFFER_SIZE = TILE_PIXELS * 4;
+
+constexpr uint32_t REMDER_TOP = 3;
+
+constexpr uint32_t REMDER_BOT = 2;
