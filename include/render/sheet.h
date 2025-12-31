@@ -26,4 +26,4 @@ extern SheetOffsets sheet_data;
 
 Pair_uint32 Sheet_anima_offset(const Anima *anima);
 
-Pair_uint32 Sheet_persona_offset(const Persona *persona, Situation *situation);
+Pair_uint32 Sheet_persona_offset(const Persona *persona, const Situation *situation);

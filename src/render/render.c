@@ -51,7 +51,7 @@ void Renderer_create(Renderer *renderer, const Pair_uint8 maze_dimensions, const
   SDL_SetRenderTarget(renderer->renderer, renderer->texture);
 }
 
-void Renderer_destroy(Renderer *self) {
+void Renderer_drop(Renderer *self) {
 
   SDL_DestroyWindow(self->window);
   self->window = nullptr;
@@ -171,7 +171,7 @@ void Renderer_read_maze(Renderer *self, const Maze *maze) {
   }
 }
 
-void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 location, uint32_t size, Pair_uint32 offset, Pallete pallete) {
+void Renderer_draw_from_sheet(Renderer *self, const Pair_uint32 destination, const uint32_t size, const Pair_uint32 source, const Pallete pallete) {
 
   uint32_t pixel_fb;
   uint32_t pixel_s;
@@ -180,17 +180,17 @@ void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 location, uint32_t siz
   for (uint32_t row = 0; row < size; ++row) {
     for (uint32_t col = 0; col < size; ++col) {
 
-      pixel_fb = Surface_offset(&self->frame_buffer, location.x + col - centre_offset, location.y + row - centre_offset);
+      pixel_fb = Surface_offset(&self->frame_buffer, destination.x + col - centre_offset, destination.y + row - centre_offset);
 
       if (self->frame_buffer.pixels[pixel_fb] == 0x00000000) {
-        pixel_s = Surface_offset(&self->sheet, offset.x + col, offset.y + row);
+        pixel_s = Surface_offset(&self->sheet, source.x + col, source.y + row);
         self->frame_buffer.pixels[pixel_fb] = Pallete_offset(self->sheet.pixels[pixel_s], pallete);
       }
     }
   }
 }
 
-void Renderer_tile_fill(Renderer *self, const Pair_uint32 origin, uint32_t colour) {
+void Renderer_tile_fill(Renderer *self, const Pair_uint32 origin, const uint32_t colour) {
 
   for (size_t row = 0; row < TILE_PIXELS; ++row) {
     for (size_t col = 0; col < TILE_PIXELS; ++col) {
@@ -202,18 +202,17 @@ void Renderer_tile_fill(Renderer *self, const Pair_uint32 origin, uint32_t colou
   }
 }
 
-void Renderer_tile_line(Renderer *self, uint32_t x, uint32_t y, Plane plane, uint32_t length, uint32_t colour) {
+void Renderer_tile_line(Renderer *self, const uint32_t x, const uint32_t y, const Plane plane, const uint32_t length, const uint32_t colour) {
 
   switch (plane) {
-
   case PLANE_HORIZONTAL: {
     for (uint32_t idx = 0; idx < length; ++idx) {
-      self->frame_buffer.pixels[Renderer_buffer_index(self, x + idx, y)] = colour;
+      self->frame_buffer.pixels[Surface_offset(&self->frame_buffer, x + idx, y)] = colour;
     }
   } break;
   case PLANE_VERTICAL: {
     for (uint32_t idx = 0; idx < length; ++idx) {
-      self->frame_buffer.pixels[Renderer_buffer_index(self, x, y + idx)] = colour;
+      self->frame_buffer.pixels[Surface_offset(&self->frame_buffer, x, y + idx)] = colour;
     }
   } break;
   }
@@ -221,58 +220,58 @@ void Renderer_tile_line(Renderer *self, uint32_t x, uint32_t y, Plane plane, uin
 
 void Renderer_circle_draw(Renderer *self, Pair_uint32 *origin, Pair_uint32 *offset, Quadrant quadrant, uint32_t colour) {
 
-  uint32_t pixel;
-
   switch (quadrant) {
 
   case QUADRANT_FIRST: {
-    pixel = Renderer_buffer_index(self, origin->x + offset->x, origin->y - offset->y);
-    self->frame_buffer.pixels[pixel] = colour;
+    uint32_t pixel_a = Surface_offset(&self->frame_buffer, origin->x + offset->x, origin->y - offset->y);
+    self->frame_buffer.pixels[pixel_a] = colour;
 
-    pixel = Renderer_buffer_index(self, origin->x + offset->y, origin->y - offset->x);
-    self->frame_buffer.pixels[pixel] = colour;
+    uint32_t pixel_b = Surface_offset(&self->frame_buffer, origin->x + offset->y, origin->y - offset->x);
+    self->frame_buffer.pixels[pixel_b] = colour;
   } break;
   case QUADRANT_SECOND: {
-    pixel = Renderer_buffer_index(self, origin->x - offset->y, origin->y - offset->x);
-    self->frame_buffer.pixels[pixel] = colour;
+    uint32_t pixel_a = Surface_offset(&self->frame_buffer, origin->x - offset->y, origin->y - offset->x);
+    self->frame_buffer.pixels[pixel_a] = colour;
 
-    pixel = Renderer_buffer_index(self, origin->x - offset->x, origin->y - offset->y);
-    self->frame_buffer.pixels[pixel] = colour;
+    uint32_t pixel_b = Surface_offset(&self->frame_buffer, origin->x - offset->x, origin->y - offset->y);
+    self->frame_buffer.pixels[pixel_b] = colour;
   } break;
   case QUADRANT_THIRD: {
-    pixel = Renderer_buffer_index(self, origin->x - offset->x, origin->y + offset->y);
-    self->frame_buffer.pixels[pixel] = colour;
+    uint32_t pixel_a = Surface_offset(&self->frame_buffer, origin->x - offset->x, origin->y + offset->y);
+    self->frame_buffer.pixels[pixel_a] = colour;
 
-    pixel = Renderer_buffer_index(self, origin->x - offset->y, origin->y + offset->x);
-    self->frame_buffer.pixels[pixel] = colour;
+    uint32_t pixel_b = Surface_offset(&self->frame_buffer, origin->x - offset->y, origin->y + offset->x);
+    self->frame_buffer.pixels[pixel_b] = colour;
   } break;
   case QUADRANT_FOURTH: {
-    pixel = Renderer_buffer_index(self, origin->x + offset->x, origin->y + offset->y);
-    self->frame_buffer.pixels[pixel] = colour;
+    uint32_t pixel_a = Surface_offset(&self->frame_buffer, origin->x + offset->x, origin->y + offset->y);
+    self->frame_buffer.pixels[pixel_a] = colour;
 
-    pixel = Renderer_buffer_index(self, origin->x + offset->y, origin->y + offset->x);
-    self->frame_buffer.pixels[pixel] = colour;
+    uint32_t pixel_b = Surface_offset(&self->frame_buffer, origin->x + offset->y, origin->y + offset->x);
+    self->frame_buffer.pixels[pixel_b] = colour;
 
   } break;
   }
 }
 
-void Renderer_tile_arc(Renderer *self, Pair_uint32 origin, uint32_t radius, Quadrant quadrant, uint32_t colour) {
+void Renderer_tile_arc(Renderer *self, const Pair_uint32 origin, const uint32_t radius, const Quadrant quadrant, const uint32_t colour) {
 
   assert(radius <= INT32_MAX);
 
   Pair_uint32 offset = {.x = 0, .y = radius};
 
+  Pair_uint32 origin_offset = origin;
+
   switch (quadrant) {
   case QUADRANT_FIRST: {
-    origin.y += (TILE_PIXELS - 1);
+    origin_offset.y += (TILE_PIXELS - 1);
   } break;
   case QUADRANT_SECOND: {
-    origin.x += (TILE_PIXELS - 1);
-    origin.y += (TILE_PIXELS - 1);
+    origin_offset.x += (TILE_PIXELS - 1);
+    origin_offset.y += (TILE_PIXELS - 1);
   } break;
   case QUADRANT_THIRD: {
-    origin.x += (TILE_PIXELS - 1);
+    origin_offset.x += (TILE_PIXELS - 1);
   } break;
   case QUADRANT_FOURTH: {
   } break;
@@ -282,7 +281,7 @@ void Renderer_tile_arc(Renderer *self, Pair_uint32 origin, uint32_t radius, Quad
   int32_t turn_left = 3;
   int32_t turn_right = -((int32_t)radius << 1) + 5;
 
-  Renderer_circle_draw(self, &origin, &offset, quadrant, colour);
+  Renderer_circle_draw(self, &origin_offset, &offset, quadrant, colour);
   while (offset.y > offset.x) {
     if (direction_relative <= 0) {
       direction_relative += turn_left;
@@ -295,18 +294,18 @@ void Renderer_tile_arc(Renderer *self, Pair_uint32 origin, uint32_t radius, Quad
     turn_right += 2;
     offset.x += 1;
 
-    Renderer_circle_draw(self, &origin, &offset, quadrant, colour);
+    Renderer_circle_draw(self, &origin_offset, &offset, quadrant, colour);
   }
 }
 
-void Renderer_anima(Renderer *self, Anima animas[ANIMA_COUNT], uint8_t id, RenderAction action) {
+void Renderer_anima(Renderer *self, const Anima animas[ANIMA_COUNT], const uint8_t id, const RenderAction action) {
 
   switch (action) {
   case RENDER_DRAW: {
-    Renderer_pre_buffer_map_sprite(self, Sheet_anima_offset(&animas[id]), animas[id].sprite_size);
+    Renderer_sprite_buffer_map_to(self, Sheet_anima_offset(&animas[id]), animas[id].sprite_size);
     Surface_pallete_mut(&self->pre_buffer, animas[id].sprite_size, animas[id].pallete);
 
-    Renderer_draw_from_pre_buffer(self, animas[id].sprite_location, animas[id].sprite_size);
+    Renderer_draw_from_sprite_buffer(self, animas[id].sprite_location, animas[id].sprite_size);
   } break;
   case RENDER_ERASE: {
     Renderer_sprite_fill(self, animas[id].sprite_location, animas[id].sprite_size, 0x00000000);
@@ -314,11 +313,11 @@ void Renderer_anima(Renderer *self, Anima animas[ANIMA_COUNT], uint8_t id, Rende
   }
 }
 
-void Renderer_persona(Renderer *self, Persona *persona, Situation *situation, RenderAction action) {
+void Renderer_persona(Renderer *self, const Persona *persona, const Situation *situation, const RenderAction action) {
 
   switch (action) {
   case RENDER_DRAW: {
-    Renderer_pre_buffer_map_sprite(self, Sheet_persona_offset(persona, situation), persona->sprite_size);
+    Renderer_sprite_buffer_map_to(self, Sheet_persona_offset(persona, situation), persona->sprite_size);
 
     switch (situation->persona.direction_actual) {
     case DIRECTION_NONE: {
@@ -340,7 +339,7 @@ void Renderer_persona(Renderer *self, Persona *persona, Situation *situation, Re
     }
 
     Surface_pallete_mut(&self->pre_buffer, persona->sprite_size, persona->pallete);
-    Renderer_draw_from_pre_buffer(self, persona->sprite_location, persona->sprite_size);
+    Renderer_draw_from_sprite_buffer(self, persona->sprite_location, persona->sprite_size);
   } break;
   case RENDER_ERASE: {
     Renderer_sprite_fill(self, persona->sprite_location, persona->sprite_size, 0x00000000);
@@ -348,7 +347,7 @@ void Renderer_persona(Renderer *self, Persona *persona, Situation *situation, Re
   }
 }
 
-void Renderer_pre_buffer_map_sprite(Renderer *self, Pair_uint32 sprite_offset, uint8_t size) {
+void Renderer_sprite_buffer_map_to(Renderer *self, const Pair_uint32 sprite_offset, const uint8_t size) {
 
   for (uint32_t idx = 0; idx < size; ++idx) {
     uint32_t pre_offset = Surface_offset(&self->pre_buffer, 0, idx);
@@ -358,14 +357,14 @@ void Renderer_pre_buffer_map_sprite(Renderer *self, Pair_uint32 sprite_offset, u
   }
 }
 
-void Renderer_draw_from_pre_buffer(Renderer *self, Pair_uint32 location, uint32_t size) {
+void Renderer_draw_from_sprite_buffer(Renderer *self, const Pair_uint32 destination, const uint32_t size) {
   uint32_t pixel_fb;
   uint32_t pixel_s;
   uint32_t centre_offset = Renderer_centre_offset(size);
 
   for (uint32_t row = 0; row < size; ++row) {
     for (uint32_t col = 0; col < size; ++col) {
-      pixel_fb = Surface_offset(&self->frame_buffer, location.x + col - centre_offset, location.y + row - centre_offset);
+      pixel_fb = Surface_offset(&self->frame_buffer, destination.x + col - centre_offset, destination.y + row - centre_offset);
 
       if (self->frame_buffer.pixels[pixel_fb] == 0x00000000) {
         pixel_s = Surface_offset(&self->pre_buffer, col, row);
@@ -375,14 +374,15 @@ void Renderer_draw_from_pre_buffer(Renderer *self, Pair_uint32 location, uint32_
   }
 }
 
-void Renderer_sprite_fill(Renderer *self, Pair_uint32 location, uint32_t size, uint32_t colour) {
+void Renderer_sprite_fill(Renderer *self, const Pair_uint32 location, const uint32_t size, const uint32_t colour) {
   uint32_t centre_offset = Renderer_centre_offset(size);
-  location.x -= centre_offset;
-  location.y -= centre_offset;
+
+  Pair_uint32 location_offset = {.x = location.x - centre_offset,
+                                 .y = location.y - centre_offset};
 
   for (uint32_t row = 0; row < size; ++row) {
     for (uint32_t col = 0; col < size; ++col) {
-      size_t pixel = Surface_offset(&self->frame_buffer, location.x + row, location.y + col);
+      size_t pixel = Surface_offset(&self->frame_buffer, location_offset.x + row, location_offset.y + col);
       self->frame_buffer.pixels[pixel] = colour;
     }
   }

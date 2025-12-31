@@ -43,7 +43,7 @@ Pair_uint32 Sheet_anima_offset(const Anima *anima) {
   }
 }
 
-Pair_uint32 Sheet_persona_offset(const Persona *persona, Situation *situation) {
+Pair_uint32 Sheet_persona_offset(const Persona *persona, const Situation *situation) {
   constexpr size_t eating_frames = ARRAY_LEN(sheet_data.persona.eating);
   return sheet_data.persona.eating[persona->tick_action % eating_frames];
 }

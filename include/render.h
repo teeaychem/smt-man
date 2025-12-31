@@ -35,26 +35,34 @@ typedef enum renderer_action_e RenderAction;
 
 void Renderer_create(Renderer *renderer, const Pair_uint8 maze_size, const char *sheet_path);
 
-void Renderer_destroy(Renderer *self);
-
-static inline uint32_t Renderer_buffer_index(const Renderer *self, uint32_t x, uint32_t y) {
-  return (y * self->frame_buffer.size.x) + x;
-}
-
-void Renderer_render_frame_buffer(Renderer *self);
-
-void Renderer_tile_fill(Renderer *self, const Pair_uint32 pos, uint32_t colour);
+void Renderer_drop(Renderer *self);
 
 void Renderer_read_maze(Renderer *self, const Maze *maze);
 
-void Renderer_draw_from_sheet(Renderer *self, Pair_uint32 destination, uint32_t size, Pair_uint32 source, Pallete pallete);
+void Renderer_render_frame_buffer(Renderer *self);
 
-void Renderer_tile_line(Renderer *self, uint32_t x, uint32_t y, Plane plane, uint32_t length, uint32_t colour);
+void Renderer_tile_fill(Renderer *self, const Pair_uint32 pos, const uint32_t colour);
+
+void Renderer_draw_from_sheet(Renderer *self, const Pair_uint32 destination, const uint32_t size, const Pair_uint32 source, const Pallete pallete);
+
+void Renderer_tile_line(Renderer *self, const uint32_t x, const uint32_t y, const Plane plane, const uint32_t length, const uint32_t colour);
 
 // INVARIANT: The tile has an even number of pixels, and the origin is given by: (x += width/2, y += height/2).
-void Renderer_tile_arc(Renderer *self, Pair_uint32 origin, uint32_t radius, Quadrant quadrant, uint32_t colour);
+void Renderer_tile_arc(Renderer *self, const Pair_uint32 origin, const uint32_t radius, const Quadrant quadrant, const uint32_t colour);
 
-// Calculates the pixels to offset a render by in order for the render to be centred on a tile.
+void Renderer_anima(Renderer *self, const Anima animas[ANIMA_COUNT], const uint8_t id, const RenderAction action);
+
+void Renderer_persona(Renderer *self, const Persona *persona, const Situation *situation, const RenderAction action);
+
+void Renderer_sprite_fill(Renderer *self, const Pair_uint32 location, const uint32_t size, const uint32_t colour);
+
+void Renderer_draw_from_sprite_buffer(Renderer *self, const Pair_uint32 destination, const uint32_t size);
+
+void Renderer_sprite_buffer_map_to(Renderer *self, const Pair_uint32 sprite_offset, const uint8_t size);
+
+/// Static inline
+
+/// Calculates the pixels to offset a render by in order for the render to be centred on a tile.
 static inline uint32_t Renderer_centre_offset(uint32_t size) {
   // Cache a handful of common cases
   if (size == TILE_PIXELS * 2) {
@@ -70,13 +78,3 @@ static inline uint32_t Renderer_centre_offset(uint32_t size) {
 static inline bool Renderer_u32_location_is_tile(Pair_uint32 location) {
   return location.x % TILE_PIXELS == 0 && location.y % TILE_PIXELS == 0;
 }
-
-void Renderer_anima(Renderer *self, Anima animas[ANIMA_COUNT], uint8_t id, RenderAction action);
-
-void Renderer_persona(Renderer *self, Persona *persona, Situation *situation, RenderAction action);
-
-void Renderer_sprite_fill(Renderer *self, Pair_uint32 location, uint32_t size, uint32_t colour);
-
-void Renderer_draw_from_pre_buffer(Renderer *self, Pair_uint32 location, uint32_t size);
-
-void Renderer_pre_buffer_map_sprite(Renderer *self, Pair_uint32 sprite_offset, uint8_t size);

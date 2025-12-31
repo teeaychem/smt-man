@@ -122,7 +122,7 @@ int main() { // int main(int argc, char *argv[]) {
   }
 
 exit_block: {
-  Renderer_destroy(&renderer);
+  Renderer_drop(&renderer);
   SDL_Quit();
 
   for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
