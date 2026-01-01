@@ -90,6 +90,7 @@ static inline Pair_uint8 Sprite_location_to_abstract(const Pair_uint32 *sprite_l
     maze_location.y = (uint8_t)((sprite_location->y + (TILE_PIXELS - y_mod)) / TILE_PIXELS);
   }
 
+  maze_location.y -= RENDER_TOP;
 
   return maze_location;
 }

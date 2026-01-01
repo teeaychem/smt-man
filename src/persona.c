@@ -10,7 +10,7 @@ void Persona_default(Persona *persona, Situation *situation, uint8_t sprite_size
   *persona = (Persona){
       .direction_intent = DIRECTION_E,
       .sprite_location = {.x = ((uint32_t)situation_location.x) * TILE_PIXELS,
-                          .y = ((uint32_t)situation_location.y) * TILE_PIXELS},
+                          .y = ((uint32_t)situation_location.y + RENDER_TOP) * TILE_PIXELS},
       .sprite_size = sprite_size,
       .pallete = {
           .a = 0x00000000,

@@ -92,7 +92,7 @@ void Renderer_draw_maze(Renderer *self, const Maze *maze) {
     uint32_t col_scaled = (col * TILE_PIXELS);
 
     for (uint8_t row = 0; row < maze->size.y; ++row) {
-      uint32_t row_scaled = (row * TILE_PIXELS);
+      uint32_t row_scaled = ((row + RENDER_TOP) * TILE_PIXELS);
       Pair_uint32 tile_position = {.x = col_scaled, .y = row_scaled};
 
       TileData *tile_data = Maze_tile_data_at(maze, col, row);

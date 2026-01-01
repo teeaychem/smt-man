@@ -20,8 +20,8 @@ void Anima_default(Anima *anima, const uint8_t id, const uint8_t sprite_size, co
       .id = id,
 
       .sprite_size = sprite_size,
-      .sprite_location = {.x = ((uint32_t)location.x) * TILE_PIXELS,
-                          .y = ((uint32_t)location.y) * TILE_PIXELS},
+      .sprite_location = {.x = ((uint32_t)(location.x)) * TILE_PIXELS,
+                          .y = ((uint32_t)location.y + RENDER_TOP) * TILE_PIXELS},
 
       .tick_action = 0,
 
