@@ -108,14 +108,36 @@ void Renderer_draw_maze(Renderer *self, const Maze *maze) {
 
         case TILE_STYLE_LINE: {
           Plane plane = tile_data->value.edge_value.edge_line_plane;
-          uint32_t indent = tile_data->value.edge_value.indent;
+
+          uint32_t adjustment;
+          switch (tile_data->value.edge_value.lines) {
+          case TILE_LINES_INNER: {
+            adjustment = MAZE_INDENT - 1;
+          } break;
+          case TILE_LINES_OUTER: {
+            adjustment = MAZE_INDENT;
+          } break;
+          }
 
           switch (plane) {
           case PLANE_H: {
-            Surface_tile_line(&self->frame_buffer, col_scaled, row_scaled + indent, plane, TILE_PIXELS, 0xffffffff);
+            Surface_tile_line(&self->frame_buffer, col_scaled, row_scaled + adjustment, plane, TILE_PIXELS, 0xffffffff);
           } break;
           case PLANE_V: {
-            Surface_tile_line(&self->frame_buffer, col_scaled + indent, row_scaled, plane, TILE_PIXELS, 0xffffffff);
+            Surface_tile_line(&self->frame_buffer, col_scaled + adjustment, row_scaled, plane, TILE_PIXELS, 0xffffffff);
+          } break;
+          }
+
+          switch (plane) {
+          case PLANE_H: {
+
+            Surface_tile_line(&self->frame_buffer, col_scaled, row_scaled + adjustment, plane, TILE_PIXELS, 0xffffffff);
+
+          } break;
+          case PLANE_V: {
+
+            Surface_tile_line(&self->frame_buffer, col_scaled + adjustment, row_scaled, plane, TILE_PIXELS, 0xffffffff);
+
           } break;
           }
 

@@ -10,10 +10,7 @@
 
 struct tile_edge_data_t {
 
-  uint32_t indent;
-
   enum : uint8_t {
-    TILE_LINES_NONE = 0,
     TILE_LINES_INNER = 1,
     TILE_LINES_OUTER = 2,
   } lines;

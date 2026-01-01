@@ -487,34 +487,34 @@ void Maze_complete_line_data(const Maze *self, TileData *tile_data, const uint8_
 
   // Top row
   if (row == 0) {
-    tile_data->value.edge_value.indent = MAZE_INDENT - 1;
+    tile_data->value.edge_value.lines = TILE_LINES_INNER;
     tile_data->value.edge_value.edge_line_plane = PLANE_H;
   }
   // Bottom row
   else if (row == (self->size.y - 1)) {
-    tile_data->value.edge_value.indent = MAZE_INDENT;
+    tile_data->value.edge_value.lines = TILE_LINES_OUTER;
     tile_data->value.edge_value.edge_line_plane = PLANE_H;
   }
   // Intermediate rows
   else {
     // Above path
     if (Maze_tile_data_at(self, col, row + 1)->type == TILE_PATH) {
-      tile_data->value.edge_value.indent = MAZE_INDENT - 1;
+      tile_data->value.edge_value.lines = TILE_LINES_INNER;
       tile_data->value.edge_value.edge_line_plane = PLANE_H;
     }
     // Below path
     else if (Maze_tile_data_at(self, col, row - 1)->type == TILE_PATH) {
-      tile_data->value.edge_value.indent = MAZE_INDENT;
+      tile_data->value.edge_value.lines = TILE_LINES_OUTER;
       tile_data->value.edge_value.edge_line_plane = PLANE_H;
     }
     // Left of path
     else if (col + 1 < self->size.x && Maze_tile_data_at(self, col + 1, row)->type == TILE_PATH) {
-      tile_data->value.edge_value.indent = MAZE_INDENT - 1;
+      tile_data->value.edge_value.lines = TILE_LINES_INNER;
       tile_data->value.edge_value.edge_line_plane = PLANE_V;
     }
     // Right of path
     else if (0 < col && Maze_tile_data_at(self, col - 1, row)->type == TILE_PATH) {
-      tile_data->value.edge_value.indent = MAZE_INDENT;
+      tile_data->value.edge_value.lines = TILE_LINES_OUTER;
       tile_data->value.edge_value.edge_line_plane = PLANE_V;
     }
     // An issue
@@ -545,12 +545,7 @@ void Maze_complete_data(const Maze *self) {
         } break;
 
         case TILE_STYLE_ARC: {
-          if ((row == 0) || (row == (self->size.y - 1)) ||
-              (col == 0) || (col + 1 == self->size.x)) {
-            tile_data->value.edge_value.indent = MAZE_INDENT;
-          } else {
-            tile_data->value.edge_value.indent = MAZE_INDENT - 1;
-          }
+          // No action
         } break;
         }
 
