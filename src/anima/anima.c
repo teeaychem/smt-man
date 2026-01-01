@@ -66,7 +66,7 @@ void Anima_on_frame(Anima *self, const Maze *maze) {
   // Ensure coherence
   Anima_instinct(self);
 
-  if (Renderer_u32_location_is_tile(self->sprite_location)) {
+  if (Sprite_is_centered_on_tile(self->sprite_location)) {
     Anima_on_tile(self, maze);
   }
 
@@ -91,7 +91,7 @@ void Anima_on_frame(Anima *self, const Maze *maze) {
 
 void Anima_on_tile(Anima *self, const Maze *maze) {
 
-  Pair_uint8 location = Maze_location_from_sprite(&self->sprite_location);
+  Pair_uint8 location = Sprite_location_to_abstract(&self->sprite_location);
   /// Update location
   atomic_store(&self->mind.view.anima[self->id].location, location);
 

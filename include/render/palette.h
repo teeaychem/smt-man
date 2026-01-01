@@ -33,3 +33,22 @@ static inline uint32_t Pallete_offset(const uint32_t pixel, const Pallete pallet
   }
   return colour;
 }
+
+static inline void Pallete_apply(uint32_t *pixel, const Pallete pallete) {
+  switch (*pixel) {
+  case 0x000000ff: {
+    *pixel = pallete.a;
+  } break;
+  case 0xdedeffff: {
+    *pixel = pallete.b;
+  } break;
+  case 0x2121ffff: {
+    *pixel = pallete.c;
+  } break;
+  case 0xff0000ff: {
+    *pixel = pallete.d;
+  } break;
+  default:
+    // No action
+  }
+}

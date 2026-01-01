@@ -56,7 +56,7 @@ int main() { // int main(int argc, char *argv[]) {
 
   // Draw the maze only once...
 
-  Renderer_write_maze(&renderer, &maze);
+  Renderer_draw_maze(&renderer, &maze);
 
   { // core block
     bool core_loop = true;
@@ -133,7 +133,7 @@ exit_block: {
     pthread_join(ANIMA_THREADS[idx], nullptr);
   }
 
-  Maze_destroy(&maze);
+  Maze_drop(&maze);
 
   g_message("good-bye");
 

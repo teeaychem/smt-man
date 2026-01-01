@@ -28,7 +28,7 @@ void Surface_from_path(Surface *self, const char *path) {
   }
 }
 
-void Surface_destroy(Surface *self) {
+void Surface_drop(Surface *self) {
   free(self->pixels);
 
   self->pixels = nullptr;
@@ -56,7 +56,7 @@ void Surface_char_projection(const Surface *self, char *destination, size_t *len
   }
 }
 
-void Surface_mirror_mut(Surface *self, const uint32_t size) {
+void Surface_mirror(Surface *self, const uint32_t size) {
   for (uint32_t i = 0; i < size; ++i) {
     for (uint32_t j = 0; j < size / 2; ++j) {
       uint32_t tmp = self->pixels[Surface_offset(self, j, i)];
@@ -66,7 +66,7 @@ void Surface_mirror_mut(Surface *self, const uint32_t size) {
   }
 }
 
-void Surface_transpose_mut(Surface *self, const uint32_t size) {
+void Surface_transpose(Surface *self, const uint32_t size) {
   for (uint32_t i = 0; i < size; ++i) {
     for (uint32_t j = i + 1; j < size; ++j) {
       uint32_t tmp = self->pixels[Surface_offset(self, j, i)];
@@ -76,17 +76,11 @@ void Surface_transpose_mut(Surface *self, const uint32_t size) {
   }
 }
 
-void Surface_pallete_mut(Surface *self, const uint32_t size, const Pallete pallete) {
+void Surface_apply_pallete(Surface *self, const uint32_t size, const Pallete pallete) {
   for (uint32_t i = 0; i < size; ++i) {
     for (uint32_t j = 0; j < size; ++j) {
-
       uint32_t pix = Surface_offset(self, j, i);
-
-      /* if (self->pixels[pix] == 0x00000000) { */
-      /* self->pixels[pix] = */
-
-      self->pixels[pix] = Pallete_offset(self->pixels[pix], pallete);
-      /* } */
+      Pallete_apply(&self->pixels[pix], pallete);
     }
   }
 }
@@ -115,7 +109,7 @@ void Surface_tile_line(Surface *self, const uint32_t x, const uint32_t y, const 
   }
 }
 
-void Surface_circle_draw(Surface *self, Pair_uint32 *origin, Pair_uint32 *offset, Quadrant quadrant, uint32_t colour) {
+void Surface_circle_draw(Surface *self, const Pair_uint32 *origin, const Pair_uint32 *offset, const Quadrant quadrant, const uint32_t colour) {
 
   switch (quadrant) {
 
@@ -126,6 +120,7 @@ void Surface_circle_draw(Surface *self, Pair_uint32 *origin, Pair_uint32 *offset
     uint32_t pixel_b = Surface_offset(self, origin->x + offset->y, origin->y - offset->x);
     self->pixels[pixel_b] = colour;
   } break;
+
   case QUADRANT_2: {
     uint32_t pixel_a = Surface_offset(self, origin->x - offset->y, origin->y - offset->x);
     self->pixels[pixel_a] = colour;
@@ -133,6 +128,7 @@ void Surface_circle_draw(Surface *self, Pair_uint32 *origin, Pair_uint32 *offset
     uint32_t pixel_b = Surface_offset(self, origin->x - offset->x, origin->y - offset->y);
     self->pixels[pixel_b] = colour;
   } break;
+
   case QUADRANT_3: {
     uint32_t pixel_a = Surface_offset(self, origin->x - offset->x, origin->y + offset->y);
     self->pixels[pixel_a] = colour;
@@ -140,13 +136,13 @@ void Surface_circle_draw(Surface *self, Pair_uint32 *origin, Pair_uint32 *offset
     uint32_t pixel_b = Surface_offset(self, origin->x - offset->y, origin->y + offset->x);
     self->pixels[pixel_b] = colour;
   } break;
+
   case QUADRANT_4: {
     uint32_t pixel_a = Surface_offset(self, origin->x + offset->x, origin->y + offset->y);
     self->pixels[pixel_a] = colour;
 
     uint32_t pixel_b = Surface_offset(self, origin->x + offset->y, origin->y + offset->x);
     self->pixels[pixel_b] = colour;
-
   } break;
   }
 }
@@ -156,20 +152,23 @@ void Surface_tile_arc(Surface *self, const Pair_uint32 origin, const uint32_t ra
   assert(radius <= INT32_MAX);
 
   Pair_uint32 offset = {.x = 0, .y = radius};
-
   Pair_uint32 origin_offset = origin;
 
   switch (quadrant) {
+
   case QUADRANT_1: {
     origin_offset.y += (TILE_PIXELS - 1);
   } break;
+
   case QUADRANT_2: {
     origin_offset.x += (TILE_PIXELS - 1);
     origin_offset.y += (TILE_PIXELS - 1);
   } break;
+
   case QUADRANT_3: {
     origin_offset.x += (TILE_PIXELS - 1);
   } break;
+
   case QUADRANT_4: {
   } break;
   }
@@ -195,7 +194,7 @@ void Surface_tile_arc(Surface *self, const Pair_uint32 origin, const uint32_t ra
   }
 }
 
-void Surface_tile_fixed_arc_length(Surface *self, const Pair_uint32 origin, const TileData *tile_data, const uint32_t colour, uint32_t length) {
+void Surface_tile_fixed_arc_length(Surface *self, const Pair_uint32 origin, const TileData *tile_data, const uint32_t colour, const uint32_t length) {
   uint32_t corner_y_12 = origin.y + (TILE_PIXELS - (length + 1));
   uint32_t corner_y_34 = origin.y + length;
 

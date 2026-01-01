@@ -58,10 +58,10 @@ void Persona_on_frame(Persona *self, Maze *maze, Situation *situation) {
 
   self->tick_action += 1;
 
-  if (Renderer_u32_location_is_tile(self->sprite_location)) {
-    Persona_on_tile(self, maze, situation);
+  if (Sprite_is_centered_on_tile(self->sprite_location)) {
+    Persona_on_tile(self, situation, maze);
   } else {
-    Persona_off_tile(self, maze, situation);
+    Persona_off_tile(self, situation, maze);
   }
 
   switch (atomic_load(&situation->persona.direction_actual)) {
@@ -83,9 +83,9 @@ void Persona_on_frame(Persona *self, Maze *maze, Situation *situation) {
   }
 }
 
-void Persona_on_tile(Persona *self, Maze *maze, Situation *situation) {
+void Persona_on_tile(Persona *self, Situation *situation, const Maze *maze) {
 
-  Pair_uint8 location = Maze_location_from_sprite(&self->sprite_location);
+  Pair_uint8 location = Sprite_location_to_abstract(&self->sprite_location);
   /// Update location
   atomic_store(&situation->persona.location, location);
 
@@ -99,9 +99,9 @@ void Persona_on_tile(Persona *self, Maze *maze, Situation *situation) {
   }
 }
 
-void Persona_off_tile(Persona *self, Maze *maze, Situation *situation) {
+void Persona_off_tile(Persona *self, Situation *situation, const Maze *maze) {
 
-  Pair_uint8 location = Maze_location_from_sprite(&self->sprite_location);
+  Pair_uint8 location = Sprite_location_to_abstract(&self->sprite_location);
 
   if ((self->direction_intent | situation->persona.direction_actual) == (DIRECTION_E | DIRECTION_W) ||
       (self->direction_intent | situation->persona.direction_actual) == (DIRECTION_S | DIRECTION_N)) {

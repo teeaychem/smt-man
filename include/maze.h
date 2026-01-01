@@ -5,7 +5,6 @@
 
 #include <glib.h>
 
-#include "constants.h"
 #include "enums.h"
 #include "generic/pairs.h"
 
@@ -67,7 +66,7 @@ void Maze_create(Maze *maze, const char *path);
 
 void Maze_detail(Maze *self);
 
-void Maze_destroy(Maze *self);
+void Maze_drop(Maze *self);
 
 bool Maze_tile_in_direction_is_path(const Maze *self, const Pair_uint8 location, const Direction direction);
 
@@ -77,7 +76,7 @@ void Maze_complete_data(const Maze *self);
 
 /// Satic inline
 
-static inline TileData *Maze_abstract_at(const Maze *self, const uint8_t col, const uint8_t row) {
+static inline TileData *Maze_tile_data_at(const Maze *self, const uint8_t col, const uint8_t row) {
   if (!(col < self->size.x)) {
     g_log(nullptr, G_LOG_LEVEL_CRITICAL, "Invalid col: %d", col);
     exit(-2);
@@ -92,27 +91,5 @@ static inline TileData *Maze_abstract_at(const Maze *self, const uint8_t col, co
 }
 
 static inline bool Maze_abstract_is_path(const Maze *self, const uint8_t col, const uint8_t row) {
-  return Maze_abstract_at(self, col, row)->type == TILE_PATH;
-}
-
-static inline Pair_uint8 Maze_location_from_sprite(const Pair_uint32 *sprite_location) {
-
-  uint32_t x_mod = sprite_location->x % TILE_PIXELS;
-  uint32_t y_mod = sprite_location->y % TILE_PIXELS;
-
-  Pair_uint8 maze_location = {};
-
-  if (x_mod < TILE_PIXELS / 2) {
-    maze_location.x = (uint8_t)((sprite_location->x - x_mod) / TILE_PIXELS);
-  } else {
-    maze_location.x = (uint8_t)((sprite_location->x + (TILE_PIXELS - x_mod)) / TILE_PIXELS);
-  }
-
-  if (y_mod < TILE_PIXELS / 2) {
-    maze_location.y = (uint8_t)((sprite_location->y - y_mod) / TILE_PIXELS);
-  } else {
-    maze_location.y = (uint8_t)((sprite_location->y + (TILE_PIXELS - y_mod)) / TILE_PIXELS);
-  }
-
-  return maze_location;
+  return Maze_tile_data_at(self, col, row)->type == TILE_PATH;
 }

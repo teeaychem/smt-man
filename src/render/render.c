@@ -85,7 +85,7 @@ void Renderer_render_frame_buffer(Renderer *self) {
   SDL_RenderPresent(self->renderer);
 }
 
-void Renderer_write_maze(Renderer *self, const Maze *maze) {
+void Renderer_draw_maze(Renderer *self, const Maze *maze) {
   // For each tile...
 
   for (uint8_t col = 0; col < maze->size.x; ++col) {
@@ -95,7 +95,7 @@ void Renderer_write_maze(Renderer *self, const Maze *maze) {
       uint32_t row_scaled = (row * TILE_PIXELS);
       Pair_uint32 tile_position = {.x = col_scaled, .y = row_scaled};
 
-      TileData *tile_data = Maze_abstract_at(maze, col, row);
+      TileData *tile_data = Maze_tile_data_at(maze, col, row);
 
       switch (tile_data->type) {
 
@@ -107,11 +107,10 @@ void Renderer_write_maze(Renderer *self, const Maze *maze) {
         } break;
 
         case TILE_STYLE_LINE: {
-          auto plane = tile_data->value.edge_value.edge_line_plane;
-          auto indent = tile_data->value.edge_value.indent;
+          Plane plane = tile_data->value.edge_value.edge_line_plane;
+          uint32_t indent = tile_data->value.edge_value.indent;
 
           switch (plane) {
-
           case PLANE_H: {
             Surface_tile_line(&self->frame_buffer, col_scaled, row_scaled + indent, plane, TILE_PIXELS, 0xffffffff);
           } break;
@@ -167,7 +166,7 @@ void Renderer_anima(Renderer *self, const Anima animas[ANIMA_COUNT], const uint8
   switch (action) {
   case RENDER_DRAW: {
     Renderer_sprite_buffer_map_to(self, Sheet_anima_offset(&animas[id]), animas[id].sprite_size);
-    Surface_pallete_mut(&self->sprite_buffer, animas[id].sprite_size, animas[id].pallete);
+    Surface_apply_pallete(&self->sprite_buffer, animas[id].sprite_size, animas[id].pallete);
 
     Renderer_draw_from_sprite_buffer(self, animas[id].sprite_location, animas[id].sprite_size);
   } break;
@@ -185,24 +184,24 @@ void Renderer_persona(Renderer *self, const Persona *persona, const Situation *s
 
     switch (situation->persona.direction_actual) {
     case DIRECTION_NONE: {
-      // Do nothing
+      // No transformation
     } break;
     case DIRECTION_N: {
-      Surface_mirror_mut(&self->sprite_buffer, persona->sprite_size);
-      Surface_transpose_mut(&self->sprite_buffer, persona->sprite_size);
+      Surface_mirror(&self->sprite_buffer, persona->sprite_size);
+      Surface_transpose(&self->sprite_buffer, persona->sprite_size);
     } break;
     case DIRECTION_E: {
       // No transformation
     } break;
     case DIRECTION_S: {
-      Surface_transpose_mut(&self->sprite_buffer, persona->sprite_size);
+      Surface_transpose(&self->sprite_buffer, persona->sprite_size);
     } break;
     case DIRECTION_W: {
-      Surface_mirror_mut(&self->sprite_buffer, persona->sprite_size);
+      Surface_mirror(&self->sprite_buffer, persona->sprite_size);
     } break;
     }
 
-    Surface_pallete_mut(&self->sprite_buffer, persona->sprite_size, persona->pallete);
+    Surface_apply_pallete(&self->sprite_buffer, persona->sprite_size, persona->pallete);
     Renderer_draw_from_sprite_buffer(self, persona->sprite_location, persona->sprite_size);
   } break;
   case RENDER_ERASE: {
@@ -213,9 +212,9 @@ void Renderer_persona(Renderer *self, const Persona *persona, const Situation *s
 
 void Renderer_sprite_buffer_map_to(Renderer *self, const Pair_uint32 sprite_offset, const uint8_t size) {
 
-  for (uint32_t idx = 0; idx < size; ++idx) {
-    uint32_t pre_offset = Surface_offset(&self->sprite_buffer, 0, idx);
-    uint32_t sheet_offset = Surface_offset(&self->sheet, sprite_offset.x, sprite_offset.y + idx);
+  for (uint32_t row = 0; row < size; ++row) {
+    uint32_t pre_offset = Surface_offset(&self->sprite_buffer, 0, row);
+    uint32_t sheet_offset = Surface_offset(&self->sheet, sprite_offset.x, sprite_offset.y + row);
 
     memcpy(&self->sprite_buffer.pixels[pre_offset], &self->sheet.pixels[sheet_offset], size * sizeof(*self->sprite_buffer.pixels));
   }
