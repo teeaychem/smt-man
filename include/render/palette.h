@@ -1,5 +1,6 @@
 #pragma once
 
+#include "constants.h"
 #include <stdint.h>
 
 struct pallete_t {
@@ -10,7 +11,57 @@ struct pallete_t {
 };
 typedef struct pallete_t Pallete;
 
-// Methods
+/// Default palettes
+
+struct palletes_t {
+  Pallete persona;
+  Pallete animas[ANIMA_COUNT];
+};
+
+typedef struct palletes_t Palletes;
+
+#ifdef PALETTE_IMPLEMENTATION
+
+const Palletes DEFAULT_PALLETES = {
+    .persona = {
+        .a = 0x00000000,
+        .b = 0x00000000,
+        .c = 0x00000000,
+        .d = 0xff00ffff,
+    },
+    .animas = {{
+                   .a = 0x00000000,
+                   .b = 0x00000000,
+                   .c = 0x00000000,
+                   .d = 0xffff00ff,
+               },
+               {
+                   .a = 0x00000000,
+                   .b = 0x00000000,
+                   .c = 0x00000000,
+                   .d = 0xffffbb00,
+               },
+               {
+                   .a = 0x00000000,
+                   .b = 0x00000000,
+                   .c = 0x00000000,
+                   .d = 0xfa8072ff,
+               },
+               {
+                   .a = 0x00000000,
+                   .b = 0x00000000,
+                   .c = 0x00000000,
+                   .d = 0xff808080,
+               }},
+};
+
+#endif
+
+#ifndef PALETTE_IMPLEMENTATION
+const extern Palletes DEFAULT_PALLETES;
+#endif
+
+/// Palette methods
 
 static inline uint32_t Pallete_offset(const uint32_t pixel, const Pallete pallete) {
   uint32_t colour;

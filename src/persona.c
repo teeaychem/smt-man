@@ -12,12 +12,7 @@ void Persona_default(Persona *persona, Situation *situation, const uint8_t sprit
       .sprite_location = {.x = ((uint32_t)situation_location.x) * TILE_PIXELS,
                           .y = ((uint32_t)situation_location.y + RENDER_TOP) * TILE_PIXELS},
       .sprite_size = sprite_size,
-      .pallete = {
-          .a = 0x00000000,
-          .b = 0x00000000,
-          .c = 0x00000000,
-          .d = 0xff00ffff,
-      },
+      .pallete = DEFAULT_PALLETES.persona,
       .tick_action = 0,
   };
 }

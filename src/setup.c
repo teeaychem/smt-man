@@ -12,6 +12,10 @@
 #include "generic/pairs.h"
 #undef PAIR_IMPLEMENTATION
 
+#define PALETTE_IMPLEMENTATION
+#include "render/palette.h"
+#undef PALETTE_IMPLEMENTATION
+
 /// Other setup
 #include "setup.h"
 
@@ -104,41 +108,21 @@ void setup_animas(Anima animas[ANIMA_COUNT], const Maze *maze) { // Resource set
 
   if (1 <= ANIMA_COUNT) {
     setup_anima(animas, 0, Pair_uint8_create(1, 2), maze);
-    animas[0].pallete = (Pallete){
-        .a = 0x00000000,
-        .b = 0x00000000,
-        .c = 0x00000000,
-        .d = 0xffff00ff,
-    };
+    animas[0].pallete = DEFAULT_PALLETES.animas[0];
   }
 
   if (2 <= ANIMA_COUNT) {
     setup_anima(animas, 1, Pair_uint8_create(16, 26), maze);
-    animas[1].pallete = (Pallete){
-        .a = 0x00000000,
-        .b = 0x00000000,
-        .c = 0x00000000,
-        .d = 0xffffbb00,
-    };
+    animas[1].pallete = DEFAULT_PALLETES.animas[1];
   }
 
   if (3 <= ANIMA_COUNT) {
     setup_anima(animas, 2, Pair_uint8_create(21, 12), maze);
-    animas[2].pallete = (Pallete){
-        .a = 0x00000000,
-        .b = 0x00000000,
-        .c = 0x00000000,
-        .d = 0xfa8072ff,
-    };
+    animas[2].pallete = DEFAULT_PALLETES.animas[2];
   }
 
   if (4 <= ANIMA_COUNT) {
     setup_anima(animas, 3, Pair_uint8_create(4, 29), maze);
-    animas[3].pallete = (Pallete){
-        .a = 0x00000000,
-        .b = 0x00000000,
-        .c = 0x00000000,
-        .d = 0xff808080,
-    };
+    animas[3].pallete = DEFAULT_PALLETES.animas[3];
   }
 }
