@@ -23,10 +23,10 @@ void Mind_default(Mind *mind, uint8_t id, Pair_uint8 location, Direction directi
 void Mind_touch(Mind *self) {
   assert(self != nullptr);
 
-  Lang_base_setup(&self->lang, self->ctx);
-  Lang_path_setup(&self->lang, self->ctx);
-  Lang_anima_setup(&self->lang, self->ctx);
-  Lang_facing_setup(&self->lang, self->ctx);
+  Lang_setup_base(&self->lang, self->ctx);
+  Lang_setup_path(&self->lang, self->ctx);
+  Lang_setup_animas(&self->lang, self->ctx);
+  Lang_setup_facing(&self->lang, self->ctx);
 }
 
 // deduction

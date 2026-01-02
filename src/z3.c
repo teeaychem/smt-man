@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <stdatomic.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -9,8 +8,7 @@
 #include "maze.h"
 #include "temp.h"
 
-
-void z3_display_path(struct z3_lang *lang, Z3_context ctx, Z3_model model, Maze *maze) {
+void z3_display_path(const Lang *lang, Z3_context ctx, Z3_model model, const Maze *maze) {
   Z3_ast u8_cr[2] = {};
 
   Z3_ast tile_path = nullptr;
@@ -27,7 +25,7 @@ void z3_display_path(struct z3_lang *lang, Z3_context ctx, Z3_model model, Maze 
         putchar('x');
       }
     }
-    printf("|\n");
+    printf("|%d\n", row);
   }
 }
 
@@ -39,17 +37,23 @@ void z3_tmp(Maze *maze, Situation *situation) {
   Z3_optimize optimizer = Z3_mk_optimize(ctx);
   Z3_optimize_inc_ref(ctx, optimizer);
 
-  lang.u8.sort = Z3_mk_bv_sort(ctx, 8);
-  Lang_path_setup(&lang, ctx);
-  Lang_anima_setup(&lang, ctx);
+  uint8_t anima_id = 2;
+
+  Lang_setup_base(&lang, ctx);
+  Lang_setup_path(&lang, ctx);
+  Lang_setup_animas(&lang, ctx);
+  Lang_setup_persona(&lang, ctx);
+
+  Lang_anima_tile_is_origin(&lang, ctx, optimizer, anima_id);
+  Lang_persona_tile_is_origin(&lang, ctx, optimizer);
+
+  Lang_assert_link_reqs(&lang, ctx, optimizer, situation, maze, anima_id);
 
   Lang_assert_shortest_path_empty_hints(&lang, ctx, optimizer, maze);
   Lang_assert_path_non_empty_hints(&lang, ctx, optimizer, maze);
 
-  Lang_assert_all_non_anima_are_link(&lang, ctx, optimizer, situation, maze);
-  Lang_assert_all_anima_tiles_are_origin(&lang, ctx, optimizer);
-
-  Lang_assert_anima_locations(&lang, ctx, optimizer, situation);
+  Lang_assert_anima_location(&lang, ctx, optimizer, situation, anima_id);
+  Lang_assert_persona_location(&lang, ctx, optimizer, situation);
 
   // Checks
   switch (Z3_optimize_check(ctx, optimizer, 0, nullptr)) {
@@ -64,7 +68,7 @@ void z3_tmp(Maze *maze, Situation *situation) {
   } break;
   }
 
-  auto model = Z3_optimize_get_model(ctx, optimizer);
+  Z3_model model = Z3_optimize_get_model(ctx, optimizer);
   Z3_model_inc_ref(ctx, model);
 
   g_log(nullptr, G_LOG_LEVEL_INFO, "\nModel:\n%s", Z3_model_to_string(ctx, model));

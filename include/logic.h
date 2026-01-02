@@ -9,11 +9,11 @@
 
 constexpr size_t PATH_VARIANTS = 11;
 struct z3_lang {
-  struct u8 {
+  struct {
     Z3_sort sort;
   } u8;
 
-  struct anima {
+  struct {
     Z3_sort sort;
 
     Z3_symbol enum_names[ANIMA_COUNT];
@@ -30,6 +30,23 @@ struct z3_lang {
     Z3_func_decl is_facing;
   } anima;
 
+  struct {
+    Z3_sort sort;
+
+    Z3_symbol enum_names[PERSONA_COUNT];
+    Z3_func_decl enum_consts[PERSONA_COUNT];
+    Z3_func_decl enum_testers[PERSONA_COUNT];
+
+    /// persona -> u8
+    Z3_func_decl tile_row_f;
+
+    /// persona -> u8
+    Z3_func_decl tile_col_f;
+
+    /// persona -> direction
+    Z3_func_decl is_facing;
+  } persona;
+
   struct direction {
     Z3_sort sort;
 
@@ -38,7 +55,7 @@ struct z3_lang {
     Z3_func_decl enum_testers[4];
   } direction;
 
-  struct path {
+  struct {
     Z3_sort sort;
     Z3_symbol penatly;
 
@@ -76,29 +93,34 @@ struct z3_lang {
     Z3_func_decl tile_is_f;
   } path;
 };
+typedef struct z3_lang Lang;
 
 //
 
-void Lang_base_setup(struct z3_lang *lang, Z3_context ctx);
-void Lang_path_setup(struct z3_lang *lang, Z3_context ctx);
-void Lang_anima_setup(struct z3_lang *lang, Z3_context ctx);
+void Lang_setup_base(Lang *lang, Z3_context ctx);
+void Lang_setup_path(Lang *lang, Z3_context ctx);
+void Lang_setup_animas(Lang *lang, Z3_context ctx);
+void Lang_setup_persona(Lang *lang, Z3_context ctx);
+void Lang_setup_facing(Lang *lang, Z3_context ctx);
 
-void Lang_assert_shortest_path_empty_hints(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, Maze *maze);
-void Lang_assert_path_non_empty_hints(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, Maze *maze);
+void Lang_assert_shortest_path_empty_hints(const Lang *lang, Z3_context ctx, Z3_optimize optimizer, const Maze *maze);
+void Lang_assert_path_non_empty_hints(const Lang *lang, Z3_context ctx, Z3_optimize optimizer, const Maze *maze);
 
 //
 
 /// Assert the row and column values for each anima
-void Lang_assert_anima_locations(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, Situation *situation);
+void Lang_assert_anima_location(const Lang *lang, Z3_context ctx, Z3_optimize otz, const Situation *situation, const uint8_t id);
 
 /// For each tile which is not the location of an anima is a link tile.
-void Lang_assert_all_non_anima_are_link(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, Situation *situation, Maze *maze);
-void Lang_assert_all_anima_tiles_are_origin(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer);
-void Lang_assert_all_origin_are_anima(struct z3_lang *lang, Z3_context ctx, Z3_optimize optimizer, Maze *maze);
+void Lang_assert_link_reqs(const Lang *lang, Z3_context ctx, Z3_optimize otz, const Situation *situation, const Maze *maze, const uint8_t id);
+void Lang_anima_tile_is_origin(const Lang *lang, Z3_context ctx, Z3_optimize optimizer, const uint8_t id);
 
 //
 
-void Lang_facing_setup(struct z3_lang *lang, Z3_context ctx);
+void Lang_persona_tile_is_origin(const Lang *lang, Z3_context ctx, Z3_optimize otz);
+void Lang_assert_persona_location(const Lang *lang, Z3_context ctx, Z3_optimize otz, const Situation *situation);
+
+//
 
 //
 
