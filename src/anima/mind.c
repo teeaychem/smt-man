@@ -5,7 +5,7 @@
 #include "lyf/anima/mind.h"
 #include "random.h"
 
-void Mind_default(Mind *mind, uint8_t id, Pair_uint8 location, Direction direction) {
+void Mind_default(Mind *mind, uint8_t id, const Pair_uint8 location, const Direction direction) {
 
   mind->id = id;
 

@@ -2,19 +2,21 @@
 
 #include "logic/synchronization.h"
 
-void Sync_situations(Situation *situation, Anima animas[ANIMA_COUNT]) {
-  for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
-    { // From
-      atomic_store(&situation->anima[idx].direction_actual, atomic_load(&animas[idx].mind.view.anima[idx].direction_actual));
-      atomic_store(&situation->anima[idx].location, atomic_load(&animas[idx].mind.view.anima[idx].location));
-      atomic_store(&situation->anima[idx].movement_pattern, atomic_load(&animas[idx].mind.view.anima[idx].movement_pattern));
-      atomic_store(&situation->anima[idx].status, atomic_load(&animas[idx].mind.view.anima[idx].status));
-    }
+void Sync_update_animas(const Situation *situation, Anima animas[ANIMA_COUNT]) {
 
-    { // To
-      atomic_store(&animas[idx].mind.view.persona.direction_actual, atomic_load(&situation->persona.direction_actual));
-      atomic_store(&animas[idx].mind.view.persona.location, atomic_load(&situation->persona.location));
-      atomic_store(&animas[idx].mind.view.persona.movement_pattern, atomic_load(&situation->persona.movement_pattern));
-    }
+  for (size_t id = 0; id < ANIMA_COUNT; ++id) {
+    atomic_store(&animas[id].mind.view.persona.direction_actual, atomic_load(&situation->persona.direction_actual));
+    atomic_store(&animas[id].mind.view.persona.location, atomic_load(&situation->persona.location));
+    atomic_store(&animas[id].mind.view.persona.movement_pattern, atomic_load(&situation->persona.movement_pattern));
+  }
+}
+
+void Sync_update_situation(Situation *situation, const Anima animas[ANIMA_COUNT]) {
+
+  for (size_t id = 0; id < ANIMA_COUNT; ++id) {
+    atomic_store(&situation->anima[id].direction_actual, atomic_load(&animas[id].mind.view.anima[id].direction_actual));
+    atomic_store(&situation->anima[id].location, atomic_load(&animas[id].mind.view.anima[id].location));
+    atomic_store(&situation->anima[id].movement_pattern, atomic_load(&animas[id].mind.view.anima[id].movement_pattern));
+    atomic_store(&situation->anima[id].status, atomic_load(&animas[id].mind.view.anima[id].status));
   }
 }

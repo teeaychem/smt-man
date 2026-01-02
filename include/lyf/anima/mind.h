@@ -27,7 +27,7 @@ typedef struct mind_t Mind;
 
 // Methods
 
-void Mind_default(Mind *mind, uint8_t id, Pair_uint8 location, Direction direction);
+void Mind_default(Mind *mind, uint8_t id, const Pair_uint8 location, const Direction direction);
 
 void Mind_touch(Mind *self, const Maze* maze);
 

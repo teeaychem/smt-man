@@ -16,7 +16,7 @@ typedef struct {
   TYPE y;
 } S_TYPE;
 
-S_TYPE CAT(S_TYPE, create)(TYPE x, TYPE y);
+S_TYPE CAT(S_TYPE, create)(const TYPE x, const TYPE y);
 
 S_TYPE CAT(S_TYPE, scale)(const S_TYPE *self, const TYPE factor);
 
@@ -24,7 +24,7 @@ S_TYPE CAT(S_TYPE, abstract_by)(const S_TYPE *self, const TYPE interval);
 
 #ifdef PAIR_IMPLEMENTATION
 
-S_TYPE CAT(S_TYPE, create)(TYPE x, TYPE y) {
+S_TYPE CAT(S_TYPE, create)(const TYPE x, const TYPE y) {
   return (S_TYPE){.x = x, .y = y};
 }
 

@@ -48,7 +48,11 @@ int main() { // int main(int argc, char *argv[]) {
 
   { // Scratch block
     g_message("scratch begin...");
-    Sync_situations(&situation, animas);
+
+    Sync_update_animas(&situation, animas);
+     Sync_update_situation(&situation, animas);
+
+
     z3_tmp(&maze, &situation);
     g_message("scratch end...");
   }
@@ -84,7 +88,8 @@ int main() { // int main(int argc, char *argv[]) {
       }
 
       { /// Pre-render block
-        Sync_situations(&situation, animas);
+        Sync_update_animas(&situation, animas);
+        Sync_update_situation(&situation, animas);
         rgb_momentum_advance(&colour);
 
         for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {

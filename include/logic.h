@@ -122,7 +122,9 @@ void Lang_assert_persona_location(const Lang *lang, Z3_context ctx, Z3_optimize 
 
 //
 
-//
+Z3_context z3_mk_anima_ctx();
+
+/// Static inline
 
 static inline void error_handler(Z3_context ctx, Z3_error_code code) {
   g_log(nullptr, G_LOG_LEVEL_ERROR, "Z3 Error (#%d): %s", code, Z3_get_error_msg(ctx, code));
@@ -142,5 +144,3 @@ static inline Z3_ast z3_mk_binary_app(Z3_context ctx, Z3_func_decl f, Z3_ast x, 
 }
 
 //
-
-Z3_context z3_mk_anima_ctx();

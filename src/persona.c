@@ -4,7 +4,7 @@
 #include "render.h"
 #include <stdatomic.h>
 
-void Persona_default(Persona *persona, Situation *situation, uint8_t sprite_size) {
+void Persona_default(Persona *persona, Situation *situation, const uint8_t sprite_size) {
   Pair_uint8 situation_location = atomic_load(&situation->persona.location);
 
   *persona = (Persona){
@@ -22,7 +22,7 @@ void Persona_default(Persona *persona, Situation *situation, uint8_t sprite_size
   };
 }
 
-void Persona_destroy(Persona *self) {
+void Persona_drop(Persona *self) {
   assert(self != nullptr);
 }
 
