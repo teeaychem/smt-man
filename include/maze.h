@@ -59,9 +59,9 @@ typedef struct maze_t Maze;
 
 // Methods
 
-void Maze_create(Maze *maze, const char *path);
+Result Maze_create(Maze *maze, const char *path);
 
-void Maze_detail(Maze *self);
+Result Maze_detail(Maze *self);
 
 void Maze_drop(Maze *self);
 
@@ -69,7 +69,7 @@ bool Maze_tile_in_direction_is_path(const Maze *self, const Pair_uint8 location,
 
 void Maze_complete_line_data(const Maze *self, TileData *tile_data, const uint8_t col, const uint8_t row);
 
-void Maze_complete_data(const Maze *self);
+Result Maze_complete_data(const Maze *self);
 
 /// Satic inline
 

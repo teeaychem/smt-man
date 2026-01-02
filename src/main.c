@@ -18,6 +18,10 @@ pthread_t ANIMA_THREADS[ANIMA_COUNT];
 int main() { // int main(int argc, char *argv[]) {
   int exit_code = 0;
 
+  char *source_path;
+  int source_path_length;
+  set_source_path(&source_path, &source_path_length);
+
   Situation situation = {};
 
   Anima animas[ANIMA_COUNT];
@@ -25,11 +29,10 @@ int main() { // int main(int argc, char *argv[]) {
 
   Renderer renderer = {};
   RGBMomentum colour = {};
-  Maze maze = {};
+  const Maze maze = setup_maze(source_path);
 
   { // Setup block
-    setup_resources(&renderer, &maze);
-    Maze_complete_data(&maze);
+    setup_renderer(&renderer, &maze, source_path);
 
     {
       situation.persona.direction_actual = DIRECTION_E;
@@ -39,6 +42,8 @@ int main() { // int main(int argc, char *argv[]) {
 
     Persona_default(&persona, &situation, 16);
     setup_animas(animas, &maze);
+
+    free(source_path);
   }
 
   { // Scratch block
@@ -133,7 +138,7 @@ exit_block: {
     pthread_join(ANIMA_THREADS[idx], nullptr);
   }
 
-  Maze_drop(&maze);
+  Maze_drop((Maze *)&maze);
 
   g_message("good-bye");
 

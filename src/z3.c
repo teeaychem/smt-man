@@ -29,7 +29,7 @@ void z3_display_path(const Lang *lang, Z3_context ctx, Z3_model model, const Maz
   }
 }
 
-void z3_tmp(Maze *maze, Situation *situation) {
+void z3_tmp(const Maze *maze, const Situation *situation) {
   Z3_context ctx = z3_mk_anima_ctx();
 
   struct z3_lang lang = {};
@@ -55,7 +55,7 @@ void z3_tmp(Maze *maze, Situation *situation) {
   Lang_assert_anima_location(&lang, ctx, optimizer, situation, anima_id);
   Lang_assert_persona_location(&lang, ctx, optimizer, situation);
 
-  g_log(nullptr, G_LOG_LEVEL_INFO, "\nPre-model:\n%s", Z3_optimize_to_string(ctx, optimizer));
+  /* g_log(nullptr, G_LOG_LEVEL_INFO, "\nPre-model:\n%s", Z3_optimize_to_string(ctx, optimizer)); */
   /* exit(0); */
 
   // Checks

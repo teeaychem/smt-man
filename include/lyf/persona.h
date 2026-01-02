@@ -28,9 +28,9 @@ void Persona_default(Persona *persona, Situation *situation, uint8_t sprite_size
 
 void Persona_destroy(Persona *self);
 
-void Persona_handle_event(Persona *self, Maze *maze, Situation *situation, SDL_Event *event);
+void Persona_handle_event(Persona *self, const Maze *maze, Situation *situation, const SDL_Event *event);
 
-void Persona_on_frame(Persona *self, Maze *maze, Situation *situation);
+void Persona_on_frame(Persona *self, const Maze *maze, Situation *situation);
 
 void Persona_on_tile(Persona *self, Situation *situation, const Maze *maze);
 

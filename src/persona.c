@@ -26,7 +26,7 @@ void Persona_destroy(Persona *self) {
   assert(self != nullptr);
 }
 
-void Persona_handle_event(Persona *self, Maze *maze, Situation *situation, SDL_Event *event) {
+void Persona_handle_event(Persona *self, const Maze *maze, Situation *situation, const SDL_Event *event) {
   if (event->type == SDL_EVENT_KEY_DOWN && !event->key.repeat) {
 
     switch (event->key.key) {
@@ -46,7 +46,7 @@ void Persona_handle_event(Persona *self, Maze *maze, Situation *situation, SDL_E
   }
 }
 
-void Persona_on_frame(Persona *self, Maze *maze, Situation *situation) {
+void Persona_on_frame(Persona *self, const Maze *maze, Situation *situation) {
 
   uint32_t movement = atomic_load(&situation->persona.movement_pattern);
   movement = uint32_rotl1(movement);

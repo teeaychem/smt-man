@@ -17,7 +17,7 @@ void next_line(FILE *file) {
   }
 }
 
-void Maze_create(Maze *maze, const char *path) {
+Result Maze_create(Maze *maze, const char *path) {
 
   *maze = (Maze){
       .tiles = nullptr,
@@ -170,6 +170,7 @@ void Maze_create(Maze *maze, const char *path) {
   fclose(file_ptr);
 
   g_log(nullptr, G_LOG_LEVEL_INFO, "Constructed maze %dx%d (%zu)", maze->size.x, maze->size.y, tile_count);
+  return RESULT_OK;
 }
 
 void Maze_drop(Maze *self) {
@@ -455,9 +456,10 @@ void Maze_detail_arc_inner(Maze *self) {
   }
 }
 
-void Maze_detail(Maze *self) {
+Result Maze_detail(Maze *self) {
   Maze_detail_arc_outer(self);
   Maze_detail_arc_inner(self);
+  return RESULT_OK;
 }
 
 bool Maze_tile_in_direction_is_path(const Maze *self, const Pair_uint8 location, const Direction direction) {
@@ -524,7 +526,7 @@ void Maze_complete_line_data(const Maze *self, TileData *tile_data, const uint8_
   }
 }
 
-void Maze_complete_data(const Maze *self) {
+Result Maze_complete_data(const Maze *self) {
   // For each tile...
 
   for (uint8_t col = 0; col < self->size.x; ++col) {
@@ -564,4 +566,5 @@ void Maze_complete_data(const Maze *self) {
       }
     }
   }
+  return RESULT_OK;
 }

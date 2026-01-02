@@ -1,4 +1,5 @@
 /// Generic struct setup
+#include "macro.h"
 #define ARITHMETIC_IMPLEMENTATION
 #include "generic/arithmetic.h"
 #undef ARITHMETIC_IMPLEMENTATION
@@ -23,25 +24,29 @@
 
 #include "constants.h"
 
-// Private
-
 // Set the source path for resources, etc.
-void setup_source_path(char **source_path) {
+void set_source_path(char **source_path, int *length) {
 
-  int source_path_size = wai_getExecutablePath(nullptr, 0, nullptr) + 1;
-  *source_path = malloc((size_t)source_path_size * sizeof(*source_path));
+  *length = wai_getExecutablePath(nullptr, 0, nullptr) + 1;
+  assert(*length >= 0);
+  *source_path = malloc((size_t)*length * sizeof(*source_path));
 
   int dirname_length;
-  wai_getExecutablePath(*source_path, source_path_size - 1, &dirname_length);
+  wai_getExecutablePath(*source_path, *length - 1, &dirname_length);
   (*source_path)[dirname_length] = '\0';
 }
 
-void setup_maze(Maze *maze, char *source_path) {
+Maze setup_maze(const char *source_path) {
+
+  Maze maze;
 
   char path_buffer[FILENAME_MAX];
   cwk_path_join(source_path, "resources/maze/source.txt", path_buffer, FILENAME_MAX);
-  Maze_create(maze, path_buffer);
-  Maze_detail(maze);
+  PANIC(Maze_create(&maze, path_buffer));
+  PANIC(Maze_detail(&maze));
+  PANIC(Maze_complete_data(&maze));
+
+  return maze;
 }
 
 struct spirit_setup_t {
@@ -85,24 +90,14 @@ void setup_anima(Anima animas[ANIMA_COUNT], uint8_t id, Pair_uint8 location, con
   pthread_create(&ANIMA_THREADS[id], nullptr, setup_spirit, (void *)setup_ptr);
 }
 
-// Public
+void setup_renderer(Renderer *renderer, const Maze *maze, const char *source_path) {
 
-void setup_resources(Renderer *renderer, Maze *maze) { // Resource setup
-  char *source_path;
+  char path_buffer[FILENAME_MAX];
+  cwk_path_join(source_path, "resources/sheet.png", path_buffer, FILENAME_MAX);
 
-  setup_source_path(&source_path);
+  g_log(nullptr, G_LOG_LEVEL_INFO, "Loading sheet from: %s", path_buffer);
 
-  setup_maze(maze, source_path);
-
-  { // Renderer
-    char path_buffer[FILENAME_MAX];
-    cwk_path_join(source_path, "resources/sheet.png", path_buffer, FILENAME_MAX);
-
-    Renderer_create(renderer, maze->size, path_buffer);
-  }
-
-  free(source_path);
-  g_log(nullptr, G_LOG_LEVEL_DEBUG, "Resource setup ok");
+  Renderer_create(renderer, maze->size, path_buffer);
 }
 
 void setup_animas(Anima animas[ANIMA_COUNT], const Maze *maze) { // Resource setup
