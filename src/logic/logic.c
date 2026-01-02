@@ -207,10 +207,18 @@ void Lang_assert_path_non_empty_hints(const Lang *lang, Z3_context ctx, Z3_optim
 
 void Lang_setup_animas(Lang *lang, Z3_context ctx) {
 
-  lang->anima.enum_names[0] = Z3_mk_string_symbol(ctx, "gottlob");
-  lang->anima.enum_names[1] = Z3_mk_string_symbol(ctx, "bertrand");
-  lang->anima.enum_names[2] = Z3_mk_string_symbol(ctx, "herbrand");
-  lang->anima.enum_names[3] = Z3_mk_string_symbol(ctx, "lob");
+  if (1 <= ANIMA_COUNT) {
+    lang->anima.enum_names[0] = Z3_mk_string_symbol(ctx, "gottlob");
+  }
+  if (2 <= ANIMA_COUNT) {
+    lang->anima.enum_names[1] = Z3_mk_string_symbol(ctx, "bertrand");
+  }
+  if (3 <= ANIMA_COUNT) {
+    lang->anima.enum_names[2] = Z3_mk_string_symbol(ctx, "herbrand");
+  }
+  if (4 <= ANIMA_COUNT) {
+    lang->anima.enum_names[3] = Z3_mk_string_symbol(ctx, "lob");
+  }
 
   lang->anima.sort = Z3_mk_enumeration_sort(ctx,
                                             Z3_mk_string_symbol(ctx, "anima"),
@@ -372,7 +380,7 @@ void Lang_assert_link_reqs(const Lang *lang, Z3_context ctx, Z3_optimize otz, co
     for (uint8_t col = 0; col < maze->size.x; col++) {
       col_row[0] = Z3_mk_int(ctx, col, lang->u8.sort);
 
-      if ((anima_location.x == col && anima_location.y == row)  || (persona_location.x == col && persona_location.y == row)) {
+      if ((anima_location.x == col && anima_location.y == row) || (persona_location.x == col && persona_location.y == row)) {
         goto skip_tile_assertion;
       }
 

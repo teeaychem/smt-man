@@ -1,6 +1,12 @@
 #pragma once
 
+#include <z3.h>
+
+#include "enums.h"
+#include "generic/pairs.h"
 #include "logic.h"
+#include "logic/situation.h"
+#include "maze.h"
 
 // Structs
 
@@ -9,7 +15,7 @@ struct mind_t {
 
   Z3_context ctx;
 
-  Z3_optimize solver;
+  Z3_optimize opz;
 
   struct z3_lang lang;
 
@@ -23,6 +29,6 @@ typedef struct mind_t Mind;
 
 void Mind_default(Mind *mind, uint8_t id, Pair_uint8 location, Direction direction);
 
-void Mind_touch(Mind *self);
+void Mind_touch(Mind *self, const Maze* maze);
 
-void Mind_deduct(Mind *self);
+void Mind_deduct(Mind *self, const Maze *maze);

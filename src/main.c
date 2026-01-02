@@ -38,7 +38,7 @@ int main() { // int main(int argc, char *argv[]) {
     }
 
     Persona_default(&persona, &situation, 16);
-    setup_animas(animas);
+    setup_animas(animas, &maze);
   }
 
   { // Scratch block

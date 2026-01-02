@@ -44,18 +44,25 @@ void setup_maze(Maze *maze, char *source_path) {
   Maze_detail(maze);
 }
 
-void *setup_spirit(void *void_anima) {
+struct spirit_setup_t {
+  Anima *anima;
+  const Maze *maze;
+};
+typedef struct spirit_setup_t SpiritSetup;
 
-  Anima *anima = void_anima;
+void *setup_spirit(void *void_setup_struct) {
 
-  Mind_touch(&anima->mind);
+  struct spirit_setup_t *setup_struct = void_setup_struct;
+  Anima *anima = setup_struct->anima;
+
+  Mind_touch(&anima->mind, setup_struct->maze);
 
   atomic_store(&anima->contact.flag_suspend, true);
 
   while (true) {
     pthread_mutex_lock(&anima->contact.mtx_suspend);
     if (!atomic_load(&anima->contact.flag_suspend)) {
-      Mind_deduct(&anima->mind);
+      Mind_deduct(&anima->mind, setup_struct->maze);
       atomic_store(&anima->contact.flag_suspend, true);
     }
     pthread_cond_wait(&anima->contact.cond_resume, &anima->contact.mtx_suspend);
@@ -64,10 +71,18 @@ void *setup_spirit(void *void_anima) {
   return 0;
 }
 
-void setup_anima(Anima animas[ANIMA_COUNT], uint8_t id, Pair_uint8 location) {
+void setup_anima(Anima animas[ANIMA_COUNT], uint8_t id, Pair_uint8 location, const Maze *maze) {
 
   Anima_default(&animas[id], id, 16, location, DIRECTION_S);
-  pthread_create(&ANIMA_THREADS[id], nullptr, setup_spirit, (void *)&animas[id]);
+
+  SpiritSetup setup = {
+      .anima = &animas[id],
+      .maze = maze,
+  };
+  SpiritSetup *setup_ptr = malloc(sizeof(setup));
+  *setup_ptr = setup;
+
+  pthread_create(&ANIMA_THREADS[id], nullptr, setup_spirit, (void *)setup_ptr);
 }
 
 // Public
@@ -90,37 +105,45 @@ void setup_resources(Renderer *renderer, Maze *maze) { // Resource setup
   g_log(nullptr, G_LOG_LEVEL_DEBUG, "Resource setup ok");
 }
 
-void setup_animas(Anima animas[ANIMA_COUNT]) { // Resource setup
+void setup_animas(Anima animas[ANIMA_COUNT], const Maze *maze) { // Resource setup
 
-  setup_anima(animas, 0, Pair_uint8_create(1, 1));
-  animas[0].pallete = (Pallete){
-      .a = 0x00000000,
-      .b = 0x00000000,
-      .c = 0x00000000,
-      .d = 0xffff00ff,
-  };
+  if (1 <= ANIMA_COUNT) {
+    setup_anima(animas, 0, Pair_uint8_create(1, 2), maze);
+    animas[0].pallete = (Pallete){
+        .a = 0x00000000,
+        .b = 0x00000000,
+        .c = 0x00000000,
+        .d = 0xffff00ff,
+    };
+  }
 
-  setup_anima(animas, 1, Pair_uint8_create(16, 26));
-  animas[1].pallete = (Pallete){
-      .a = 0x00000000,
-      .b = 0x00000000,
-      .c = 0x00000000,
-      .d = 0xffffbb00,
-  };
+  if (2 <= ANIMA_COUNT) {
+    setup_anima(animas, 1, Pair_uint8_create(16, 26), maze);
+    animas[1].pallete = (Pallete){
+        .a = 0x00000000,
+        .b = 0x00000000,
+        .c = 0x00000000,
+        .d = 0xffffbb00,
+    };
+  }
 
-  setup_anima(animas, 2, Pair_uint8_create(21, 12));
-  animas[2].pallete = (Pallete){
-      .a = 0x00000000,
-      .b = 0x00000000,
-      .c = 0x00000000,
-      .d = 0xfa8072ff,
-  };
+  if (3 <= ANIMA_COUNT) {
+    setup_anima(animas, 2, Pair_uint8_create(21, 12), maze);
+    animas[2].pallete = (Pallete){
+        .a = 0x00000000,
+        .b = 0x00000000,
+        .c = 0x00000000,
+        .d = 0xfa8072ff,
+    };
+  }
 
-  setup_anima(animas, 3, Pair_uint8_create(4, 29));
-  animas[3].pallete = (Pallete){
-      .a = 0x00000000,
-      .b = 0x00000000,
-      .c = 0x00000000,
-      .d = 0xff808080,
-  };
+  if (4 <= ANIMA_COUNT) {
+    setup_anima(animas, 3, Pair_uint8_create(4, 29), maze);
+    animas[3].pallete = (Pallete){
+        .a = 0x00000000,
+        .b = 0x00000000,
+        .c = 0x00000000,
+        .d = 0xff808080,
+    };
+  }
 }

@@ -18,94 +18,83 @@ void Mind_default(Mind *mind, uint8_t id, Pair_uint8 location, Direction directi
   atomic_init(&mind->view.anima[id].status, ANIMA_STATUS_SEARCH);
 
   atomic_init(&mind->view.anima[id].movement_pattern, 0x552a552a);
+
+  Z3_context ctx = z3_mk_anima_ctx();
+  Z3_optimize optimizer = Z3_mk_optimize(ctx);
+  Z3_optimize_inc_ref(ctx, optimizer);
+  mind->ctx = ctx;
+  mind->opz = optimizer;
 }
 
-void Mind_touch(Mind *self) {
+void Mind_touch(Mind *self, const Maze *maze) {
   assert(self != nullptr);
 
   Lang_setup_base(&self->lang, self->ctx);
   Lang_setup_path(&self->lang, self->ctx);
   Lang_setup_animas(&self->lang, self->ctx);
-  Lang_setup_facing(&self->lang, self->ctx);
+  Lang_setup_persona(&self->lang, self->ctx);
+  /* Lang_setup_facing(&self->lang, self->ctx); */
+
+  Lang_anima_tile_is_origin(&self->lang, self->ctx, self->opz, self->id);
+  Lang_persona_tile_is_origin(&self->lang, self->ctx, self->opz);
+
+  Lang_assert_shortest_path_empty_hints(&self->lang, self->ctx, self->opz, maze);
+  Lang_assert_path_non_empty_hints(&self->lang, self->ctx, self->opz, maze);
 }
 
-// deduction
+/// Deduction
 
-void Mind_deduct(Mind *self) {
+void Mind_deduct(Mind *self, const Maze *maze) {
 
-  Z3_ast anima_ast = Z3_mk_app(self->ctx, self->lang.anima.enum_consts[self->id], 0, 0);
-  auto anima_is_facing = Z3_mk_app(self->ctx, self->lang.anima.is_facing, 1, (Z3_ast[1]){anima_ast});
+  Z3_optimize_push(self->ctx, self->opz);
 
-  auto up = Z3_mk_app(self->ctx, self->lang.direction.enum_consts[0], 0, 0);
-  auto rt = Z3_mk_app(self->ctx, self->lang.direction.enum_consts[1], 0, 0);
-  auto dn = Z3_mk_app(self->ctx, self->lang.direction.enum_consts[2], 0, 0);
-  auto lt = Z3_mk_app(self->ctx, self->lang.direction.enum_consts[3], 0, 0);
+  Lang_assert_anima_location(&self->lang, self->ctx, self->opz, &self->view, self->id);
+  Lang_assert_persona_location(&self->lang, self->ctx, self->opz, &self->view);
+  Lang_assert_link_reqs(&self->lang, self->ctx, self->opz, &self->view, maze, self->id);
 
-  auto facing_up = Z3_mk_eq(self->ctx, anima_is_facing, up);
-  auto facing_rt = Z3_mk_eq(self->ctx, anima_is_facing, rt);
-  auto facing_dn = Z3_mk_eq(self->ctx, anima_is_facing, dn);
-  auto facing_lt = Z3_mk_eq(self->ctx, anima_is_facing, lt);
+  switch (Z3_optimize_check(self->ctx, self->opz, 0, nullptr)) {
+  case Z3_L_FALSE: {
+    g_message("UNSAT");
 
-  Z3_optimize_push(self->ctx, self->solver);
-
-  int tmp_direction = random_in_range(1, 4);
-
-  switch (tmp_direction) {
-  case 1: {
-    auto rt_dn_lt = Z3_mk_or(self->ctx, 3, (Z3_ast[3]){facing_rt, facing_dn, facing_lt});
-    auto not_rt_dn_lt = Z3_mk_not(self->ctx, rt_dn_lt);
-    Z3_optimize_assert(self->ctx, self->solver, not_rt_dn_lt);
-  } break;
-
-  case 2: {
-    auto up_dn_lt = Z3_mk_or(self->ctx, 3, (Z3_ast[3]){facing_up, facing_dn, facing_lt});
-    auto not_up_dn_lt = Z3_mk_not(self->ctx, up_dn_lt);
-    Z3_optimize_assert(self->ctx, self->solver, not_up_dn_lt);
-  } break;
-
-  case 3: {
-    auto up_rt_lt = Z3_mk_or(self->ctx, 3, (Z3_ast[3]){facing_up, facing_rt, facing_lt});
-    auto not_up_rt_lt = Z3_mk_not(self->ctx, up_rt_lt);
-    Z3_optimize_assert(self->ctx, self->solver, not_up_rt_lt);
-
-  } break;
-
-  case 4: {
-    auto up_rt_dn = Z3_mk_or(self->ctx, 3, (Z3_ast[3]){facing_up, facing_rt, facing_dn});
-    auto not_up_rt_dn = Z3_mk_not(self->ctx, up_rt_dn);
-    Z3_optimize_assert(self->ctx, self->solver, not_up_rt_dn);
-
-  } break;
-  }
-
-  switch (Z3_optimize_check(self->ctx, self->solver, 0, nullptr)) {
-  case Z3_L_TRUE: {
-  } break;
-  default: {
+    g_log(nullptr, G_LOG_LEVEL_INFO, "\nStatus:\n%s", Z3_optimize_to_string(self->ctx, self->opz));
     g_log(nullptr, G_LOG_LEVEL_CRITICAL, "UNSAT deduction %d", self->id);
     exit(-3);
   } break;
+  case Z3_L_UNDEF: {
+    g_message("UNKNOWN");
+    g_log(nullptr, G_LOG_LEVEL_CRITICAL, "UNKNOWN deduction %d", self->id);
+    exit(-3);
+  } break;
+  case Z3_L_TRUE: {
+    g_message("SAT");
+  } break;
   }
 
-  auto model = Z3_optimize_get_model(self->ctx, self->solver);
+  Z3_model model = Z3_optimize_get_model(self->ctx, self->opz);
   Z3_model_inc_ref(self->ctx, model);
 
-  Z3_ast anima_direction = nullptr;
-  Z3_model_eval(self->ctx, model, Z3_mk_app(self->ctx, self->lang.anima.is_facing, 1, &anima_ast), false, &anima_direction);
+  /* Z3_ast anima_direction = nullptr; */
+  /* Z3_model_eval(self->ctx, model, Z3_mk_app(self->ctx, self->lang.anima.is_facing, 1, &anima_ast), false, &anima_direction); */
 
-  if (anima_direction == up) {
+  switch (random_in_range(1, 4)) {
+  case 1: {
     self->direction_intent = DIRECTION_N;
-  } else if (anima_direction == rt) {
+  } break;
+  case 2: {
     self->direction_intent = DIRECTION_E;
-  } else if (anima_direction == dn) {
+  } break;
+  case 3: {
     self->direction_intent = DIRECTION_S;
-  } else if (anima_direction == lt) {
+  } break;
+  case 4: {
     self->direction_intent = DIRECTION_W;
-  } else {
+  } break;
+  default: {
     g_log(nullptr, G_LOG_LEVEL_WARNING, "No direction");
     exit(-1);
+  } break;
   }
 
   Z3_model_dec_ref(self->ctx, model);
-  Z3_optimize_pop(self->ctx, self->solver);
+  Z3_optimize_pop(self->ctx, self->opz);
 }

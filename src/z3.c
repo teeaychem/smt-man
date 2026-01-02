@@ -37,7 +37,7 @@ void z3_tmp(Maze *maze, Situation *situation) {
   Z3_optimize optimizer = Z3_mk_optimize(ctx);
   Z3_optimize_inc_ref(ctx, optimizer);
 
-  uint8_t anima_id = 2;
+  uint8_t anima_id = 0;
 
   Lang_setup_base(&lang, ctx);
   Lang_setup_path(&lang, ctx);
@@ -54,6 +54,9 @@ void z3_tmp(Maze *maze, Situation *situation) {
 
   Lang_assert_anima_location(&lang, ctx, optimizer, situation, anima_id);
   Lang_assert_persona_location(&lang, ctx, optimizer, situation);
+
+  g_log(nullptr, G_LOG_LEVEL_INFO, "\nPre-model:\n%s", Z3_optimize_to_string(ctx, optimizer));
+  /* exit(0); */
 
   // Checks
   switch (Z3_optimize_check(ctx, optimizer, 0, nullptr)) {

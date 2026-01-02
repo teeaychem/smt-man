@@ -10,4 +10,4 @@
 /// Called by main.
 void setup_resources(Renderer *renderer, Maze *maze);
 
-void setup_animas(Anima animas[ANIMA_COUNT]);
+void setup_animas(Anima animas[ANIMA_COUNT], const Maze *maze);

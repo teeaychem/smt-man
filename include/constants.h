@@ -5,7 +5,7 @@
 
 #include "generic/pairs.h"
 
-constexpr uint8_t ANIMA_COUNT = 4;
+constexpr uint8_t ANIMA_COUNT = 1;
 
 constexpr uint8_t PERSONA_COUNT = 1;
 

@@ -12,10 +12,6 @@
 void Anima_default(Anima *anima, const uint8_t id, const uint8_t sprite_size, const Pair_uint8 location, const Direction direction) {
   g_log(nullptr, G_LOG_LEVEL_INFO, "Creating anima: %d", id);
 
-  Z3_context ctx = z3_mk_anima_ctx();
-  Z3_optimize optimizer = Z3_mk_optimize(ctx);
-  Z3_optimize_inc_ref(ctx, optimizer);
-
   *anima = (Anima){
       .id = id,
 
@@ -30,12 +26,7 @@ void Anima_default(Anima *anima, const uint8_t id, const uint8_t sprite_size, co
           .mtx_suspend = PTHREAD_MUTEX_INITIALIZER,
       },
 
-      .mind = {
-          .ctx = ctx,
-          .solver = optimizer,
-          .lang = {},
-          .view = {},
-      },
+      .mind = {},
   };
 
   Mind_default(&anima->mind, id, location, direction);
