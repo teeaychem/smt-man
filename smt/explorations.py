@@ -137,6 +137,7 @@ for r in range(0, maze.height):
             dn_tile = [bit_vec_sort.cast(c), bit_vec_sort.cast(r + 1)]
             lt_tile = [bit_vec_sort.cast(c - 1), bit_vec_sort.cast(r)]
 
+            # Up disjunction
             if r > 0:
                 up_tile_req = [z3_path_v(up_tile) == o_d]
                 if 0 < r - 1 and maze.is_path(c, r - 2):
@@ -151,6 +152,7 @@ for r in range(0, maze.height):
                 solver.add(z3.Implies(z3_path_v(this_tile) == r_u, up_tile_or))
                 solver.add(z3.Implies(z3_path_v(this_tile) == l_u, up_tile_or))
 
+            # Right disjunction
             if c < maze.width - 1:
                 rt_tile_req = [z3_path_v(rt_tile) == o_l]
                 if c + 1 < maze.width - 1 and maze.is_path(c + 2, r):
@@ -165,7 +167,7 @@ for r in range(0, maze.height):
                 solver.add(z3.Implies(z3_path_v(this_tile) == r_u, rt_tile_or))
                 solver.add(z3.Implies(z3_path_v(this_tile) == r_d, rt_tile_or))
 
-            dn_tile_or = None
+            # Down disjunction
             if r < maze.height - 1:
                 dn_tile_req = [z3_path_v(dn_tile) == o_u]
                 if r + 1 < maze.height - 1 and maze.is_path(c, r + 2):
@@ -180,10 +182,9 @@ for r in range(0, maze.height):
                 solver.add(z3.Implies(z3_path_v(this_tile) == r_d, dn_tile_or))
                 solver.add(z3.Implies(z3_path_v(this_tile) == l_d, dn_tile_or))
 
-            lt_tile_or = None
-            lt_tile_req = []
+            # Left disjunction
             if c > 0:
-                lt_tile_req.append(z3_path_v(lt_tile) == o_r)
+                lt_tile_req = [z3_path_v(lt_tile) == o_r]
                 if 0 < c - 1 and maze.is_path(c - 2, r):
                     lt_tile_req.append(z3_path_v(lt_tile) == r_l)
                 if 0 < c and 0 < r and maze.is_path(c - 1, r - 1):
@@ -195,6 +196,31 @@ for r in range(0, maze.height):
                 solver.add(z3.Implies(z3_path_v(this_tile) == r_l, lt_tile_or))
                 solver.add(z3.Implies(z3_path_v(this_tile) == l_u, lt_tile_or))
                 solver.add(z3.Implies(z3_path_v(this_tile) == l_d, lt_tile_or))
+
+            # Origin disjunction
+            og_tile_req = []
+            if r > 0:
+                og_tile_req.append(z3_path_v(up_tile) == o_d)
+                og_tile_req.append(z3_path_v(up_tile) == r_d)
+                og_tile_req.append(z3_path_v(up_tile) == l_d)
+                og_tile_req.append(z3_path_v(lt_tile) == u_d)
+            if c < maze.width - 1:
+                og_tile_req.append(z3_path_v(rt_tile) == o_l)
+                og_tile_req.append(z3_path_v(rt_tile) == l_u)
+                og_tile_req.append(z3_path_v(rt_tile) == l_d)
+                og_tile_req.append(z3_path_v(lt_tile) == r_l)
+            if r < maze.height - 1:
+                og_tile_req.append(z3_path_v(dn_tile) == o_u)
+                og_tile_req.append(z3_path_v(dn_tile) == l_u)
+                og_tile_req.append(z3_path_v(dn_tile) == r_u)
+                og_tile_req.append(z3_path_v(lt_tile) == u_d)
+            if c > 0:
+                og_tile_req.append(z3_path_v(lt_tile) == o_r)
+                og_tile_req.append(z3_path_v(lt_tile) == r_u)
+                og_tile_req.append(z3_path_v(lt_tile) == r_d)
+                og_tile_req.append(z3_path_v(lt_tile) == r_l)
+            origin_or = z3.Or(og_tile_req)
+            solver.add(z3.Implies(z3_path_v(this_tile) == o_l, origin_or))
 
 
 def path_hints():
