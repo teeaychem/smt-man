@@ -17,12 +17,6 @@ class Maze:
         self.chars = []
         self.from_path(path)
 
-    def width_less_one(self):
-        return self.width - 1
-
-    def height_less_one(self):
-        return self.height - 1
-
     def from_path(self, path):
         with open(path, "r") as file:
             for line in file.readlines():
@@ -137,103 +131,70 @@ for r in range(0, maze.height):
         bvc = bit_vec_sort.cast(c)
 
         if maze.is_path(c, r):
-            up_tile = [bit_vec_sort.cast(c), bit_vec_sort.cast(r - 1)] if r > 0 else None
-            rt_tile = [bit_vec_sort.cast(c + 1), bit_vec_sort.cast(r)] if c < maze.width_less_one() else None
-            dn_tile = [bit_vec_sort.cast(c), bit_vec_sort.cast(r + 1)] if r < maze.height_less_one() else None
-            lt_tile = [bit_vec_sort.cast(c - 1), bit_vec_sort.cast(r)] if c > 0 else None
+            this_tile = [bit_vec_sort.cast(c), bit_vec_sort.cast(r)]
+            up_tile = [bit_vec_sort.cast(c), bit_vec_sort.cast(r - 1)]
+            rt_tile = [bit_vec_sort.cast(c + 1), bit_vec_sort.cast(r)]
+            dn_tile = [bit_vec_sort.cast(c), bit_vec_sort.cast(r + 1)]
+            lt_tile = [bit_vec_sort.cast(c - 1), bit_vec_sort.cast(r)]
 
-            up_tile_req = (
-                None
-                if up_tile == None
-                else [
-                    z3_path_v(up_tile) == o_d,
-                    z3_path_v(up_tile) == u_d if 0 < r - 1 and maze.is_path(c, r - 2) else None,
-                    z3_path_v(up_tile) == r_d if c < maze.width_less_one() and 0 < r and maze.is_path(c + 1, r - 1) else None,
-                    z3_path_v(up_tile) == l_d if 0 < c and 0 < r and maze.is_path(c - 1, r - 1) else None,
-                ]
-            )
-            if up_tile_req != None:
-                up_tile_req = [req for req in up_tile_req if req != None]
+            if r > 0:
+                up_tile_req = [z3_path_v(up_tile) == o_d]
+                if 0 < r - 1 and maze.is_path(c, r - 2):
+                    up_tile_req.append(z3_path_v(up_tile) == u_d)
+                if c < maze.width - 1 and 0 < r and maze.is_path(c + 1, r - 1):
+                    up_tile_req.append(z3_path_v(up_tile) == r_d)
+                if 0 < c and 0 < r and maze.is_path(c - 1, r - 1):
+                    up_tile_req.append(z3_path_v(up_tile) == l_d)
+                up_tile_or = z3.Or(up_tile_req)
+                solver.add(z3.Implies(z3_path_v(this_tile) == o_u, up_tile_or))
+                solver.add(z3.Implies(z3_path_v(this_tile) == u_d, up_tile_or))
+                solver.add(z3.Implies(z3_path_v(this_tile) == r_u, up_tile_or))
+                solver.add(z3.Implies(z3_path_v(this_tile) == l_u, up_tile_or))
 
-            rt_tile_req = (
-                None
-                if rt_tile == None
-                else [
-                    z3_path_v(rt_tile) == o_l,
-                    z3_path_v(rt_tile) == r_l if c + 1 < maze.width_less_one() and maze.is_path(c + 2, r) else None,
-                    z3_path_v(rt_tile) == l_d if r < maze.height_less_one() and c < maze.width_less_one() and maze.is_path(c + 1, r + 1) else None,
-                    z3_path_v(rt_tile) == l_u if 0 < r and c < maze.width_less_one() and maze.is_path(c + 1, r - 1) else None,
-                ]
-            )
-            if rt_tile_req != None:
-                rt_tile_req = [req for req in rt_tile_req if req != None]
+            if c < maze.width - 1:
+                rt_tile_req = [z3_path_v(rt_tile) == o_l]
+                if c + 1 < maze.width - 1 and maze.is_path(c + 2, r):
+                    rt_tile_req.append(z3_path_v(rt_tile) == r_l)
+                if r < maze.height - 1 and c < maze.width - 1 and maze.is_path(c + 1, r + 1):
+                    rt_tile_req.append(z3_path_v(rt_tile) == l_d)
+                if 0 < r and c < maze.width - 1 and maze.is_path(c + 1, r - 1):
+                    rt_tile_req.append(z3_path_v(rt_tile) == l_u)
+                rt_tile_or = z3.Or(rt_tile_req)
+                solver.add(z3.Implies(z3_path_v(this_tile) == o_r, rt_tile_or))
+                solver.add(z3.Implies(z3_path_v(this_tile) == r_l, rt_tile_or))
+                solver.add(z3.Implies(z3_path_v(this_tile) == r_u, rt_tile_or))
+                solver.add(z3.Implies(z3_path_v(this_tile) == r_d, rt_tile_or))
 
-            dn_tile_req = (
-                None
-                if dn_tile == None
-                else [
-                    z3_path_v(dn_tile) == o_u,
-                    z3_path_v(dn_tile) == u_d if r + 1 < maze.height_less_one() and maze.is_path(c, r + 2) else None,
-                    z3_path_v(dn_tile) == r_u if r < maze.height_less_one() and c < maze.width_less_one() and maze.is_path(c + 1, r + 1) else None,
-                    z3_path_v(dn_tile) == l_u if r < maze.height_less_one() and 0 < c and maze.is_path(c - 1, r + 1) else None,
-                ]
-            )
-            if dn_tile_req != None:
-                dn_tile_req = [req for req in dn_tile_req if req != None]
+            dn_tile_or = None
+            if r < maze.height - 1:
+                dn_tile_req = [z3_path_v(dn_tile) == o_u]
+                if r + 1 < maze.height - 1 and maze.is_path(c, r + 2):
+                    dn_tile_req.append(z3_path_v(dn_tile) == u_d)
+                if r < maze.height - 1 and c < maze.width - 1 and maze.is_path(c + 1, r + 1):
+                    dn_tile_req.append(z3_path_v(dn_tile) == r_u)
+                if r < maze.height - 1 and 0 < c and maze.is_path(c - 1, r + 1):
+                    dn_tile_req.append(z3_path_v(dn_tile) == l_u)
+                dn_tile_or = z3.Or(dn_tile_req)
+                solver.add(z3.Implies(z3_path_v(this_tile) == o_d, dn_tile_or))
+                solver.add(z3.Implies(z3_path_v(this_tile) == u_d, dn_tile_or))
+                solver.add(z3.Implies(z3_path_v(this_tile) == r_d, dn_tile_or))
+                solver.add(z3.Implies(z3_path_v(this_tile) == l_d, dn_tile_or))
 
-            lt_tile_req = (
-                None
-                if lt_tile == None
-                else [
-                    z3_path_v(lt_tile) == o_r,
-                    z3_path_v(lt_tile) == r_l if 0 < c - 1 and maze.is_path(c - 2, r) else None,
-                    z3_path_v(lt_tile) == r_u if 0 < c and 0 < r and maze.is_path(c - 1, r - 1) else None,
-                    z3_path_v(lt_tile) == r_d if 0 < c and r < maze.height_less_one() and maze.is_path(c - 1, r + 1) else None,
-                ]
-            )
-            if lt_tile_req != None:
-                lt_tile_req = [req for req in lt_tile_req if req != None]
-
-            up_tile_or = z3.Or(up_tile_req) if up_tile_req != None else None
-            rt_tile_or = z3.Or(rt_tile_req) if rt_tile_req != None else None
-            dn_tile_or = z3.Or(dn_tile_req) if dn_tile_req != None else None
-            lt_tile_or = z3.Or(lt_tile_req) if lt_tile_req != None else None
-
-            if up_tile_req != None:
-                solver.add(z3.Implies(z3_path_v(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == o_u, up_tile_or))
-
-            if rt_tile_req != None:
-                solver.add(z3.Implies(z3_path_v(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == o_r, rt_tile_or))
-
-            if dn_tile_req != None:
-                solver.add(z3.Implies(z3_path_v(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == o_d, dn_tile_or))
-
-            if lt_tile_req != None:
-                solver.add(z3.Implies(z3_path_v(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == o_l, lt_tile_or))
-
-            u_d_constraint = [c for c in [up_tile_or, dn_tile_or] if c != None]
-            if len(u_d_constraint) > 0:
-                solver.add(z3.Implies(z3_path_v(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == u_d, z3.And(u_d_constraint)))
-
-            r_l_constraint = [c for c in [lt_tile_or, rt_tile_or] if c != None]
-            if len(r_l_constraint) > 0:
-                solver.add(z3.Implies(z3_path_v(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == r_l, z3.And(r_l_constraint)))
-
-            r_u_constraint = [c for c in [up_tile_or, rt_tile_or] if c != None]
-            if len(r_u_constraint) > 0:
-                solver.add(z3.Implies(z3_path_v(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == r_u, z3.And(r_u_constraint)))
-
-            r_d_constraint = [c for c in [dn_tile_or, rt_tile_or] if c != None]
-            if len(r_d_constraint) > 0:
-                solver.add(z3.Implies(z3_path_v(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == r_d, z3.And(r_d_constraint)))
-
-            l_d_constraint = [c for c in [dn_tile_or, lt_tile_or] if c != None]
-            if len(l_d_constraint) > 0:
-                solver.add(z3.Implies(z3_path_v(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == l_d, z3.And(l_d_constraint)))
-
-            l_u_constraint = [c for c in [up_tile_or, lt_tile_or] if c != None]
-            if len(l_u_constraint) > 0:
-                solver.add(z3.Implies(z3_path_v(bit_vec_sort.cast(c), bit_vec_sort.cast(r)) == l_u, z3.And(l_u_constraint)))
+            lt_tile_or = None
+            lt_tile_req = []
+            if c > 0:
+                lt_tile_req.append(z3_path_v(lt_tile) == o_r)
+                if 0 < c - 1 and maze.is_path(c - 2, r):
+                    lt_tile_req.append(z3_path_v(lt_tile) == r_l)
+                if 0 < c and 0 < r and maze.is_path(c - 1, r - 1):
+                    lt_tile_req.append(z3_path_v(lt_tile) == r_u)
+                if 0 < c and r < maze.height - 1 and maze.is_path(c - 1, r + 1):
+                    lt_tile_req.append(z3_path_v(lt_tile) == r_d)
+                lt_tile_or = z3.Or(lt_tile_req)
+                solver.add(z3.Implies(z3_path_v(this_tile) == o_l, lt_tile_or))
+                solver.add(z3.Implies(z3_path_v(this_tile) == r_l, lt_tile_or))
+                solver.add(z3.Implies(z3_path_v(this_tile) == l_u, lt_tile_or))
+                solver.add(z3.Implies(z3_path_v(this_tile) == l_d, lt_tile_or))
 
 
 def path_hints():
