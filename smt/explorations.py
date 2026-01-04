@@ -125,7 +125,7 @@ def assert_path_empty_constraints():
 
 def assert_anima_locations():
     solver.add(z3f_anima_location_c(anima_gottlob) == BitVec.cast(anima_locations["gottlob"][0]))
-    solver.add(z3f_anima_location_r(anima_gottlob) == BitVec.cast(anima_locations["gottlob"][0]))
+    solver.add(z3f_anima_location_r(anima_gottlob) == BitVec.cast(anima_locations["gottlob"][1]))
 
     solver.add(z3f_anima_location_c(anima_smtman) == BitVec.cast(anima_locations["smtman"][0]))
     solver.add(z3f_anima_location_r(anima_smtman) == BitVec.cast(anima_locations["smtman"][1]))
