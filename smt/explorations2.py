@@ -136,10 +136,10 @@ def assert_tile_constraints():
                     up_tile_or = z3.Or(up_tile_req)
                     consequent = [z3.And([z3_path_v(up_tile) == bb, up_tile_or])]
                     if 0 < r - 1 and maze.is_path(c, r - 2):
-                        consequent.append(z3.And([z3_path_h(up_tile) == xx, z3.Or([z3_path_v(up_tile) == oo, z3_path_v(up_tile) == aa])]))
+                        consequent.append(z3.And([z3_path_h(up_tile) == xx, z3_path_v(up_tile) == aa]))
                     consequent = z3.Or(consequent)
                     solver.add(z3.Implies(z3_path_v(this_tile) == aa, consequent))
-                    solver.add(z3.Implies(z3.And([z3_path_v(this_tile) == bb, z3_path_h(this_tile) == xx]), consequent))
+                    solver.add(z3.Implies(z3.And([z3_path_v(this_tile) == aa, z3_path_h(this_tile) == xx]), consequent))
 
                 # Down disjunction
                 if r < maze.height - 1:
@@ -151,7 +151,7 @@ def assert_tile_constraints():
                     dn_tile_or = z3.Or(dn_tile_req)
                     consequent = [z3.And([z3_path_v(dn_tile) == aa, dn_tile_or])]
                     if r + 1 < maze.height - 1 and maze.is_path(c, r + 2):
-                        consequent.append(z3.And([z3_path_h(dn_tile) == xx, z3.Or([z3_path_v(dn_tile) == oo, z3_path_v(dn_tile) == aa])]))
+                        consequent.append(z3.And([z3_path_h(dn_tile) == xx, z3_path_v(dn_tile) == aa]))
                     consequent = z3.Or(consequent)
                     solver.add(z3.Implies(z3_path_v(this_tile) == bb, consequent))
                     solver.add(z3.Implies(z3.And([z3_path_v(this_tile) == aa, z3_path_h(this_tile) == xx]), consequent))
@@ -166,10 +166,10 @@ def assert_tile_constraints():
                     rt_tile_or = z3.Or(rt_tile_req)
                     consequent = [z3.And([z3_path_h(rt_tile) == bb, rt_tile_or])]
                     if c + 1 < maze.width - 1 and maze.is_path(c + 2, r):
-                        consequent.append(z3.And([z3_path_v(rt_tile) == xx, z3.Or([z3_path_h(rt_tile) == oo, z3_path_h(rt_tile) == aa])]))
+                        consequent.append(z3.And([z3_path_v(rt_tile) == xx, z3_path_h(rt_tile) == aa]))
                     consequent = z3.Or(consequent)
                     solver.add(z3.Implies(z3_path_h(this_tile) == aa, consequent))
-                    solver.add(z3.Implies(z3.And([z3_path_h(this_tile) == bb, z3_path_v(this_tile) == xx]), consequent))
+                    solver.add(z3.Implies(z3.And([z3_path_h(this_tile) == aa, z3_path_v(this_tile) == xx]), consequent))
 
                 # Left disjunction
                 if c > 0:
@@ -181,7 +181,7 @@ def assert_tile_constraints():
                     lt_tile_or = z3.Or(lt_tile_req)
                     consequent = [z3.And([z3_path_h(lt_tile) == aa, lt_tile_or])]
                     if 0 < c - 1 and maze.is_path(c - 2, r):
-                        consequent.append(z3.And([z3_path_v(lt_tile) == xx, z3.Or([z3_path_h(lt_tile) == oo, z3_path_h(lt_tile) == aa])]))
+                        consequent.append(z3.And([z3_path_v(lt_tile) == xx, z3_path_h(lt_tile) == aa]))
                     consequent = z3.Or(consequent)
                     solver.add(z3.Implies(z3_path_h(this_tile) == bb, consequent))
                     solver.add(z3.Implies(z3.And([z3_path_h(this_tile) == aa, z3_path_v(this_tile) == xx]), consequent))
