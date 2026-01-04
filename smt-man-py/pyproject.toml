@@ -1,25 +1,22 @@
 [project]
-name = "smt-man-scratch"
+name = "smt-man"
 version = "0.0.0"
 requires-python = ">=3.13"
-dependencies = [
-    "smt-man",
-]
+dependencies = ["z3-solver>=4.15.0"]
 
-
-
+[build-system]
+requires = ["uv_build >= 0.9.21"]
+build-backend = "uv_build"
 
 [tool.ruff]
 exclude = [".direnv", ".git", ".venv", "build"]
-
 line-length = 320
 indent-width = 4
 
 [tool.ruff.lint]
 select = ["E4", "E7", "E9", "F"]
 ignore = []
-
-# Allow unused variables when underscore-prefixed.
+# Allow unused variables when underscore-prefixed
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 [tool.ruff.format]
@@ -30,12 +27,3 @@ line-ending = "lf"
 
 [tool.ty.environment]
 python = "./.venv"
-
-[tool.uv.workspace]
-members = [
-    "smt-man-py",
-]
-
-[tool.uv.sources]
-smt-man = { workspace = true }
-

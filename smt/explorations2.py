@@ -1,98 +1,69 @@
+import typing
 import z3
+import smt_man
+import smt_man.mind as mind
 
 import time
 
-
-anima_locations = {
-    "gottlob": [1, 4],
-    "smtman": [11, 26],
-}
-
-
-class Maze:
-    def __init__(self, path):
-        self.width = 0
-        self.height = 0
-        # Character representation of the maze
-        self.chars = []
-        self.from_path(path)
-
-    def from_path(self, path):
-        with open(path, "r") as file:
-            for line in file.readlines():
-                if 0 < len(line):
-                    match line[0]:
-                        case "m":
-                            self.chars.append(list(line[1:-1]))
-                        case "w":
-                            self.width = int(line[1:])
-                        case "h":
-                            self.height = int(line[1:])
-
-    def print(self):
-        for row in range(0, self.height):
-            for col in range(0, self.width):
-                print(f"{self.chars[row][col]}", end="")
-            print("")
-
-    def is_path(self, col, row):
-        return (self.chars[row][col] == " ") or (self.chars[row][col] == "-") or (self.chars[row][col] == "+")
+from z3 import ExprRef as z3_expr_t
+from z3 import SortRef as z3_sort_t
+from z3 import DatatypeSortRef as z3_datatype_sort_t
+from z3 import FuncDeclRef as z3_fn_t
 
 
-maze = Maze("./resources/maze/source.txt")
-# maze.print()
+location_t = tuple[int, int]
 
-# print(z3.tactics())
-# for tactic in z3.tactics():
-#     print(f"{tactic}:\n\t{z3.tactic_description(tactic)}")
-# print(z3.main_ctx().param_descrs())
 
-# solver = Solver()
-
+maze = smt_man.maze.Maze("./resources/maze/source.txt")
 solver = z3.Optimize()
-
-solver.set("incremental", True)
-solver.set("maxsat_engine", "wmax")
+mind.solver_set_defaults(solver)
 
 
 ###
 
 ## Base types
 
-BitVec = z3.BitVecSort(8)
+BitVec: z3_sort_t = z3.BitVecSort(8)
 
 ## Anima
 
-Anima = z3.DeclareSort("Anima")
-z3f_anima_location_r = z3.Function("anima_location_r", Anima, BitVec)
-z3f_anima_location_c = z3.Function("anima_location_c", Anima, BitVec)
+Anima: z3_sort_t = z3.DeclareSort("Anima")
+z3f_anima_location_r: z3_fn_t = z3.Function("anima_location_r", Anima, BitVec)
+z3f_anima_location_c: z3_fn_t = z3.Function("anima_location_c", Anima, BitVec)
 
-anima_anima = z3.Const("anima", Anima)
-animas = (z3.Const("gottlob", Anima), z3.Const("smtman", Anima))
-anima_gottlob = animas[0]
-anima_smtman = animas[1]
+anima_anima: z3_expr_t = z3.Const("anima", Anima)
+
+
+animas: list[z3_expr_t] = [z3.Const("gottlob", Anima), z3.Const("smtman", Anima)]
+anima_locations: list[location_t] = [
+    (1, 4),
+    (11, 26),
+]
+
 
 ## Path
 
-PathEnum, path_enums = z3.EnumSort(
+z3_path_enum_return: tuple[z3_datatype_sort_t, list[z3_fn_t]] = z3.EnumSort(
     "path_e",
     ("o", "a", "b", "x"),
     #      0    1    2    3
 )
+PathEnum: z3_datatype_sort_t = z3_path_enum_return[0]
+path_enums: list[z3_fn_t] = z3_path_enum_return[1]
 
-oo = path_enums[0]
-aa = path_enums[1]
-bb = path_enums[2]
-xx = path_enums[3]
+oo: z3_fn_t = path_enums[0]
+aa: z3_fn_t = path_enums[1]
+bb: z3_fn_t = path_enums[2]
+xx: z3_fn_t = path_enums[3]
 
 
-z3_path_v = z3.Function("path_type_v", BitVec, BitVec, PathEnum)
-z3_path_h = z3.Function("path_type_h", BitVec, BitVec, PathEnum)
+z3_path_v: z3_fn_t = z3.Function("path_type_v", BitVec, BitVec, PathEnum)
+z3_path_h: z3_fn_t = z3.Function("path_type_h", BitVec, BitVec, PathEnum)
 
 ## General assertion fns
 
 
-def assert_path_empty_constraints():
+def assert_path_empty_constraints(maze: smt_man.Maze):
     for r in range(0, maze.height):
         for c in range(0, maze.width):
             this_tile = [BitVec.cast(c), BitVec.cast(r)]
@@ -102,14 +73,6 @@ def assert_path_empty_constraints():
             else:
                 solver.add(z3_path_h(this_tile) == xx)
                 solver.add(z3_path_v(this_tile) == xx)
-
-
-def assert_anima_locations():
-    solver.add(z3f_anima_location_c(anima_gottlob) == BitVec.cast(anima_locations["gottlob"][0]))
-    solver.add(z3f_anima_location_r(anima_gottlob) == BitVec.cast(anima_locations["gottlob"][1]))
-
-    solver.add(z3f_anima_location_c(anima_smtman) == BitVec.cast(anima_locations["smtman"][0]))
-    solver.add(z3f_anima_location_r(anima_smtman) == BitVec.cast(anima_locations["smtman"][1]))
 
 
 def assert_tile_constraints():
@@ -208,17 +171,16 @@ def assert_tile_constraints():
 ## Specific assertion fns
 
 
-def anima_is_origin():
-    for anima in animas:
-        anima_location = [z3f_anima_location_c(anima), z3f_anima_location_r(anima)]
-        solver.add(
-            z3.Or(
-                [
-                    z3.And([z3_path_h(anima_location) == oo, z3_path_v(anima_location) != oo]),
-                    z3.And([z3_path_h(anima_location) != oo, z3_path_v(anima_location) == oo]),
-                ]
-            )
+def anima_is_origin(anima: z3_expr_t):
+    anima_location = [z3f_anima_location_c(anima), z3f_anima_location_r(anima)]
+    solver.add(
+        z3.Or(
+            [
+                z3.And([z3_path_h(anima_location) == oo, z3_path_v(anima_location) != oo]),
+                z3.And([z3_path_h(anima_location) != oo, z3_path_v(anima_location) == oo]),
+            ]
         )
+    )
 
 
 def assert_path_hints():
@@ -227,8 +189,8 @@ def assert_path_hints():
             this_tile = [BitVec.cast(c), BitVec.cast(r)]
             skip = False
 
-            for anima in anima_locations.keys():
-                if anima_locations[anima][0] == c and anima_locations[anima][1] == r:
+            for anima_id in range(len(animas)):
+                if anima_locations[anima_id][0] == c and anima_locations[anima_id][1] == r:
                     skip = True
 
             if not skip:
@@ -236,11 +198,19 @@ def assert_path_hints():
                 solver.add(z3.Or([z3_path_v(this_tile) == aa, z3_path_v(this_tile) == bb, z3_path_v(this_tile) == xx]))
 
 
-assert_path_empty_constraints()
-assert_anima_locations()
+def assert_anima_location(anima_id: int):
+    solver.add(z3f_anima_location_c(animas[id]) == BitVec.cast(anima_locations[id][0]))
+    solver.add(z3f_anima_location_r(animas[id]) == BitVec.cast(anima_locations[id][1]))
+
+
+assert_path_empty_constraints(maze)
 assert_tile_constraints()
 
-anima_is_origin()
+for id in range(len(animas)):
+    assert_anima_location(id)
+
+for anima in animas:
+    anima_is_origin(anima)
 assert_path_hints()
 
 
