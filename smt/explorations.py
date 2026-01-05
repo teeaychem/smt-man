@@ -35,7 +35,6 @@ animas: list[z3_expr_t] = [
 ## Path
 
 path = path4_t()
-# path = path7_t()
 
 path.assert_empty_constraints(optimizer, maze)
 path.assert_constant_tile_constraints(optimizer, maze)

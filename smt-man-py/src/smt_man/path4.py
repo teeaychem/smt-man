@@ -8,7 +8,15 @@ import smt_man
 
 class path4_t:
     def __init__(self):
-        self.z3_return: tuple[z3_datatype_sort_t, list[z3_fn_t]] = z3.EnumSort("path4_e", ("O", "A", "B", "X"))
+        self.z3_return: tuple[z3_datatype_sort_t, list[z3_fn_t]] = z3.EnumSort(
+            "path4_e",
+            (
+                "o",
+                "a",
+                "b",
+                "x",
+            ),
+        )
         self.z3_t: z3_datatype_sort_t = self.z3_return[0]
         self.z3e: list[z3_fn_t] = self.z3_return[1]
 
@@ -74,14 +82,14 @@ class path4_t:
         tile_x = z3_tile.X(col, row)
         tile_n = z3_tile.N(col, row)
 
-        up_tile_req: list[z3_bool_t] = [self.tile_h_is(tile_n, self.z3e_o)]
+        options: list[z3_bool_t] = [self.tile_h_is(tile_n, self.z3e_o)]
 
         if col < maze.width - 1 and 0 < row and maze.is_path(col + 1, row - 1):
-            up_tile_req.append(self.tile_h_is(tile_n, self.z3e_a))
+            options.append(self.tile_h_is(tile_n, self.z3e_a))
         if 0 < col and 0 < row and maze.is_path(col - 1, row - 1):
-            up_tile_req.append(self.tile_h_is(tile_n, self.z3e_b))
+            options.append(self.tile_h_is(tile_n, self.z3e_b))
 
-        consequent: list[z3_bool_t] = [z3.And([self.tile_v_is(tile_n, self.z3e_b), z3.Or(up_tile_req)])]
+        consequent: list[z3_bool_t] = [z3.And([self.tile_v_is(tile_n, self.z3e_b), z3.Or(options)])]
 
         if 0 < row - 1 and maze.is_path(col, row - 2):
             consequent.append(self.direct_v(tile_n))
@@ -98,14 +106,14 @@ class path4_t:
         tile_x = z3_tile.X(col, row)
         tile_s = z3_tile.S(col, row)
 
-        dn_tile_req: list[z3_bool_t] = [self.tile_h_is(tile_s, self.z3e_o)]
+        options: list[z3_bool_t] = [self.tile_h_is(tile_s, self.z3e_o)]
 
         if row < maze.height - 1 and col < maze.width - 1 and maze.is_path(col + 1, row + 1):
-            dn_tile_req.append(self.tile_h_is(tile_s, self.z3e_a))
+            options.append(self.tile_h_is(tile_s, self.z3e_a))
         if row < maze.height - 1 and 0 < col and maze.is_path(col - 1, row + 1):
-            dn_tile_req.append(self.tile_h_is(tile_s, self.z3e_b))
+            options.append(self.tile_h_is(tile_s, self.z3e_b))
 
-        consequent: list[z3_bool_t] = [z3.And([self.tile_v_is(tile_s, self.z3e_a), z3.Or(dn_tile_req)])]
+        consequent: list[z3_bool_t] = [z3.And([self.tile_v_is(tile_s, self.z3e_a), z3.Or(options)])]
 
         if row + 1 < maze.height - 1 and maze.is_path(col, row + 2):
             consequent.append(self.direct_v(tile_s))
@@ -122,15 +130,14 @@ class path4_t:
         tile_x = z3_tile.X(col, row)
         tile_e = z3_tile.E(col, row)
 
-        rt_tile_req: list[z3_bool_t] = [self.tile_v_is(tile_e, self.z3e_o)]
+        options: list[z3_bool_t] = [self.tile_v_is(tile_e, self.z3e_o)]
 
         if row < maze.height - 1 and col < maze.width - 1 and maze.is_path(col + 1, row + 1):
-            rt_tile_req.append(self.tile_v_is(tile_e, self.z3e_b))
+            options.append(self.tile_v_is(tile_e, self.z3e_b))
         if 0 < row and col < maze.width - 1 and maze.is_path(col + 1, row - 1):
-            rt_tile_req.append(self.tile_v_is(tile_e, self.z3e_a))
-        rt_tile_or = z3.Or(rt_tile_req)
+            options.append(self.tile_v_is(tile_e, self.z3e_a))
 
-        consequent: list[z3_bool_t] = [z3.And([self.tile_h_is(tile_e, self.z3e_b), rt_tile_or])]
+        consequent: list[z3_bool_t] = [z3.And([self.tile_h_is(tile_e, self.z3e_b), z3.Or(options)])]
 
         if col + 1 < maze.width - 1 and maze.is_path(col + 2, row):
             consequent.append(self.direct_h(tile_e))
@@ -147,14 +154,14 @@ class path4_t:
         tile_x = z3_tile.X(col, row)
         tile_w = z3_tile.W(col, row)
 
-        lt_tile_req: list[z3_bool_t] = [self.tile_v_is(tile_w, self.z3e_o)]
+        options: list[z3_bool_t] = [self.tile_v_is(tile_w, self.z3e_o)]
 
         if 0 < col and 0 < row and maze.is_path(col - 1, row - 1):
-            lt_tile_req.append(self.tile_v_is(tile_w, self.z3e_a))
+            options.append(self.tile_v_is(tile_w, self.z3e_a))
         if 0 < col and row < maze.height - 1 and maze.is_path(col - 1, row + 1):
-            lt_tile_req.append(self.tile_v_is(tile_w, self.z3e_b))
+            options.append(self.tile_v_is(tile_w, self.z3e_b))
 
-        consequent: list[z3_bool_t] = [z3.And([self.tile_h_is(tile_w, self.z3e_a), z3.Or(lt_tile_req)])]
+        consequent: list[z3_bool_t] = [z3.And([self.tile_h_is(tile_w, self.z3e_a), z3.Or(options)])]
 
         if 0 < col - 1 and maze.is_path(col - 2, row):
             consequent.append(self.direct_h(tile_w))
@@ -209,8 +216,18 @@ class path4_t:
         optimizer.add(
             z3.Or(
                 [
-                    z3.And([self.tile_h_is(anima_location, self.z3e_o), self.tile_v_is_not(anima_location, self.z3e_o)]),
-                    z3.And([self.tile_h_is_not(anima_location, self.z3e_o), self.tile_v_is(anima_location, self.z3e_o)]),
+                    z3.And(
+                        [
+                            self.tile_h_is(anima_location, self.z3e_o),
+                            self.tile_v_is_not(anima_location, self.z3e_o),
+                        ]
+                    ),
+                    z3.And(
+                        [
+                            self.tile_h_is_not(anima_location, self.z3e_o),
+                            self.tile_v_is(anima_location, self.z3e_o),
+                        ]
+                    ),
                 ]
             )
         )
@@ -254,6 +271,8 @@ class path4_t:
                     self.tile_h_is(tile_x, self.z3e_x),
                 ]
             )
+            optimizer.add(z3.Implies(self.tile_h_is_not(tile_x, self.z3e_o), h_d))
+
             v_d: z3_bool_t = z3.Or(
                 [
                     self.tile_v_is(tile_x, self.z3e_a),
@@ -261,8 +280,6 @@ class path4_t:
                     self.tile_v_is(tile_x, self.z3e_x),
                 ]
             )
-
-            optimizer.add(z3.Implies(self.tile_h_is_not(tile_x, self.z3e_o), h_d))
             optimizer.add(z3.Implies(self.tile_v_is_not(tile_x, self.z3e_o), v_d))
 
     def assert_constant_origin_is_anima(self, optimizer: z3_optimizer_t, maze: maze_t, animas: list[z3s_anima_t]) -> None:
