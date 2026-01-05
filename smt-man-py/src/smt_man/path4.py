@@ -49,7 +49,7 @@ class path4_t:
                 optimizer.add(self.z3f_h(tile_x) == self.z3e_x)
                 optimizer.add(self.z3f_v(tile_x) == self.z3e_x)
 
-    def assert_anima_location(self, optimizer: z3_optimizer_t, anima: z3_expr_t, col: int, row: int) -> None:
+    def assert_variable_anima_location(self, optimizer: z3_optimizer_t, anima: z3_expr_t, col: int, row: int) -> None:
         optimizer.add(z3f_anima_location_c(anima) == z3s_bv8.cast(col))
         optimizer.add(z3f_anima_location_r(anima) == z3s_bv8.cast(row))
 
@@ -201,7 +201,7 @@ class path4_t:
             )
         )
 
-    def assert_hints(self, optimizer: z3_optimizer_t, maze: maze_t, locations: list[location_t]) -> None:
+    def assert_variable_hints(self, optimizer: z3_optimizer_t, maze: maze_t, locations: list[location_t]) -> None:
         for col, row in maze.tiles():
             tile_x = z3_tile.X(col, row)
             skip = False
@@ -228,3 +228,36 @@ class path4_t:
 
                 optimizer.add(h_d)
                 optimizer.add(v_d)
+
+    def assert_constant_hints(self, optimizer: z3_optimizer_t, maze: maze_t, locations: list[location_t]) -> None:
+        for col, row in maze.tiles():
+            tile_x = z3_tile.X(col, row)
+
+            h_d: z3_bool_t = z3.Or(
+                [
+                    self.z3f_h(tile_x) == self.z3e_a,
+                    self.z3f_h(tile_x) == self.z3e_b,
+                    self.z3f_h(tile_x) == self.z3e_x,
+                ]
+            )
+            v_d: z3_bool_t = z3.Or(
+                [
+                    self.z3f_v(tile_x) == self.z3e_a,
+                    self.z3f_v(tile_x) == self.z3e_b,
+                    self.z3f_v(tile_x) == self.z3e_x,
+                ]
+            )
+
+            optimizer.add(z3.Implies(self.z3f_h(tile_x) != self.z3e_o, h_d))
+            optimizer.add(z3.Implies(self.z3f_v(tile_x) != self.z3e_o, v_d))
+
+    def assert_constant_origin_is_anima(self, optimizer: z3_optimizer_t, maze: maze_t, animas: list[z3s_anima_t]) -> None:
+        for col, row in maze.tiles():
+            tile_x = z3_tile.X(col, row)
+
+            a_d = []
+            for anima in animas:
+                a_d.append(z3.And([z3f_anima_location_c(anima) == col, z3f_anima_location_r(anima) == row]))
+
+            optimizer.add(z3.Implies(self.z3f_h(tile_x) == self.z3e_o, z3.Or(a_d)))
+            optimizer.add(z3.Implies(self.z3f_v(tile_x) == self.z3e_o, z3.Or(a_d)))

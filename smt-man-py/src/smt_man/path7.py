@@ -46,7 +46,7 @@ class path7_t:
             else:
                 optimizer.add(self.z3_path_v(z3s_bv8.cast(col), z3s_bv8.cast(row)) == self.EX)
 
-    def assert_anima_location(self, optimizer: z3_optimizer_t, anima: z3_expr_t, col: int, row: int) -> None:
+    def assert_variable_anima_location(self, optimizer: z3_optimizer_t, anima: z3_expr_t, col: int, row: int) -> None:
         optimizer.add(z3f_anima_location_c(anima) == z3s_bv8.cast(col))
         optimizer.add(z3f_anima_location_r(anima) == z3s_bv8.cast(row))
 
@@ -149,7 +149,7 @@ class path7_t:
     def assert_anima_is_origin(self, optimizer: z3_optimizer_t, anima: z3_expr_t) -> None:
         optimizer.add(self.z3_path_v(z3f_anima_location_c(anima), z3f_anima_location_r(anima)) == self.OX)
 
-    def assert_hints(self, optimizer: z3_optimizer_t, maze: maze_t, locations: list[location_t]) -> None:
+    def assert_variable_hints(self, optimizer: z3_optimizer_t, maze: maze_t, locations: list[location_t]) -> None:
         for col, row in maze.tiles():
             tile_x = z3_tile.X(col, row)
             skip = False
