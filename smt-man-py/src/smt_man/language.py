@@ -1,8 +1,11 @@
 import z3
+
 from smt_man.types import *
 
-z3s_bv8_t: z3_sort_t = z3.BitVecSort(8)
+anima_id_t = int
+location_t = tuple[int, int]
 z3_tile_t = tuple[z3_expr_t, z3_expr_t]
+z3s_bv8_t: z3_sort_t = z3.BitVecSort(8)
 
 
 class z3s_bv8:
@@ -33,6 +36,8 @@ class z3_tile:
 # Anima
 
 z3s_anima_t: z3_sort_t = z3.DeclareSort("Anima")
+
+
 z3f_anima_location_r: z3_fn_t = z3.Function("anima_location_r", z3s_anima_t, z3s_bv8_t)
 z3f_anima_location_c: z3_fn_t = z3.Function("anima_location_c", z3s_anima_t, z3s_bv8_t)
 

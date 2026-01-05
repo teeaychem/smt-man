@@ -11,6 +11,25 @@ def set_defaults(solver: z3.Optimize):
     solver.set("maxsat_engine", "wmax")
 
 
+# solver.set("priority", "box")
+
+# solver.set("enable_lns", True)
+# solver.set("enable_sat", False)
+# solver.set("enable_sls", True)
+# solver.set("optsmt_engine", "symba")
+# solver.set("pb.compile_equality", True)
+
+
+# solver.set("ctrl_c", False)
+# solver.set("pb.compile_equality", True)
+# solver.set("maxres.maximize_assignment", True)
+
+# solver.set("maxsat_engine", "maxres")
+# solver.set("maxsat_engine", "pd-maxres")
+# solver.set("maxsat_engine", "rc2")
+# solver.set("maxsat_engine", "maxres-bin")
+
+
 def timed_solve(optimizer: z3_optimizer_t, print_stats: bool = False) -> z3_model_t | None:
     time_solve_start: float = time.perf_counter()
     time_solve_end = 0

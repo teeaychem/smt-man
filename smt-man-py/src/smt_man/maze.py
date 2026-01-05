@@ -1,5 +1,5 @@
 from typing import TypeAlias
-from smt_man.types import location_t
+from smt_man.language import location_t
 
 
 class Maze:
