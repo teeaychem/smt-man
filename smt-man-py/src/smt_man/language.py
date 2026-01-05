@@ -7,6 +7,16 @@ location_t = tuple[int, int]
 z3_tile_t = tuple[z3_expr_t, z3_expr_t]
 z3s_bv8_t: z3_sort_t = z3.BitVecSort(8)
 
+# Anima
+
+z3s_anima_t: z3_sort_t = z3.DeclareSort("anima_t")
+
+z3f_anima_location_c: z3_fn_t = z3.Function("anima_c", z3s_anima_t, z3s_bv8_t)
+z3f_anima_location_r: z3_fn_t = z3.Function("anima_r", z3s_anima_t, z3s_bv8_t)
+
+
+# Interfaces
+
 
 class z3s_bv8:
     def cast(val: int) -> z3_expr_t:
@@ -31,14 +41,3 @@ class z3_tile:
 
     def W(col: int, row: int) -> z3_tile_t:
         return z3s_bv8.cast_location((col - 1, row))
-
-
-# Anima
-
-z3s_anima_t: z3_sort_t = z3.DeclareSort("anima_t")
-
-
-z3f_anima_location_r: z3_fn_t = z3.Function("anima_location_r", z3s_anima_t, z3s_bv8_t)
-z3f_anima_location_c: z3_fn_t = z3.Function("anima_location_c", z3s_anima_t, z3s_bv8_t)
-
-# Path
