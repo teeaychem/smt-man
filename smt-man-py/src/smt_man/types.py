@@ -7,6 +7,8 @@ from z3 import FuncDeclRef as z3_fn_t
 from z3 import ModelRef as z3_model_t
 from z3 import Optimize as z3_optimizer_t
 
+z3_expr_p_t = tuple[z3_expr_t, z3_expr_t]
+
 # module custom types
 
 location_t = tuple[int, int]

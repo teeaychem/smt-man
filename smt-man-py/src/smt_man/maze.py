@@ -26,3 +26,8 @@ class Maze:
 
     def is_path(self, col, row):
         return (self.chars[row][col] == " ") or (self.chars[row][col] == "-") or (self.chars[row][col] == "+")
+
+    def tiles(self):
+        for row in range(0, self.height):
+            for col in range(0, self.width):
+                yield (col, row)
