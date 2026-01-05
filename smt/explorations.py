@@ -5,8 +5,8 @@ import time
 import z3
 
 import smt_man
-import smt_man.mind as mind
 from smt_man.maze import maze_t
+from smt_man.mind import mind
 from smt_man.types import *
 from smt_man.language import *
 
@@ -29,7 +29,7 @@ mind.set_defaults(optimizer)
 
 animas: list[z3_expr_t] = [
     z3.Const("gottlob", z3s_anima_t),
-    z3.Const("smtman", z3s_anima_t),
+    z3.Const("smt-man", z3s_anima_t),
 ]
 
 ## Path
@@ -46,6 +46,9 @@ if not VARIABLE_HINTS:
     path.assert_constant_origin_is_anima(optimizer, maze, animas)
     path.assert_constant_hints(optimizer, maze, anima_locations)
 
+
+mind.to_file(optimizer, "./anima.smt2")
+# exit()
 
 optimizer.check()
 
