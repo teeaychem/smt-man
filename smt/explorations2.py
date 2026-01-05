@@ -5,11 +5,12 @@ import smt_man
 import smt_man.mind as mind
 from smt_man.types import *
 from smt_man.language import *
+from smt_man.maze import maze_t
 
 
 maze = smt_man.maze.Maze("./resources/maze/source.txt")
 optimizer = z3.Optimize()
-mind.solver_set_defaults(optimizer)
+mind.set_defaults(optimizer)
 
 ## Anima
 

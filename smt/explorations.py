@@ -1,8 +1,11 @@
-import z3
-import smt_man
-
 import time
 
+import z3
+
+import smt_man
+import smt_man.mind as mind
+from smt_man.types import *
+from smt_man.language import *
 
 anima_locations = {
     "gottlob": [1, 1],
@@ -20,10 +23,11 @@ maze = smt_man.maze.Maze("./resources/maze/source.txt")
 
 # solver = Solver()
 
-solver = z3.Optimize()
+optimizer = z3.Optimize()
+mind.set_defaults(optimizer)
 
-solver.set("incremental", True)
-solver.set("maxsat_engine", "wmax")
+optimizer.set("incremental", True)
+optimizer.set("maxsat_engine", "wmax")
 
 # solver.set("priority", "box")
 
@@ -46,18 +50,8 @@ solver.set("maxsat_engine", "wmax")
 
 ###
 
-## Base types
 
-BitVec = z3.BitVecSort(8)
-
-## Anima
-
-Anima = z3.DeclareSort("Anima")
-z3f_anima_location_r = z3.Function("anima_location_r", Anima, BitVec)
-z3f_anima_location_c = z3.Function("anima_location_c", Anima, BitVec)
-
-anima_anima = z3.Const("anima", Anima)
-animas = (z3.Const("gottlob", Anima), z3.Const("smtman", Anima))
+animas = (z3.Const("gottlob", z3s_anima_t), z3.Const("smtman", z3s_anima_t))
 anima_gottlob = animas[0]
 anima_smtman = animas[1]
 
@@ -80,7 +74,7 @@ l_d = path_enums[5]
 l_u = path_enums[6]
 x_x = path_enums[7]
 
-z3_path_v = z3.Function("path_type", BitVec, BitVec, PathEnum)
+z3_path_v = z3.Function("path_type", z3s_bv8_t, z3s_bv8_t, PathEnum)
 
 ## General assertion fns
 
@@ -89,31 +83,31 @@ def assert_path_empty_constraints():
     for r in range(0, maze.height):
         for c in range(0, maze.width):
             if maze.is_path(c, r):
-                solver.add_soft(z3_path_v(BitVec.cast(c), BitVec.cast(r)) == x_x, weight=1)
+                optimizer.add_soft(z3_path_v(z3s_bv8_t.cast(c), z3s_bv8_t.cast(r)) == x_x, weight=1)
             else:
-                solver.add(z3_path_v(BitVec.cast(c), BitVec.cast(r)) == x_x)
+                optimizer.add(z3_path_v(z3s_bv8_t.cast(c), z3s_bv8_t.cast(r)) == x_x)
 
 
 def assert_anima_locations():
-    solver.add(z3f_anima_location_c(anima_gottlob) == BitVec.cast(anima_locations["gottlob"][0]))
-    solver.add(z3f_anima_location_r(anima_gottlob) == BitVec.cast(anima_locations["gottlob"][1]))
+    optimizer.add(z3f_anima_location_c(anima_gottlob) == z3s_bv8_t.cast(anima_locations["gottlob"][0]))
+    optimizer.add(z3f_anima_location_r(anima_gottlob) == z3s_bv8_t.cast(anima_locations["gottlob"][1]))
 
-    solver.add(z3f_anima_location_c(anima_smtman) == BitVec.cast(anima_locations["smtman"][0]))
-    solver.add(z3f_anima_location_r(anima_smtman) == BitVec.cast(anima_locations["smtman"][1]))
+    optimizer.add(z3f_anima_location_c(anima_smtman) == z3s_bv8_t.cast(anima_locations["smtman"][0]))
+    optimizer.add(z3f_anima_location_r(anima_smtman) == z3s_bv8_t.cast(anima_locations["smtman"][1]))
 
 
 def assert_tile_constraints():
     for r in range(0, maze.height):
-        bvr = BitVec.cast(r)
+        bvr = z3s_bv8_t.cast(r)
         for c in range(0, maze.width):
-            bvc = BitVec.cast(c)
+            bvc = z3s_bv8_t.cast(c)
 
             if maze.is_path(c, r):
-                this_tile = [BitVec.cast(c), BitVec.cast(r)]
-                up_tile = [BitVec.cast(c), BitVec.cast(r - 1)]
-                rt_tile = [BitVec.cast(c + 1), BitVec.cast(r)]
-                dn_tile = [BitVec.cast(c), BitVec.cast(r + 1)]
-                lt_tile = [BitVec.cast(c - 1), BitVec.cast(r)]
+                this_tile = [z3s_bv8_t.cast(c), z3s_bv8_t.cast(r)]
+                up_tile = [z3s_bv8_t.cast(c), z3s_bv8_t.cast(r - 1)]
+                rt_tile = [z3s_bv8_t.cast(c + 1), z3s_bv8_t.cast(r)]
+                dn_tile = [z3s_bv8_t.cast(c), z3s_bv8_t.cast(r + 1)]
+                lt_tile = [z3s_bv8_t.cast(c - 1), z3s_bv8_t.cast(r)]
 
                 # Up disjunction
                 if r > 0:
@@ -125,9 +119,9 @@ def assert_tile_constraints():
                     if 0 < c and 0 < r and maze.is_path(c - 1, r - 1):
                         up_tile_req.append(z3_path_v(up_tile) == l_d)
                     up_tile_or = z3.Or(up_tile_req)
-                    solver.add(z3.Implies(z3_path_v(this_tile) == u_d, up_tile_or))
-                    solver.add(z3.Implies(z3_path_v(this_tile) == r_u, up_tile_or))
-                    solver.add(z3.Implies(z3_path_v(this_tile) == l_u, up_tile_or))
+                    optimizer.add(z3.Implies(z3_path_v(this_tile) == u_d, up_tile_or))
+                    optimizer.add(z3.Implies(z3_path_v(this_tile) == r_u, up_tile_or))
+                    optimizer.add(z3.Implies(z3_path_v(this_tile) == l_u, up_tile_or))
 
                 # Right disjunction
                 if c < maze.width - 1:
@@ -139,9 +133,9 @@ def assert_tile_constraints():
                     if 0 < r and c < maze.width - 1 and maze.is_path(c + 1, r - 1):
                         rt_tile_req.append(z3_path_v(rt_tile) == l_u)
                     rt_tile_or = z3.Or(rt_tile_req)
-                    solver.add(z3.Implies(z3_path_v(this_tile) == r_l, rt_tile_or))
-                    solver.add(z3.Implies(z3_path_v(this_tile) == r_u, rt_tile_or))
-                    solver.add(z3.Implies(z3_path_v(this_tile) == r_d, rt_tile_or))
+                    optimizer.add(z3.Implies(z3_path_v(this_tile) == r_l, rt_tile_or))
+                    optimizer.add(z3.Implies(z3_path_v(this_tile) == r_u, rt_tile_or))
+                    optimizer.add(z3.Implies(z3_path_v(this_tile) == r_d, rt_tile_or))
 
                 # Down disjunction
                 if r < maze.height - 1:
@@ -153,9 +147,9 @@ def assert_tile_constraints():
                     if r < maze.height - 1 and 0 < c and maze.is_path(c - 1, r + 1):
                         dn_tile_req.append(z3_path_v(dn_tile) == l_u)
                     dn_tile_or = z3.Or(dn_tile_req)
-                    solver.add(z3.Implies(z3_path_v(this_tile) == u_d, dn_tile_or))
-                    solver.add(z3.Implies(z3_path_v(this_tile) == r_d, dn_tile_or))
-                    solver.add(z3.Implies(z3_path_v(this_tile) == l_d, dn_tile_or))
+                    optimizer.add(z3.Implies(z3_path_v(this_tile) == u_d, dn_tile_or))
+                    optimizer.add(z3.Implies(z3_path_v(this_tile) == r_d, dn_tile_or))
+                    optimizer.add(z3.Implies(z3_path_v(this_tile) == l_d, dn_tile_or))
 
                 # Left disjunction
                 if c > 0:
@@ -167,9 +161,9 @@ def assert_tile_constraints():
                     if 0 < c and r < maze.height - 1 and maze.is_path(c - 1, r + 1):
                         lt_tile_req.append(z3_path_v(lt_tile) == r_d)
                     lt_tile_or = z3.Or(lt_tile_req)
-                    solver.add(z3.Implies(z3_path_v(this_tile) == r_l, lt_tile_or))
-                    solver.add(z3.Implies(z3_path_v(this_tile) == l_u, lt_tile_or))
-                    solver.add(z3.Implies(z3_path_v(this_tile) == l_d, lt_tile_or))
+                    optimizer.add(z3.Implies(z3_path_v(this_tile) == r_l, lt_tile_or))
+                    optimizer.add(z3.Implies(z3_path_v(this_tile) == l_u, lt_tile_or))
+                    optimizer.add(z3.Implies(z3_path_v(this_tile) == l_d, lt_tile_or))
 
                 # Origin disjunction
                 og_tile_req = []
@@ -194,7 +188,7 @@ def assert_tile_constraints():
                     og_tile_req.append(z3_path_v(lt_tile) == r_d)
                     og_tile_req.append(z3_path_v(lt_tile) == r_l)
                 origin_or = z3.Or(og_tile_req)
-                solver.add(z3.Implies(z3_path_v(this_tile) == o_g, origin_or))
+                optimizer.add(z3.Implies(z3_path_v(this_tile) == o_g, origin_or))
 
 
 ## Specific assertion fns
@@ -202,7 +196,7 @@ def assert_tile_constraints():
 
 def anima_is_origin():
     for anima in animas:
-        solver.add(z3_path_v(z3f_anima_location_c(anima), z3f_anima_location_r(anima)) == o_g)
+        optimizer.add(z3_path_v(z3f_anima_location_c(anima), z3f_anima_location_r(anima)) == o_g)
 
 
 def assert_path_hints():
@@ -215,16 +209,16 @@ def assert_path_hints():
                     skip = True
 
             if not skip:
-                solver.add(
+                optimizer.add(
                     z3.Or(
                         [
-                            z3_path_v(BitVec.cast(c), BitVec.cast(r)) == u_d,
-                            z3_path_v(BitVec.cast(c), BitVec.cast(r)) == r_l,
-                            z3_path_v(BitVec.cast(c), BitVec.cast(r)) == r_u,
-                            z3_path_v(BitVec.cast(c), BitVec.cast(r)) == r_d,
-                            z3_path_v(BitVec.cast(c), BitVec.cast(r)) == l_d,
-                            z3_path_v(BitVec.cast(c), BitVec.cast(r)) == l_u,
-                            z3_path_v(BitVec.cast(c), BitVec.cast(r)) == x_x,
+                            z3_path_v(z3s_bv8_t.cast(c), z3s_bv8_t.cast(r)) == u_d,
+                            z3_path_v(z3s_bv8_t.cast(c), z3s_bv8_t.cast(r)) == r_l,
+                            z3_path_v(z3s_bv8_t.cast(c), z3s_bv8_t.cast(r)) == r_u,
+                            z3_path_v(z3s_bv8_t.cast(c), z3s_bv8_t.cast(r)) == r_d,
+                            z3_path_v(z3s_bv8_t.cast(c), z3s_bv8_t.cast(r)) == l_d,
+                            z3_path_v(z3s_bv8_t.cast(c), z3s_bv8_t.cast(r)) == l_u,
+                            z3_path_v(z3s_bv8_t.cast(c), z3s_bv8_t.cast(r)) == x_x,
                         ]
                     )
                 )
@@ -238,29 +232,18 @@ anima_is_origin()
 assert_path_hints()
 
 
-time_solve_start = time.perf_counter()
-time_solve_end = 0
-
-result = solver.check()
-time_solve_end = time.perf_counter()
-print(f"Result: {result} in {time_solve_end - time_solve_start:0.4f} seconds")
-
-if result == z3.sat:
-    print(solver.statistics())
-
-    model = solver.model()
-
+def print_path(maze: maze_t, model: z3_model_t):
     for r in range(0, maze.height):
-        bvr = BitVec.cast(r)
+        bvr = z3s_bv8_t.cast(r)
         for c in range(0, maze.width):
-            bvc = BitVec.cast(c)
+            bvc = z3s_bv8_t.cast(c)
             if model.eval(z3_path_v(bvc, bvr) != x_x):
                 print("x", end="")
             else:
                 print(" ", end="")
         print("")
 
-    print(model)
 
-
-# print(solver.help())
+model = mind.timed_solve(optimizer, print_stats=True)
+if type(model) == z3_model_t:
+    print_path(maze, model)  # ty:ignore[invalid-argument-type]

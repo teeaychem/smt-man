@@ -1,3 +1,7 @@
+from typing import TypeAlias
+from smt_man.types import location_t
+
+
 class Maze:
     def __init__(self, path):
         self.width = 0
@@ -5,6 +9,30 @@ class Maze:
         # Character representation of the maze
         self.chars = []
         self.from_path(path)
+
+    def tile_n(self, col: int, row: int) -> location_t | None:
+        if 0 < row:
+            return (col, row - 1)
+        else:
+            return None
+
+    def tile_e(self, col: int, row: int) -> location_t | None:
+        if col + 1 < self.width:
+            return (col + 1, row)
+        else:
+            return None
+
+    def tile_s(self, col: int, row: int) -> location_t | None:
+        if row + 1 < self.height:
+            return (col, row + 1)
+        else:
+            return None
+
+    def tile_e(self, col: int, row: int) -> location_t | None:
+        if 0 < col:
+            return (col - 1, row)
+        else:
+            return None
 
     def from_path(self, path):
         with open(path, "r") as file:
@@ -31,3 +59,6 @@ class Maze:
         for row in range(0, self.height):
             for col in range(0, self.width):
                 yield (col, row)
+
+
+maze_t: TypeAlias = Maze
