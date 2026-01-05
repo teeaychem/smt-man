@@ -40,12 +40,14 @@ class path4_t:
         return self.z3f_h(tile) == enum
 
     def tile_h_is_not(self, tile: z3_tile_t, enum: z3_fn_t) -> z3_bool_t:
+        # return z3.Or([self.z3f_h(tile) == e for e in self.z3e if e is not enum])
         return self.z3f_h(tile) != enum
 
     def tile_v_is(self, tile: z3_tile_t, enum: z3_fn_t) -> z3_bool_t:
         return self.z3f_v(tile) == enum
 
     def tile_v_is_not(self, tile: z3_tile_t, enum: z3_fn_t) -> z3_bool_t:
+        # return z3.Or([self.z3f_v(tile) == e for e in self.z3e if e is not enum])
         return self.z3f_v(tile) != enum
 
     # # Assertions, constant
