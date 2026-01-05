@@ -1,4 +1,5 @@
 from smt_man.path7 import path7_t
+from smt_man.path4 import path4_t
 import time
 
 import z3
@@ -31,32 +32,26 @@ animas: list[z3_expr_t] = [
 
 ## Path
 
+path = path4_t()
+# path = path7_t()
 
-path7 = path7_t()
-
-path7.assert_tile_constraints(optimizer, maze)
-path7.assert_path_empty_constraints(optimizer, maze)
-
+path.assert_empty_constraints(optimizer, maze)
+path.assert_constant_tile_constraints(optimizer, maze)
 for anima in animas:
-    path7.anima_is_origin(optimizer, anima)
+    path.assert_anima_is_origin(optimizer, anima)
 
-path7.assert_path_hints(optimizer, maze, anima_locations)
+optimizer.check()
+
+optimizer.push()
+
 for id in range(len(animas)):
-    path7.assert_anima_location(optimizer, animas[id], anima_locations[id][0], anima_locations[id][1])
+    path.assert_anima_location(optimizer, animas[id], anima_locations[id][0], anima_locations[id][1])
 
-
-def print_path(maze: maze_t, model: z3_model_t):
-    for r in range(0, maze.height):
-        bvr = z3s_bv8.cast(r)
-        for c in range(0, maze.width):
-            bvc = z3s_bv8.cast(c)
-            if model.eval(path7.z3_path_v(bvc, bvr) != path7.EX):
-                print("x", end="")
-            else:
-                print(" ", end="")
-        print("")
-
+path.assert_hints(optimizer, maze, anima_locations)
 
 model = mind.timed_solve(optimizer, print_stats=True)
 if type(model) == z3_model_t:
-    print_path(maze, model)  # ty:ignore[invalid-argument-type]
+    path.print_path(maze, model)  # ty:ignore[invalid-argument-type]
+
+
+optimizer.pop()

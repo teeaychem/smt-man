@@ -7,7 +7,7 @@ from smt_man.language import *
 class path7_t:
     def __init__(self):
         self.z3_return: tuple[z3_datatype_sort_t, list[z3_fn_t]] = z3.EnumSort(
-            "path_e",
+            "path7_e",
             ("O", "NS", "EW", "NE", "SE", "SW", "NW", "X"),
         )
         self.z3e_path_t = self.z3_return[0]
@@ -24,11 +24,22 @@ class path7_t:
         self.NW = self.z3e_path[6]
         self.EX = self.z3e_path[7]
 
-        self.z3_path_v = z3.Function("path_type", z3s_bv8_t, z3s_bv8_t, self.z3e_path_t)
+        self.z3_path_v = z3.Function("path7_type", z3s_bv8_t, z3s_bv8_t, self.z3e_path_t)
+
+    def print_path(self, maze: maze_t, model: z3_model_t):
+        for r in range(0, maze.height):
+            bvr = z3s_bv8.cast(r)
+            for c in range(0, maze.width):
+                bvc = z3s_bv8.cast(c)
+                if model.eval(self.z3_path_v(bvc, bvr) != self.EX):
+                    print("x", end="")
+                else:
+                    print(" ", end="")
+            print("")
 
     ## General assertion fns
 
-    def assert_path_empty_constraints(self, optimizer: z3_optimizer_t, maze: maze_t) -> None:
+    def assert_empty_constraints(self, optimizer: z3_optimizer_t, maze: maze_t) -> None:
         for col, row in maze.tiles():
             if maze.is_path(col, row):
                 optimizer.add_soft(self.z3_path_v(z3s_bv8.cast(col), z3s_bv8.cast(row)) == self.EX, weight=1)
@@ -39,7 +50,7 @@ class path7_t:
         optimizer.add(z3f_anima_location_c(anima) == z3s_bv8.cast(col))
         optimizer.add(z3f_anima_location_r(anima) == z3s_bv8.cast(row))
 
-    def assert_tile_constraints(self, optimizer: z3_optimizer_t, maze: maze_t) -> None:
+    def assert_constant_tile_constraints(self, optimizer: z3_optimizer_t, maze: maze_t) -> None:
         for row in range(0, maze.height):
             bvr = z3s_bv8.cast(row)
             for col in range(0, maze.width):
@@ -135,10 +146,10 @@ class path7_t:
 
     ## Specific assertion fns
 
-    def anima_is_origin(self, optimizer: z3_optimizer_t, anima: z3_expr_t) -> None:
+    def assert_anima_is_origin(self, optimizer: z3_optimizer_t, anima: z3_expr_t) -> None:
         optimizer.add(self.z3_path_v(z3f_anima_location_c(anima), z3f_anima_location_r(anima)) == self.OX)
 
-    def assert_path_hints(self, optimizer: z3_optimizer_t, maze: maze_t, locations: list[location_t]) -> None:
+    def assert_hints(self, optimizer: z3_optimizer_t, maze: maze_t, locations: list[location_t]) -> None:
         for col, row in maze.tiles():
             tile_x = z3_tile.X(col, row)
             skip = False

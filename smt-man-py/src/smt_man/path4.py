@@ -8,7 +8,7 @@ import smt_man
 
 class path4_t:
     def __init__(self):
-        self.z3_return: tuple[z3_datatype_sort_t, list[z3_fn_t]] = z3.EnumSort("path_e", ("o", "a", "b", "x"))
+        self.z3_return: tuple[z3_datatype_sort_t, list[z3_fn_t]] = z3.EnumSort("path4_e", ("O", "A", "B", "X"))
         self.z3_t: z3_datatype_sort_t = self.z3_return[0]
         self.z3e: list[z3_fn_t] = self.z3_return[1]
 
@@ -17,8 +17,8 @@ class path4_t:
         self.z3e_b = self.z3e[2]
         self.z3e_x = self.z3e[3]
 
-        self.z3f_v: z3_fn_t = z3.Function("path_type_v", z3s_bv8_t, z3s_bv8_t, self.z3_t)
-        self.z3f_h: z3_fn_t = z3.Function("path_type_h", z3s_bv8_t, z3s_bv8_t, self.z3_t)
+        self.z3f_v: z3_fn_t = z3.Function("path4_type_v", z3s_bv8_t, z3s_bv8_t, self.z3_t)
+        self.z3f_h: z3_fn_t = z3.Function("path4_type_h", z3s_bv8_t, z3s_bv8_t, self.z3_t)
 
     def print_path(self, maze: maze_t, model: z3_model_t):
         for row in range(0, maze.height):
@@ -175,7 +175,7 @@ class path4_t:
         origin_v_or: z3_bool_t = z3.Or(og_h_tile_req)
         optimizer.add(z3.Implies(self.z3f_h(tile_x) == self.z3e_o, origin_v_or))
 
-    def assert_general_tile_constraints(self, optimizer: z3_optimizer_t, maze: maze_t) -> None:
+    def assert_constant_tile_constraints(self, optimizer: z3_optimizer_t, maze: maze_t) -> None:
         # Assert tile constraints which hold for any solve.
         for col, row in maze.tiles():
             if not maze.is_path(col, row):
