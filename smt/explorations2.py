@@ -6,13 +6,10 @@ import smt_man.mind as mind
 from smt_man.types import *
 from smt_man.language import *
 
-import time
 
 maze = smt_man.maze.Maze("./resources/maze/source.txt")
 optimizer = z3.Optimize()
 mind.solver_set_defaults(optimizer)
-
-#
 
 ## Anima
 
@@ -29,30 +26,23 @@ path4: path4_t = path4_t()
 
 path4.assert_empty_constraints(optimizer, maze)
 path4.assert_general_tile_constraints(optimizer, maze)
+for anima in animas:
+    path4.assert_anima_is_origin(optimizer, anima)
+
+optimizer.check()
+
+optimizer.push()
 
 for id in range(len(animas)):
     path4.assert_anima_location(optimizer, animas[id], anima_locations[id][0], anima_locations[id][1])
 
-for anima in animas:
-    path4.assert_anima_is_origin(optimizer, anima)
-
 path4.assert_hints(optimizer, maze, anima_locations)
 
+model = mind.timed_solve(optimizer, print_stats=True)
+if type(model) == z3_model_t:
+    path4.print_path(maze, model)  # ty:ignore[invalid-argument-type]
 
-time_solve_start: float = time.perf_counter()
-time_solve_end = 0
 
-result = optimizer.check()
-time_solve_end: float = time.perf_counter()
-print(f"Result: {result} in {time_solve_end - time_solve_start:0.4f} seconds")
-
-if result == z3.sat:
-    print(optimizer.statistics())
-
-    model = optimizer.model()
-    path4.print_path(maze, model)
-
-    print(model)
-
+optimizer.pop()
 
 # print(optimizer.help())
