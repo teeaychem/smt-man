@@ -7,10 +7,10 @@
 #include "constants.h"
 #include "generic/pairs.h"
 #include "logic/synchronization.h"
-#include "sprites/persona.h"
 #include "render.h"
 #include "render/rgb_momentum.h"
 #include "render/timer_nano.h"
+#include "sprites/persona.h"
 #include "temp.h"
 
 pthread_t ANIMA_THREADS[ANIMA_COUNT];
@@ -19,8 +19,10 @@ int main() { // int main(int argc, char *argv[]) {
   int exit_code = 0;
 
   char *source_path;
-  int source_path_length;
-  set_source_path(&source_path, &source_path_length);
+  { // Set source path, kept until exit
+    int source_path_length;
+    set_source_path(&source_path, &source_path_length);
+  }
 
   Situation situation = {};
 
@@ -29,29 +31,22 @@ int main() { // int main(int argc, char *argv[]) {
 
   Renderer renderer = {};
   RGBMomentum colour = {};
-  const Maze maze = setup_maze(source_path);
 
+  const Maze maze = setup_maze(source_path);
   { // Setup block
     setup_renderer(&renderer, &maze, source_path);
 
-    {
-      situation.persona.direction_actual = DIRECTION_E;
-      situation.persona.location = (Pair_uint8){.x = 13, .y = 17};
-      situation.persona.movement_pattern = 0x552a552a;
-    }
-
     Persona_default(&persona, &situation, 16);
-    setup_animas(animas, &maze);
 
-    free(source_path);
+    setup_animas(animas, &maze);
+    setup_persona(&situation, (Pair_uint8){.x = 13, .y = 17});
   }
 
   { // Scratch block
     g_message("scratch begin...");
 
     Sync_update_animas(&situation, animas);
-     Sync_update_situation(&situation, animas);
-
+    Sync_update_situation(&situation, animas);
 
     z3_tmp(&maze, &situation);
     g_message("scratch end...");
@@ -144,6 +139,7 @@ exit_block: {
   }
 
   Maze_drop((Maze *)&maze);
+  free(source_path);
 
   g_message("good-bye");
 

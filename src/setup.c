@@ -126,3 +126,9 @@ void setup_animas(Anima animas[ANIMA_COUNT], const Maze *maze) { // Resource set
     animas[3].pallete = DEFAULT_PALLETES.animas[3];
   }
 }
+
+void setup_persona(Situation *situation, Pair_uint8 location) {
+  situation->persona.direction_actual = DIRECTION_E;
+  situation->persona.location = location;
+  situation->persona.movement_pattern = 0x552a552a;
+}
