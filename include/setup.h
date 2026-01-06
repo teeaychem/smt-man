@@ -17,4 +17,4 @@ void setup_renderer(Renderer *renderer, const Maze *maze, const char *source_pat
 
 void setup_animas(Anima animas[ANIMA_COUNT], const Maze *maze);
 
-void setup_persona(Situation *situation, Pair_uint8 location);
+void setup_situation(Situation *situation, Pair_uint8 location);

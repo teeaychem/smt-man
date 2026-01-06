@@ -8,7 +8,6 @@
 #include "generic/pairs.h"
 #include "logic/situation.h"
 #include "maze.h"
-#include "render/palette.h"
 
 struct persona_t {
   /// Size of the associated sprite, as a square
@@ -17,8 +16,6 @@ struct persona_t {
   uint8_t tick_action;
   /// Location of the anima sprite
   Pair_uint32 sprite_location;
-  /// Pallette
-  Pallete pallete;
 
   Direction direction_intent;
 };

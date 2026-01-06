@@ -26,6 +26,16 @@ add_executable(
     ${UTILS}
 )
 
+add_executable(
+    z3_scratch
+    src/z3_scratch.c
+    src/setup.c
+    ${SPRITES}
+    ${CORE}
+    ${LOGIC}
+    ${UTILS}
+)
+
 set(COMPILE_AND_LINK_OPTIONS
     -fsanitize={address,undefined}
     -fno-omit-frame-pointer
@@ -75,12 +85,18 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${PNG_INCLUDE_DIRS})
 
 find_package(z3 REQUIRED CONFIG)
 target_link_libraries(${PROJECT_NAME} PRIVATE z3)
+target_link_libraries(z3_scratch PRIVATE z3)
 
 pkg_check_modules(GLIB2 glib-2.0)
 find_package(PkgConfig REQUIRED)
 pkg_search_module(GLIB REQUIRED glib-2.0)
+
 target_include_directories(${PROJECT_NAME} PRIVATE ${GLIB_INCLUDE_DIRS})
+target_include_directories(z3_scratch PRIVATE ${GLIB_INCLUDE_DIRS})
+
 target_link_libraries(${PROJECT_NAME} PRIVATE ${GLIB_LIBRARIES})
+target_link_libraries(z3_scratch PRIVATE ${GLIB_LIBRARIES})
+
 
 ## Submodules
 set(SUBMODULES ${CMAKE_CURRENT_SOURCE_DIR}/submodules)
@@ -88,8 +104,14 @@ set(SUBMODULES ${CMAKE_CURRENT_SOURCE_DIR}/submodules)
 target_include_directories(${PROJECT_NAME} PRIVATE ${SUBMODULES}/cwalk/include)
 target_sources(${PROJECT_NAME} PRIVATE ${SUBMODULES}/cwalk/src/cwalk.c)
 
+target_include_directories(z3_scratch PRIVATE ${SUBMODULES}/cwalk/include)
+target_sources(z3_scratch PRIVATE ${SUBMODULES}/cwalk/src/cwalk.c)
+
 target_include_directories(${PROJECT_NAME} PRIVATE ${SUBMODULES}/whereami/src)
 target_sources(${PROJECT_NAME} PRIVATE ${SUBMODULES}/whereami/src/whereami.c)
+
+target_include_directories(z3_scratch PRIVATE ${SUBMODULES}/whereami/src)
+target_sources(z3_scratch PRIVATE ${SUBMODULES}/whereami/src/whereami.c)
 
 # Resources
 

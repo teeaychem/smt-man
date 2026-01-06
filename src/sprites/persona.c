@@ -1,18 +1,20 @@
-#include "sprites/persona.h"
-#include "constants.h"
-#include "generic/bitvec.h"
-#include "render.h"
 #include <stdatomic.h>
 
+#include "constants.h"
+#include "generic/bitvec.h"
+#include "sprites/persona.h"
+#include "sprites/sprite.h"
+
 void Persona_default(Persona *persona, Situation *situation, const uint8_t sprite_size) {
-  Pair_uint8 situation_location = atomic_load(&situation->persona.location);
+  Pair_uint8 location = atomic_load(&situation->persona.location);
+
+  printf("Setting up persona t location: %dx%d\n", location.x, location.y);
 
   *persona = (Persona){
       .direction_intent = DIRECTION_E,
-      .sprite_location = {.x = ((uint32_t)situation_location.x) * TILE_PIXELS,
-                          .y = ((uint32_t)situation_location.y + RENDER_TOP) * TILE_PIXELS},
+      .sprite_location = {.x = ((uint32_t)location.x) * TILE_PIXELS,
+                          .y = ((uint32_t)location.y + RENDER_TOP) * TILE_PIXELS},
       .sprite_size = sprite_size,
-      .pallete = DEFAULT_PALLETES.persona,
       .tick_action = 0,
   };
 }

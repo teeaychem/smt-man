@@ -188,7 +188,7 @@ void Renderer_anima(Renderer *self, const Anima animas[ANIMA_COUNT], const uint8
   switch (action) {
   case RENDER_DRAW: {
     Renderer_sprite_buffer_map_to(self, Sheet_anima_offset(&animas[id]), animas[id].sprite_size);
-    Surface_apply_pallete(&self->sprite_buffer, animas[id].sprite_size, animas[id].pallete);
+    Surface_apply_pallete(&self->sprite_buffer, animas[id].sprite_size, DEFAULT_PALLETES.animas[id]);
 
     Renderer_draw_from_sprite_buffer(self, animas[id].sprite_location, animas[id].sprite_size);
   } break;
@@ -223,7 +223,7 @@ void Renderer_persona(Renderer *self, const Persona *persona, const Situation *s
     } break;
     }
 
-    Surface_apply_pallete(&self->sprite_buffer, persona->sprite_size, persona->pallete);
+    Surface_apply_pallete(&self->sprite_buffer, persona->sprite_size, DEFAULT_PALLETES.persona);
     Renderer_draw_from_sprite_buffer(self, persona->sprite_location, persona->sprite_size);
   } break;
   case RENDER_ERASE: {

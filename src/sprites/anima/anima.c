@@ -4,10 +4,9 @@
 #include "enums.h"
 #include "generic/bitvec.h"
 #include "generic/pairs.h"
-#include "logic.h"
-#include "sprites/anima.h"
 #include "maze.h"
-#include "render.h"
+#include "sprites/anima.h"
+#include "sprites/sprite.h"
 
 void Anima_default(Anima *anima, const uint8_t id, const uint8_t sprite_size, const Pair_uint8 location, const Direction direction) {
   g_log(nullptr, G_LOG_LEVEL_INFO, "Creating anima: %d", id);

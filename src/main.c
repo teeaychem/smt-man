@@ -1,3 +1,4 @@
+#include "cwalk.h"
 #include "setup.h"
 
 #include <glib.h>
@@ -11,7 +12,6 @@
 #include "render/rgb_momentum.h"
 #include "render/timer_nano.h"
 #include "sprites/persona.h"
-#include "temp.h"
 
 pthread_t ANIMA_THREADS[ANIMA_COUNT];
 
@@ -29,28 +29,27 @@ int main() { // int main(int argc, char *argv[]) {
   Anima animas[ANIMA_COUNT];
   Persona persona;
 
-  Renderer renderer = {};
   RGBMomentum colour = {};
 
   const Maze maze = setup_maze(source_path);
   { // Setup block
-    setup_renderer(&renderer, &maze, source_path);
+    setup_situation(&situation, (Pair_uint8){.x = 13, .y = 17});
 
     Persona_default(&persona, &situation, 16);
 
     setup_animas(animas, &maze);
-    setup_persona(&situation, (Pair_uint8){.x = 13, .y = 17});
+  }
+  Renderer renderer = {};
+  {
+    char path_buffer[FILENAME_MAX];
+    cwk_path_join(source_path, "resources/sheet.png", path_buffer, FILENAME_MAX);
+    g_log(nullptr, G_LOG_LEVEL_INFO, "Renderer with sheet from: %s", path_buffer);
+
+    Renderer_create(&renderer, maze.size, path_buffer);
   }
 
-  { // Scratch block
-    g_message("scratch begin...");
-
-    Sync_update_animas(&situation, animas);
-    Sync_update_situation(&situation, animas);
-
-    z3_tmp(&maze, &situation);
-    g_message("scratch end...");
-  }
+  Sync_update_animas(&situation, animas);
+  Sync_update_situation(&situation, animas);
 
   if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
     exit_code = 1;
@@ -59,7 +58,6 @@ int main() { // int main(int argc, char *argv[]) {
   g_log(nullptr, G_LOG_LEVEL_DEBUG, "SDL initialization ok");
 
   // Draw the maze only once...
-
   Renderer_draw_maze(&renderer, &maze);
 
   { // core block

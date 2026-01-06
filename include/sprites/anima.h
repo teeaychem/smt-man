@@ -10,7 +10,6 @@
 #include "enums.h"
 #include "generic/pairs.h"
 #include "sprites/anima/mind.h"
-#include "render/palette.h"
 
 struct anima_t {
   /// Uniqie identifier in [0..ANIMA_COUNT]
@@ -21,8 +20,6 @@ struct anima_t {
   uint8_t tick_action;
   /// Location of the anima sprite
   Pair_uint32 sprite_location;
-  /// Pallette
-  Pallete pallete;
 
   /// Tools for contacting the anima from a different thread
   struct {

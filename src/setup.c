@@ -94,41 +94,28 @@ void setup_anima(Anima animas[ANIMA_COUNT], uint8_t id, Pair_uint8 location, con
   pthread_create(&ANIMA_THREADS[id], nullptr, setup_spirit, (void *)setup_ptr);
 }
 
-void setup_renderer(Renderer *renderer, const Maze *maze, const char *source_path) {
-
-  char path_buffer[FILENAME_MAX];
-  cwk_path_join(source_path, "resources/sheet.png", path_buffer, FILENAME_MAX);
-
-  g_log(nullptr, G_LOG_LEVEL_INFO, "Loading sheet from: %s", path_buffer);
-
-  Renderer_create(renderer, maze->size, path_buffer);
-}
-
 void setup_animas(Anima animas[ANIMA_COUNT], const Maze *maze) { // Resource setup
 
   if (1 <= ANIMA_COUNT) {
     setup_anima(animas, 0, Pair_uint8_create(1, 2), maze);
-    animas[0].pallete = DEFAULT_PALLETES.animas[0];
   }
 
   if (2 <= ANIMA_COUNT) {
     setup_anima(animas, 1, Pair_uint8_create(16, 26), maze);
-    animas[1].pallete = DEFAULT_PALLETES.animas[1];
   }
 
   if (3 <= ANIMA_COUNT) {
     setup_anima(animas, 2, Pair_uint8_create(21, 12), maze);
-    animas[2].pallete = DEFAULT_PALLETES.animas[2];
   }
 
   if (4 <= ANIMA_COUNT) {
     setup_anima(animas, 3, Pair_uint8_create(4, 29), maze);
-    animas[3].pallete = DEFAULT_PALLETES.animas[3];
   }
 }
 
-void setup_persona(Situation *situation, Pair_uint8 location) {
-  situation->persona.direction_actual = DIRECTION_E;
-  situation->persona.location = location;
-  situation->persona.movement_pattern = 0x552a552a;
+void setup_situation(Situation *situation, Pair_uint8 location) {
+  printf("Setting up situation with location: %dx%d\n", location.x, location.y);
+  atomic_init(&situation->persona.direction_actual, DIRECTION_E);
+  atomic_init(&situation->persona.location, location);
+  atomic_init(&situation->persona.movement_pattern, 0x552a552a);
 }
