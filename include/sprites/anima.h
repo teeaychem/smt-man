@@ -9,7 +9,7 @@
 
 #include "enums.h"
 #include "generic/pairs.h"
-#include "lyf/anima/mind.h"
+#include "sprites/anima/mind.h"
 #include "render/palette.h"
 
 struct anima_t {

@@ -5,7 +5,7 @@
 #include "generic/bitvec.h"
 #include "generic/pairs.h"
 #include "logic.h"
-#include "lyf/anima.h"
+#include "sprites/anima.h"
 #include "maze.h"
 #include "render.h"
 

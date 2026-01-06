@@ -1,7 +1,7 @@
 #pragma once
 
 #include "constants.h"
-#include "lyf/anima.h"
+#include "sprites/anima.h"
 #include "maze.h"
 #include "render.h"
 

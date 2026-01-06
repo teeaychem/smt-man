@@ -1,4 +1,4 @@
-#include "lyf/persona.h"
+#include "sprites/persona.h"
 #include "constants.h"
 #include "generic/bitvec.h"
 #include "render.h"

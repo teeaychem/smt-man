@@ -9,8 +9,8 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
-file(GLOB MAIN src/*.c)
-file(GLOB ANIMA src/anima/*.c)
+file(GLOB MAIN src/main.c src/setup.c src/z3.c)
+file(GLOB_RECURSE SPRITES src/sprites/*.c)
 file(GLOB CORE src/core/*.c)
 file(GLOB LOGIC src/logic/*.c)
 file(GLOB RENDER src/render/*.c)
@@ -19,7 +19,7 @@ file(GLOB UTILS src/utils/*.c)
 add_executable(
     ${PROJECT_NAME}
     ${MAIN}
-    ${ANIMA}
+    ${SPRITES}
     ${CORE}
     ${LOGIC}
     ${RENDER}

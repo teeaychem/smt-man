@@ -7,7 +7,7 @@
 #include "constants.h"
 #include "generic/pairs.h"
 #include "logic/synchronization.h"
-#include "lyf/persona.h"
+#include "sprites/persona.h"
 #include "render.h"
 #include "render/rgb_momentum.h"
 #include "render/timer_nano.h"

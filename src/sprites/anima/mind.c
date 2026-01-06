@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 #include "logic.h"
-#include "lyf/anima/mind.h"
+#include "sprites/anima/mind.h"
 #include "random.h"
 
 void Mind_default(Mind *mind, uint8_t id, const Pair_uint8 location, const Direction direction) {

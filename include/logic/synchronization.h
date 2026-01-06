@@ -2,7 +2,7 @@
 
 #include "constants.h"
 #include "logic/situation.h"
-#include "lyf/anima.h"
+#include "sprites/anima.h"
 
 void Sync_update_animas(const Situation *situation, Anima animas[ANIMA_COUNT]);
 
