@@ -55,7 +55,7 @@ void z3_display_path(const Lang *lang, Z3_context ctx, Z3_model model, const Maz
       u8_cr[0] = Z3_mk_int(ctx, (int)col, lang->u8.sort);
 
       Z3_model_eval(ctx, model, Z3_mk_app(ctx, lang->path.tile_is_f, 2, u8_cr), false, &tile_path);
-      if (tile_path == lang->path.et_et) {
+      if (tile_path == lang->path.x_x) {
         putchar(' ');
       } else {
         putchar('x');

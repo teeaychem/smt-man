@@ -7,10 +7,10 @@
 struct sheet_offsets_t {
   struct {
     struct {
-      Pair_uint32 rt[2];
-      Pair_uint32 dn[2];
-      Pair_uint32 lt[2];
-      Pair_uint32 up[2];
+      Pair_uint32 e[2];
+      Pair_uint32 s[2];
+      Pair_uint32 w[2];
+      Pair_uint32 n[2];
     } direction;
     Pair_uint32 thinking[2];
   } anima;

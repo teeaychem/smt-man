@@ -85,19 +85,19 @@ void Mind_deduct(Mind *self, const Maze *maze) {
   auto tile = Z3_mk_app(self->ctx, self->lang.path.tile_is_f, 2, row_col);
   Z3_model_eval(self->ctx, model, tile, false, &anima_origin);
 
-  if (anima_origin == self->lang.path.og_up) {
+  if (anima_origin == self->lang.path.o_n) {
     self->direction_intent = DIRECTION_N;
   }
 
-  else if (anima_origin == self->lang.path.og_rt) {
+  else if (anima_origin == self->lang.path.o_e) {
     self->direction_intent = DIRECTION_E;
   }
 
-  else if (anima_origin == self->lang.path.og_dn) {
+  else if (anima_origin == self->lang.path.o_s) {
     self->direction_intent = DIRECTION_S;
   }
 
-  else if (anima_origin == self->lang.path.og_lt) {
+  else if (anima_origin == self->lang.path.o_w) {
     self->direction_intent = DIRECTION_W;
   }
 
