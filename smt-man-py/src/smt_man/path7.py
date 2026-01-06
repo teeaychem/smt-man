@@ -65,59 +65,59 @@ class path7_t:
 
                     # Up disjunction
                     if row > 0:
-                        up_tile_req = [self.z3_path_v(tile_n) == self.OX]
+                        tile_req_n = [self.z3_path_v(tile_n) == self.OX]
                         if 0 < row - 1 and maze.is_path(col, row - 2):
-                            up_tile_req.append(self.z3_path_v(tile_n) == self.NS)
+                            tile_req_n.append(self.z3_path_v(tile_n) == self.NS)
                         if col < maze.width - 1 and 0 < row and maze.is_path(col + 1, row - 1):
-                            up_tile_req.append(self.z3_path_v(tile_n) == self.SE)
+                            tile_req_n.append(self.z3_path_v(tile_n) == self.SE)
                         if 0 < col and 0 < row and maze.is_path(col - 1, row - 1):
-                            up_tile_req.append(self.z3_path_v(tile_n) == self.SW)
-                        up_tile_or = z3.Or(up_tile_req)
-                        optimizer.add(z3.Implies(self.z3_path_v(tile_x) == self.NS, up_tile_or))
-                        optimizer.add(z3.Implies(self.z3_path_v(tile_x) == self.NE, up_tile_or))
-                        optimizer.add(z3.Implies(self.z3_path_v(tile_x) == self.NW, up_tile_or))
+                            tile_req_n.append(self.z3_path_v(tile_n) == self.SW)
+                        tile_or_n = z3.Or(tile_req_n)
+                        optimizer.add(z3.Implies(self.z3_path_v(tile_x) == self.NS, tile_or_n))
+                        optimizer.add(z3.Implies(self.z3_path_v(tile_x) == self.NE, tile_or_n))
+                        optimizer.add(z3.Implies(self.z3_path_v(tile_x) == self.NW, tile_or_n))
 
                     # Right disjunction
                     if col < maze.width - 1:
-                        rt_tile_req = [self.z3_path_v(tile_e) == self.OX]
+                        tile_req_e = [self.z3_path_v(tile_e) == self.OX]
                         if col + 1 < maze.width - 1 and maze.is_path(col + 2, row):
-                            rt_tile_req.append(self.z3_path_v(tile_e) == self.EW)
+                            tile_req_e.append(self.z3_path_v(tile_e) == self.EW)
                         if row < maze.height - 1 and col < maze.width - 1 and maze.is_path(col + 1, row + 1):
-                            rt_tile_req.append(self.z3_path_v(tile_e) == self.SW)
+                            tile_req_e.append(self.z3_path_v(tile_e) == self.SW)
                         if 0 < row and col < maze.width - 1 and maze.is_path(col + 1, row - 1):
-                            rt_tile_req.append(self.z3_path_v(tile_e) == self.NW)
-                        rt_tile_or = z3.Or(rt_tile_req)
-                        optimizer.add(z3.Implies(self.z3_path_v(tile_x) == self.EW, rt_tile_or))
-                        optimizer.add(z3.Implies(self.z3_path_v(tile_x) == self.NE, rt_tile_or))
-                        optimizer.add(z3.Implies(self.z3_path_v(tile_x) == self.SE, rt_tile_or))
+                            tile_req_e.append(self.z3_path_v(tile_e) == self.NW)
+                        tile_or_e = z3.Or(tile_req_e)
+                        optimizer.add(z3.Implies(self.z3_path_v(tile_x) == self.EW, tile_or_e))
+                        optimizer.add(z3.Implies(self.z3_path_v(tile_x) == self.NE, tile_or_e))
+                        optimizer.add(z3.Implies(self.z3_path_v(tile_x) == self.SE, tile_or_e))
 
                     # Down disjunction
                     if row < maze.height - 1:
-                        dn_tile_req = [self.z3_path_v(tile_s) == self.OX]
+                        tile_req_s = [self.z3_path_v(tile_s) == self.OX]
                         if row + 1 < maze.height - 1 and maze.is_path(col, row + 2):
-                            dn_tile_req.append(self.z3_path_v(tile_s) == self.NS)
+                            tile_req_s.append(self.z3_path_v(tile_s) == self.NS)
                         if row < maze.height - 1 and col < maze.width - 1 and maze.is_path(col + 1, row + 1):
-                            dn_tile_req.append(self.z3_path_v(tile_s) == self.NE)
+                            tile_req_s.append(self.z3_path_v(tile_s) == self.NE)
                         if row < maze.height - 1 and 0 < col and maze.is_path(col - 1, row + 1):
-                            dn_tile_req.append(self.z3_path_v(tile_s) == self.NW)
-                        dn_tile_or = z3.Or(dn_tile_req)
-                        optimizer.add(z3.Implies(self.z3_path_v(tile_x) == self.NS, dn_tile_or))
-                        optimizer.add(z3.Implies(self.z3_path_v(tile_x) == self.SE, dn_tile_or))
-                        optimizer.add(z3.Implies(self.z3_path_v(tile_x) == self.SW, dn_tile_or))
+                            tile_req_s.append(self.z3_path_v(tile_s) == self.NW)
+                        tile_or_s = z3.Or(tile_req_s)
+                        optimizer.add(z3.Implies(self.z3_path_v(tile_x) == self.NS, tile_or_s))
+                        optimizer.add(z3.Implies(self.z3_path_v(tile_x) == self.SE, tile_or_s))
+                        optimizer.add(z3.Implies(self.z3_path_v(tile_x) == self.SW, tile_or_s))
 
                     # Left disjunction
                     if col > 0:
-                        lt_tile_req = [self.z3_path_v(tile_w) == self.OX]
+                        tile_req_w = [self.z3_path_v(tile_w) == self.OX]
                         if 0 < col - 1 and maze.is_path(col - 2, row):
-                            lt_tile_req.append(self.z3_path_v(tile_w) == self.EW)
+                            tile_req_w.append(self.z3_path_v(tile_w) == self.EW)
                         if 0 < col and 0 < row and maze.is_path(col - 1, row - 1):
-                            lt_tile_req.append(self.z3_path_v(tile_w) == self.NE)
+                            tile_req_w.append(self.z3_path_v(tile_w) == self.NE)
                         if 0 < col and row < maze.height - 1 and maze.is_path(col - 1, row + 1):
-                            lt_tile_req.append(self.z3_path_v(tile_w) == self.SE)
-                        lt_tile_or = z3.Or(lt_tile_req)
-                        optimizer.add(z3.Implies(self.z3_path_v(tile_x) == self.EW, lt_tile_or))
-                        optimizer.add(z3.Implies(self.z3_path_v(tile_x) == self.NW, lt_tile_or))
-                        optimizer.add(z3.Implies(self.z3_path_v(tile_x) == self.SW, lt_tile_or))
+                            tile_req_w.append(self.z3_path_v(tile_w) == self.SE)
+                        tile_or_w = z3.Or(tile_req_w)
+                        optimizer.add(z3.Implies(self.z3_path_v(tile_x) == self.EW, tile_or_w))
+                        optimizer.add(z3.Implies(self.z3_path_v(tile_x) == self.NW, tile_or_w))
+                        optimizer.add(z3.Implies(self.z3_path_v(tile_x) == self.SW, tile_or_w))
 
                     # Origin disjunction
                     og_tile_req = []
