@@ -20,10 +20,10 @@ class path4_t:
         self.z3_t: z3_datatype_sort_t = self.z3_return[0]
         self.z3e: list[z3_fn_t] = self.z3_return[1]
 
-        self.z3e_o = self.z3e[0]
-        self.z3e_a = self.z3e[1]
-        self.z3e_b = self.z3e[2]
-        self.z3e_x = self.z3e[3]
+        self.z3e_o: z3_fn_t = self.z3e[0]
+        self.z3e_a: z3_fn_t = self.z3e[1]
+        self.z3e_b: z3_fn_t = self.z3e[2]
+        self.z3e_x: z3_fn_t = self.z3e[3]
 
         self.z3f_v: z3_fn_t = z3.Function("path4_type_v", z3s_bv8_t, z3s_bv8_t, self.z3_t)
         self.z3f_h: z3_fn_t = z3.Function("path4_type_h", z3s_bv8_t, z3s_bv8_t, self.z3_t)
@@ -32,7 +32,10 @@ class path4_t:
         for row in range(0, maze.height):
             for col in range(0, maze.width):
                 bvc, bvr = z3s_bv8.cast(col), z3s_bv8.cast(row)
-                if model.eval(self.z3f_h(bvc, bvr) != self.z3e_x) or model.eval(self.z3f_v(bvc, bvr) != self.z3e_x):
+
+                tile_is_path = model.eval(self.tile_h_is_not((bvc, bvr), self.z3e_x)) or model.eval(self.tile_h_is_not((bvc, bvr), self.z3e_x))
+
+                if tile_is_path:
                     print("x", end="")
                 else:
                     print(" ", end="")
