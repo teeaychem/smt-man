@@ -74,19 +74,32 @@ Result Maze_complete_data(const Maze *self);
 /// Satic inline
 
 static inline TileData *Maze_tile_data_at(const Maze *self, const uint8_t col, const uint8_t row) {
-  if (!(col < self->size.x)) {
-    g_log(nullptr, G_LOG_LEVEL_CRITICAL, "Invalid col: %d", col);
-    exit(-2);
-  }
-
-  if (!(row < self->size.y)) {
-    g_log(nullptr, G_LOG_LEVEL_CRITICAL, "Invalid row: %d", row);
-    exit(-2);
-  }
+  assert(col < self->size.x && "Invalid col");
+  assert(row < self->size.y && "Invalid row");
 
   return &self->tiles[(row * self->size.x) + col];
 }
 
 static inline bool Maze_abstract_is_path(const Maze *self, const uint8_t col, const uint8_t row) {
   return Maze_tile_data_at(self, col, row)->type == TILE_PATH;
+}
+
+static inline bool Maze_abstract_is_intersection(const Maze *self, const uint8_t col, const uint8_t row) {
+
+  // clang-format off
+  bool path_n = row != 0               && Maze_abstract_is_path(self, col, row - 1);
+  bool path_e = col + 2 < self->size.x && Maze_abstract_is_path(self, col + 1, row);
+  bool path_s = row + 2 < self->size.y && Maze_abstract_is_path(self, col, row + 1);
+  bool path_w = col != 0               && Maze_abstract_is_path(self, col - 1, row);
+  // clang-format on
+
+  if (path_n || path_s) {
+    return path_e || path_w;
+  }
+
+  if ((path_e) || (path_w)) {
+    return path_n || path_s;
+  }
+
+  return false;
 }
