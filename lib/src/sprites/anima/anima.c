@@ -10,7 +10,7 @@
 #include "sprites/anima.h"
 #include "sprites/sprite.h"
 
-void Anima_default(Anima *anima, const uint8_t id, const uint8_t sprite_size, const Pair_uint8 location, const Direction direction) {
+void Anima_default(Anima *anima, const uint8_t id, const uint8_t sprite_size, const Pair_uint8 location, const Direction direction, uint32_t offset_n) {
   slog_display(SLOG_DEBUG, 0, "Creating anima: %d", id);
 
   *anima = (Anima){
@@ -18,7 +18,7 @@ void Anima_default(Anima *anima, const uint8_t id, const uint8_t sprite_size, co
 
       .sprite_size = sprite_size,
       .sprite_location = {.x = ((uint32_t)(location.x)) * TILE_PIXELS,
-                          .y = ((uint32_t)location.y + RENDER_TOP) * TILE_PIXELS},
+                          .y = ((uint32_t)location.y + offset_n) * TILE_PIXELS},
 
       .tick_action = 0,
 
@@ -43,7 +43,7 @@ void Anima_handle_event(Anima *self, const SDL_Event *event) {
   assert(self != nullptr && event != nullptr);
 }
 
-void Anima_on_frame(Anima *self, const Maze *maze) {
+void Anima_on_frame(Anima *self, const Maze *maze, uint32_t tile_pixels, uint32_t offset_n) {
 
   uint32_t movement = atomic_load(&self->mind.view.anima[self->id].movement_pattern);
   movement = uint32_rotl1(movement);
@@ -58,8 +58,8 @@ void Anima_on_frame(Anima *self, const Maze *maze) {
   // Ensure coherence
   Anima_instinct(self);
 
-  if (Sprite_is_centered_on_tile(self->sprite_location)) {
-    Anima_on_tile(self, maze);
+  if (Sprite_is_centered_on_tile(self->sprite_location, tile_pixels)) {
+    Anima_on_tile(self, maze, tile_pixels, offset_n);
   }
 
   switch (atomic_load(&self->mind.view.anima[self->id].direction_actual)) {
@@ -81,9 +81,9 @@ void Anima_on_frame(Anima *self, const Maze *maze) {
   }
 }
 
-void Anima_on_tile(Anima *self, const Maze *maze) {
+void Anima_on_tile(Anima *self, const Maze *maze, uint32_t tile_pixels, uint32_t offset_n) {
 
-  Pair_uint8 location = Sprite_location_to_abstract(&self->sprite_location);
+  Pair_uint8 location = Sprite_location_to_abstract(&self->sprite_location, tile_pixels, offset_n);
   /// Update location
   atomic_store(&self->mind.view.anima[self->id].location, location);
 

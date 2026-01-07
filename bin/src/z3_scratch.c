@@ -30,9 +30,9 @@ int main() {
   { // Setup block
     setup_situation(&situation, (Pair_uint8){.x = 13, .y = 17});
 
-    Persona_default(&persona, &situation, 16);
+    Persona_default(&persona, &situation, 16, RENDER_TOP);
 
-    setup_animas(animas, &maze);
+    setup_animas(animas, ANIMA_THREADS, &maze);
   }
 
   Sync_update_animas(&situation, animas);

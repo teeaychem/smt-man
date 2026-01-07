@@ -1,9 +1,10 @@
-#include "cwalk.h"
 #include "setup.h"
 
 #include <slog.h>
 #include <stdatomic.h>
 #include <stdint.h>
+
+#include "cwalk.h"
 
 #include "constants.h"
 #include "generic/pairs.h"
@@ -41,9 +42,9 @@ int main() { // int main(int argc, char *argv[]) {
   { // Setup block
     setup_situation(&situation, (Pair_uint8){.x = 13, .y = 17});
 
-    Persona_default(&persona, &situation, 16);
+    Persona_default(&persona, &situation, 16, RENDER_TOP);
 
-    setup_animas(animas, &maze);
+    setup_animas(animas, ANIMA_THREADS, &maze);
   }
   Renderer renderer = {};
   {
@@ -92,9 +93,9 @@ int main() { // int main(int argc, char *argv[]) {
         rgb_momentum_advance(&colour);
 
         for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
-          Anima_on_frame(&animas[id], &maze);
+          Anima_on_frame(&animas[id], &maze, TILE_PIXELS, RENDER_TOP);
         }
-        Persona_on_frame(&persona, &maze, &situation);
+        Persona_on_frame(&persona, &maze, &situation, TILE_PIXELS, RENDER_TOP);
 
         for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
           if (atomic_load(&animas[id].contact.flag_suspend)) {

@@ -21,14 +21,14 @@ struct persona_t {
 };
 typedef struct persona_t Persona;
 
-void Persona_default(Persona *persona, Situation *situation, const uint8_t sprite_size);
+void Persona_default(Persona *persona, Situation *situation, const uint8_t sprite_size, uint32_t offset_n);
 
 void Persona_drop(Persona *self);
 
 void Persona_handle_event(Persona *self, const Maze *maze, Situation *situation, const SDL_Event *event);
 
-void Persona_on_frame(Persona *self, const Maze *maze, Situation *situation);
+void Persona_on_frame(Persona *self, const Maze *maze, Situation *situation, uint32_t tile_pixels, uint32_t offset_n);
 
-void Persona_on_tile(Persona *self, Situation *situation, const Maze *maze);
+void Persona_on_tile(Persona *self, Situation *situation, const Maze *maze, uint32_t tile_pixels, uint32_t offset_n);
 
-void Persona_off_tile(Persona *self, Situation *situation, const Maze *maze);
+void Persona_off_tile(Persona *self, Situation *situation, const Maze *maze, uint32_t tile_pixels, uint32_t offset_n);

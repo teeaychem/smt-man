@@ -56,6 +56,7 @@ Maze setup_maze(const char *source_path) {
 struct spirit_setup_t {
   Anima *anima;
   const Maze *maze;
+  pthread_t *thread;
 };
 typedef struct spirit_setup_t SpiritSetup;
 
@@ -80,9 +81,9 @@ void *setup_spirit(void *void_setup_struct) {
   return 0;
 }
 
-void setup_anima(Anima animas[ANIMA_COUNT], uint8_t id, Pair_uint8 location, const Maze *maze) {
+void setup_anima(Anima animas[ANIMA_COUNT], pthread_t threads[ANIMA_COUNT], uint8_t id, Pair_uint8 location, const Maze *maze) {
 
-  Anima_default(&animas[id], id, 16, location, DIRECTION_S);
+  Anima_default(&animas[id], id, 16, location, DIRECTION_S, RENDER_TOP);
 
   SpiritSetup setup = {
       .anima = &animas[id],
@@ -91,25 +92,25 @@ void setup_anima(Anima animas[ANIMA_COUNT], uint8_t id, Pair_uint8 location, con
   SpiritSetup *setup_ptr = malloc(sizeof(setup));
   *setup_ptr = setup;
 
-  pthread_create(&ANIMA_THREADS[id], nullptr, setup_spirit, (void *)setup_ptr);
+  pthread_create(&threads[id], nullptr, setup_spirit, (void *)setup_ptr);
 }
 
-void setup_animas(Anima animas[ANIMA_COUNT], const Maze *maze) { // Resource setup
+void setup_animas(Anima animas[ANIMA_COUNT], pthread_t threads[ANIMA_COUNT], const Maze *maze) { // Resource setup
 
   if (1 <= ANIMA_COUNT) {
-    setup_anima(animas, 0, Pair_uint8_create(1, 2), maze);
+    setup_anima(animas, threads, 0, Pair_uint8_create(1, 2), maze);
   }
 
   if (2 <= ANIMA_COUNT) {
-    setup_anima(animas, 1, Pair_uint8_create(16, 26), maze);
+    setup_anima(animas, threads, 1, Pair_uint8_create(16, 26), maze);
   }
 
   if (3 <= ANIMA_COUNT) {
-    setup_anima(animas, 2, Pair_uint8_create(21, 12), maze);
+    setup_anima(animas, threads, 2, Pair_uint8_create(21, 12), maze);
   }
 
   if (4 <= ANIMA_COUNT) {
-    setup_anima(animas, 3, Pair_uint8_create(4, 29), maze);
+    setup_anima(animas, threads, 3, Pair_uint8_create(4, 29), maze);
   }
 }
 

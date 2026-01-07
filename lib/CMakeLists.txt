@@ -22,11 +22,7 @@ set(COMPILE_FLAGS
     # -DDEBUG
 )
 
-set(COMPILE_AND_LINK_OPTIONS
-    -fsanitize=undefined
-    -fsanitize=address
-    -fno-omit-frame-pointer
-)
+set(COMPILE_AND_LINK_OPTIONS -fno-omit-frame-pointer)
 
 file(GLOB_RECURSE SPRITES src/sprites/*.c)
 file(GLOB CORE src/core/*.c)
@@ -55,8 +51,7 @@ find_package(z3 REQUIRED CONFIG)
 add_library(${PROJECT_NAME} STATIC ${SPRITES} ${CORE} ${LOGIC} ${UTILS})
 target_compile_options(
     ${PROJECT_NAME}
-    PRIVATE
-        ${COMPILE_FLAGS} #${COMPILE_AND_LINK_OPTIONS}
+    PRIVATE ${COMPILE_FLAGS} ${COMPILE_AND_LINK_OPTIONS}
 )
 
 # # includes
