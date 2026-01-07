@@ -1,12 +1,12 @@
 #pragma once
 
+#include <slog.h>
 #include <stdlib.h>
 #include <z3.h>
 
 #include "constants.h"
 #include "logic/situation.h"
 #include "maze.h"
-#include "slog.h"
 
 constexpr size_t PATH_VARIANTS = 11;
 struct z3_lang {

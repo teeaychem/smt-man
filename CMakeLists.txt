@@ -7,120 +7,92 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
-
-add_library(slog STATIC submodules/slog/src/slog.c submodules/slog/src/slog.h)
-
-file(GLOB MAIN src/main.c src/setup.c src/z3.c)
-file(GLOB_RECURSE SPRITES src/sprites/*.c)
-file(GLOB CORE src/core/*.c)
-file(GLOB LOGIC src/logic/*.c)
-file(GLOB RENDER src/render/*.c)
-file(GLOB UTILS src/utils/*.c)
-
-add_executable(
-    ${PROJECT_NAME}
-    ${MAIN}
-    ${SPRITES}
-    ${CORE}
-    ${LOGIC}
-    ${RENDER}
-    ${UTILS}
-)
-
-add_executable(
-    z3_scratch
-    src/z3_scratch.c
-    src/setup.c
-    ${SPRITES}
-    ${CORE}
-    ${LOGIC}
-    ${UTILS}
-)
-
-set(COMPILE_AND_LINK_OPTIONS
-    -fsanitize={address,undefined}
-    -fno-omit-frame-pointer
-)
-add_compile_options(${COMPILE_AND_LINK_OPTIONS})
-add_link_options(${COMPILE_AND_LINK_OPTIONS})
-
-target_compile_options(
-    ${PROJECT_NAME}
-    PRIVATE
-        -Wall
-        -Wextra
-        -Wpedantic
-        -Wformat-security
-        -Wnull-dereference
-        -Wwrite-strings
-        -Wformat=2
-        -Wconversion
-        -Wunreachable-code
-        -g3
-        -O3
+set(COMPILE_FLAGS
+    -Wall
+    -Wextra
+    -Wpedantic
+    -Wformat-security
+    -Wnull-dereference
+    -Wwrite-strings
+    -Wformat=2
+    -Wconversion
+    -Wunreachable-code
+    -g3
+    -O3
     # -DDEBUG
 )
 
-include_directories(${PROJECT_SOURCE_DIR}/include)
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
-# Libraries
+# add_library(slog STATIC submodules/slog/src/slog.c submodules/slog/src/slog.h)
+# target_compile_options(slog PRIVATE ${COMPILE_FLAGS})
+
+# libraries
+set(SMTMANLIB ${PROJECT_NAME}lib)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/lib)
+
+set(SUBMODULES ${CMAKE_CURRENT_SOURCE_DIR}/submodules)
 
 find_package(PkgConfig REQUIRED)
 
 find_package(Threads)
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
-target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
 
 pkg_check_modules(SDL3 REQUIRED SDL3)
 find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
-target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3 SDL3::Headers)
 
 pkg_check_modules(LIBPNG REQUIRED LIBPNG)
 find_package(PNG REQUIRED)
+
+# targets
+
+include_directories(${PROJECT_SOURCE_DIR}/include)
+
+file(GLOB MAIN src/main.c src/setup.c)
+file(GLOB RENDER src/render/*.c)
+
+# # main
+
+add_executable(${PROJECT_NAME} ${MAIN} ${RENDER})
+target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_FLAGS})
+# add_link_options(${PROJECT_NAME} ${COMPILE_AND_LINK_OPTIONS})
+
+target_include_directories(
+    ${PROJECT_NAME}
+    PRIVATE ${PROJECT_SOURCE_DIR}/include
+)
+
+# # #
+
+target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3 SDL3::Headers)
+
 target_link_libraries(${PROJECT_NAME} PRIVATE PNG::PNG)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PNG_INCLUDE_DIRS})
 
-# find_package(Criterion REQUIRED)
-# target_link_libraries(${PROJECT_NAME} PRIVATE criterion)
+# # #
 
-find_package(z3 REQUIRED CONFIG)
-target_link_libraries(${PROJECT_NAME} PRIVATE z3)
-target_link_libraries(z3_scratch PRIVATE z3)
+target_include_directories(
+    ${PROJECT_NAME}
+    PRIVATE ${PROJECT_SOURCE_DIR}/lib/include
+)
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${GLIB_INCLUDE_DIRS})
-target_include_directories(z3_scratch PRIVATE ${GLIB_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${SMTMANLIB})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE ${GLIB_LIBRARIES})
-target_link_libraries(z3_scratch PRIVATE ${GLIB_LIBRARIES})
-
-
-## Submodules
-set(SUBMODULES ${CMAKE_CURRENT_SOURCE_DIR}/submodules)
+# # #
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${SUBMODULES}/cwalk/include)
 target_sources(${PROJECT_NAME} PRIVATE ${SUBMODULES}/cwalk/src/cwalk.c)
 
-target_include_directories(z3_scratch PRIVATE ${SUBMODULES}/cwalk/include)
-target_sources(z3_scratch PRIVATE ${SUBMODULES}/cwalk/src/cwalk.c)
+target_link_libraries(${PROJECT_NAME} PRIVATE slog)
+target_include_directories(${PROJECT_NAME} PRIVATE ${SUBMODULES}/slog/src/)
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${SUBMODULES}/whereami/src)
 target_sources(${PROJECT_NAME} PRIVATE ${SUBMODULES}/whereami/src/whereami.c)
 
-target_include_directories(z3_scratch PRIVATE ${SUBMODULES}/whereami/src)
-target_sources(z3_scratch PRIVATE ${SUBMODULES}/whereami/src/whereami.c)
-
-target_include_directories(z3_scratch PRIVATE ${SUBMODULES}/whereami/src)
-target_sources(z3_scratch PRIVATE ${SUBMODULES}/whereami/src/whereami.c)
-
-target_include_directories(z3_scratch PRIVATE submodules/slog/src/)
-target_link_libraries(z3_scratch PRIVATE slog)
-
-target_include_directories(${PROJECT_NAME} PRIVATE submodules/slog/src/)
-target_link_libraries(${PROJECT_NAME} PRIVATE slog)
-
-# Resources
+# # resources
 
 add_custom_target(
     copy_data
@@ -131,6 +103,36 @@ add_custom_target(
     COMMENT "Copying data"
 )
 add_dependencies(${PROJECT_NAME} copy_data)
+
+# # # scratch
+
+add_executable(z3_scratch src/z3_scratch.c src/setup.c)
+target_compile_options(
+    z3_scratch
+    PRIVATE ${COMPILE_FLAGS} ${COMPILE_AND_LINK_OPTIONS}
+)
+
+# # #
+
+target_include_directories(z3_scratch PRIVATE ${PROJECT_SOURCE_DIR}/lib/include)
+
+target_link_libraries(z3_scratch PRIVATE z3)
+
+# # #
+
+target_link_libraries(z3_scratch PRIVATE ${SMTMANLIB})
+target_include_directories(z3_scratch PRIVATE ${PROJECT_SOURCE_DIR}/include)
+
+# # #
+
+target_sources(z3_scratch PRIVATE ${SUBMODULES}/cwalk/src/cwalk.c)
+target_include_directories(z3_scratch PRIVATE ${SUBMODULES}/cwalk/include)
+
+target_sources(z3_scratch PRIVATE ${SUBMODULES}/whereami/src/whereami.c)
+target_include_directories(z3_scratch PRIVATE ${SUBMODULES}/whereami/src)
+
+target_link_libraries(z3_scratch PRIVATE slog)
+target_include_directories(z3_scratch PRIVATE ${SUBMODULES}/slog/src/)
 
 # Tests
 
