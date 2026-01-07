@@ -4,10 +4,6 @@
 
 #include "generic/pairs.h"
 
-static inline bool Sprite_is_centered_on_tile(Pair_uint32 location, uint32_t tile_pixels) {
-  return location.x % tile_pixels == 0 && location.y % tile_pixels == 0;
-}
-
 static inline Pair_uint8 Sprite_location_to_abstract(const Pair_uint32 *sprite_location, uint32_t tile_pixels, uint32_t offset_n) {
 
   uint32_t x_mod = sprite_location->x % tile_pixels;

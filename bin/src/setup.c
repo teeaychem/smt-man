@@ -27,6 +27,7 @@
 #include <whereami.h>
 
 #include "constants.h"
+#include "render/sprite.h"
 
 // Set the source path for resources, etc.
 void set_source_path(char **source_path, int *length) {
@@ -81,9 +82,12 @@ void *setup_spirit(void *void_setup_struct) {
   return 0;
 }
 
-void setup_anima(Anima animas[ANIMA_COUNT], pthread_t threads[ANIMA_COUNT], uint8_t id, Pair_uint8 location, const Maze *maze) {
+void setup_anima(Anima animas[ANIMA_COUNT], pthread_t threads[ANIMA_COUNT], Sprites *sprites, uint8_t id, Pair_uint8 location, const Maze *maze) {
 
-  Anima_default(&animas[id], id, 16, location, DIRECTION_S, RENDER_TOP);
+  Anima_default(&animas[id], id, location, DIRECTION_S, RENDER_TOP);
+  if (sprites != nullptr) {
+    Sprite_init(&sprites->anima[id], 16, location, RENDER_TOP);
+  }
 
   SpiritSetup setup = {
       .anima = &animas[id],
@@ -95,22 +99,22 @@ void setup_anima(Anima animas[ANIMA_COUNT], pthread_t threads[ANIMA_COUNT], uint
   pthread_create(&threads[id], nullptr, setup_spirit, (void *)setup_ptr);
 }
 
-void setup_animas(Anima animas[ANIMA_COUNT], pthread_t threads[ANIMA_COUNT], const Maze *maze) { // Resource setup
+void setup_animas(Anima animas[ANIMA_COUNT], pthread_t threads[ANIMA_COUNT], Sprites *sprites, const Maze *maze) { // Resource setup
 
   if (1 <= ANIMA_COUNT) {
-    setup_anima(animas, threads, 0, Pair_uint8_create(1, 2), maze);
+    setup_anima(animas, threads, sprites, 0, Pair_uint8_create(1, 2), maze);
   }
 
   if (2 <= ANIMA_COUNT) {
-    setup_anima(animas, threads, 1, Pair_uint8_create(16, 26), maze);
+    setup_anima(animas, threads, sprites, 1, Pair_uint8_create(16, 26), maze);
   }
 
   if (3 <= ANIMA_COUNT) {
-    setup_anima(animas, threads, 2, Pair_uint8_create(21, 12), maze);
+    setup_anima(animas, threads, sprites, 2, Pair_uint8_create(21, 12), maze);
   }
 
   if (4 <= ANIMA_COUNT) {
-    setup_anima(animas, threads, 3, Pair_uint8_create(4, 29), maze);
+    setup_anima(animas, threads, sprites, 3, Pair_uint8_create(4, 29), maze);
   }
 }
 

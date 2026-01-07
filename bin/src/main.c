@@ -11,6 +11,7 @@
 #include "logic/synchronization.h"
 #include "render.h"
 #include "render/rgb_momentum.h"
+#include "render/sprite.h"
 #include "render/timer_nano.h"
 #include "sprites/persona.h"
 
@@ -34,17 +35,20 @@ int main() { // int main(int argc, char *argv[]) {
   Situation situation = {};
 
   Anima animas[ANIMA_COUNT];
+  Sprites sprites = {};
   Persona persona;
 
   RGBMomentum colour = {};
 
   const Maze maze = setup_maze(source_path);
   { // Setup block
-    setup_situation(&situation, (Pair_uint8){.x = 13, .y = 17});
+    Pair_uint8 persona_location = {.x = 13, .y = 17};
+    setup_situation(&situation, persona_location);
 
-    Persona_default(&persona, &situation, 16, RENDER_TOP);
+    Persona_default(&persona, &situation);
+    Sprite_init(&sprites.persona, 16, persona_location, RENDER_TOP);
 
-    setup_animas(animas, ANIMA_THREADS, &maze);
+    setup_animas(animas, ANIMA_THREADS, &sprites, &maze);
   }
   Renderer renderer = {};
   {
@@ -93,9 +97,9 @@ int main() { // int main(int argc, char *argv[]) {
         rgb_momentum_advance(&colour);
 
         for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
-          Anima_on_frame(&animas[id], &maze, TILE_PIXELS, RENDER_TOP);
+          Anima_on_frame(&animas[id], &sprites.anima[id], &maze, TILE_PIXELS, RENDER_TOP);
         }
-        Persona_on_frame(&persona, &maze, &situation, TILE_PIXELS, RENDER_TOP);
+        Persona_on_frame(&persona, &sprites.persona, &maze, &situation, TILE_PIXELS, RENDER_TOP);
 
         for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
           if (atomic_load(&animas[id].contact.flag_suspend)) {
@@ -111,17 +115,17 @@ int main() { // int main(int argc, char *argv[]) {
         SDL_SetRenderDrawColor(renderer.renderer, colour.state[0].value, colour.state[1].value, colour.state[2].value, 0x000000ff);
 
         for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
-          Renderer_anima(&renderer, animas, id, RENDER_DRAW);
+          Renderer_anima(&renderer, &animas[id], &sprites.anima[id], RENDER_DRAW);
         }
-        Renderer_persona(&renderer, &persona, &situation, RENDER_DRAW);
+        Renderer_persona(&renderer, &persona, &sprites.persona, &situation, RENDER_DRAW);
 
         Renderer_render_frame_buffer(&renderer);
       }
 
       { /// Post-render block
-        Renderer_persona(&renderer, &persona, &situation, RENDER_ERASE);
+        Renderer_persona(&renderer, &persona, &sprites.persona, &situation, RENDER_ERASE);
         for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
-          Renderer_anima(&renderer, animas, id, RENDER_ERASE);
+          Renderer_anima(&renderer, &animas[id], &sprites.anima[id], RENDER_ERASE);
         }
       }
 

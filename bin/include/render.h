@@ -11,6 +11,7 @@
 #include "logic/situation.h"
 #include "maze.h"
 #include "render/palette.h"
+#include "render/sprite.h"
 #include "render/surface.h"
 #include "sprites/anima.h"
 #include "sprites/persona.h"
@@ -58,9 +59,9 @@ void Renderer_render_frame_buffer(Renderer *self);
 
 void Renderer_draw_from_sheet(Renderer *self, const Pair_uint32 destination, const uint32_t size, const Pair_uint32 source, const Pallete pallete);
 
-void Renderer_anima(Renderer *self, const Anima animas[ANIMA_COUNT], const uint8_t id, const RenderAction action);
+void Renderer_anima(Renderer *self, const Anima *anima, Sprite *sprite, const RenderAction action);
 
-void Renderer_persona(Renderer *self, const Persona *persona, const Situation *situation, const RenderAction action);
+void Renderer_persona(Renderer *self, const Persona *persona, Sprite *sprite, const Situation *situation, const RenderAction action);
 
 void Renderer_sprite_fill(Renderer *self, const Pair_uint32 location, const uint32_t size, const uint32_t colour, const bool edge);
 

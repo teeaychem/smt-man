@@ -3,6 +3,7 @@
 #include "constants.h"
 #include "maze.h"
 #include "render.h"
+#include "render/sprite.h"
 #include "sprites/anima.h"
 
 /// Setup functions
@@ -15,6 +16,6 @@ Maze setup_maze(const char *source_path);
 
 void setup_renderer(Renderer *renderer, const Maze *maze, const char *source_path);
 
-void setup_animas(Anima animas[ANIMA_COUNT], pthread_t threads[ANIMA_COUNT], const Maze *maze);
+void setup_animas(Anima animas[ANIMA_COUNT], pthread_t threads[ANIMA_COUNT], Sprites *sprites, const Maze *maze);
 
 void setup_situation(Situation *situation, Pair_uint8 location);

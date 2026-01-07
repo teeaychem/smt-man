@@ -183,51 +183,51 @@ void Renderer_draw_from_sheet(Renderer *self, const Pair_uint32 destination, con
   }
 }
 
-void Renderer_anima(Renderer *self, const Anima animas[ANIMA_COUNT], const uint8_t id, const RenderAction action) {
+void Renderer_anima(Renderer *self, const Anima *anima, Sprite *sprite, const RenderAction action) {
 
   switch (action) {
   case RENDER_DRAW: {
-    Renderer_sprite_buffer_map_to(self, Sheet_anima_offset(&animas[id]), animas[id].sprite_size);
-    Surface_apply_pallete(&self->sprite_buffer, animas[id].sprite_size, DEFAULT_PALLETES.animas[id]);
+    Renderer_sprite_buffer_map_to(self, Sheet_anima_offset(anima), sprite->sprite_size);
+    Surface_apply_pallete(&self->sprite_buffer, sprite->sprite_size, DEFAULT_PALLETES.animas[anima->id]);
 
-    Renderer_draw_from_sprite_buffer(self, animas[id].sprite_location, animas[id].sprite_size);
+    Renderer_draw_from_sprite_buffer(self, sprite->sprite_location, sprite->sprite_size);
   } break;
   case RENDER_ERASE: {
-    Renderer_sprite_fill(self, animas[id].sprite_location, animas[id].sprite_size, 0x00000000, false);
+    Renderer_sprite_fill(self, sprite->sprite_location, sprite->sprite_size, 0x00000000, false);
   } break;
   }
 }
 
-void Renderer_persona(Renderer *self, const Persona *persona, const Situation *situation, const RenderAction action) {
+void Renderer_persona(Renderer *self, const Persona *persona, Sprite *sprite, const Situation *situation, const RenderAction action) {
 
   switch (action) {
   case RENDER_DRAW: {
-    Renderer_sprite_buffer_map_to(self, Sheet_persona_offset(persona, situation), persona->sprite_size);
+    Renderer_sprite_buffer_map_to(self, Sheet_persona_offset(persona, situation), sprite->sprite_size);
 
     switch (situation->persona.direction_actual) {
     case DIRECTION_NONE: {
       // No transformation
     } break;
     case DIRECTION_N: {
-      Surface_mirror(&self->sprite_buffer, persona->sprite_size);
-      Surface_transpose(&self->sprite_buffer, persona->sprite_size);
+      Surface_mirror(&self->sprite_buffer, sprite->sprite_size);
+      Surface_transpose(&self->sprite_buffer, sprite->sprite_size);
     } break;
     case DIRECTION_E: {
       // No transformation
     } break;
     case DIRECTION_S: {
-      Surface_transpose(&self->sprite_buffer, persona->sprite_size);
+      Surface_transpose(&self->sprite_buffer, sprite->sprite_size);
     } break;
     case DIRECTION_W: {
-      Surface_mirror(&self->sprite_buffer, persona->sprite_size);
+      Surface_mirror(&self->sprite_buffer, sprite->sprite_size);
     } break;
     }
 
-    Surface_apply_pallete(&self->sprite_buffer, persona->sprite_size, DEFAULT_PALLETES.persona);
-    Renderer_draw_from_sprite_buffer(self, persona->sprite_location, persona->sprite_size);
+    Surface_apply_pallete(&self->sprite_buffer, sprite->sprite_size, DEFAULT_PALLETES.persona);
+    Renderer_draw_from_sprite_buffer(self, sprite->sprite_location, sprite->sprite_size);
   } break;
   case RENDER_ERASE: {
-    Renderer_sprite_fill(self, persona->sprite_location, persona->sprite_size, 0x00000000, false);
+    Renderer_sprite_fill(self, sprite->sprite_location, sprite->sprite_size, 0x00000000, false);
   } break;
   }
 }
