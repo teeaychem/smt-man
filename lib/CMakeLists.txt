@@ -23,20 +23,9 @@ set(COMPILE_FLAGS
 )
 
 set(COMPILE_AND_LINK_OPTIONS
-    # -fsanitize=undefined
-    # -fsanitize=address
+    -fsanitize=undefined
+    -fsanitize=address
     -fno-omit-frame-pointer
-)
-
-add_library(
-    slog
-    STATIC
-    ../submodules/slog/src/slog.c
-    ../submodules/slog/src/slog.h
-)
-target_compile_options(
-    slog
-    PRIVATE ${COMPILE_FLAGS} ${COMPILE_AND_LINK_OPTIONS}
 )
 
 file(GLOB_RECURSE SPRITES src/sprites/*.c)
@@ -46,6 +35,14 @@ file(GLOB UTILS src/utils/*.c)
 
 # libraries
 set(SUBMODULES ${CMAKE_CURRENT_SOURCE_DIR}/../submodules)
+
+add_library(
+    slog
+    STATIC
+    ${SUBMODULES}/slog/src/slog.c
+    ${SUBMODULES}/slog/src/slog.h
+)
+target_compile_options(slog PRIVATE ${COMPILE_FLAGS})
 
 find_package(PkgConfig REQUIRED)
 
@@ -68,18 +65,16 @@ find_package(z3 REQUIRED CONFIG)
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
-set(COMPILE_AND_LINK_OPTIONS
-    # -fsanitize={address,undefined}
-    # -fno-omit-frame-pointer
-)
-
 # # libs
 
 add_library(${PROJECT_NAME} STATIC ${SPRITES} ${CORE} ${LOGIC} ${UTILS})
-target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_FLAGS})
+target_compile_options(
+    ${PROJECT_NAME}
+    PRIVATE ${COMPILE_FLAGS} ${COMPILE_AND_LINK_OPTIONS}
+)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
 target_link_libraries(${PROJECT_NAME} PRIVATE z3)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE slog)
-target_include_directories(${PROJECT_NAME} PRIVATE ${SUBMODULES}/slog/src/)
+target_link_libraries(${PROJECT_NAME} INTERFACE slog)
+target_include_directories(${PROJECT_NAME} PUBLIC ${SUBMODULES}/slog/src/)

@@ -22,10 +22,13 @@ set(COMPILE_FLAGS
     # -DDEBUG
 )
 
-list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+set(COMPILE_AND_LINK_OPTIONS
+    -fsanitize=undefined
+    -fsanitize=address
+    -fno-omit-frame-pointer
+)
 
-# add_library(slog STATIC submodules/slog/src/slog.c submodules/slog/src/slog.h)
-# target_compile_options(slog PRIVATE ${COMPILE_FLAGS})
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 # libraries
 set(SMTMANLIB ${PROJECT_NAME}lib)
@@ -86,9 +89,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${SMTMANLIB})
 target_include_directories(${PROJECT_NAME} PRIVATE ${SUBMODULES}/cwalk/include)
 target_sources(${PROJECT_NAME} PRIVATE ${SUBMODULES}/cwalk/src/cwalk.c)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE slog)
-target_include_directories(${PROJECT_NAME} PRIVATE ${SUBMODULES}/slog/src/)
-
 target_include_directories(${PROJECT_NAME} PRIVATE ${SUBMODULES}/whereami/src)
 target_sources(${PROJECT_NAME} PRIVATE ${SUBMODULES}/whereami/src/whereami.c)
 
@@ -130,9 +130,6 @@ target_include_directories(z3_scratch PRIVATE ${SUBMODULES}/cwalk/include)
 
 target_sources(z3_scratch PRIVATE ${SUBMODULES}/whereami/src/whereami.c)
 target_include_directories(z3_scratch PRIVATE ${SUBMODULES}/whereami/src)
-
-target_link_libraries(z3_scratch PRIVATE slog)
-target_include_directories(z3_scratch PRIVATE ${SUBMODULES}/slog/src/)
 
 # Tests
 
