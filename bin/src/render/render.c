@@ -187,13 +187,13 @@ void Renderer_anima(Renderer *self, const Anima *anima, Sprite *sprite, const Re
 
   switch (action) {
   case RENDER_DRAW: {
-    Renderer_sprite_buffer_map_to(self, Sheet_anima_offset(anima), sprite->sprite_size);
-    Surface_apply_pallete(&self->sprite_buffer, sprite->sprite_size, DEFAULT_PALLETES.animas[anima->id]);
+    Renderer_sprite_buffer_map_to(self, Sheet_anima_offset(anima), sprite->size);
+    Surface_apply_pallete(&self->sprite_buffer, sprite->size, DEFAULT_PALLETES.animas[anima->id]);
 
-    Renderer_draw_from_sprite_buffer(self, sprite->sprite_location, sprite->sprite_size);
+    Renderer_draw_from_sprite_buffer(self, sprite->location, sprite->size);
   } break;
   case RENDER_ERASE: {
-    Renderer_sprite_fill(self, sprite->sprite_location, sprite->sprite_size, 0x00000000, false);
+    Renderer_sprite_fill(self, sprite->location, sprite->size, 0x00000000, false);
   } break;
   }
 }
@@ -202,32 +202,32 @@ void Renderer_persona(Renderer *self, const Persona *persona, Sprite *sprite, co
 
   switch (action) {
   case RENDER_DRAW: {
-    Renderer_sprite_buffer_map_to(self, Sheet_persona_offset(persona, situation), sprite->sprite_size);
+    Renderer_sprite_buffer_map_to(self, Sheet_persona_offset(persona, situation), sprite->size);
 
     switch (situation->persona.direction_actual) {
     case DIRECTION_NONE: {
       // No transformation
     } break;
     case DIRECTION_N: {
-      Surface_mirror(&self->sprite_buffer, sprite->sprite_size);
-      Surface_transpose(&self->sprite_buffer, sprite->sprite_size);
+      Surface_mirror(&self->sprite_buffer, sprite->size);
+      Surface_transpose(&self->sprite_buffer, sprite->size);
     } break;
     case DIRECTION_E: {
       // No transformation
     } break;
     case DIRECTION_S: {
-      Surface_transpose(&self->sprite_buffer, sprite->sprite_size);
+      Surface_transpose(&self->sprite_buffer, sprite->size);
     } break;
     case DIRECTION_W: {
-      Surface_mirror(&self->sprite_buffer, sprite->sprite_size);
+      Surface_mirror(&self->sprite_buffer, sprite->size);
     } break;
     }
 
-    Surface_apply_pallete(&self->sprite_buffer, sprite->sprite_size, DEFAULT_PALLETES.persona);
-    Renderer_draw_from_sprite_buffer(self, sprite->sprite_location, sprite->sprite_size);
+    Surface_apply_pallete(&self->sprite_buffer, sprite->size, DEFAULT_PALLETES.persona);
+    Renderer_draw_from_sprite_buffer(self, sprite->location, sprite->size);
   } break;
   case RENDER_ERASE: {
-    Renderer_sprite_fill(self, sprite->sprite_location, sprite->sprite_size, 0x00000000, false);
+    Renderer_sprite_fill(self, sprite->location, sprite->size, 0x00000000, false);
   } break;
   }
 }
