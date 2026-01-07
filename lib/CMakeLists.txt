@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 4.1.2)
 
-project(smt-man-lib LANGUAGES C)
+project(smt-man-lib VERSION 0.0.1 LANGUAGES C)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -38,9 +38,6 @@ find_package(Threads)
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 
-pkg_check_modules(SDL3 REQUIRED SDL3)
-find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
-
 # find_package(Criterion REQUIRED)
 # target_link_libraries(${PROJECT_NAME} PRIVATE criterion)
 
@@ -56,12 +53,13 @@ target_compile_options(
 
 # # includes
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(
+    ${PROJECT_NAME}
+    PUBLIC ${PROJECT_SOURCE_DIR}/include ${SUBMODULES}/slog/src
+)
 
 # # libs
 
 target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
 target_link_libraries(${PROJECT_NAME} PRIVATE z3)
-
-target_link_libraries(${PROJECT_NAME} INTERFACE slog)
-target_include_directories(${PROJECT_NAME} PUBLIC ${SUBMODULES}/slog/src/)
+target_link_libraries(${PROJECT_NAME} PRIVATE slog)

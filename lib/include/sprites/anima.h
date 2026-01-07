@@ -3,10 +3,6 @@
 #include <pthread.h>
 #include <stdint.h>
 
-#include <SDL3/SDL.h>
-#include <SDL3/SDL_main.h>
-#include <SDL3/SDL_render.h>
-
 #include "enums.h"
 #include "generic/pairs.h"
 #include "sprites/anima/mind.h"
@@ -35,7 +31,5 @@ typedef struct anima_t Anima;
 void Anima_default(Anima *anima, const uint8_t id, const Pair_uint8 location, const Direction direction, uint32_t offset_n);
 
 void Anima_destroy(Anima *self);
-
-void Anima_handle_event(Anima *self, const SDL_Event *event);
 
 void Anima_instinct(Anima *self);

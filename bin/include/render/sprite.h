@@ -1,7 +1,10 @@
 #pragma once
 
+#include <SDL3/SDL_events.h>
+
 #include "constants.h"
 #include "generic/pairs.h"
+#include "maze.h"
 #include "sprites/anima.h"
 #include "sprites/persona.h"
 #include <stdatomic.h>
@@ -61,12 +64,20 @@ static inline Pair_uint8 Sprite_location_to_abstract(const Pair_uint32 *sprite_l
 
 /// Rendering related sprite methods
 
+/// Anima
+
 void Anima_on_tile(Anima *self, Sprite *sprite, const Maze *maze, uint32_t tile_pixels, uint32_t offset_n);
 
 void Anima_on_frame(Anima *self, Sprite *sprite, const Maze *maze, uint32_t tile_pixels, uint32_t offset_n);
+
+void Anima_handle_event(Anima *self, const SDL_Event *event);
+
+/// Persona
 
 void Persona_on_tile(Persona *self, Sprite *sprite, Situation *situation, const Maze *maze, uint32_t tile_pixels, uint32_t offset_n);
 
 void Persona_off_tile(Persona *self, Sprite *sprite, Situation *situation, const Maze *maze, uint32_t tile_pixels, uint32_t offset_n);
 
 void Persona_on_frame(Persona *self, Sprite *sprite, const Maze *maze, Situation *situation, uint32_t tile_pixels, uint32_t offset_n);
+
+void Persona_handle_event(Persona *self, const Maze *maze, Situation *situation, const SDL_Event *event);

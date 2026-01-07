@@ -31,10 +31,6 @@ void Anima_destroy(Anima *self) {
   assert(self != nullptr);
 }
 
-void Anima_handle_event(Anima *self, const SDL_Event *event) {
-  assert(self != nullptr && event != nullptr);
-}
-
 void Anima_instinct(Anima *self) {
   assert(self != nullptr);
 }

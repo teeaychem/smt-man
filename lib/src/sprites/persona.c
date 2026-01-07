@@ -1,9 +1,8 @@
+#include <assert.h>
 #include <stdatomic.h>
+#include <stdio.h>
 
-#include "constants.h"
-#include "generic/bitvec.h"
 #include "sprites/persona.h"
-#include "sprites/sprite.h"
 
 void Persona_default(Persona *persona, Situation *situation) {
   Pair_uint8 location = atomic_load(&situation->persona.location);
@@ -19,24 +18,3 @@ void Persona_default(Persona *persona, Situation *situation) {
 void Persona_drop(Persona *self) {
   assert(self != nullptr);
 }
-
-void Persona_handle_event(Persona *self, const Maze *maze, Situation *situation, const SDL_Event *event) {
-  if (event->type == SDL_EVENT_KEY_DOWN && !event->key.repeat) {
-
-    switch (event->key.key) {
-    case SDLK_UP: {
-      self->direction_intent = DIRECTION_N;
-    } break;
-    case SDLK_DOWN: {
-      self->direction_intent = DIRECTION_S;
-    } break;
-    case SDLK_LEFT: {
-      self->direction_intent = DIRECTION_W;
-    } break;
-    case SDLK_RIGHT: {
-      self->direction_intent = DIRECTION_E;
-    } break;
-    }
-  }
-}
-

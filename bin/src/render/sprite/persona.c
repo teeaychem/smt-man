@@ -70,3 +70,23 @@ void Persona_on_frame(Persona *self, Sprite *sprite, const Maze *maze, Situation
   } break;
   }
 }
+
+void Persona_handle_event(Persona *self, const Maze *maze, Situation *situation, const SDL_Event *event) {
+  if (event->type == SDL_EVENT_KEY_DOWN && !event->key.repeat) {
+
+    switch (event->key.key) {
+    case SDLK_UP: {
+      self->direction_intent = DIRECTION_N;
+    } break;
+    case SDLK_DOWN: {
+      self->direction_intent = DIRECTION_S;
+    } break;
+    case SDLK_LEFT: {
+      self->direction_intent = DIRECTION_W;
+    } break;
+    case SDLK_RIGHT: {
+      self->direction_intent = DIRECTION_E;
+    } break;
+    }
+  }
+}

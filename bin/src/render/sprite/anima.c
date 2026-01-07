@@ -1,4 +1,5 @@
 #include "generic/bitvec.h"
+
 #include "render/sprite.h"
 
 void Anima_on_tile(Anima *self, Sprite *sprite, const Maze *maze, uint32_t tile_pixels, uint32_t offset_n) {
@@ -51,4 +52,8 @@ void Anima_on_frame(Anima *self, Sprite *sprite, const Maze *maze, uint32_t tile
     sprite->location.x -= SPRITE_VELOCITY;
   } break;
   }
+}
+
+void Anima_handle_event(Anima *self, const SDL_Event *event) {
+  assert(self != nullptr && event != nullptr);
 }
