@@ -1,11 +1,12 @@
 #pragma once
 
-#include <glib.h>
+#include <stdlib.h>
 #include <z3.h>
 
 #include "constants.h"
 #include "logic/situation.h"
 #include "maze.h"
+#include "slog.h"
 
 constexpr size_t PATH_VARIANTS = 11;
 struct z3_lang {
@@ -127,7 +128,7 @@ Z3_context z3_mk_anima_ctx();
 /// Static inline
 
 static inline void error_handler(Z3_context ctx, Z3_error_code code) {
-  g_log(nullptr, G_LOG_LEVEL_ERROR, "Z3 Error (#%d): %s", code, Z3_get_error_msg(ctx, code));
+  slog_display(SLOG_ERROR, 0, "Z3 Error (#%d): %s\n", code, Z3_get_error_msg(ctx, code));
   exit(3);
 }
 

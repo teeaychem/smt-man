@@ -9,6 +9,8 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
+add_library(slog STATIC submodules/slog/src/slog.c submodules/slog/src/slog.h)
+
 file(GLOB MAIN src/main.c src/setup.c src/z3.c)
 file(GLOB_RECURSE SPRITES src/sprites/*.c)
 file(GLOB CORE src/core/*.c)
@@ -87,10 +89,6 @@ find_package(z3 REQUIRED CONFIG)
 target_link_libraries(${PROJECT_NAME} PRIVATE z3)
 target_link_libraries(z3_scratch PRIVATE z3)
 
-pkg_check_modules(GLIB2 glib-2.0)
-find_package(PkgConfig REQUIRED)
-pkg_search_module(GLIB REQUIRED glib-2.0)
-
 target_include_directories(${PROJECT_NAME} PRIVATE ${GLIB_INCLUDE_DIRS})
 target_include_directories(z3_scratch PRIVATE ${GLIB_INCLUDE_DIRS})
 
@@ -112,6 +110,15 @@ target_sources(${PROJECT_NAME} PRIVATE ${SUBMODULES}/whereami/src/whereami.c)
 
 target_include_directories(z3_scratch PRIVATE ${SUBMODULES}/whereami/src)
 target_sources(z3_scratch PRIVATE ${SUBMODULES}/whereami/src/whereami.c)
+
+target_include_directories(z3_scratch PRIVATE ${SUBMODULES}/whereami/src)
+target_sources(z3_scratch PRIVATE ${SUBMODULES}/whereami/src/whereami.c)
+
+target_include_directories(z3_scratch PRIVATE submodules/slog/src/)
+target_link_libraries(z3_scratch PRIVATE slog)
+
+target_include_directories(${PROJECT_NAME} PRIVATE submodules/slog/src/)
+target_link_libraries(${PROJECT_NAME} PRIVATE slog)
 
 # Resources
 

@@ -3,7 +3,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include <glib.h>
+#include <slog.h>
+#include <stdlib.h>
 
 #include "constants.h"
 #include "generic/pairs.h"
@@ -28,10 +29,7 @@ Result Maze_create(Maze *maze, const char *path) {
   bool preamble_ok = true;
 
   FILE *file_ptr = fopen(path, "r");
-  if (file_ptr == nullptr) {
-    g_log(nullptr, G_LOG_LEVEL_CRITICAL, "Failed to open maze from: %s", path);
-    exit(1);
-  }
+  assert(file_ptr != nullptr && "Failed to open maze");
 
   char read = ' ';
   while (read != EOF) {
@@ -46,14 +44,14 @@ Result Maze_create(Maze *maze, const char *path) {
 
     case 'w': {
       if (!fscanf(file_ptr, "%" SCNu8, &(maze->size.x))) {
-        g_log(nullptr, G_LOG_LEVEL_WARNING, "Failed to read maze width: %s", path);
+        printf("Failed to read maze width: %s", path);
         preamble_ok = false;
       };
     } break;
 
     case 'h': {
       if (!fscanf(file_ptr, "%" SCNu8, &(maze->size.y))) {
-        g_log(nullptr, G_LOG_LEVEL_WARNING, "Failed to read maze height: %s", path);
+        printf("Failed to read maze height: %s", path);
         preamble_ok = false;
       };
     } break;
@@ -73,16 +71,15 @@ Result Maze_create(Maze *maze, const char *path) {
   }
 
   if ((maze->size.x % STANDARD_TILE_DIMENSIONS.x) != 0 | (maze->size.y % STANDARD_TILE_DIMENSIONS.y) != 0) {
-    g_log(nullptr,
-          G_LOG_LEVEL_WARNING,
-          "Maze dimension %dx%d is not an integer scale of %dx%d", maze->size.x, maze->size.y, STANDARD_TILE_DIMENSIONS.x, STANDARD_TILE_DIMENSIONS.y);
+    slog_display(SLOG_WARN, 0,
+                 "Maze dimension %dx%d is not an integer scale of %dx%d\n", maze->size.x, maze->size.y, STANDARD_TILE_DIMENSIONS.x, STANDARD_TILE_DIMENSIONS.y);
 
     preamble_ok = false;
   }
 
   if (!preamble_ok) {
     fclose(file_ptr);
-    g_log(nullptr, G_LOG_LEVEL_CRITICAL, "Failed to construct maze: %s", path);
+    printf("Failed to construct maze from: %s\n", path);
     exit(1);
   }
 
@@ -103,8 +100,7 @@ Result Maze_create(Maze *maze, const char *path) {
 
     case '\n': {
       if (pos_x != maze->size.x) {
-        g_log(nullptr, G_LOG_LEVEL_CRITICAL,
-              "Invalid width.\n\tHave: %d\n\tExpected: %d\n\tRow: %d\n\tMaze: %s", pos_x, maze->size.x, pos_y, path);
+        slog_display(SLOG_ERROR, 0, "Invalid width.\n\tHave: %d\n\tExpected: %d\n\tRow: %d\n\tMaze: %s\n", pos_x, maze->size.x, pos_y, path);
         exit(-1);
       }
       pos_y += 1;
@@ -162,14 +158,15 @@ Result Maze_create(Maze *maze, const char *path) {
   }
 
   if (pos_y != maze->size.y) {
-    g_log(nullptr, G_LOG_LEVEL_CRITICAL,
-          "Invalid height.\n\tHave: %d\n\tExpected: %d\n\tMaze: %s", pos_y, maze->size.y, path);
+    assert(pos_y != maze->size.y);
+    slog_display(SLOG_ERROR, 0,
+                 "Invalid height.\n\tHave: %d\n\tExpected: %d\n\tMaze: %s\n", pos_y, maze->size.y, path);
     exit(-1);
   }
 
   fclose(file_ptr);
 
-  g_log(nullptr, G_LOG_LEVEL_INFO, "Constructed maze %dx%d (%zu)", maze->size.x, maze->size.y, tile_count);
+  slog_display(SLOG_INFO, 0, "Constructed maze %dx%d (%zu)\n", maze->size.x, maze->size.y, tile_count);
   return RESULT_OK;
 }
 

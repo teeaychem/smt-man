@@ -3,8 +3,6 @@
 #include <assert.h>
 #include <stdint.h>
 
-#include <glib.h>
-
 #include "enums.h"
 #include "generic/pairs.h"
 

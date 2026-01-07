@@ -2,8 +2,6 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include <glib.h>
-
 #include "logic.h"
 #include "logic/synchronization.h"
 #include "maze.h"
@@ -17,7 +15,6 @@ void z3_display_path(const Lang *lang, Z3_context ctx, Z3_model model, const Maz
 void z3_tmp(const Maze *maze, const Situation *situation);
 
 int main() {
-  printf("Scratch...\n");
 
   char *source_path;
   { // Set source path, kept until exit
@@ -97,20 +94,20 @@ void z3_tmp(const Maze *maze, const Situation *situation) {
   // Checks
   switch (Z3_optimize_check(ctx, optimizer, 0, nullptr)) {
   case Z3_L_FALSE: {
-    g_message("UNSAT");
+    printf("UNSAT");
   } break;
   case Z3_L_UNDEF: {
-    g_message("UNKNOWN");
+    printf("UNKNOWN");
   } break;
   case Z3_L_TRUE: {
-    g_message("SAT");
+    printf("SAT");
   } break;
   }
 
   Z3_model model = Z3_optimize_get_model(ctx, optimizer);
   Z3_model_inc_ref(ctx, model);
 
-  g_log(nullptr, G_LOG_LEVEL_INFO, "\nModel:\n%s", Z3_model_to_string(ctx, model));
+  printf("\nModel:\n%s", Z3_model_to_string(ctx, model));
   z3_display_path(&lang, ctx, model, maze);
 
   // Cleanup
@@ -118,4 +115,5 @@ void z3_tmp(const Maze *maze, const Situation *situation) {
   Z3_model_dec_ref(ctx, model);
   Z3_optimize_dec_ref(ctx, optimizer);
   Z3_del_context(ctx);
+  slog_destroy();
 }

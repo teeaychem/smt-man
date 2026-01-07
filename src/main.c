@@ -1,7 +1,7 @@
 #include "cwalk.h"
 #include "setup.h"
 
-#include <glib.h>
+#include <slog.h>
 #include <stdatomic.h>
 #include <stdint.h>
 
@@ -16,6 +16,12 @@
 pthread_t ANIMA_THREADS[ANIMA_COUNT];
 
 int main() { // int main(int argc, char *argv[]) {
+
+  {
+    uint16_t slog_level_flags = SLOG_FLAGS_ALL;
+    slog_init("logfile", slog_level_flags, 1);
+  }
+
   int exit_code = 0;
 
   char *source_path;
@@ -42,8 +48,9 @@ int main() { // int main(int argc, char *argv[]) {
   Renderer renderer = {};
   {
     char path_buffer[FILENAME_MAX];
+
     cwk_path_join(source_path, "resources/sheet.png", path_buffer, FILENAME_MAX);
-    g_log(nullptr, G_LOG_LEVEL_INFO, "Renderer with sheet from: %s", path_buffer);
+    slog_display(SLOG_INFO, 0, "Renderer with sheet from: %s\n", path_buffer);
 
     Renderer_create(&renderer, maze.size, path_buffer);
   }
@@ -55,7 +62,6 @@ int main() { // int main(int argc, char *argv[]) {
     exit_code = 1;
     goto exit_block;
   }
-  g_log(nullptr, G_LOG_LEVEL_DEBUG, "SDL initialization ok");
 
   // Draw the maze only once...
   Renderer_draw_maze(&renderer, &maze);
@@ -138,8 +144,7 @@ exit_block: {
 
   Maze_drop((Maze *)&maze);
   free(source_path);
-
-  g_message("good-bye");
+  slog_destroy();
 
   return exit_code;
 }

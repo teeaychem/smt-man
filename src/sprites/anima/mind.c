@@ -1,10 +1,11 @@
 #include <stdatomic.h>
-#include <stdio.h>
 #include <stdlib.h>
 
+#include <slog.h>
+
 #include "logic.h"
-#include "sprites/anima/mind.h"
 #include "random.h"
+#include "sprites/anima/mind.h"
 
 void Mind_default(Mind *mind, uint8_t id, const Pair_uint8 location, const Direction direction) {
 
@@ -57,19 +58,16 @@ void Mind_deduct(Mind *self, const Maze *maze) {
 
   switch (Z3_optimize_check(self->ctx, self->opz, 0, nullptr)) {
   case Z3_L_FALSE: {
-    g_message("UNSAT");
-
-    g_log(nullptr, G_LOG_LEVEL_INFO, "\nStatus:\n%s", Z3_optimize_to_string(self->ctx, self->opz));
-    g_log(nullptr, G_LOG_LEVEL_CRITICAL, "UNSAT deduction %d", self->id);
+    slog_display(SLOG_INFO, 0, "\nStatus:\n%s\n", Z3_optimize_to_string(self->ctx, self->opz));
+    slog_display(SLOG_ERROR, 0, "UNSAT deduction %d\n", self->id);
     exit(-3);
   } break;
   case Z3_L_UNDEF: {
-    g_message("UNKNOWN");
-    g_log(nullptr, G_LOG_LEVEL_CRITICAL, "UNKNOWN deduction %d", self->id);
+    slog_display(SLOG_ERROR, 0, "UNKNOWN deduction %d\n", self->id);
     exit(-3);
   } break;
   case Z3_L_TRUE: {
-    g_message("SAT");
+    slog_display(SLOG_DEBUG, 0, "SAT");
   } break;
   }
 
@@ -117,8 +115,7 @@ void Mind_deduct(Mind *self, const Maze *maze) {
       self->direction_intent = DIRECTION_W;
     } break;
     default: {
-      g_log(nullptr, G_LOG_LEVEL_WARNING, "No direction");
-      exit(-1);
+      assert(false && "No direction");
     } break;
     }
   }

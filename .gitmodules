@@ -4,3 +4,6 @@
 [submodule "dependencies/whereami"]
 	path = submodules/whereami
 	url = https://github.com/gpakosz/whereami.git
+[submodule "submodules/slog"]
+	path = submodules/slog
+	url = https://github.com/kala13x/slog.git
