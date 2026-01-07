@@ -70,9 +70,9 @@ Result Maze_create(Maze *maze, const char *path) {
     }
   }
 
-  if ((maze->size.x % STANDARD_TILE_DIMENSIONS.x) != 0 | (maze->size.y % STANDARD_TILE_DIMENSIONS.y) != 0) {
+  if ((maze->size.x % STANDARD_MAZE_DIMENSIONS.x) != 0 | (maze->size.y % STANDARD_MAZE_DIMENSIONS.y) != 0) {
     slog_display(SLOG_WARN, 0,
-                 "Maze dimension %dx%d is not an integer scale of %dx%d\n", maze->size.x, maze->size.y, STANDARD_TILE_DIMENSIONS.x, STANDARD_TILE_DIMENSIONS.y);
+                 "Maze dimension %dx%d is not an integer scale of %dx%d\n", maze->size.x, maze->size.y, STANDARD_MAZE_DIMENSIONS.x, STANDARD_MAZE_DIMENSIONS.y);
 
     preamble_ok = false;
   }

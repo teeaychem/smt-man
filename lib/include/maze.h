@@ -6,6 +6,8 @@
 #include "enums.h"
 #include "generic/pairs.h"
 
+constexpr Pair_uint32 STANDARD_MAZE_DIMENSIONS = {.x = 28, .y = 31};
+
 struct tile_edge_data_t {
 
   enum : uint8_t {
