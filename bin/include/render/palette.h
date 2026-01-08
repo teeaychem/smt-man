@@ -1,6 +1,5 @@
 #pragma once
 
-#include "constants.h"
 #include <stdint.h>
 
 struct pallete_t {
@@ -15,7 +14,7 @@ typedef struct pallete_t Pallete;
 
 struct palletes_t {
   Pallete persona;
-  Pallete animas[ANIMA_COUNT];
+  Pallete animas[4];
 };
 
 typedef struct palletes_t Palletes;

@@ -6,21 +6,21 @@ void Anima_on_tile(Anima *self, Sprite *sprite, const Maze *maze, uint32_t tile_
 
   Pair_uint8 location = Sprite_location_to_abstract(&sprite->location, tile_pixels, offset_n);
   /// Update location
-  atomic_store(&self->mind.view.anima[self->id].location, location);
+  atomic_store(&self->situation.animas[self->id].location, location);
 
   /// Update direction
-  if (Maze_tile_in_direction_is_path(maze, location, self->mind.direction_intent)) {
-    atomic_store(&self->mind.view.anima[self->id].direction_actual, self->mind.direction_intent);
+  if (Maze_tile_in_direction_is_path(maze, location, self->direction_intent)) {
+    atomic_store(&self->situation.animas[self->id].direction_actual, self->direction_intent);
   } else {
-    atomic_store(&self->mind.view.anima[self->id].direction_actual, DIRECTION_NONE);
+    atomic_store(&self->situation.animas[self->id].direction_actual, DIRECTION_NONE);
   }
 }
 
 void Anima_on_frame(Anima *self, Sprite *sprite, const Maze *maze, uint32_t tile_pixels, uint32_t offset_n) {
 
-  uint32_t movement = atomic_load(&self->mind.view.anima[self->id].movement_pattern);
+  uint32_t movement = atomic_load(&self->situation.animas[self->id].movement_pattern);
   movement = uint32_rotl1(movement);
-  atomic_store(&self->mind.view.anima[self->id].movement_pattern, movement);
+  atomic_store(&self->situation.animas[self->id].movement_pattern, movement);
 
   if ((movement & 0x10000000) == 0) {
     return;
@@ -35,7 +35,7 @@ void Anima_on_frame(Anima *self, Sprite *sprite, const Maze *maze, uint32_t tile
     Anima_on_tile(self, sprite, maze, tile_pixels, offset_n);
   }
 
-  switch (atomic_load(&self->mind.view.anima[self->id].direction_actual)) {
+  switch (atomic_load(&self->situation.animas[self->id].direction_actual)) {
   case DIRECTION_NONE: {
     // Do nothing
   } break;

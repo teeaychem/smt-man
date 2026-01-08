@@ -26,7 +26,6 @@
 #include <cwalk.h>
 #include <whereami.h>
 
-#include "constants.h"
 #include "render/sprite.h"
 
 // Set the source path for resources, etc.
@@ -55,6 +54,7 @@ Maze setup_maze(const char *source_path) {
 }
 
 struct spirit_setup_t {
+  size_t anima_count;
   Anima *anima;
   const Maze *maze;
   pthread_t *thread;
@@ -66,14 +66,14 @@ void *setup_spirit(void *void_setup_struct) {
   struct spirit_setup_t *setup_struct = void_setup_struct;
   Anima *anima = setup_struct->anima;
 
-  Mind_touch(&anima->mind, setup_struct->maze);
+  Anima_touch(anima, setup_struct->maze, setup_struct->anima_count);
 
   atomic_store(&anima->contact.flag_suspend, true);
 
   while (true) {
     pthread_mutex_lock(&anima->contact.mtx_suspend);
     if (!atomic_load(&anima->contact.flag_suspend)) {
-      Mind_deduct(&anima->mind, setup_struct->maze);
+      Anima_deduct(anima, setup_struct->maze);
       atomic_store(&anima->contact.flag_suspend, true);
     }
     pthread_cond_wait(&anima->contact.cond_resume, &anima->contact.mtx_suspend);
@@ -82,14 +82,16 @@ void *setup_spirit(void *void_setup_struct) {
   return 0;
 }
 
-void setup_anima(Anima animas[ANIMA_COUNT], pthread_t threads[ANIMA_COUNT], Sprites *sprites, uint8_t id, Pair_uint8 location, const Maze *maze) {
+void setup_anima(Anima *animas, pthread_t *threads, Sprites *sprites, uint8_t id, Pair_uint8 location, const Maze *maze, size_t anima_count) {
+  assert(id < anima_count);
 
   Anima_default(&animas[id], id, location, DIRECTION_S, RENDER_TOP);
   if (sprites != nullptr) {
-    Sprite_init(&sprites->anima[id], 16, location, RENDER_TOP);
+    Sprite_init(&sprites->animas[id], 16, location, RENDER_TOP);
   }
 
   SpiritSetup setup = {
+      .anima_count = anima_count,
       .anima = &animas[id],
       .maze = maze,
   };
@@ -99,22 +101,22 @@ void setup_anima(Anima animas[ANIMA_COUNT], pthread_t threads[ANIMA_COUNT], Spri
   pthread_create(&threads[id], nullptr, setup_spirit, (void *)setup_ptr);
 }
 
-void setup_animas(Anima animas[ANIMA_COUNT], pthread_t threads[ANIMA_COUNT], Sprites *sprites, const Maze *maze) { // Resource setup
+void setup_animas(Anima *animas, pthread_t *threads, Sprites *sprites, const Maze *maze, size_t anima_count) {
 
-  if (1 <= ANIMA_COUNT) {
-    setup_anima(animas, threads, sprites, 0, Pair_uint8_create(1, 2), maze);
+  if (1 <= anima_count) {
+    setup_anima(animas, threads, sprites, 0, Pair_uint8_create(1, 2), maze, anima_count);
   }
 
-  if (2 <= ANIMA_COUNT) {
-    setup_anima(animas, threads, sprites, 1, Pair_uint8_create(16, 26), maze);
+  if (2 <= anima_count) {
+    setup_anima(animas, threads, sprites, 1, Pair_uint8_create(16, 26), maze, anima_count);
   }
 
-  if (3 <= ANIMA_COUNT) {
-    setup_anima(animas, threads, sprites, 2, Pair_uint8_create(21, 12), maze);
+  if (3 <= anima_count) {
+    setup_anima(animas, threads, sprites, 2, Pair_uint8_create(21, 12), maze, anima_count);
   }
 
-  if (4 <= ANIMA_COUNT) {
-    setup_anima(animas, threads, sprites, 3, Pair_uint8_create(4, 29), maze);
+  if (4 <= anima_count) {
+    setup_anima(animas, threads, sprites, 3, Pair_uint8_create(4, 29), maze, anima_count);
   }
 }
 

@@ -6,7 +6,6 @@
 
 #include "cwalk.h"
 
-#include "constants.h"
 #include "generic/pairs.h"
 #include "logic/synchronization.h"
 #include "render.h"
@@ -14,6 +13,8 @@
 #include "render/sprite.h"
 #include "render/timer_nano.h"
 #include "sprites/persona.h"
+
+constexpr size_t ANIMA_COUNT = 1;
 
 pthread_t ANIMA_THREADS[ANIMA_COUNT];
 
@@ -32,10 +33,43 @@ int main() { // int main(int argc, char *argv[]) {
     set_source_path(&source_path, &source_path_length);
   }
 
-  Situation situation = {};
-
   Anima animas[ANIMA_COUNT];
-  Sprites sprites = {};
+
+  Z3_symbol lang_anima_enum_names[ANIMA_COUNT][ANIMA_COUNT] = {};
+  Z3_func_decl lang_anima_enum_consts[ANIMA_COUNT][ANIMA_COUNT] = {};
+  Z3_func_decl lang_anima_enum_testers[ANIMA_COUNT][ANIMA_COUNT] = {};
+
+  Z3_symbol lang_persona_enum_names[ANIMA_COUNT] = {};
+  Z3_func_decl lang_persona_enum_consts[ANIMA_COUNT] = {};
+  Z3_func_decl lang_persona_enum_testers[ANIMA_COUNT] = {};
+
+  AbstractAnima mind_animas[ANIMA_COUNT][ANIMA_COUNT];
+  for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
+    animas[idx].situation.anima_count = ANIMA_COUNT;
+    animas[idx].situation.animas = mind_animas[idx];
+
+    animas[idx].lang = (Lang){
+        .anima.enum_names = lang_anima_enum_names[idx],
+        .anima.enum_consts = lang_anima_enum_consts[idx],
+        .anima.enum_testers = lang_anima_enum_testers[idx],
+        .persona.enum_name = lang_persona_enum_names[idx],
+        .persona.enum_const = lang_persona_enum_consts[idx],
+        .persona.enum_tester = lang_persona_enum_testers[idx],
+
+    };
+  }
+
+  AbstractAnima situation_animas[ANIMA_COUNT] = {};
+  Situation situation = {
+      .anima_count = ANIMA_COUNT,
+      .animas = situation_animas,
+  };
+
+  Sprite anima_sprites[ANIMA_COUNT];
+  Sprites sprites = {
+      .anima_count = ANIMA_COUNT,
+      .animas = anima_sprites,
+  };
   Persona persona;
 
   RGBMomentum colour = {};
@@ -48,7 +82,7 @@ int main() { // int main(int argc, char *argv[]) {
     Persona_default(&persona, &situation);
     Sprite_init(&sprites.persona, 16, persona_location, RENDER_TOP);
 
-    setup_animas(animas, ANIMA_THREADS, &sprites, &maze);
+    setup_animas(animas, ANIMA_THREADS, &sprites, &maze, ANIMA_COUNT);
   }
   Renderer renderer = {};
   {
@@ -97,7 +131,7 @@ int main() { // int main(int argc, char *argv[]) {
         rgb_momentum_advance(&colour);
 
         for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
-          Anima_on_frame(&animas[id], &sprites.anima[id], &maze, TILE_PIXELS, RENDER_TOP);
+          Anima_on_frame(&animas[id], &sprites.animas[id], &maze, TILE_PIXELS, RENDER_TOP);
         }
         Persona_on_frame(&persona, &sprites.persona, &maze, &situation, TILE_PIXELS, RENDER_TOP);
 
@@ -115,7 +149,7 @@ int main() { // int main(int argc, char *argv[]) {
         SDL_SetRenderDrawColor(renderer.renderer, colour.state[0].value, colour.state[1].value, colour.state[2].value, 0x000000ff);
 
         for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
-          Renderer_anima(&renderer, &animas[id], &sprites.anima[id], RENDER_DRAW);
+          Renderer_anima(&renderer, &animas[id], &sprites.animas[id], RENDER_DRAW);
         }
         Renderer_persona(&renderer, &persona, &sprites.persona, &situation, RENDER_DRAW);
 
@@ -125,7 +159,7 @@ int main() { // int main(int argc, char *argv[]) {
       { /// Post-render block
         Renderer_persona(&renderer, &persona, &sprites.persona, &situation, RENDER_ERASE);
         for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
-          Renderer_anima(&renderer, &animas[id], &sprites.anima[id], RENDER_ERASE);
+          Renderer_anima(&renderer, &animas[id], &sprites.animas[id], RENDER_ERASE);
         }
       }
 

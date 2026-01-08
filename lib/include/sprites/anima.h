@@ -2,10 +2,21 @@
 
 #include <pthread.h>
 #include <stdint.h>
+#include <z3.h>
 
 #include "enums.h"
 #include "generic/pairs.h"
-#include "sprites/anima/mind.h"
+#include "logic.h"
+
+/// Tools for contacting the anima from a different thread
+struct anima_contact_t {
+  _Atomic(bool) flag_suspend;
+
+  pthread_mutex_t mtx_suspend;
+
+  pthread_cond_t cond_resume;
+};
+typedef struct anima_contact_t AnimaContact;
 
 struct anima_t {
   /// Uniqie identifier in [0..ANIMA_COUNT]
@@ -13,16 +24,17 @@ struct anima_t {
   /// Incremented on each tick an action is performed
   uint8_t tick_action;
 
-  /// Tools for contacting the anima from a different thread
-  struct {
-    _Atomic(bool) flag_suspend;
+  AnimaContact contact;
 
-    pthread_mutex_t mtx_suspend;
+  Z3_context ctx;
 
-    pthread_cond_t cond_resume;
-  } contact;
+  Z3_optimize opz;
 
-  Mind mind;
+  Lang lang;
+
+  Direction direction_intent;
+  /// Point of view, on the situation
+  Situation situation;
 };
 typedef struct anima_t Anima;
 
@@ -33,3 +45,7 @@ void Anima_default(Anima *anima, const uint8_t id, const Pair_uint8 location, co
 void Anima_destroy(Anima *self);
 
 void Anima_instinct(Anima *self);
+
+void Anima_touch(Anima *self, const Maze *maze, size_t anima_count);
+
+void Anima_deduct(Anima *self, const Maze *maze);

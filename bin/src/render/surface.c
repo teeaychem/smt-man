@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "constants.h"
+#include "consts.h"
 #include "render/surface.h"
 
 void Surface_from_path(Surface *self, const char *path) {

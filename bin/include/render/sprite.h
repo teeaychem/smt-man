@@ -2,7 +2,7 @@
 
 #include <SDL3/SDL_events.h>
 
-#include "constants.h"
+#include "consts.h"
 #include "generic/pairs.h"
 #include "maze.h"
 #include "sprites/anima.h"
@@ -21,7 +21,8 @@ struct sprite_t {
 typedef struct sprite_t Sprite;
 
 struct sprites_t {
-  Sprite anima[ANIMA_COUNT];
+  size_t anima_count;
+  Sprite *animas;
   Sprite persona;
 };
 typedef struct sprites_t Sprites;

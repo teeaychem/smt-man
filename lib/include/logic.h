@@ -4,22 +4,24 @@
 #include <stdlib.h>
 #include <z3.h>
 
-#include "constants.h"
 #include "logic/situation.h"
 #include "maze.h"
 
 constexpr size_t PATH_VARIANTS = 11;
 struct z3_lang {
+
   struct {
     Z3_sort sort;
   } u8;
 
   struct {
+    size_t count;
+
     Z3_sort sort;
 
-    Z3_symbol enum_names[ANIMA_COUNT];
-    Z3_func_decl enum_consts[ANIMA_COUNT];
-    Z3_func_decl enum_testers[ANIMA_COUNT];
+    Z3_symbol *enum_names;
+    Z3_func_decl *enum_consts;
+    Z3_func_decl *enum_testers;
 
     /// anima -> u8
     Z3_func_decl tile_row_f;
@@ -34,9 +36,9 @@ struct z3_lang {
   struct {
     Z3_sort sort;
 
-    Z3_symbol enum_names[PERSONA_COUNT];
-    Z3_func_decl enum_consts[PERSONA_COUNT];
-    Z3_func_decl enum_testers[PERSONA_COUNT];
+    Z3_symbol enum_name;
+    Z3_func_decl enum_const;
+    Z3_func_decl enum_tester;
 
     /// persona -> u8
     Z3_func_decl tile_row_f;
@@ -100,7 +102,7 @@ typedef struct z3_lang Lang;
 
 void Lang_setup_base(Lang *lang, Z3_context ctx);
 void Lang_setup_path(Lang *lang, Z3_context ctx);
-void Lang_setup_animas(Lang *lang, Z3_context ctx);
+void Lang_setup_animas(Lang *lang, Z3_context ctx, size_t count);
 void Lang_setup_persona(Lang *lang, Z3_context ctx);
 void Lang_setup_facing(Lang *lang, Z3_context ctx);
 

@@ -6,7 +6,7 @@
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
 
-#include "constants.h"
+
 #include "generic/pairs.h"
 #include "logic/situation.h"
 #include "maze.h"
@@ -16,21 +16,6 @@
 #include "sprites/anima.h"
 #include "sprites/persona.h"
 
-constexpr uint32_t FPS = 60;
-
-constexpr uint64_t NS_PER_FRAME = 1000000000 / FPS;
-
-/* constexpr int32_t TILE_PIXELS = 8; */
-
-constexpr int UI_SCALE = 4;
-
-constexpr uint32_t SPRITE_BUFFER_SIZE = TILE_PIXELS * 4;
-
-constexpr uint32_t RENDER_TOP = 3;
-
-constexpr uint32_t RENDER_BOT = 2;
-
-constexpr uint32_t MAZE_INDENT = TILE_PIXELS / 2;
 
 typedef struct renderer_t Renderer;
 struct renderer_t {

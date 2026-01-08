@@ -1,10 +1,12 @@
 #pragma once
 
-#include "constants.h"
+#include <stddef.h>
+
 #include "logic/abstractions.h"
 
 struct situation_t {
-  AbstractAnima anima[ANIMA_COUNT];
+  size_t anima_count;
+  AbstractAnima *animas;
   AbstractPersona persona;
 };
 typedef struct situation_t Situation;

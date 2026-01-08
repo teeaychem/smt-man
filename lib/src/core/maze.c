@@ -6,7 +6,6 @@
 #include <slog.h>
 #include <stdlib.h>
 
-#include "constants.h"
 #include "generic/pairs.h"
 
 #include "maze.h"

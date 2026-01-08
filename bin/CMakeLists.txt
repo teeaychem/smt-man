@@ -57,7 +57,10 @@ file(GLOB_RECURSE RENDER src/render/*.c)
 # # main
 
 add_executable(${PROJECT_NAME} ${MAIN} ${RENDER})
-target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_FLAGS})
+target_compile_options(
+    ${PROJECT_NAME}
+    PRIVATE # ${COMPILE_FLAGS}
+)
 # add_link_options(${PROJECT_NAME} ${COMPILE_AND_LINK_OPTIONS})
 
 target_include_directories(

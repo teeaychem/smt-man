@@ -205,24 +205,27 @@ void Lang_assert_path_non_empty_hints(const Lang *lang, Z3_context ctx, Z3_optim
 
 /// Anima fns
 
-void Lang_setup_animas(Lang *lang, Z3_context ctx) {
+void Lang_setup_animas(Lang *lang, Z3_context ctx, size_t count) {
 
-  if (1 <= ANIMA_COUNT) {
+  lang->anima.count = count;
+
+  if (1 <= count) {
     lang->anima.enum_names[0] = Z3_mk_string_symbol(ctx, "gottlob");
   }
-  if (2 <= ANIMA_COUNT) {
+  if (2 <= count) {
     lang->anima.enum_names[1] = Z3_mk_string_symbol(ctx, "bertrand");
   }
-  if (3 <= ANIMA_COUNT) {
+  if (3 <= count) {
     lang->anima.enum_names[2] = Z3_mk_string_symbol(ctx, "herbrand");
   }
-  if (4 <= ANIMA_COUNT) {
+  if (4 <= count) {
     lang->anima.enum_names[3] = Z3_mk_string_symbol(ctx, "lob");
   }
 
+  // TODO: check cast by assertion
   lang->anima.sort = Z3_mk_enumeration_sort(ctx,
                                             Z3_mk_string_symbol(ctx, "anima"),
-                                            ANIMA_COUNT,
+                                            (unsigned int)count,
                                             lang->anima.enum_names,
                                             lang->anima.enum_consts,
                                             lang->anima.enum_testers);
@@ -244,7 +247,7 @@ void Lang_setup_animas(Lang *lang, Z3_context ctx) {
 
 void Lang_assert_anima_location(const Lang *lang, Z3_context ctx, Z3_optimize otz, const Situation *situation, const uint8_t id) {
 
-  auto anima_location = atomic_load(&situation->anima[id].location);
+  auto anima_location = atomic_load(&situation->animas[id].location);
   printf("Asserted anima %d at %dx%d\n", id, anima_location.x, anima_location.y);
   Z3_ast anima_ast = Z3_mk_app(ctx, lang->anima.enum_consts[id], 0, 0);
 
@@ -305,14 +308,14 @@ void Lang_setup_facing(Lang *lang, Z3_context ctx) {
 
 void Lang_setup_persona(Lang *lang, Z3_context ctx) {
 
-  lang->persona.enum_names[0] = Z3_mk_string_symbol(ctx, "smt-man");
+  lang->persona.enum_name = Z3_mk_string_symbol(ctx, "smt-man");
 
   lang->persona.sort = Z3_mk_enumeration_sort(ctx,
                                               Z3_mk_string_symbol(ctx, "persona"),
-                                              PERSONA_COUNT,
-                                              lang->persona.enum_names,
-                                              lang->persona.enum_consts,
-                                              lang->persona.enum_testers);
+                                              1,
+                                              &lang->persona.enum_name,
+                                              &lang->persona.enum_const,
+                                              &lang->persona.enum_tester);
 
   { // Persona row fn
     Z3_symbol id = Z3_mk_string_symbol(ctx, "persona_row");
@@ -331,7 +334,7 @@ void Lang_setup_persona(Lang *lang, Z3_context ctx) {
 
 void Lang_persona_tile_is_origin(const Lang *lang, Z3_context ctx, Z3_optimize otz) {
 
-  Z3_ast persona_ast = Z3_mk_app(ctx, lang->persona.enum_consts[0], 0, 0);
+  Z3_ast persona_ast = Z3_mk_app(ctx, lang->persona.enum_const, 0, 0);
 
   Z3_ast persona_col_row[2] = {z3_mk_unary_app(ctx, lang->persona.tile_col_f, persona_ast),
                                z3_mk_unary_app(ctx, lang->persona.tile_row_f, persona_ast)};
@@ -350,7 +353,7 @@ void Lang_assert_persona_location(const Lang *lang, Z3_context ctx, Z3_optimize 
 
   auto persona_location = atomic_load(&situation->persona.location);
   printf("Asserted persona at %dx%d\n", persona_location.x, persona_location.y);
-  Z3_ast persona_ast = Z3_mk_app(ctx, lang->persona.enum_consts[0], 0, 0);
+  Z3_ast persona_ast = Z3_mk_app(ctx, lang->persona.enum_const, 0, 0);
 
   {
     Z3_ast z3_row = z3_mk_unary_app(ctx, lang->persona.tile_row_f, persona_ast);
@@ -369,7 +372,7 @@ void Lang_assert_persona_location(const Lang *lang, Z3_context ctx, Z3_optimize 
 // Require a non-origin tile on non-anima tiles
 void Lang_assert_link_reqs(const Lang *lang, Z3_context ctx, Z3_optimize otz, const Situation *situation, const Maze *maze, const uint8_t id) {
 
-  Pair_uint8 anima_location = atomic_load(&situation->anima[id].location);
+  Pair_uint8 anima_location = atomic_load(&situation->animas[id].location);
   Pair_uint8 persona_location = atomic_load(&situation->persona.location);
 
   Z3_ast col_row[2] = {};
