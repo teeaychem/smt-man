@@ -46,6 +46,7 @@ int main() {
     animas[idx].situation.animas = mind_animas[idx];
 
     animas[idx].lang = (Lang){
+        .anima.count = ANIMA_COUNT,
         .anima.enum_names = lang_anima_enum_names[idx],
         .anima.enum_consts = lang_anima_enum_consts[idx],
         .anima.enum_testers = lang_anima_enum_testers[idx],

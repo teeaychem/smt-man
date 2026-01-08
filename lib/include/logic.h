@@ -28,9 +28,6 @@ struct z3_lang {
 
     /// anima -> u8
     Z3_func_decl tile_col_f;
-
-    /// anima -> direction
-    Z3_func_decl is_facing;
   } anima;
 
   struct {
@@ -45,18 +42,7 @@ struct z3_lang {
 
     /// persona -> u8
     Z3_func_decl tile_col_f;
-
-    /// persona -> direction
-    Z3_func_decl is_facing;
   } persona;
-
-  struct direction {
-    Z3_sort sort;
-
-    Z3_symbol enum_names[4];
-    Z3_func_decl enum_consts[4];
-    Z3_func_decl enum_testers[4];
-  } direction;
 
   struct {
     Z3_sort sort;
@@ -104,7 +90,6 @@ void Lang_setup_base(Lang *lang, Z3_context ctx);
 void Lang_setup_path(Lang *lang, Z3_context ctx);
 void Lang_setup_animas(Lang *lang, Z3_context ctx, size_t count);
 void Lang_setup_persona(Lang *lang, Z3_context ctx);
-void Lang_setup_facing(Lang *lang, Z3_context ctx);
 
 void Lang_assert_shortest_path_empty_hints(const Lang *lang, Z3_context ctx, Z3_optimize optimizer, const Maze *maze);
 void Lang_assert_path_non_empty_hints(const Lang *lang, Z3_context ctx, Z3_optimize optimizer, const Maze *maze);

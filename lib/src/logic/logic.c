@@ -1,3 +1,4 @@
+#include <limits.h>
 #include <stdatomic.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -62,9 +63,9 @@ void Lang_setup_path(Lang *lang, Z3_context ctx) {
   lang->path.x_x = Z3_mk_app(ctx, lang->path.enum_consts[10], 0, 0);
 
   Z3_sort col_row[2] = {lang->u8.sort, lang->u8.sort};
-  lang->path.tile_is_f = Z3_mk_func_decl(ctx, Z3_mk_string_symbol(ctx, "path_choice"), ARRAY_LEN(col_row), col_row, lang->path.sort);
+  lang->path.tile_is_f = Z3_mk_func_decl(ctx, Z3_mk_string_symbol(ctx, "path_v"), ARRAY_LEN(col_row), col_row, lang->path.sort);
 
-  lang->path.penatly = Z3_mk_string_symbol(ctx, "path_penatly");
+  lang->path.penatly = Z3_mk_string_symbol(ctx, "path_p");
 }
 
 /// Shortest paths are found by placing a penatly on the assignment of a non empty path value to each potentiial path tile.
@@ -205,39 +206,37 @@ void Lang_assert_path_non_empty_hints(const Lang *lang, Z3_context ctx, Z3_optim
 
 /// Anima fns
 
-void Lang_setup_animas(Lang *lang, Z3_context ctx, size_t count) {
+void Lang_setup_animas(Lang *lang, Z3_context ctx, size_t anima_count) {
 
-  lang->anima.count = count;
-
-  if (1 <= count) {
+  if (1 <= anima_count) {
     lang->anima.enum_names[0] = Z3_mk_string_symbol(ctx, "gottlob");
   }
-  if (2 <= count) {
+  if (2 <= anima_count) {
     lang->anima.enum_names[1] = Z3_mk_string_symbol(ctx, "bertrand");
   }
-  if (3 <= count) {
+  if (3 <= anima_count) {
     lang->anima.enum_names[2] = Z3_mk_string_symbol(ctx, "herbrand");
   }
-  if (4 <= count) {
+  if (4 <= anima_count) {
     lang->anima.enum_names[3] = Z3_mk_string_symbol(ctx, "lob");
   }
 
-  // TODO: check cast by assertion
+  assert(anima_count < UINT_MAX);
   lang->anima.sort = Z3_mk_enumeration_sort(ctx,
                                             Z3_mk_string_symbol(ctx, "anima"),
-                                            (unsigned int)count,
+                                            (unsigned int)anima_count,
                                             lang->anima.enum_names,
                                             lang->anima.enum_consts,
                                             lang->anima.enum_testers);
 
-  { // Persona row fn
+  { // Anima row fn
     Z3_symbol id = Z3_mk_string_symbol(ctx, "anima_row");
     Z3_sort domain[1] = {lang->anima.sort};
     Z3_sort range = lang->u8.sort;
     lang->anima.tile_row_f = Z3_mk_func_decl(ctx, id, 1, domain, range);
   }
 
-  { // Persona col fn
+  { // Anima col fn
     Z3_symbol id = Z3_mk_string_symbol(ctx, "anima_col");
     Z3_sort domain[1] = {lang->anima.sort};
     Z3_sort range = lang->u8.sort;
@@ -247,8 +246,8 @@ void Lang_setup_animas(Lang *lang, Z3_context ctx, size_t count) {
 
 void Lang_assert_anima_location(const Lang *lang, Z3_context ctx, Z3_optimize otz, const Situation *situation, const uint8_t id) {
 
-  auto anima_location = atomic_load(&situation->animas[id].location);
-  printf("Asserted anima %d at %dx%d\n", id, anima_location.x, anima_location.y);
+  Pair_uint8 anima_location = atomic_load(&situation->animas[id].location);
+  slog_display(SLOG_DEBUG, 0, "Asserted anima %d at %dx%d\n", id, anima_location.x, anima_location.y);
   Z3_ast anima_ast = Z3_mk_app(ctx, lang->anima.enum_consts[id], 0, 0);
 
   {
@@ -278,30 +277,6 @@ void Lang_anima_tile_is_origin(const Lang *lang, Z3_context ctx, Z3_optimize otz
                                Z3_mk_eq(ctx, anima_tile_value, lang->path.o_w)};
 
   Z3_optimize_assert(ctx, otz, Z3_mk_or(ctx, ARRAY_LEN(value_is_origin), value_is_origin));
-}
-
-void Lang_setup_facing(Lang *lang, Z3_context ctx) {
-
-  {
-    lang->direction.enum_names[0] = Z3_mk_string_symbol(ctx, "n");
-    lang->direction.enum_names[1] = Z3_mk_string_symbol(ctx, "e");
-    lang->direction.enum_names[2] = Z3_mk_string_symbol(ctx, "s");
-    lang->direction.enum_names[3] = Z3_mk_string_symbol(ctx, "w");
-  }
-
-  lang->direction.sort = Z3_mk_enumeration_sort(ctx,
-                                                Z3_mk_string_symbol(ctx, "facing"),
-                                                ARRAY_LEN(lang->direction.enum_names),
-                                                lang->direction.enum_names,
-                                                lang->direction.enum_consts,
-                                                lang->direction.enum_testers);
-
-  { // Anima is facin fn
-    Z3_symbol id = Z3_mk_string_symbol(ctx, "anima_is_facing");
-    Z3_sort domain[1] = {lang->anima.sort};
-    Z3_sort range = lang->direction.sort;
-    lang->anima.is_facing = Z3_mk_func_decl(ctx, id, ARRAY_LEN(domain), domain, range);
-  }
 }
 
 /// Persona fns
