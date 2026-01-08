@@ -12,13 +12,12 @@ from smt_man.language import *
 
 VARIABLE_HINTS: bool = False
 
-anima_locations: list[location_t] = [
-    (1, 4),
-    (11, 26),
-]
+
+persona: z3_expr_t = z3.Const("persona", z3s_persona_t)
+persona_location: location_t = (11, 26)
 
 
-maze = smt_man.maze.Maze("./resources/maze/source.txt")
+maze = smt_man.maze.Maze("./bin/resources/maze/source.txt")
 
 
 optimizer = z3.Optimize()
@@ -29,7 +28,9 @@ mind.set_defaults(optimizer)
 
 animas: list[z3_expr_t] = [
     z3.Const("gottlob", z3s_anima_t),
-    z3.Const("smt-man", z3s_anima_t),
+]
+anima_locations: list[location_t] = [
+    (1, 4),
 ]
 
 ## Path
@@ -38,11 +39,14 @@ path = path4_t()
 
 path.assert_empty_constraints(optimizer, maze)
 path.assert_constant_tile_constraints(optimizer, maze)
+
+path.assert_persona_is_origin(optimizer, persona)
 for anima in animas:
     path.assert_anima_is_origin(optimizer, anima)
 
+
 if not VARIABLE_HINTS:
-    path.assert_constant_origin_is_anima(optimizer, maze, animas)
+    path.assert_constant_origin_is_anima_or_persona(optimizer, maze, animas, persona)
     path.assert_constant_hints(optimizer, maze, anima_locations)
 
 
@@ -53,6 +57,7 @@ optimizer.check()
 
 optimizer.push()
 
+path.assert_variable_persona_location(optimizer, persona, persona_location[0], persona_location[1])
 for id in range(len(animas)):
     path.assert_variable_anima_location(optimizer, animas[id], anima_locations[id][0], anima_locations[id][1])
 

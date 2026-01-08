@@ -33,13 +33,14 @@ class path4_t:
             for col in range(0, maze.width):
                 bvc, bvr = z3s_bv8.cast(col), z3s_bv8.cast(row)
 
-                tile_is_path = model.eval(self.tile_h_is_not((bvc, bvr), self.z3e_x)) or model.eval(self.tile_h_is_not((bvc, bvr), self.z3e_x))
+                path_h = model.eval(self.tile_h_is_not((bvc, bvr), self.z3e_x))
+                path_v = model.eval(self.tile_v_is_not((bvc, bvr), self.z3e_x))
 
-                if tile_is_path:
+                if path_h or path_v:
                     print("x", end="")
                 else:
                     print(" ", end="")
-            print("")
+            print(f"| {row}")
 
     def direct_h(self, tile: z3_tile_t) -> z3_bool_t:
         return z3.And([self.tile_v_is(tile, self.z3e_x), self.tile_h_is(tile, self.z3e_a)])
@@ -77,6 +78,10 @@ class path4_t:
     def assert_variable_anima_location(self, optimizer: z3_optimizer_t, anima: z3_expr_t, col: int, row: int) -> None:
         optimizer.add(z3f_anima_location_c(anima) == z3s_bv8.cast(col))
         optimizer.add(z3f_anima_location_r(anima) == z3s_bv8.cast(row))
+
+    def assert_variable_persona_location(self, optimizer: z3_optimizer_t, persona: z3_expr_t, col: int, row: int) -> None:
+        optimizer.add(z3f_persona_location_c(persona) == z3s_bv8.cast(col))
+        optimizer.add(z3f_persona_location_r(persona) == z3s_bv8.cast(row))
 
     def assert_tile_constraint_n(self, optimizer: z3_optimizer_t, maze: maze_t, col: int, row: int) -> None:
         if row <= 0:
@@ -235,6 +240,28 @@ class path4_t:
             )
         )
 
+    def assert_persona_is_origin(self, optimizer: z3_optimizer_t, persona: z3_expr_t) -> None:
+        # Assert the location of `persona` is an origin tile.
+        persona_location: z3_tile_t = (z3f_persona_location_c(persona), z3f_persona_location_r(persona))
+        optimizer.add(
+            z3.Or(
+                [
+                    z3.And(
+                        [
+                            self.tile_h_is(persona_location, self.z3e_o),
+                            self.tile_v_is_not(persona_location, self.z3e_o),
+                        ]
+                    ),
+                    z3.And(
+                        [
+                            self.tile_h_is_not(persona_location, self.z3e_o),
+                            self.tile_v_is(persona_location, self.z3e_o),
+                        ]
+                    ),
+                ]
+            )
+        )
+
     def assert_variable_hints(self, optimizer: z3_optimizer_t, maze: maze_t, locations: list[location_t]) -> None:
         for col, row in maze.tiles():
             tile_x = z3_tile.X(col, row)
@@ -285,11 +312,11 @@ class path4_t:
             )
             optimizer.add(z3.Implies(self.tile_v_is_not(tile_x, self.z3e_o), v_d))
 
-    def assert_constant_origin_is_anima(self, optimizer: z3_optimizer_t, maze: maze_t, animas: list[z3s_anima_t]) -> None:
+    def assert_constant_origin_is_anima_or_persona(self, optimizer: z3_optimizer_t, maze: maze_t, animas: list[z3_expr_t], persona: z3_expr_t) -> None:
         for col, row in maze.tiles():
             tile_x = z3_tile.X(col, row)
 
-            a_d = []
+            a_d: list[z3_bool_t] = [z3.And([z3f_persona_location_c(persona) == col, z3f_persona_location_r(persona) == row])]
             for anima in animas:
                 a_d.append(z3.And([z3f_anima_location_c(anima) == col, z3f_anima_location_r(anima) == row]))
 
