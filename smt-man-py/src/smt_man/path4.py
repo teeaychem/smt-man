@@ -25,8 +25,8 @@ class path4_t:
         self.z3e_b: z3_fn_t = self.z3e[2]
         self.z3e_x: z3_fn_t = self.z3e[3]
 
-        self.z3f_v: z3_fn_t = z3.Function("path4_type_v", z3s_bv8_t, z3s_bv8_t, self.z3_t)
-        self.z3f_h: z3_fn_t = z3.Function("path4_type_h", z3s_bv8_t, z3s_bv8_t, self.z3_t)
+        self.z3f_v: z3_fn_t = z3.Function("path4_type_v", z3s_bv_t, z3s_bv_t, self.z3_t)
+        self.z3f_h: z3_fn_t = z3.Function("path4_type_h", z3s_bv_t, z3s_bv_t, self.z3_t)
 
     def print_path(self, maze: maze_t, model: z3_model_t):
         for row in range(0, maze.height):

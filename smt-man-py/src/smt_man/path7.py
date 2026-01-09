@@ -24,7 +24,7 @@ class path7_t:
         self.NW = self.z3e_path[6]
         self.EX = self.z3e_path[7]
 
-        self.z3_path_v = z3.Function("path7_type", z3s_bv8_t, z3s_bv8_t, self.z3e_path_t)
+        self.z3_path_v = z3.Function("path7_type", z3s_bv_t, z3s_bv_t, self.z3e_path_t)
 
     def print_path(self, maze: maze_t, model: z3_model_t):
         for r in range(0, maze.height):
