@@ -2,6 +2,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include <z3.h>
+
 #include "SML/logic.h"
 #include "SML/logic/synchronization.h"
 #include "SML/maze.h"
@@ -80,20 +82,79 @@ int main() {
 }
 
 void z3_display_path(const Lang *lang, Z3_context ctx, Z3_model model, const Maze *maze) {
-  Z3_ast u8_cr[2] = {};
 
-  Z3_ast tile_path = nullptr;
+  Z3_ast *path_buffer = calloc((size_t)maze->size.x * (size_t)maze->size.y, sizeof(*path_buffer));
 
-  for (uint32_t row = 0; row < maze->size.y; row++) {
-    u8_cr[1] = Z3_mk_int(ctx, (int)row, lang->u8.sort);
-    for (uint32_t col = 0; col < maze->size.x; col++) {
-      u8_cr[0] = Z3_mk_int(ctx, (int)col, lang->u8.sort);
+  Z3_func_interp path_f = Z3_model_get_func_interp(ctx, model, lang->path.tile_is_f);
+  Z3_func_interp_inc_ref(ctx, path_f);
 
-      Z3_model_eval(ctx, model, Z3_mk_app(ctx, lang->path.tile_is_f, 2, u8_cr), false, &tile_path);
-      if (tile_path == lang->path.x_x) {
-        putchar(' ');
-      } else {
-        putchar('x');
+  unsigned int entries = Z3_func_interp_get_num_entries(ctx, path_f);
+
+  for (unsigned int idx = 0; idx < entries; ++idx) {
+    Z3_func_entry entry = Z3_func_interp_get_entry(ctx, path_f, idx);
+
+    uint8_t col_row[2];
+    unsigned z3_unsigned_tmp;
+
+    printf("( ");
+
+    {
+      unsigned int args = Z3_func_entry_get_num_args(ctx, entry);
+      for (unsigned int arg_idx = 0; arg_idx < args; ++arg_idx) {
+        Z3_ast arg = Z3_func_entry_get_arg(ctx, entry, arg_idx);
+
+        Z3_get_numeral_uint(ctx, arg, &z3_unsigned_tmp);
+        assert(z3_unsigned_tmp < UINT8_MAX);
+        col_row[arg_idx] = (uint8_t)z3_unsigned_tmp;
+        printf("%d ", z3_unsigned_tmp);
+      }
+    }
+    printf(") -> ");
+
+    Z3_ast val = Z3_func_entry_get_value(ctx, entry);
+
+    path_buffer[Maze_tile_offset(maze, col_row[0], col_row[1])] = val;
+
+    printf("%s\n", Z3_ast_to_string(ctx, val));
+  }
+
+  for (uint8_t row = 0; row < maze->size.y; row++) {
+    for (uint8_t col = 0; col < maze->size.x; col++) {
+
+      Z3_ast val = path_buffer[Maze_tile_offset(maze, col, row)];
+
+      if (lang->path.o_n == val) {
+        printf("O");
+      } else if (lang->path.o_e == val) {
+        printf("O");
+      } else if (lang->path.o_s == val) {
+        printf("O");
+      } else if (lang->path.o_w == val) {
+        printf("O");
+      }
+
+      else if (lang->path.n_s == val) {
+        printf("|");
+      } else if (lang->path.e_w == val) {
+        printf("-");
+      }
+
+      else if (lang->path.n_e == val) {
+        printf("X");
+      } else if (lang->path.s_e == val) {
+        printf("X");
+      } else if (lang->path.s_w == val) {
+        printf("X");
+      } else if (lang->path.n_w == val) {
+        printf("X");
+      }
+
+      else if (lang->path.x_x == val) {
+        printf(" ");
+      }
+
+      else {
+        printf(" ");
       }
     }
     printf("|%d\n", row);
