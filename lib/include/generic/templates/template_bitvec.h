@@ -2,6 +2,8 @@
 #error Bitvec template requires defined TYPE
 #else
 
+#include <stddef.h>
+
 #ifndef ALIAS
 #define ALIAS TYPE
 #endif
