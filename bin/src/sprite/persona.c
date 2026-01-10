@@ -1,4 +1,5 @@
 #include "generic/bitvec.h"
+
 #include "render/sprite.h"
 
 void Persona_on_tile(Persona *self, Sprite *sprite, Situation *situation, const Maze *maze, uint32_t tile_pixels, uint32_t offset_n) {

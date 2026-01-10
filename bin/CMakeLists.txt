@@ -53,10 +53,11 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 
 file(GLOB MAIN src/main.c src/setup.c)
 file(GLOB_RECURSE RENDER src/render/*.c)
+file(GLOB_RECURSE SPRITES src/sprite/*.c)
 
 # # main
 
-add_executable(${PROJECT_NAME} ${MAIN} ${RENDER})
+add_executable(${PROJECT_NAME} ${MAIN} ${RENDER} ${SPRITES})
 target_compile_options(
     ${PROJECT_NAME}
     PRIVATE # ${COMPILE_FLAGS}
@@ -108,7 +109,7 @@ add_dependencies(${PROJECT_NAME} copy_data)
 
 # # # scratch
 
-add_executable(z3_scratch src/z3_scratch.c src/setup.c)
+add_executable(z3_scratch src/z3_scratch.c src/setup.c ${SPRITES})
 target_compile_options(z3_scratch PRIVATE ${COMPILE_FLAGS})
 
 # # #
