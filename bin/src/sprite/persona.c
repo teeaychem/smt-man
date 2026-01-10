@@ -13,21 +13,21 @@ void Persona_on_tile(Persona *self, Sprite *sprite, Situation *situation, const 
   } else if (Maze_tile_in_direction_is_path(maze, maze_location, situation->persona.direction_actual)) {
     // Keep current direction.
   } else {
-    atomic_store(&situation->persona.direction_actual, DIRECTION_NONE);
+    atomic_store(&situation->persona.direction_actual, CARDINAL_NONE);
   }
 }
 
 void Persona_off_tile(Persona *self, Sprite *sprite, Situation *situation, const Maze *maze, Pair_uint8 maze_location) {
 
-  if ((self->direction_intent | situation->persona.direction_actual) == (DIRECTION_E | DIRECTION_W) ||
-      (self->direction_intent | situation->persona.direction_actual) == (DIRECTION_S | DIRECTION_N)) {
+  if ((self->direction_intent | situation->persona.direction_actual) == (CARDINAL_E | CARDINAL_W) ||
+      (self->direction_intent | situation->persona.direction_actual) == (CARDINAL_S | CARDINAL_N)) {
     /// Update direction
     if (Maze_tile_in_direction_is_path(maze, maze_location, self->direction_intent)) {
       atomic_store(&situation->persona.direction_actual, self->direction_intent);
     } else if (Maze_tile_in_direction_is_path(maze, maze_location, situation->persona.direction_actual)) {
       // Keep current direction.
     } else {
-      atomic_store(&situation->persona.direction_actual, DIRECTION_NONE);
+      atomic_store(&situation->persona.direction_actual, CARDINAL_NONE);
     }
   }
 }
@@ -53,19 +53,19 @@ void Persona_on_frame(Persona *self, Sprite *sprite, const Maze *maze, Situation
   }
 
   switch (atomic_load(&situation->persona.direction_actual)) {
-  case DIRECTION_NONE: {
+  case CARDINAL_NONE: {
     // Do nothing
   } break;
-  case DIRECTION_N: {
+  case CARDINAL_N: {
     sprite->location.y -= SPRITE_VELOCITY;
   } break;
-  case DIRECTION_E: {
+  case CARDINAL_E: {
     sprite->location.x += SPRITE_VELOCITY;
   } break;
-  case DIRECTION_S: {
+  case CARDINAL_S: {
     sprite->location.y += SPRITE_VELOCITY;
   } break;
-  case DIRECTION_W: {
+  case CARDINAL_W: {
     sprite->location.x -= SPRITE_VELOCITY;
   } break;
   }
@@ -76,16 +76,16 @@ void Persona_handle_event(Persona *self, const Maze *maze, Situation *situation,
 
     switch (event->key.key) {
     case SDLK_UP: {
-      self->direction_intent = DIRECTION_N;
+      self->direction_intent = CARDINAL_N;
     } break;
     case SDLK_DOWN: {
-      self->direction_intent = DIRECTION_S;
+      self->direction_intent = CARDINAL_S;
     } break;
     case SDLK_LEFT: {
-      self->direction_intent = DIRECTION_W;
+      self->direction_intent = CARDINAL_W;
     } break;
     case SDLK_RIGHT: {
-      self->direction_intent = DIRECTION_E;
+      self->direction_intent = CARDINAL_E;
     } break;
     }
   }

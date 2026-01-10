@@ -20,23 +20,23 @@ SheetOffsets sheet_data = {
 Pair_uint32 Sheet_anima_offset(const Anima *anima) {
 
   switch (atomic_load(&anima->situation.animas[anima->id].direction_actual)) {
-  case DIRECTION_NONE: {
+  case CARDINAL_NONE: {
     constexpr size_t thinking_frames = ARRAY_LEN(sheet_data.anima.thinking);
     return sheet_data.anima.thinking[anima->tick_action % thinking_frames];
   } break;
-  case DIRECTION_N: {
+  case CARDINAL_N: {
     constexpr size_t fames_n = ARRAY_LEN(sheet_data.anima.direction.n);
     return sheet_data.anima.direction.n[anima->tick_action % fames_n];
   } break;
-  case DIRECTION_E: {
+  case CARDINAL_E: {
     constexpr size_t fames_e = ARRAY_LEN(sheet_data.anima.direction.e);
     return sheet_data.anima.direction.e[anima->tick_action % fames_e];
   } break;
-  case DIRECTION_S: {
+  case CARDINAL_S: {
     constexpr size_t fames_s = ARRAY_LEN(sheet_data.anima.direction.s);
     return sheet_data.anima.direction.s[anima->tick_action % fames_s];
   } break;
-  case DIRECTION_W: {
+  case CARDINAL_W: {
     constexpr size_t fames_w = ARRAY_LEN(sheet_data.anima.direction.w);
     return sheet_data.anima.direction.w[anima->tick_action % fames_w];
   } break;

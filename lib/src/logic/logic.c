@@ -47,20 +47,20 @@ void Lang_setup_path(Lang *lang, Z3_context ctx) {
 
   lang->path.sort = Z3_mk_enumeration_sort(ctx, Z3_mk_string_symbol(ctx, "path"), PATH_VARIANTS, lang->path.enum_names, lang->path.enum_consts, lang->path.enum_testers);
 
-  lang->path.o_n = Z3_mk_app(ctx, lang->path.enum_consts[0], 0, 0);
-  lang->path.o_e = Z3_mk_app(ctx, lang->path.enum_consts[1], 0, 0);
-  lang->path.o_s = Z3_mk_app(ctx, lang->path.enum_consts[2], 0, 0);
-  lang->path.o_w = Z3_mk_app(ctx, lang->path.enum_consts[3], 0, 0);
+  lang->path.token.o_n = Z3_mk_app(ctx, lang->path.enum_consts[0], 0, 0);
+  lang->path.token.o_e = Z3_mk_app(ctx, lang->path.enum_consts[1], 0, 0);
+  lang->path.token.o_s = Z3_mk_app(ctx, lang->path.enum_consts[2], 0, 0);
+  lang->path.token.o_w = Z3_mk_app(ctx, lang->path.enum_consts[3], 0, 0);
 
-  lang->path.n_s = Z3_mk_app(ctx, lang->path.enum_consts[4], 0, 0);
-  lang->path.e_w = Z3_mk_app(ctx, lang->path.enum_consts[5], 0, 0);
+  lang->path.token.n_s = Z3_mk_app(ctx, lang->path.enum_consts[4], 0, 0);
+  lang->path.token.e_w = Z3_mk_app(ctx, lang->path.enum_consts[5], 0, 0);
 
-  lang->path.n_e = Z3_mk_app(ctx, lang->path.enum_consts[6], 0, 0);
-  lang->path.s_e = Z3_mk_app(ctx, lang->path.enum_consts[7], 0, 0);
-  lang->path.s_w = Z3_mk_app(ctx, lang->path.enum_consts[8], 0, 0);
-  lang->path.n_w = Z3_mk_app(ctx, lang->path.enum_consts[9], 0, 0);
+  lang->path.token.n_e = Z3_mk_app(ctx, lang->path.enum_consts[6], 0, 0);
+  lang->path.token.s_e = Z3_mk_app(ctx, lang->path.enum_consts[7], 0, 0);
+  lang->path.token.s_w = Z3_mk_app(ctx, lang->path.enum_consts[8], 0, 0);
+  lang->path.token.n_w = Z3_mk_app(ctx, lang->path.enum_consts[9], 0, 0);
 
-  lang->path.x_x = Z3_mk_app(ctx, lang->path.enum_consts[10], 0, 0);
+  lang->path.token.x_x = Z3_mk_app(ctx, lang->path.enum_consts[10], 0, 0);
 
   Z3_sort col_row[2] = {lang->u8.sort, lang->u8.sort};
   lang->path.tile_is_f = Z3_mk_func_decl(ctx, Z3_mk_string_symbol(ctx, "path_v"), ARRAY_LEN(col_row), col_row, lang->path.sort);
@@ -82,10 +82,10 @@ void Lang_assert_shortest_path_empty_hints(const Lang *lang, Z3_context ctx, Z3_
 
       if (Maze_is_path(maze, col, row)) {
         Z3_ast tile_path_val = Z3_mk_app(ctx, lang->path.tile_is_f, ARRAY_LEN(col_row), col_row);
-        Z3_optimize_assert_soft(ctx, otz, Z3_mk_eq(ctx, tile_path_val, lang->path.x_x), "1", lang->path.penatly);
+        Z3_optimize_assert_soft(ctx, otz, Z3_mk_eq(ctx, tile_path_val, lang->path.token.x_x), "1", lang->path.penatly);
       } else {
         Z3_ast tile_path_val = Z3_mk_app(ctx, lang->path.tile_is_f, ARRAY_LEN(col_row), col_row);
-        Z3_optimize_assert(ctx, otz, Z3_mk_eq(ctx, tile_path_val, lang->path.x_x));
+        Z3_optimize_assert(ctx, otz, Z3_mk_eq(ctx, tile_path_val, lang->path.token.x_x));
       }
     }
   }
@@ -113,18 +113,18 @@ void Lang_assert_path_non_empty_hints(const Lang *lang, Z3_context ctx, Z3_optim
           uint32_t reqs_n = 0;
           Z3_ast req_n[4] = {};
 
-          req_n[reqs_n++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, tile_n), lang->path.o_s);
-          req_n[reqs_n++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, tile_n), lang->path.n_s);
-          req_n[reqs_n++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, tile_n), lang->path.s_e);
-          req_n[reqs_n++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, tile_n), lang->path.s_w);
+          req_n[reqs_n++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, tile_n), lang->path.token.o_s);
+          req_n[reqs_n++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, tile_n), lang->path.token.n_s);
+          req_n[reqs_n++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, tile_n), lang->path.token.s_e);
+          req_n[reqs_n++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, tile_n), lang->path.token.s_w);
 
           if (0 < reqs_n) {
             Z3_ast up_tile_or = Z3_mk_or(ctx, reqs_n, req_n);
 
-            Z3_optimize_assert(ctx, otz, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_val, lang->path.o_n), up_tile_or));
-            Z3_optimize_assert(ctx, otz, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_val, lang->path.n_w), up_tile_or));
-            Z3_optimize_assert(ctx, otz, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_val, lang->path.n_s), up_tile_or));
-            Z3_optimize_assert(ctx, otz, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_val, lang->path.n_e), up_tile_or));
+            Z3_optimize_assert(ctx, otz, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_val, lang->path.token.o_n), up_tile_or));
+            Z3_optimize_assert(ctx, otz, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_val, lang->path.token.n_w), up_tile_or));
+            Z3_optimize_assert(ctx, otz, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_val, lang->path.token.n_s), up_tile_or));
+            Z3_optimize_assert(ctx, otz, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_val, lang->path.token.n_e), up_tile_or));
           }
         }
 
@@ -137,18 +137,18 @@ void Lang_assert_path_non_empty_hints(const Lang *lang, Z3_context ctx, Z3_optim
           uint32_t reqs_e = 0;
           Z3_ast req_e[4] = {};
 
-          req_e[reqs_e++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, tile_e), lang->path.o_w);
-          req_e[reqs_e++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, tile_e), lang->path.e_w);
-          req_e[reqs_e++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, tile_e), lang->path.s_w);
-          req_e[reqs_e++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, tile_e), lang->path.n_w);
+          req_e[reqs_e++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, tile_e), lang->path.token.o_w);
+          req_e[reqs_e++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, tile_e), lang->path.token.e_w);
+          req_e[reqs_e++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, tile_e), lang->path.token.s_w);
+          req_e[reqs_e++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, tile_e), lang->path.token.n_w);
 
           if (0 < reqs_e) {
             Z3_ast rt_tile_or = Z3_mk_or(ctx, reqs_e, req_e);
 
-            Z3_optimize_assert(ctx, otz, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_val, lang->path.o_e), rt_tile_or));
-            Z3_optimize_assert(ctx, otz, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_val, lang->path.e_w), rt_tile_or));
-            Z3_optimize_assert(ctx, otz, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_val, lang->path.n_e), rt_tile_or));
-            Z3_optimize_assert(ctx, otz, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_val, lang->path.s_e), rt_tile_or));
+            Z3_optimize_assert(ctx, otz, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_val, lang->path.token.o_e), rt_tile_or));
+            Z3_optimize_assert(ctx, otz, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_val, lang->path.token.e_w), rt_tile_or));
+            Z3_optimize_assert(ctx, otz, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_val, lang->path.token.n_e), rt_tile_or));
+            Z3_optimize_assert(ctx, otz, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_val, lang->path.token.s_e), rt_tile_or));
           }
         }
 
@@ -161,18 +161,18 @@ void Lang_assert_path_non_empty_hints(const Lang *lang, Z3_context ctx, Z3_optim
           uint32_t reqs_s = 0;
           Z3_ast req_s[4] = {};
 
-          req_s[reqs_s++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, tile_s), lang->path.o_n);
-          req_s[reqs_s++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, tile_s), lang->path.n_s);
-          req_s[reqs_s++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, tile_s), lang->path.n_e);
-          req_s[reqs_s++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, tile_s), lang->path.n_w);
+          req_s[reqs_s++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, tile_s), lang->path.token.o_n);
+          req_s[reqs_s++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, tile_s), lang->path.token.n_s);
+          req_s[reqs_s++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, tile_s), lang->path.token.n_e);
+          req_s[reqs_s++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, tile_s), lang->path.token.n_w);
 
           if (0 < reqs_s) {
             Z3_ast tile_s_or = Z3_mk_or(ctx, reqs_s, req_s);
 
-            Z3_optimize_assert(ctx, otz, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_val, lang->path.o_s), tile_s_or));
-            Z3_optimize_assert(ctx, otz, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_val, lang->path.n_s), tile_s_or));
-            Z3_optimize_assert(ctx, otz, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_val, lang->path.s_e), tile_s_or));
-            Z3_optimize_assert(ctx, otz, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_val, lang->path.s_w), tile_s_or));
+            Z3_optimize_assert(ctx, otz, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_val, lang->path.token.o_s), tile_s_or));
+            Z3_optimize_assert(ctx, otz, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_val, lang->path.token.n_s), tile_s_or));
+            Z3_optimize_assert(ctx, otz, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_val, lang->path.token.s_e), tile_s_or));
+            Z3_optimize_assert(ctx, otz, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_val, lang->path.token.s_w), tile_s_or));
           }
         }
 
@@ -185,18 +185,18 @@ void Lang_assert_path_non_empty_hints(const Lang *lang, Z3_context ctx, Z3_optim
           uint32_t reqs_w = 0;
           Z3_ast req_w[4] = {};
 
-          req_w[reqs_w++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, tile_w), lang->path.o_e);
-          req_w[reqs_w++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, tile_w), lang->path.e_w);
-          req_w[reqs_w++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, tile_w), lang->path.s_e);
-          req_w[reqs_w++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, tile_w), lang->path.n_e);
+          req_w[reqs_w++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, tile_w), lang->path.token.o_e);
+          req_w[reqs_w++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, tile_w), lang->path.token.e_w);
+          req_w[reqs_w++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, tile_w), lang->path.token.s_e);
+          req_w[reqs_w++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lang->path.tile_is_f, 2, tile_w), lang->path.token.n_e);
 
           if (0 < reqs_w) {
             Z3_ast lt_tile_or = Z3_mk_or(ctx, reqs_w, req_w);
 
-            Z3_optimize_assert(ctx, otz, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_val, lang->path.o_w), lt_tile_or));
-            Z3_optimize_assert(ctx, otz, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_val, lang->path.e_w), lt_tile_or));
-            Z3_optimize_assert(ctx, otz, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_val, lang->path.n_w), lt_tile_or));
-            Z3_optimize_assert(ctx, otz, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_val, lang->path.s_w), lt_tile_or));
+            Z3_optimize_assert(ctx, otz, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_val, lang->path.token.o_w), lt_tile_or));
+            Z3_optimize_assert(ctx, otz, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_val, lang->path.token.e_w), lt_tile_or));
+            Z3_optimize_assert(ctx, otz, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_val, lang->path.token.n_w), lt_tile_or));
+            Z3_optimize_assert(ctx, otz, Z3_mk_implies(ctx, Z3_mk_eq(ctx, tile_path_val, lang->path.token.s_w), lt_tile_or));
           }
         }
       }
@@ -271,10 +271,10 @@ void Lang_anima_tile_is_origin(const Lang *lang, Z3_context ctx, Z3_optimize otz
 
   Z3_ast anima_tile_value = Z3_mk_app(ctx, lang->path.tile_is_f, ARRAY_LEN(anima_col_row), anima_col_row);
 
-  Z3_ast value_is_origin[4] = {Z3_mk_eq(ctx, anima_tile_value, lang->path.o_n),
-                               Z3_mk_eq(ctx, anima_tile_value, lang->path.o_e),
-                               Z3_mk_eq(ctx, anima_tile_value, lang->path.o_s),
-                               Z3_mk_eq(ctx, anima_tile_value, lang->path.o_w)};
+  Z3_ast value_is_origin[4] = {Z3_mk_eq(ctx, anima_tile_value, lang->path.token.o_n),
+                               Z3_mk_eq(ctx, anima_tile_value, lang->path.token.o_e),
+                               Z3_mk_eq(ctx, anima_tile_value, lang->path.token.o_s),
+                               Z3_mk_eq(ctx, anima_tile_value, lang->path.token.o_w)};
 
   Z3_optimize_assert(ctx, otz, Z3_mk_or(ctx, ARRAY_LEN(value_is_origin), value_is_origin));
 }
@@ -316,10 +316,10 @@ void Lang_persona_tile_is_origin(const Lang *lang, Z3_context ctx, Z3_optimize o
 
   Z3_ast persona_tile_value = Z3_mk_app(ctx, lang->path.tile_is_f, ARRAY_LEN(persona_col_row), persona_col_row);
 
-  Z3_ast value_is_origin[4] = {Z3_mk_eq(ctx, persona_tile_value, lang->path.o_n),
-                               Z3_mk_eq(ctx, persona_tile_value, lang->path.o_e),
-                               Z3_mk_eq(ctx, persona_tile_value, lang->path.o_s),
-                               Z3_mk_eq(ctx, persona_tile_value, lang->path.o_w)};
+  Z3_ast value_is_origin[4] = {Z3_mk_eq(ctx, persona_tile_value, lang->path.token.o_n),
+                               Z3_mk_eq(ctx, persona_tile_value, lang->path.token.o_e),
+                               Z3_mk_eq(ctx, persona_tile_value, lang->path.token.o_s),
+                               Z3_mk_eq(ctx, persona_tile_value, lang->path.token.o_w)};
 
   Z3_optimize_assert(ctx, otz, Z3_mk_or(ctx, ARRAY_LEN(value_is_origin), value_is_origin));
 }
@@ -365,13 +365,13 @@ void Lang_assert_link_reqs(const Lang *lang, Z3_context ctx, Z3_optimize otz, co
       Z3_ast tile_path_value = Z3_mk_app(ctx, lang->path.tile_is_f, ARRAY_LEN(col_row), col_row);
 
       Z3_ast value_is_link[7] = {
-          Z3_mk_eq(ctx, tile_path_value, lang->path.n_s),
-          Z3_mk_eq(ctx, tile_path_value, lang->path.e_w),
-          Z3_mk_eq(ctx, tile_path_value, lang->path.n_e),
-          Z3_mk_eq(ctx, tile_path_value, lang->path.s_e),
-          Z3_mk_eq(ctx, tile_path_value, lang->path.n_w),
-          Z3_mk_eq(ctx, tile_path_value, lang->path.s_w),
-          Z3_mk_eq(ctx, tile_path_value, lang->path.x_x),
+          Z3_mk_eq(ctx, tile_path_value, lang->path.token.n_s),
+          Z3_mk_eq(ctx, tile_path_value, lang->path.token.e_w),
+          Z3_mk_eq(ctx, tile_path_value, lang->path.token.n_e),
+          Z3_mk_eq(ctx, tile_path_value, lang->path.token.s_e),
+          Z3_mk_eq(ctx, tile_path_value, lang->path.token.n_w),
+          Z3_mk_eq(ctx, tile_path_value, lang->path.token.s_w),
+          Z3_mk_eq(ctx, tile_path_value, lang->path.token.x_x),
       };
 
       Z3_optimize_assert(ctx, otz, Z3_mk_or(ctx, ARRAY_LEN(value_is_link), value_is_link));

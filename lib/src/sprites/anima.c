@@ -8,7 +8,7 @@
 #include "generic/pairs.h"
 #include "random.h"
 
-void Anima_default(Anima *anima, const uint8_t id, const Pair_uint8 location, const Direction direction, uint32_t offset_n) {
+void Anima_default(Anima *anima, const uint8_t id, const Pair_uint8 location, const Cardinal direction) {
   slog_display(SLOG_DEBUG, 0, "Creating anima: %d", id);
 
   anima->id = id;
@@ -101,36 +101,36 @@ void Anima_deduct(Anima *self, const Maze *maze) {
   auto tile = Z3_mk_app(self->ctx, self->lang.path.tile_is_f, 2, row_col);
   Z3_model_eval(self->ctx, model, tile, false, &anima_origin);
 
-  if (anima_origin == self->lang.path.o_n) {
-    self->direction_intent = DIRECTION_N;
+  if (anima_origin == self->lang.path.token.o_n) {
+    self->direction_intent = CARDINAL_N;
   }
 
-  else if (anima_origin == self->lang.path.o_e) {
-    self->direction_intent = DIRECTION_E;
+  else if (anima_origin == self->lang.path.token.o_e) {
+    self->direction_intent = CARDINAL_E;
   }
 
-  else if (anima_origin == self->lang.path.o_s) {
-    self->direction_intent = DIRECTION_S;
+  else if (anima_origin == self->lang.path.token.o_s) {
+    self->direction_intent = CARDINAL_S;
   }
 
-  else if (anima_origin == self->lang.path.o_w) {
-    self->direction_intent = DIRECTION_W;
+  else if (anima_origin == self->lang.path.token.o_w) {
+    self->direction_intent = CARDINAL_W;
   }
 
   else {
     // Backup
     switch (random_in_range(1, 4)) {
     case 1: {
-      self->direction_intent = DIRECTION_N;
+      self->direction_intent = CARDINAL_N;
     } break;
     case 2: {
-      self->direction_intent = DIRECTION_E;
+      self->direction_intent = CARDINAL_E;
     } break;
     case 3: {
-      self->direction_intent = DIRECTION_S;
+      self->direction_intent = CARDINAL_S;
     } break;
     case 4: {
-      self->direction_intent = DIRECTION_W;
+      self->direction_intent = CARDINAL_W;
     } break;
     default: {
       assert(false && "No direction");

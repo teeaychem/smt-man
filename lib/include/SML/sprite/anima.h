@@ -32,7 +32,7 @@ struct anima_t {
 
   Lang lang;
 
-  Direction direction_intent;
+  Cardinal direction_intent;
   /// Point of view, on the situation
   Situation situation;
 };
@@ -40,7 +40,7 @@ typedef struct anima_t Anima;
 
 // Methods
 
-void Anima_default(Anima *anima, const uint8_t id, const Pair_uint8 location, const Direction direction, uint32_t offset_n);
+void Anima_default(Anima *anima, const uint8_t id, const Pair_uint8 location, const Cardinal direction);
 
 void Anima_destroy(Anima *self);
 

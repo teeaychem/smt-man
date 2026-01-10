@@ -205,20 +205,20 @@ void Renderer_persona(Renderer *self, const Persona *persona, Sprite *sprite, co
     Renderer_sprite_buffer_map_to(self, Sheet_persona_offset(persona, situation), sprite->size);
 
     switch (situation->persona.direction_actual) {
-    case DIRECTION_NONE: {
+    case CARDINAL_NONE: {
       // No transformation
     } break;
-    case DIRECTION_N: {
+    case CARDINAL_N: {
       Surface_mirror(&self->sprite_buffer, sprite->size);
       Surface_transpose(&self->sprite_buffer, sprite->size);
     } break;
-    case DIRECTION_E: {
+    case CARDINAL_E: {
       // No transformation
     } break;
-    case DIRECTION_S: {
+    case CARDINAL_S: {
       Surface_transpose(&self->sprite_buffer, sprite->size);
     } break;
-    case DIRECTION_W: {
+    case CARDINAL_W: {
       Surface_mirror(&self->sprite_buffer, sprite->size);
     } break;
     }

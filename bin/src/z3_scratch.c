@@ -85,79 +85,78 @@ void z3_display_path(const Lang *lang, Z3_context ctx, Z3_model model, const Maz
 
   Z3_ast *path_buffer = calloc((size_t)maze->size.x * (size_t)maze->size.y, sizeof(*path_buffer));
 
-  Z3_func_interp path_f = Z3_model_get_func_interp(ctx, model, lang->path.tile_is_f);
-  Z3_func_interp_inc_ref(ctx, path_f);
+  { // Read the interpretation to the path buffer
+    Z3_func_interp path_f = Z3_model_get_func_interp(ctx, model, lang->path.tile_is_f);
+    Z3_func_interp_inc_ref(ctx, path_f);
 
-  unsigned int entries = Z3_func_interp_get_num_entries(ctx, path_f);
+    unsigned int entries = Z3_func_interp_get_num_entries(ctx, path_f);
 
-  for (unsigned int idx = 0; idx < entries; ++idx) {
-    Z3_func_entry entry = Z3_func_interp_get_entry(ctx, path_f, idx);
+    for (unsigned int idx = 0; idx < entries; ++idx) {
+      Z3_func_entry entry = Z3_func_interp_get_entry(ctx, path_f, idx);
+      uint8_t args_col_row[2];
 
-    uint8_t col_row[2];
-    unsigned z3_unsigned_tmp;
+      { // Get arguments
+        assert(Z3_func_entry_get_num_args(ctx, entry) == 2);
+        Z3_ast arg;
+        unsigned z3_unsigned_tmp;
 
-    printf("( ");
+        for (unsigned int arg_idx = 0; arg_idx < 2; ++arg_idx) {
+          arg = Z3_func_entry_get_arg(ctx, entry, arg_idx);
 
-    {
-      unsigned int args = Z3_func_entry_get_num_args(ctx, entry);
-      for (unsigned int arg_idx = 0; arg_idx < args; ++arg_idx) {
-        Z3_ast arg = Z3_func_entry_get_arg(ctx, entry, arg_idx);
-
-        Z3_get_numeral_uint(ctx, arg, &z3_unsigned_tmp);
-        assert(z3_unsigned_tmp < UINT8_MAX);
-        col_row[arg_idx] = (uint8_t)z3_unsigned_tmp;
-        printf("%d ", z3_unsigned_tmp);
+          Z3_get_numeral_uint(ctx, arg, &z3_unsigned_tmp);
+          assert(z3_unsigned_tmp < UINT8_MAX);
+          args_col_row[arg_idx] = (uint8_t)z3_unsigned_tmp;
+        }
       }
+
+      Z3_ast value = Z3_func_entry_get_value(ctx, entry);
+      path_buffer[Maze_tile_index(maze, args_col_row[0], args_col_row[1])] = value;
     }
-    printf(") -> ");
-
-    Z3_ast val = Z3_func_entry_get_value(ctx, entry);
-
-    path_buffer[Maze_tile_offset(maze, col_row[0], col_row[1])] = val;
-
-    printf("%s\n", Z3_ast_to_string(ctx, val));
+    Z3_func_interp_dec_ref(ctx, path_f);
   }
 
-  for (uint8_t row = 0; row < maze->size.y; row++) {
-    for (uint8_t col = 0; col < maze->size.x; col++) {
+  { // Display the path buffer
+    for (uint8_t row = 0; row < maze->size.y; row++) {
+      for (uint8_t col = 0; col < maze->size.x; col++) {
 
-      Z3_ast val = path_buffer[Maze_tile_offset(maze, col, row)];
+        Z3_ast val = path_buffer[Maze_tile_index(maze, col, row)];
 
-      if (lang->path.o_n == val) {
-        printf("O");
-      } else if (lang->path.o_e == val) {
-        printf("O");
-      } else if (lang->path.o_s == val) {
-        printf("O");
-      } else if (lang->path.o_w == val) {
-        printf("O");
+        if (lang->path.token.o_n == val) {
+          printf("O");
+        } else if (lang->path.token.o_e == val) {
+          printf("O");
+        } else if (lang->path.token.o_s == val) {
+          printf("O");
+        } else if (lang->path.token.o_w == val) {
+          printf("O");
+        }
+
+        else if (lang->path.token.n_s == val) {
+          printf("|");
+        } else if (lang->path.token.e_w == val) {
+          printf("-");
+        }
+
+        else if (lang->path.token.n_e == val) {
+          printf("X");
+        } else if (lang->path.token.s_e == val) {
+          printf("X");
+        } else if (lang->path.token.s_w == val) {
+          printf("X");
+        } else if (lang->path.token.n_w == val) {
+          printf("X");
+        }
+
+        else if (lang->path.token.x_x == val) {
+          printf(" ");
+        }
+
+        else {
+          printf(" ");
+        }
       }
-
-      else if (lang->path.n_s == val) {
-        printf("|");
-      } else if (lang->path.e_w == val) {
-        printf("-");
-      }
-
-      else if (lang->path.n_e == val) {
-        printf("X");
-      } else if (lang->path.s_e == val) {
-        printf("X");
-      } else if (lang->path.s_w == val) {
-        printf("X");
-      } else if (lang->path.n_w == val) {
-        printf("X");
-      }
-
-      else if (lang->path.x_x == val) {
-        printf(" ");
-      }
-
-      else {
-        printf(" ");
-      }
+      printf("|%d\n", row);
     }
-    printf("|%d\n", row);
   }
 }
 

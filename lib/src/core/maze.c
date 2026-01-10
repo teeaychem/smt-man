@@ -461,21 +461,21 @@ Result Maze_detail(Maze *self) {
   return RESULT_OK;
 }
 
-bool Maze_tile_in_direction_is_path(const Maze *self, const Pair_uint8 location, const Direction direction) {
+bool Maze_tile_in_direction_is_path(const Maze *self, const Pair_uint8 location, const Cardinal direction) {
   switch (direction) {
-  case DIRECTION_NONE: {
+  case CARDINAL_NONE: {
     return true;
   } break;
-  case DIRECTION_N: {
+  case CARDINAL_N: {
     return (location.y != 0 && Maze_is_path(self, location.x, location.y - 1));
   } break;
-  case DIRECTION_E: {
+  case CARDINAL_E: {
     return (location.x + 2 < self->size.x) && Maze_is_path(self, location.x + 1, location.y);
   } break;
-  case DIRECTION_S: {
+  case CARDINAL_S: {
     return (location.y != (self->size.y - 1)) && Maze_is_path(self, location.x, location.y + 1);
   } break;
-  case DIRECTION_W: {
+  case CARDINAL_W: {
     return (0 < location.x) && Maze_is_path(self, location.x - 1, location.y);
   } break;
   }

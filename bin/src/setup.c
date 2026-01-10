@@ -84,7 +84,7 @@ void *setup_spirit(void *void_setup_struct) {
 void setup_anima(Anima *animas, pthread_t *threads, Sprites *sprites, uint8_t id, Pair_uint8 location, const Maze *maze, size_t anima_count) {
   assert(id < anima_count);
 
-  Anima_default(&animas[id], id, location, DIRECTION_S, RENDER_TOP);
+  Anima_default(&animas[id], id, location, CARDINAL_S);
   if (sprites != nullptr) {
     Sprite_init(&sprites->animas[id], 16, location, RENDER_TOP);
   }
@@ -121,7 +121,7 @@ void setup_animas(Anima *animas, pthread_t *threads, Sprites *sprites, const Maz
 
 void setup_situation(Situation *situation, Pair_uint8 location) {
   printf("Setting up situation with location: %dx%d\n", location.x, location.y);
-  atomic_init(&situation->persona.direction_actual, DIRECTION_E);
+  atomic_init(&situation->persona.direction_actual, CARDINAL_E);
   atomic_init(&situation->persona.location, location);
   atomic_init(&situation->persona.movement_pattern, 0x552a552a);
 }

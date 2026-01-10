@@ -8,7 +8,7 @@
 struct abstract_anima_t {
   _Atomic(Pair_uint8) location;
 
-  _Atomic(Direction) direction_actual;
+  _Atomic(Cardinal) direction_actual;
 
   _Atomic(AnimaStatus) status;
 
@@ -20,7 +20,7 @@ typedef struct abstract_anima_t AbstractAnima;
 struct abstract_persona_t {
   _Atomic(Pair_uint8) location;
 
-  _Atomic(Direction) direction_actual;
+  _Atomic(Cardinal) direction_actual;
 
   _Atomic(uint32_t) movement_pattern;
 };

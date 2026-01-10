@@ -52,31 +52,34 @@ struct z3_lang {
     Z3_func_decl enum_consts[PATH_VARIANTS];
     Z3_func_decl enum_testers[PATH_VARIANTS];
 
-    /// Origin north
-    Z3_ast o_n;
-    /// Origin east
-    Z3_ast o_e;
-    /// Origin south
-    Z3_ast o_s;
-    /// Origin west
-    Z3_ast o_w;
+    struct {
+      /// PATH_ON
+      Z3_ast o_n;
+      /// PATH_OE
+      Z3_ast o_e;
+      /// PATH_OS
+      Z3_ast o_s;
+      /// PATH_OS
+      Z3_ast o_w;
 
-    /// North south
-    Z3_ast n_s;
-    /// East west
-    Z3_ast e_w;
+      /// PATH_NS
+      Z3_ast n_s;
+      /// PATH_EW
+      Z3_ast e_w;
 
-    /// North east
-    Z3_ast n_e;
-    /// South east
-    Z3_ast s_e;
-    /// South west
-    Z3_ast s_w;
-    /// North west
-    Z3_ast n_w;
+      /// PATH_NE
+      Z3_ast n_e;
+      /// PATH_SE
+      Z3_ast s_e;
+      /// PATH_SE
+      Z3_ast s_w;
+      /// PATH_NW
+      Z3_ast n_w;
 
-    /// Empty empty
-    Z3_ast x_x;
+      /// PATH_XX
+      Z3_ast x_x;
+
+    } token;
 
     /// (u8, u8) -> path.sort
     Z3_func_decl tile_is_f;

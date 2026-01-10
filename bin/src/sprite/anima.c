@@ -14,7 +14,7 @@ void Anima_update_direction(Anima *self, const Maze *maze, Pair_uint8 maze_locat
   if (Maze_tile_in_direction_is_path(maze, maze_location, self->direction_intent)) {
     atomic_store(&self->situation.animas[self->id].direction_actual, self->direction_intent);
   } else {
-    atomic_store(&self->situation.animas[self->id].direction_actual, DIRECTION_NONE);
+    atomic_store(&self->situation.animas[self->id].direction_actual, CARDINAL_NONE);
   }
 }
 
@@ -44,19 +44,19 @@ void Anima_on_frame(Anima *self, Sprite *sprite, const Maze *maze, uint32_t tile
   }
 
   switch (atomic_load(&self->situation.animas[self->id].direction_actual)) {
-  case DIRECTION_NONE: {
+  case CARDINAL_NONE: {
     // Do nothing
   } break;
-  case DIRECTION_N: {
+  case CARDINAL_N: {
     sprite->location.y -= SPRITE_VELOCITY;
   } break;
-  case DIRECTION_E: {
+  case CARDINAL_E: {
     sprite->location.x += SPRITE_VELOCITY;
   } break;
-  case DIRECTION_S: {
+  case CARDINAL_S: {
     sprite->location.y += SPRITE_VELOCITY;
   } break;
-  case DIRECTION_W: {
+  case CARDINAL_W: {
     sprite->location.x -= SPRITE_VELOCITY;
   } break;
   }

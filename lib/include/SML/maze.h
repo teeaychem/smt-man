@@ -67,7 +67,7 @@ Result Maze_detail(Maze *self);
 
 void Maze_drop(Maze *self);
 
-bool Maze_tile_in_direction_is_path(const Maze *self, const Pair_uint8 location, const Direction direction);
+bool Maze_tile_in_direction_is_path(const Maze *self, const Pair_uint8 location, const Cardinal direction);
 
 void Maze_complete_line_data(const Maze *self, TileData *tile_data, const uint8_t col, const uint8_t row);
 
@@ -75,7 +75,7 @@ Result Maze_complete_data(const Maze *self);
 
 /// Satic inline
 
-static inline size_t Maze_tile_offset(const Maze *self, const uint8_t col, const uint8_t row) {
+static inline size_t Maze_tile_index(const Maze *self, const uint8_t col, const uint8_t row) {
   assert(col < self->size.x && "Invalid col");
   assert(row < self->size.y && "Invalid row");
 
@@ -83,7 +83,7 @@ static inline size_t Maze_tile_offset(const Maze *self, const uint8_t col, const
 }
 
 static inline TileData *Maze_tile_data_at(const Maze *self, const uint8_t col, const uint8_t row) {
-  return &self->tiles[Maze_tile_offset(self, col, row)];
+  return &self->tiles[Maze_tile_index(self, col, row)];
 }
 
 static inline bool Maze_is_path(const Maze *self, const uint8_t col, const uint8_t row) {

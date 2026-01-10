@@ -10,7 +10,7 @@ void Persona_default(Persona *persona, Situation *situation) {
   printf("Setting up persona t location: %dx%d\n", location.x, location.y);
 
   *persona = (Persona){
-      .direction_intent = DIRECTION_E,
+      .direction_intent = CARDINAL_E,
       .tick_action = 0,
   };
 }
