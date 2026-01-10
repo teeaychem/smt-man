@@ -3,10 +3,10 @@
 
 #include <slog.h>
 
-#include "enums.h"
+#include "SML/enums.h"
+#include "SML/sprite/anima.h"
 #include "generic/pairs.h"
 #include "random.h"
-#include "sprites/anima.h"
 
 void Anima_default(Anima *anima, const uint8_t id, const Pair_uint8 location, const Direction direction, uint32_t offset_n) {
   slog_display(SLOG_DEBUG, 0, "Creating anima: %d", id);

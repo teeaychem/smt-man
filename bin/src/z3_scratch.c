@@ -2,12 +2,13 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include "logic.h"
-#include "logic/synchronization.h"
-#include "maze.h"
+#include "SML/logic.h"
+#include "SML/logic/synchronization.h"
+#include "SML/maze.h"
+#include "SML/sprite/anima.h"
+#include "SML/sprite/persona.h"
+
 #include "setup.h"
-#include "sprites/anima.h"
-#include "sprites/persona.h"
 
 constexpr size_t ANIMA_COUNT = 1;
 

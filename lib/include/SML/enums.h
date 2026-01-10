@@ -2,11 +2,6 @@
 
 #include <stdint.h>
 
-enum result_e {
-  RESULT_OK,
-  RESULT_KO,
-};
-typedef enum result_e Result;
 
 /// Cardinal directions
 // Directions are flags

@@ -6,13 +6,14 @@
 
 #include "cwalk.h"
 
+#include "SML/logic/synchronization.h"
+#include "SML/sprite/persona.h"
+
 #include "generic/pairs.h"
-#include "logic/synchronization.h"
 #include "render.h"
 #include "render/rgb_momentum.h"
 #include "render/sprite.h"
 #include "render/timer_nano.h"
-#include "sprites/persona.h"
 
 constexpr size_t ANIMA_COUNT = 1;
 

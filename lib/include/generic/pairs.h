@@ -1,6 +1,7 @@
 #pragma once
 
-#include "enums.h"
+// TODO: Relocate
+#include "SML/enums.h"
 #include <stdint.h>
 
 #define TYPE uint32_t

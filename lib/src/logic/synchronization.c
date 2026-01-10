@@ -1,6 +1,6 @@
 #include <stdatomic.h>
 
-#include "logic/synchronization.h"
+#include "SML/logic/synchronization.h"
 
 void Sync_update_animas(const Situation *situation, Anima *animas) {
 

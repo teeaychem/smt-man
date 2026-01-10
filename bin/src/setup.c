@@ -1,5 +1,4 @@
 /// Generic struct setup
-#include "macro.h"
 #define ARITHMETIC_IMPLEMENTATION
 #include "generic/arithmetic.h"
 #undef ARITHMETIC_IMPLEMENTATION

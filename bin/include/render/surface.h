@@ -5,8 +5,8 @@
 #include <SDL3/SDL.h>
 #include <png.h>
 
+#include "SML/maze.h"
 #include "generic/pairs.h"
-#include "maze.h"
 #include "render/palette.h"
 
 struct surface_t {

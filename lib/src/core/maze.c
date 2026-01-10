@@ -8,7 +8,7 @@
 
 #include "generic/pairs.h"
 
-#include "maze.h"
+#include "SML/maze.h"
 
 void next_line(FILE *file) {
   char chx = ' ';

@@ -3,8 +3,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "SML/logic.h"
 #include "generic/pairs.h"
-#include "logic.h"
 #include "macro.h"
 
 Z3_context z3_mk_anima_ctx() {

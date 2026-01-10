@@ -1,7 +1,7 @@
 #pragma once
 
-#include "logic/situation.h"
-#include "sprites/anima.h"
+#include "SML/logic/situation.h"
+#include "SML/sprite/anima.h"
 
 void Sync_update_animas(const Situation *situation, Anima *animas);
 

@@ -6,16 +6,15 @@
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
 
+#include "SML/logic/situation.h"
+#include "SML/maze.h"
+#include "SML/sprite/anima.h"
+#include "SML/sprite/persona.h"
 
 #include "generic/pairs.h"
-#include "logic/situation.h"
-#include "maze.h"
 #include "render/palette.h"
 #include "render/sprite.h"
 #include "render/surface.h"
-#include "sprites/anima.h"
-#include "sprites/persona.h"
-
 
 typedef struct renderer_t Renderer;
 struct renderer_t {

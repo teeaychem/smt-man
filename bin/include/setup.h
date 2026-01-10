@@ -1,9 +1,10 @@
 #pragma once
 
-#include "maze.h"
+#include "SML/maze.h"
+#include "SML/sprite/anima.h"
+
 #include "render.h"
 #include "render/sprite.h"
-#include "sprites/anima.h"
 
 /// Setup functions
 ///

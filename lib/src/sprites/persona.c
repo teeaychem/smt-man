@@ -2,7 +2,7 @@
 #include <stdatomic.h>
 #include <stdio.h>
 
-#include "sprites/persona.h"
+#include "SML/sprite/persona.h"
 
 void Persona_default(Persona *persona, Situation *situation) {
   Pair_uint8 location = atomic_load(&situation->persona.location);

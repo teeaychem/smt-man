@@ -1,8 +1,9 @@
 #pragma once
 
+#include "SML/sprite/anima.h"
+#include "SML/sprite/persona.h"
+
 #include "generic/pairs.h"
-#include "sprites/anima.h"
-#include "sprites/persona.h"
 
 struct sheet_offsets_t {
   struct {

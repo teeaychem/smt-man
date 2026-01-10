@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <z3.h>
 
-#include "logic/situation.h"
-#include "maze.h"
+#include "SML/logic/situation.h"
+#include "SML/maze.h"
 
 constexpr size_t PATH_VARIANTS = 11;
 struct z3_lang {

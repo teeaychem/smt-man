@@ -4,9 +4,9 @@
 #include <stdint.h>
 #include <z3.h>
 
-#include "enums.h"
+#include "SML/enums.h"
+#include "SML/logic.h"
 #include "generic/pairs.h"
-#include "logic.h"
 
 /// Tools for contacting the anima from a different thread
 struct anima_contact_t {

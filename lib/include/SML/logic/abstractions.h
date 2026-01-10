@@ -1,8 +1,8 @@
 #pragma once
 
-#include "enums.h"
+#include "SML/enums.h"
+#include "SML/logic/enums.h"
 #include "generic/pairs.h"
-#include "logic/enums.h"
 
 /// Animas
 struct abstract_anima_t {

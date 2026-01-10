@@ -3,7 +3,8 @@
 #include <assert.h>
 #include <stdint.h>
 
-#include "enums.h"
+#include "SML/enums.h"
+#include "err.h"
 #include "generic/pairs.h"
 
 constexpr Pair_uint32 STANDARD_MAZE_DIMENSIONS = {.x = 28, .y = 31};

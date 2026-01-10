@@ -2,7 +2,7 @@
 
 #include <stddef.h>
 
-#include "logic/abstractions.h"
+#include "SML/logic/abstractions.h"
 
 struct situation_t {
   size_t anima_count;
