@@ -171,6 +171,9 @@ Result Maze_create(Maze *maze, const char *path) {
 
 void Maze_drop(Maze *self) {
   free(self->tiles);
+  self->tiles = nullptr;
+  self->size.x = 0;
+  self->size.y = 0;
 }
 
 void Maze_abstract_stdout(Maze *self) {
