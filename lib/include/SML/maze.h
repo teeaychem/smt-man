@@ -1,6 +1,7 @@
 #pragma once
 
 #include <assert.h>
+#include <stddef.h>
 #include <stdint.h>
 
 #include "SML/enums.h"
@@ -74,11 +75,15 @@ Result Maze_complete_data(const Maze *self);
 
 /// Satic inline
 
-static inline TileData *Maze_tile_data_at(const Maze *self, const uint8_t col, const uint8_t row) {
+static inline size_t Maze_tile_offset(const Maze *self, const uint8_t col, const uint8_t row) {
   assert(col < self->size.x && "Invalid col");
   assert(row < self->size.y && "Invalid row");
 
-  return &self->tiles[(row * self->size.x) + col];
+  return ((size_t)row * self->size.x) + (size_t)col;
+}
+
+static inline TileData *Maze_tile_data_at(const Maze *self, const uint8_t col, const uint8_t row) {
+  return &self->tiles[Maze_tile_offset(self, col, row)];
 }
 
 static inline bool Maze_is_path(const Maze *self, const uint8_t col, const uint8_t row) {
