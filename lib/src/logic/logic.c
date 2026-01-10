@@ -21,7 +21,7 @@ Z3_context z3_mk_anima_ctx() {
 }
 
 void Lang_setup_base(Lang *lang, Z3_context ctx) {
-  lang->u8.sort = Z3_mk_bv_sort(ctx, 8);
+  lang->u8.sort = Z3_mk_bv_sort(ctx, 6);
 }
 
 // Path fns
