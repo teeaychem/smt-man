@@ -2,14 +2,16 @@
 
 #include "render/sprite.h"
 
-void Anima_on_tile(Anima *self, Sprite *sprite, const Maze *maze, uint32_t tile_pixels, uint32_t offset_n) {
+void Anima_on_tile(Anima *self, Sprite *sprite, const Maze *maze, Pair_uint8 maze_location) {
 
-  Pair_uint8 location = Sprite_location_to_abstract(&sprite->location, tile_pixels, offset_n);
   /// Update location
-  atomic_store(&self->situation.animas[self->id].location, location);
+  atomic_store(&self->situation.animas[self->id].location, maze_location);
+}
+
+void Anima_update_direction(Anima *self, const Maze *maze, Pair_uint8 maze_location) {
 
   /// Update direction
-  if (Maze_tile_in_direction_is_path(maze, location, self->direction_intent)) {
+  if (Maze_tile_in_direction_is_path(maze, maze_location, self->direction_intent)) {
     atomic_store(&self->situation.animas[self->id].direction_actual, self->direction_intent);
   } else {
     atomic_store(&self->situation.animas[self->id].direction_actual, DIRECTION_NONE);
@@ -32,7 +34,13 @@ void Anima_on_frame(Anima *self, Sprite *sprite, const Maze *maze, uint32_t tile
   Anima_instinct(self);
 
   if (Sprite_is_centered_on_tile(sprite->location, tile_pixels)) {
-    Anima_on_tile(self, sprite, maze, tile_pixels, offset_n);
+    Pair_uint8 maze_location = Sprite_maze_location(&sprite->location, tile_pixels, offset_n);
+
+    Anima_on_tile(self, sprite, maze, maze_location);
+
+    if (Maze_is_intersection(maze, maze_location.x, maze_location.y)) {
+      Anima_update_direction(self, maze, maze_location);
+    }
   }
 
   switch (atomic_load(&self->situation.animas[self->id].direction_actual)) {

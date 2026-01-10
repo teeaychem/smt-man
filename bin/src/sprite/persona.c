@@ -2,32 +2,29 @@
 
 #include "render/sprite.h"
 
-void Persona_on_tile(Persona *self, Sprite *sprite, Situation *situation, const Maze *maze, uint32_t tile_pixels, uint32_t offset_n) {
+void Persona_on_tile(Persona *self, Sprite *sprite, Situation *situation, const Maze *maze, Pair_uint8 maze_location) {
 
-  Pair_uint8 location = Sprite_location_to_abstract(&sprite->location, tile_pixels, offset_n);
   /// Update location
-  atomic_store(&situation->persona.location, location);
+  atomic_store(&situation->persona.location, maze_location);
 
   /// Update direction
-  if (Maze_tile_in_direction_is_path(maze, location, self->direction_intent)) {
+  if (Maze_tile_in_direction_is_path(maze, maze_location, self->direction_intent)) {
     atomic_store(&situation->persona.direction_actual, self->direction_intent);
-  } else if (Maze_tile_in_direction_is_path(maze, location, situation->persona.direction_actual)) {
+  } else if (Maze_tile_in_direction_is_path(maze, maze_location, situation->persona.direction_actual)) {
     // Keep current direction.
   } else {
     atomic_store(&situation->persona.direction_actual, DIRECTION_NONE);
   }
 }
 
-void Persona_off_tile(Persona *self, Sprite *sprite, Situation *situation, const Maze *maze, uint32_t tile_pixels, uint32_t offset_n) {
-
-  Pair_uint8 location = Sprite_location_to_abstract(&sprite->location, tile_pixels, offset_n);
+void Persona_off_tile(Persona *self, Sprite *sprite, Situation *situation, const Maze *maze, Pair_uint8 maze_location) {
 
   if ((self->direction_intent | situation->persona.direction_actual) == (DIRECTION_E | DIRECTION_W) ||
       (self->direction_intent | situation->persona.direction_actual) == (DIRECTION_S | DIRECTION_N)) {
     /// Update direction
-    if (Maze_tile_in_direction_is_path(maze, location, self->direction_intent)) {
+    if (Maze_tile_in_direction_is_path(maze, maze_location, self->direction_intent)) {
       atomic_store(&situation->persona.direction_actual, self->direction_intent);
-    } else if (Maze_tile_in_direction_is_path(maze, location, situation->persona.direction_actual)) {
+    } else if (Maze_tile_in_direction_is_path(maze, maze_location, situation->persona.direction_actual)) {
       // Keep current direction.
     } else {
       atomic_store(&situation->persona.direction_actual, DIRECTION_NONE);
@@ -47,10 +44,12 @@ void Persona_on_frame(Persona *self, Sprite *sprite, const Maze *maze, Situation
 
   self->tick_action += 1;
 
+  Pair_uint8 maze_location = Sprite_maze_location(&sprite->location, tile_pixels, offset_n);
+
   if (Sprite_is_centered_on_tile(sprite->location, tile_pixels)) {
-    Persona_on_tile(self, sprite, situation, maze, tile_pixels, offset_n);
+    Persona_on_tile(self, sprite, situation, maze, maze_location);
   } else {
-    Persona_off_tile(self, sprite, situation, maze, tile_pixels, offset_n);
+    Persona_off_tile(self, sprite, situation, maze, maze_location);
   }
 
   switch (atomic_load(&situation->persona.direction_actual)) {

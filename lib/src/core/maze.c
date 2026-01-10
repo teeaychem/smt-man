@@ -464,16 +464,16 @@ bool Maze_tile_in_direction_is_path(const Maze *self, const Pair_uint8 location,
     return true;
   } break;
   case DIRECTION_N: {
-    return (location.y != 0 && Maze_abstract_is_path(self, location.x, location.y - 1));
+    return (location.y != 0 && Maze_is_path(self, location.x, location.y - 1));
   } break;
   case DIRECTION_E: {
-    return (location.x + 2 < self->size.x) && Maze_abstract_is_path(self, location.x + 1, location.y);
+    return (location.x + 2 < self->size.x) && Maze_is_path(self, location.x + 1, location.y);
   } break;
   case DIRECTION_S: {
-    return (location.y != (self->size.y - 1)) && Maze_abstract_is_path(self, location.x, location.y + 1);
+    return (location.y != (self->size.y - 1)) && Maze_is_path(self, location.x, location.y + 1);
   } break;
   case DIRECTION_W: {
-    return (0 < location.x) && Maze_abstract_is_path(self, location.x - 1, location.y);
+    return (0 < location.x) && Maze_is_path(self, location.x - 1, location.y);
   } break;
   }
 }

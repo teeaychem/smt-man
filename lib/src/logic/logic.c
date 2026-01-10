@@ -80,7 +80,7 @@ void Lang_assert_shortest_path_empty_hints(const Lang *lang, Z3_context ctx, Z3_
     for (uint8_t col = 0; col < maze->size.x; ++col) {
       col_row[0] = Z3_mk_int(ctx, col, lang->u8.sort);
 
-      if (Maze_abstract_is_path(maze, col, row)) {
+      if (Maze_is_path(maze, col, row)) {
         Z3_ast tile_path_val = Z3_mk_app(ctx, lang->path.tile_is_f, ARRAY_LEN(col_row), col_row);
         Z3_optimize_assert_soft(ctx, otz, Z3_mk_eq(ctx, tile_path_val, lang->path.x_x), "1", lang->path.penatly);
       } else {
@@ -101,7 +101,7 @@ void Lang_assert_path_non_empty_hints(const Lang *lang, Z3_context ctx, Z3_optim
     for (uint8_t col = 0; col < maze->size.x; col++) {
       col_row[0] = Z3_mk_int(ctx, col, lang->u8.sort);
 
-      if (Maze_abstract_is_path(maze, col, row)) {
+      if (Maze_is_path(maze, col, row)) {
         Z3_ast tile_path_val = Z3_mk_app(ctx, lang->path.tile_is_f, 2, col_row);
 
         if (0 < row) {

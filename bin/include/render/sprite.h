@@ -32,14 +32,14 @@ typedef struct sprites_t Sprites;
 static inline void Sprite_init(Sprite *self, const uint8_t sprite_size, const Pair_uint8 location, uint32_t offset_n) {
   self->size = sprite_size,
   self->location = (Pair_uint32){.x = ((uint32_t)(location.x)) * TILE_PIXELS,
-                                 .y = ((uint32_t)location.y + offset_n) * TILE_PIXELS};
+                                       .y = ((uint32_t)location.y + offset_n) * TILE_PIXELS};
 }
 
 static inline bool Sprite_is_centered_on_tile(Pair_uint32 location, uint32_t tile_pixels) {
   return location.x % tile_pixels == 0 && location.y % tile_pixels == 0;
 }
 
-static inline Pair_uint8 Sprite_location_to_abstract(const Pair_uint32 *sprite_location, uint32_t tile_pixels, uint32_t offset_n) {
+static inline Pair_uint8 Sprite_maze_location(const Pair_uint32 *sprite_location, uint32_t tile_pixels, uint32_t offset_n) {
 
   uint32_t x_mod = sprite_location->x % tile_pixels;
   uint32_t y_mod = sprite_location->y % tile_pixels;
@@ -67,17 +67,11 @@ static inline Pair_uint8 Sprite_location_to_abstract(const Pair_uint32 *sprite_l
 
 /// Anima
 
-void Anima_on_tile(Anima *self, Sprite *sprite, const Maze *maze, uint32_t tile_pixels, uint32_t offset_n);
-
 void Anima_on_frame(Anima *self, Sprite *sprite, const Maze *maze, uint32_t tile_pixels, uint32_t offset_n);
 
 void Anima_handle_event(Anima *self, const SDL_Event *event);
 
 /// Persona
-
-void Persona_on_tile(Persona *self, Sprite *sprite, Situation *situation, const Maze *maze, uint32_t tile_pixels, uint32_t offset_n);
-
-void Persona_off_tile(Persona *self, Sprite *sprite, Situation *situation, const Maze *maze, uint32_t tile_pixels, uint32_t offset_n);
 
 void Persona_on_frame(Persona *self, Sprite *sprite, const Maze *maze, Situation *situation, uint32_t tile_pixels, uint32_t offset_n);
 
