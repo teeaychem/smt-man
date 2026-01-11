@@ -34,36 +34,108 @@ void Anima_on_frame(Anima *self, Sprite *sprite, const Maze *maze, uint32_t tile
 
     Anima_on_tile(self, sprite, maze, maze_location);
 
+    pthread_mutex_lock(&self->path.mutex);
+
+    Z3_ast path_tile = MazePath_at(&self->path, maze_location);
+    Cardinal direction_actual = atomic_load(&self->smt.situation.animas[self->id].direction_actual);
+
     if (Maze_is_intersection(maze, maze_location.x, maze_location.y)) {
-      atomic_store(&self->smt.situation.animas[self->id].direction_actual, self->direction_intent);
+      if (self->smt.language.path.token.o_n == path_tile) {
+        self->direction_intent = CARDINAL_N;
+        printf("\tON");
+      } else if (self->smt.language.path.token.o_e == path_tile) {
+        self->direction_intent = CARDINAL_E;
+        printf("\tOE");
+      } else if (self->smt.language.path.token.o_s == path_tile) {
+        self->direction_intent = CARDINAL_S;
+        printf("\tOS");
+      } else if (self->smt.language.path.token.o_w == path_tile) {
+        self->direction_intent = CARDINAL_W;
+        printf("\tOW");
+      }
+
+      else if (self->smt.language.path.token.n_s == path_tile) {
+        printf("\tNS");
+        // Continue in same direction
+      } else if (self->smt.language.path.token.e_w == path_tile) {
+        printf("\tEW");
+        // Continue in same direction
+      }
+
+      else if (self->smt.language.path.token.n_e == path_tile) {
+        printf("\tNE");
+        if (direction_actual == CARDINAL_S) {
+          direction_actual = CARDINAL_E;
+        } else {
+          direction_actual = CARDINAL_N;
+        }
+      } else if (self->smt.language.path.token.s_e == path_tile) {
+        printf("\tSE");
+        if (direction_actual == CARDINAL_N) {
+          direction_actual = CARDINAL_E;
+        } else {
+          direction_actual = CARDINAL_S;
+        }
+      } else if (self->smt.language.path.token.s_w == path_tile) {
+        printf("\tSW");
+        if (direction_actual == CARDINAL_N) {
+          direction_actual = CARDINAL_W;
+        } else {
+          direction_actual = CARDINAL_S;
+        }
+      } else if (self->smt.language.path.token.n_w == path_tile) {
+        printf("\tNW");
+        if (direction_actual == CARDINAL_S) {
+          direction_actual = CARDINAL_W;
+        } else {
+          direction_actual = CARDINAL_N;
+        }
+      }
+
+      else if (self->smt.language.path.token.x_x == path_tile) {
+        printf("Anima %d is not on a path!\n", self->id);
+      }
+
+      else {
+        printf("Anima %d is not on a path!\n", self->id);
+      }
+
+      atomic_store(&self->smt.situation.animas[self->id].direction_actual, direction_actual);
+
+      MazePath_display(&self->path, &self->smt.language);
+      printf("Direction: ");
+      Cardinal_print(direction_actual);
+      printf("\n");
+      printf("Anima @ %dx%d\n", maze_location.x, maze_location.y);
+      /* getc(stdin); */
+
+      pthread_mutex_unlock(&self->path.mutex);
     }
 
-    if (atomic_load(&self->smt.situation.animas[self->id].direction_actual) == CARDINAL_NONE) {
+    if (direction_actual == CARDINAL_NONE || !Maze_tile_in_direction_is_path(maze, maze_location, direction_actual)) {
       int random_c = random_in_range(0, 4);
       switch (random_c) {
       case 0: {
-        atomic_store(&self->smt.situation.animas[self->id].direction_actual, CARDINAL_N);
+        direction_actual = CARDINAL_N;
       } break;
       case 1: {
-        atomic_store(&self->smt.situation.animas[self->id].direction_actual, CARDINAL_E);
+        direction_actual = CARDINAL_E;
       } break;
       case 2: {
-        atomic_store(&self->smt.situation.animas[self->id].direction_actual, CARDINAL_S);
+        direction_actual = CARDINAL_S;
       } break;
       case 3: {
-        atomic_store(&self->smt.situation.animas[self->id].direction_actual, CARDINAL_W);
+        direction_actual = CARDINAL_W;
       } break;
       default: {
       };
       }
     }
 
-    if (!Maze_tile_in_direction_is_path(maze, maze_location, self->direction_intent)) {
+    atomic_store(&self->smt.situation.animas[self->id].direction_actual, direction_actual);
 
-      atomic_store(&self->smt.situation.animas[self->id].direction_actual, CARDINAL_NONE);
-    }
-
-    Anima_update_direction(self, maze, maze_location);
+    // TODO: Empty fn
+    /* Anima_update_direction(self, maze, maze_location); */
   }
 
   switch (atomic_load(&self->smt.situation.animas[self->id].direction_actual)) {

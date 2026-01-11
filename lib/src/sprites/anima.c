@@ -8,36 +8,38 @@
 #include "generic/pairs.h"
 #include "random.h"
 
-void Anima_init(Anima *anima, const uint8_t id, const Pair_uint8 location, const Cardinal direction) {
+void Anima_init(Anima *self, const uint8_t id, const Pair_uint8 location, const Cardinal direction, const Maze *maze) {
   slog_display(SLOG_DEBUG, 0, "Creating anima: %d", id);
 
-  anima->id = id;
-  anima->tick_action = 0;
-  anima->contact = (AnimaContact){
+  self->id = id;
+  self->tick_action = 0;
+  self->contact = (AnimaContact){
       .cond_resume = PTHREAD_COND_INITIALIZER,
       .mtx_suspend = PTHREAD_MUTEX_INITIALIZER,
   },
 
-  assert(0 < anima->smt.situation.anima_count);
+  assert(0 < self->smt.situation.anima_count);
 
-  anima->id = id;
-  anima->direction_intent = direction;
+  self->id = id;
+  self->direction_intent = direction;
 
-  atomic_init(&anima->smt.situation.animas[id].direction_actual, direction);
+  atomic_init(&self->smt.situation.animas[id].direction_actual, direction);
 
-  atomic_init(&anima->smt.situation.animas[id].location, location);
+  atomic_init(&self->smt.situation.animas[id].location, location);
 
-  atomic_init(&anima->smt.situation.animas[id].status, ANIMA_STATUS_SEARCH);
+  atomic_init(&self->smt.situation.animas[id].status, ANIMA_STATUS_SEARCH);
 
-  atomic_init(&anima->smt.situation.animas[id].movement_pattern, 0x552a552a);
+  atomic_init(&self->smt.situation.animas[id].movement_pattern, 0x552a552a);
 
   Z3_context ctx = z3_mk_anima_ctx();
   Z3_optimize optimizer = Z3_mk_optimize(ctx);
   Z3_optimize_inc_ref(ctx, optimizer);
-  anima->smt.ctx = ctx;
-  anima->smt.opz = optimizer;
+  self->smt.ctx = ctx;
+  self->smt.opz = optimizer;
 
-  atomic_init(&anima->contact.flag_suspend, false);
+  atomic_init(&self->contact.flag_suspend, false);
+
+  MazePath_init(&self->path, maze->size);
 }
 
 void Anima_drop(Anima *self) {
@@ -90,6 +92,9 @@ void Anima_deduct(Anima *self, const Maze *maze) {
 
   Z3_model model = Z3_optimize_get_model(self->smt.ctx, self->smt.opz);
   Z3_model_inc_ref(self->smt.ctx, model);
+
+  MazePath_clear(&self->path);
+  MazePath_read(&self->path, &self->smt.language, self->smt.ctx, model, maze);
 
   Z3_ast anima_origin = nullptr;
 

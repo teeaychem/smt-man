@@ -5,6 +5,7 @@
 #include <z3.h>
 
 #include "SML/logic.h"
+#include "SML/maze.h"
 #include "SML/maze_path.h"
 #include "generic/enums.h"
 #include "generic/pairs.h"
@@ -30,6 +31,9 @@ struct anima_t {
   /// Tools for contacting the anima from a different thread
   AnimaContact contact;
 
+  /// Path
+  MazePath path;
+
   struct {
     /// Point of view, on the situation
     Situation situation;
@@ -39,8 +43,7 @@ struct anima_t {
     Z3_optimize opz;
     /// A DSL for solves
     Language language;
-    /// Path
-    MazePath path;
+
   } smt;
 };
 typedef struct anima_t Anima;
@@ -48,7 +51,7 @@ typedef struct anima_t Anima;
 // Methods
 
 /// Initialize an anima with `id`, at grid `location`, facing `direction`
-void Anima_init(Anima *anima, const uint8_t id, const Pair_uint8 location, const Cardinal direction);
+void Anima_init(Anima *self, const uint8_t id, const Pair_uint8 location, const Cardinal direction, const Maze *maze);
 
 /// Assert general sentences
 void Anima_touch(Anima *self, const Maze *maze, size_t anima_count);

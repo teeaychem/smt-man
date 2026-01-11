@@ -65,7 +65,9 @@ int main() {
 
 void z3_display_path(const Language *lang, const Z3_context ctx, const Z3_model model, const Maze *maze) {
 
-  MazePath maze_path;
+  MazePath maze_path = {
+      .mutex = PTHREAD_MUTEX_INITIALIZER,
+  };
   Z3_ast *maze_path_tiles = calloc(maze->size.x * maze->size.y, sizeof(*maze_path_tiles));
 
   MazePath_init(&maze_path, maze->size);
