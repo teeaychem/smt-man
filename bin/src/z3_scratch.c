@@ -36,29 +36,10 @@ int main() {
 
   Anima animas[ANIMA_COUNT];
 
-  Z3_symbol lang_anima_enum_names[ANIMA_COUNT][ANIMA_COUNT] = {};
-  Z3_func_decl lang_anima_enum_consts[ANIMA_COUNT][ANIMA_COUNT] = {};
-  Z3_func_decl lang_anima_enum_testers[ANIMA_COUNT][ANIMA_COUNT] = {};
-
-  Z3_symbol lang_persona_enum_names[ANIMA_COUNT] = {};
-  Z3_func_decl lang_persona_enum_consts[ANIMA_COUNT] = {};
-  Z3_func_decl lang_persona_enum_testers[ANIMA_COUNT] = {};
-
   AbstractAnima mind_animas[ANIMA_COUNT][ANIMA_COUNT];
   for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
     animas[idx].smt.situation.anima_count = ANIMA_COUNT;
     animas[idx].smt.situation.animas = mind_animas[idx];
-
-    animas[idx].smt.language = (Language){
-        .anima.count = ANIMA_COUNT,
-        .anima.enum_names = lang_anima_enum_names[idx],
-        .anima.enum_consts = lang_anima_enum_consts[idx],
-        .anima.enum_testers = lang_anima_enum_testers[idx],
-        .persona.enum_name = lang_persona_enum_names[idx],
-        .persona.enum_const = lang_persona_enum_consts[idx],
-        .persona.enum_tester = lang_persona_enum_testers[idx],
-
-    };
   }
 
   for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
@@ -85,6 +66,8 @@ int main() {
 void z3_display_path(const Language *lang, const Z3_context ctx, const Z3_model model, const Maze *maze) {
 
   MazePath maze_path;
+  Z3_ast *maze_path_tiles = calloc(maze->size.x * maze->size.y, sizeof(*maze_path_tiles));
+
   MazePath_init(&maze_path, maze->size);
   MazePath_read(&maze_path, lang, ctx, model, maze);
 
@@ -95,35 +78,28 @@ void z3_display_path(const Language *lang, const Z3_context ctx, const Z3_model 
 void z3_tmp(const Maze *maze, const Situation *situation) {
   Z3_context ctx = z3_mk_anima_ctx();
 
-  Z3_symbol lang_enun_names[ANIMA_COUNT] = {};
-  Z3_func_decl lang_enun_consts[ANIMA_COUNT] = {};
-  Z3_func_decl lang_enun_testers[ANIMA_COUNT] = {};
-  struct z3_lang lang = {
-      .anima.enum_names = lang_enun_names,
-      .anima.enum_consts = lang_enun_consts,
-      .anima.enum_testers = lang_enun_testers,
-  };
+  Language language = {};
 
   Z3_optimize optimizer = Z3_mk_optimize(ctx);
   Z3_optimize_inc_ref(ctx, optimizer);
 
   uint8_t anima_id = 0;
 
-  Lang_setup_base(&lang, ctx);
-  Lang_setup_path(&lang, ctx);
-  Lang_setup_animas(&lang, ctx, ANIMA_COUNT);
-  Lang_setup_persona(&lang, ctx);
+  Lang_setup_base(&language, ctx);
+  Lang_setup_path(&language, ctx);
+  Lang_setup_animas(&language, ctx, ANIMA_COUNT);
+  Lang_setup_persona(&language, ctx);
 
-  Lang_anima_tile_is_origin(&lang, ctx, optimizer, anima_id);
-  Lang_persona_tile_is_origin(&lang, ctx, optimizer);
+  Lang_anima_tile_is_origin(&language, ctx, optimizer, anima_id);
+  Lang_persona_tile_is_origin(&language, ctx, optimizer);
 
-  Lang_assert_link_reqs(&lang, ctx, optimizer, situation, maze, anima_id);
+  Lang_assert_link_reqs(&language, ctx, optimizer, situation, maze, anima_id);
 
-  Lang_assert_shortest_path_empty_hints(&lang, ctx, optimizer, maze);
-  Lang_assert_path_non_empty_hints(&lang, ctx, optimizer, maze);
+  Lang_assert_shortest_path_empty_hints(&language, ctx, optimizer, maze);
+  Lang_assert_path_non_empty_hints(&language, ctx, optimizer, maze);
 
-  Lang_assert_anima_location(&lang, ctx, optimizer, situation, anima_id);
-  Lang_assert_persona_location(&lang, ctx, optimizer, situation);
+  Lang_assert_anima_location(&language, ctx, optimizer, situation, anima_id);
+  Lang_assert_persona_location(&language, ctx, optimizer, situation);
 
   /* g_log(nullptr, G_LOG_LEVEL_INFO, "\nPre-model:\n%s", Z3_optimize_to_string(ctx, optimizer)); */
   /* exit(0); */
@@ -145,7 +121,7 @@ void z3_tmp(const Maze *maze, const Situation *situation) {
   Z3_model_inc_ref(ctx, model);
 
   printf("\nModel:\n%s", Z3_model_to_string(ctx, model));
-  z3_display_path(&lang, ctx, model, maze);
+  z3_display_path(&language, ctx, model, maze);
 
   // Cleanup
 

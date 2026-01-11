@@ -4,13 +4,16 @@
 
 #include "SML/maze_path.h"
 
-void MazePath_init(MazePath *self, Pair_uint8 size) {
+void MazePath_init(MazePath *self, const Pair_uint8 size) {
+  assert(self->tiles != nullptr);
+
   self->size = size;
   self->tile_count = (size_t)size.x * (size_t)size.y;
   self->tiles = calloc(self->tile_count, sizeof(*self->tiles));
 }
 
 void MazePath_clear(MazePath *self) {
+  assert(self->tiles != nullptr);
   memset(self->tiles, 0, self->tile_count * sizeof(*self->tiles));
 }
 

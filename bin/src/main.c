@@ -36,28 +36,10 @@ int main() { // int main(int argc, char *argv[]) {
 
   Anima animas[ANIMA_COUNT];
 
-  Z3_symbol lang_anima_enum_names[ANIMA_COUNT][ANIMA_COUNT] = {};
-  Z3_func_decl lang_anima_enum_consts[ANIMA_COUNT][ANIMA_COUNT] = {};
-  Z3_func_decl lang_anima_enum_testers[ANIMA_COUNT][ANIMA_COUNT] = {};
-
-  Z3_symbol lang_persona_enum_names[ANIMA_COUNT] = {};
-  Z3_func_decl lang_persona_enum_consts[ANIMA_COUNT] = {};
-  Z3_func_decl lang_persona_enum_testers[ANIMA_COUNT] = {};
-
   AbstractAnima mind_animas[ANIMA_COUNT][ANIMA_COUNT];
   for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
     animas[idx].smt.situation.anima_count = ANIMA_COUNT;
     animas[idx].smt.situation.animas = mind_animas[idx];
-
-    animas[idx].smt.language = (Language){
-        .anima.enum_names = lang_anima_enum_names[idx],
-        .anima.enum_consts = lang_anima_enum_consts[idx],
-        .anima.enum_testers = lang_anima_enum_testers[idx],
-        .persona.enum_name = lang_persona_enum_names[idx],
-        .persona.enum_const = lang_persona_enum_consts[idx],
-        .persona.enum_tester = lang_persona_enum_testers[idx],
-
-    };
   }
 
   AbstractAnima situation_animas[ANIMA_COUNT] = {};

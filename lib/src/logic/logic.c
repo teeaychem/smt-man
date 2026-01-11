@@ -283,14 +283,14 @@ void Lang_anima_tile_is_origin(const Language *lang, Z3_context ctx, Z3_optimize
 
 void Lang_setup_persona(Language *lang, Z3_context ctx) {
 
-  lang->persona.enum_name = Z3_mk_string_symbol(ctx, "smt-man");
+  lang->persona.enum_name[0] = Z3_mk_string_symbol(ctx, "smt-man");
 
   lang->persona.sort = Z3_mk_enumeration_sort(ctx,
                                               Z3_mk_string_symbol(ctx, "persona"),
                                               1,
-                                              &lang->persona.enum_name,
-                                              &lang->persona.enum_const,
-                                              &lang->persona.enum_tester);
+                                              lang->persona.enum_name,
+                                              lang->persona.enum_const,
+                                              lang->persona.enum_tester);
 
   { // Persona row fn
     Z3_symbol id = Z3_mk_string_symbol(ctx, "persona_row");
@@ -309,7 +309,7 @@ void Lang_setup_persona(Language *lang, Z3_context ctx) {
 
 void Lang_persona_tile_is_origin(const Language *lang, Z3_context ctx, Z3_optimize otz) {
 
-  Z3_ast persona_ast = Z3_mk_app(ctx, lang->persona.enum_const, 0, 0);
+  Z3_ast persona_ast = Z3_mk_app(ctx, lang->persona.enum_const[0], 0, 0);
 
   Z3_ast persona_col_row[2] = {z3_mk_unary_app(ctx, lang->persona.tile_col_f, persona_ast),
                                z3_mk_unary_app(ctx, lang->persona.tile_row_f, persona_ast)};
@@ -328,7 +328,7 @@ void Lang_assert_persona_location(const Language *lang, Z3_context ctx, Z3_optim
 
   auto persona_location = atomic_load(&situation->persona.location);
   printf("Asserted persona at %dx%d\n", persona_location.x, persona_location.y);
-  Z3_ast persona_ast = Z3_mk_app(ctx, lang->persona.enum_const, 0, 0);
+  Z3_ast persona_ast = Z3_mk_app(ctx, lang->persona.enum_const[0], 0, 0);
 
   {
     Z3_ast z3_row = z3_mk_unary_app(ctx, lang->persona.tile_row_f, persona_ast);

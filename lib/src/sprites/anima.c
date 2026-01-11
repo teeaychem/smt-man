@@ -55,7 +55,6 @@ void Anima_touch(Anima *self, const Maze *maze, size_t anima_count) {
   Lang_setup_path(&self->smt.language, self->smt.ctx);
   Lang_setup_animas(&self->smt.language, self->smt.ctx, anima_count);
   Lang_setup_persona(&self->smt.language, self->smt.ctx);
-  /* Lang_setup_facing(&self->smt.lang, self->smt.ctx); */
 
   Lang_anima_tile_is_origin(&self->smt.language, self->smt.ctx, self->smt.opz, self->id);
   Lang_persona_tile_is_origin(&self->smt.language, self->smt.ctx, self->smt.opz);

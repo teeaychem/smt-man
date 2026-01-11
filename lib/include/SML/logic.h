@@ -8,7 +8,9 @@
 #include "SML/maze.h"
 
 constexpr size_t PATH_VARIANTS = 11;
-struct z3_lang {
+constexpr size_t LANGUAGE_SIZE = 4;
+
+struct z3_language_4 {
 
   struct {
     Z3_sort sort;
@@ -19,9 +21,9 @@ struct z3_lang {
 
     Z3_sort sort;
 
-    Z3_symbol *enum_names;
-    Z3_func_decl *enum_consts;
-    Z3_func_decl *enum_testers;
+    Z3_symbol enum_names[LANGUAGE_SIZE];
+    Z3_func_decl enum_consts[LANGUAGE_SIZE];
+    Z3_func_decl enum_testers[LANGUAGE_SIZE];
 
     /// anima -> u8
     Z3_func_decl tile_row_f;
@@ -33,9 +35,9 @@ struct z3_lang {
   struct {
     Z3_sort sort;
 
-    Z3_symbol enum_name;
-    Z3_func_decl enum_const;
-    Z3_func_decl enum_tester;
+    Z3_symbol enum_name[1];
+    Z3_func_decl enum_const[1];
+    Z3_func_decl enum_tester[1];
 
     /// persona -> u8
     Z3_func_decl tile_row_f;
@@ -85,31 +87,31 @@ struct z3_lang {
     Z3_func_decl tile_is_f;
   } path;
 };
-typedef struct z3_lang Language;
+typedef struct z3_language_4 Language;
 
 //
 
-void Lang_setup_base(Language *lang, Z3_context ctx);
-void Lang_setup_path(Language *lang, Z3_context ctx);
-void Lang_setup_animas(Language *lang, Z3_context ctx, size_t count);
-void Lang_setup_persona(Language *lang, Z3_context ctx);
+void Lang_setup_base(Language *language, Z3_context ctx);
+void Lang_setup_path(Language *language, Z3_context ctx);
+void Lang_setup_animas(Language *language, Z3_context ctx, size_t count);
+void Lang_setup_persona(Language *language, Z3_context ctx);
 
-void Lang_assert_shortest_path_empty_hints(const Language *lang, Z3_context ctx, Z3_optimize optimizer, const Maze *maze);
-void Lang_assert_path_non_empty_hints(const Language *lang, Z3_context ctx, Z3_optimize optimizer, const Maze *maze);
+void Lang_assert_shortest_path_empty_hints(const Language *language, Z3_context ctx, Z3_optimize optimizer, const Maze *maze);
+void Lang_assert_path_non_empty_hints(const Language *language, Z3_context ctx, Z3_optimize optimizer, const Maze *maze);
 
 //
 
 /// Assert the row and column values for each anima
-void Lang_assert_anima_location(const Language *lang, Z3_context ctx, Z3_optimize otz, const Situation *situation, const uint8_t id);
+void Lang_assert_anima_location(const Language *language, Z3_context ctx, Z3_optimize otz, const Situation *situation, const uint8_t id);
 
 /// For each tile which is not the location of an anima is a link tile.
-void Lang_assert_link_reqs(const Language *lang, Z3_context ctx, Z3_optimize otz, const Situation *situation, const Maze *maze, const uint8_t id);
-void Lang_anima_tile_is_origin(const Language *lang, Z3_context ctx, Z3_optimize optimizer, const uint8_t id);
+void Lang_assert_link_reqs(const Language *language, Z3_context ctx, Z3_optimize otz, const Situation *situation, const Maze *maze, const uint8_t id);
+void Lang_anima_tile_is_origin(const Language *language, Z3_context ctx, Z3_optimize optimizer, const uint8_t id);
 
 //
 
-void Lang_persona_tile_is_origin(const Language *lang, Z3_context ctx, Z3_optimize otz);
-void Lang_assert_persona_location(const Language *lang, Z3_context ctx, Z3_optimize otz, const Situation *situation);
+void Lang_persona_tile_is_origin(const Language *language, Z3_context ctx, Z3_optimize otz);
+void Lang_assert_persona_location(const Language *language, Z3_context ctx, Z3_optimize otz, const Situation *situation);
 
 //
 
