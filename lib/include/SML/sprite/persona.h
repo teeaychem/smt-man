@@ -2,8 +2,8 @@
 
 #include <stdint.h>
 
-#include "SML/enums.h"
 #include "SML/logic/situation.h"
+#include "generic/enums.h"
 
 struct persona_t {
   /// Incremented on each tick an action is performed

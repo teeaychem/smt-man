@@ -1,7 +1,7 @@
 #pragma once
 
-#include "SML/enums.h"
 #include "SML/logic/enums.h"
+#include "generic/enums.h"
 #include "generic/pairs.h"
 
 /// Animas

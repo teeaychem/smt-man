@@ -7,6 +7,7 @@
 #include "SML/logic.h"
 #include "SML/logic/synchronization.h"
 #include "SML/maze.h"
+#include "SML/maze_path.h"
 #include "SML/sprite/anima.h"
 #include "SML/sprite/persona.h"
 
@@ -81,83 +82,14 @@ int main() {
   z3_tmp(&maze, &situation);
 }
 
-void z3_display_path(const Lang *lang, Z3_context ctx, Z3_model model, const Maze *maze) {
+void z3_display_path(const Lang *lang, const Z3_context ctx, const Z3_model model, const Maze *maze) {
 
-  Z3_ast *path_buffer = calloc((size_t)maze->size.x * (size_t)maze->size.y, sizeof(*path_buffer));
+  MazePath maze_path;
+  MazePath_init(&maze_path, maze->size);
+  MazePath_read(&maze_path, lang, ctx, model, maze);
 
-  { // Read the interpretation to the path buffer
-    Z3_func_interp path_f = Z3_model_get_func_interp(ctx, model, lang->path.tile_is_f);
-    Z3_func_interp_inc_ref(ctx, path_f);
-
-    unsigned int entries = Z3_func_interp_get_num_entries(ctx, path_f);
-
-    for (unsigned int idx = 0; idx < entries; ++idx) {
-      Z3_func_entry entry = Z3_func_interp_get_entry(ctx, path_f, idx);
-      uint8_t args_col_row[2];
-
-      { // Get arguments
-        assert(Z3_func_entry_get_num_args(ctx, entry) == 2);
-        Z3_ast arg;
-        unsigned z3_unsigned_tmp;
-
-        for (unsigned int arg_idx = 0; arg_idx < 2; ++arg_idx) {
-          arg = Z3_func_entry_get_arg(ctx, entry, arg_idx);
-
-          Z3_get_numeral_uint(ctx, arg, &z3_unsigned_tmp);
-          assert(z3_unsigned_tmp < UINT8_MAX);
-          args_col_row[arg_idx] = (uint8_t)z3_unsigned_tmp;
-        }
-      }
-
-      Z3_ast value = Z3_func_entry_get_value(ctx, entry);
-      path_buffer[Maze_tile_index(maze, args_col_row[0], args_col_row[1])] = value;
-    }
-    Z3_func_interp_dec_ref(ctx, path_f);
-  }
-
-  { // Display the path buffer
-    for (uint8_t row = 0; row < maze->size.y; row++) {
-      for (uint8_t col = 0; col < maze->size.x; col++) {
-
-        Z3_ast val = path_buffer[Maze_tile_index(maze, col, row)];
-
-        if (lang->path.token.o_n == val) {
-          printf("O");
-        } else if (lang->path.token.o_e == val) {
-          printf("O");
-        } else if (lang->path.token.o_s == val) {
-          printf("O");
-        } else if (lang->path.token.o_w == val) {
-          printf("O");
-        }
-
-        else if (lang->path.token.n_s == val) {
-          printf("|");
-        } else if (lang->path.token.e_w == val) {
-          printf("-");
-        }
-
-        else if (lang->path.token.n_e == val) {
-          printf("X");
-        } else if (lang->path.token.s_e == val) {
-          printf("X");
-        } else if (lang->path.token.s_w == val) {
-          printf("X");
-        } else if (lang->path.token.n_w == val) {
-          printf("X");
-        }
-
-        else if (lang->path.token.x_x == val) {
-          printf(" ");
-        }
-
-        else {
-          printf(" ");
-        }
-      }
-      printf("|%d\n", row);
-    }
-  }
+  /* MazePath_clear(&z3_maze); */
+  MazePath_display(&maze_path, lang);
 }
 
 void z3_tmp(const Maze *maze, const Situation *situation) {

@@ -3,8 +3,8 @@
 
 #include <slog.h>
 
-#include "SML/enums.h"
 #include "SML/sprite/anima.h"
+#include "generic/enums.h"
 #include "generic/pairs.h"
 #include "random.h"
 

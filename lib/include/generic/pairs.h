@@ -1,8 +1,9 @@
 #pragma once
 
 // TODO: Relocate
-#include "SML/enums.h"
 #include <stdint.h>
+
+#include "generic/enums.h"
 
 #define TYPE uint32_t
 #define SUFFIX uint32
@@ -12,7 +13,9 @@
 
 #define TYPE uint8_t
 #define SUFFIX uint8
-#include "templates/pair_template.h"
+#include "generic/templates/pair_template.h"
+#undef SUFFIX
+#undef TYPE
 
 Pair_uint8 Pair_uint8_steps_in_direction(const Pair_uint8 *origin, Cardinal direction, uint8_t steps);
 

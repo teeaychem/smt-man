@@ -4,8 +4,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "SML/enums.h"
 #include "err.h"
+#include "generic/enums.h"
 #include "generic/pairs.h"
 
 constexpr Pair_uint32 STANDARD_MAZE_DIMENSIONS = {.x = 28, .y = 31};
@@ -53,13 +53,15 @@ struct tile_data_t {
 };
 typedef struct tile_data_t TileData;
 
+/// Maze
+
 struct maze_t {
   Pair_uint8 size;
   TileData *tiles;
 };
 typedef struct maze_t Maze;
 
-// Methods
+/// Methods
 
 Result Maze_create(Maze *maze, const char *path);
 
@@ -76,10 +78,7 @@ Result Maze_complete_data(const Maze *self);
 /// Satic inline
 
 static inline size_t Maze_tile_index(const Maze *self, const uint8_t col, const uint8_t row) {
-  assert(col < self->size.x && "Invalid col");
-  assert(row < self->size.y && "Invalid row");
-
-  return ((size_t)row * self->size.x) + (size_t)col;
+  return Pair_uint8_flatten(&self->size, col, row);
 }
 
 static inline TileData *Maze_tile_data_at(const Maze *self, const uint8_t col, const uint8_t row) {

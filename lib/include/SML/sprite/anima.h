@@ -4,8 +4,8 @@
 #include <stdint.h>
 #include <z3.h>
 
-#include "SML/enums.h"
 #include "SML/logic.h"
+#include "generic/enums.h"
 #include "generic/pairs.h"
 
 /// Tools for contacting the anima from a different thread
