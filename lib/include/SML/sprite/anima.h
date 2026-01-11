@@ -18,37 +18,43 @@ struct anima_contact_t {
 };
 typedef struct anima_contact_t AnimaContact;
 
+/// Something which performs deductions
 struct anima_t {
-  /// Uniqie identifier in [0..ANIMA_COUNT]
+  /// Uniqie identifier
   uint8_t id;
   /// Incremented on each tick an action is performed
   uint8_t tick_action;
 
   Cardinal direction_intent;
-  /// Point of view, on the situation
-
+  /// Tools for contacting the anima from a different thread
   AnimaContact contact;
 
   struct {
+    /// Point of view, on the situation
     Situation situation;
-
+    /// Context of a solve
     Z3_context ctx;
-
+    /// Optimizer used to solve
     Z3_optimize opz;
-
-    Lang lang;
+    /// A DSL for solves
+    Language language;
   } smt;
 };
 typedef struct anima_t Anima;
 
 // Methods
 
-void Anima_default(Anima *anima, const uint8_t id, const Pair_uint8 location, const Cardinal direction);
+/// Initialize an anima with `id`, at grid `location`, facing `direction`
+void Anima_init(Anima *anima, const uint8_t id, const Pair_uint8 location, const Cardinal direction);
 
-void Anima_destroy(Anima *self);
-
-void Anima_instinct(Anima *self);
-
+/// Initialize SMT related features of an anima
 void Anima_touch(Anima *self, const Maze *maze, size_t anima_count);
 
+/// Drop an anima
+void Anima_drop(Anima *self);
+
+/// Generate consequences without deduction
+void Anima_instinct(Anima *self);
+
+/// Generate consequences from deduction
 void Anima_deduct(Anima *self, const Maze *maze);

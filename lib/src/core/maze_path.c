@@ -21,7 +21,7 @@ void MazePath_drop(MazePath *self) {
   self->size = (Pair_uint8){.x = 0, .y = 0};
 }
 
-void MazePath_display(MazePath *self, const Lang *lang) {
+void MazePath_display(MazePath *self, const Language *lang) {
   for (uint8_t row = 0; row < self->size.y; row++) {
     for (uint8_t col = 0; col < self->size.x; col++) {
 
@@ -65,7 +65,7 @@ void MazePath_display(MazePath *self, const Lang *lang) {
   }
 }
 
-void MazePath_read(MazePath *self, const Lang *lang, const Z3_context ctx, const Z3_model model, const Maze *maze) {
+void MazePath_read(MazePath *self, const Language *lang, const Z3_context ctx, const Z3_model model, const Maze *maze) {
   { // Read the interpretation to the path buffer
     Z3_func_interp path_f = Z3_model_get_func_interp(ctx, model, lang->path.tile_is_f);
     Z3_func_interp_inc_ref(ctx, path_f);

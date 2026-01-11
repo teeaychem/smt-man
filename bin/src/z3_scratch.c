@@ -17,7 +17,7 @@ constexpr size_t ANIMA_COUNT = 1;
 
 pthread_t ANIMA_THREADS[ANIMA_COUNT];
 
-void z3_display_path(const Lang *lang, Z3_context ctx, Z3_model model, const Maze *maze);
+void z3_display_path(const Language *lang, Z3_context ctx, Z3_model model, const Maze *maze);
 void z3_tmp(const Maze *maze, const Situation *situation);
 
 int main() {
@@ -49,7 +49,7 @@ int main() {
     animas[idx].smt.situation.anima_count = ANIMA_COUNT;
     animas[idx].smt.situation.animas = mind_animas[idx];
 
-    animas[idx].smt.lang = (Lang){
+    animas[idx].smt.language = (Language){
         .anima.count = ANIMA_COUNT,
         .anima.enum_names = lang_anima_enum_names[idx],
         .anima.enum_consts = lang_anima_enum_consts[idx],
@@ -82,7 +82,7 @@ int main() {
   z3_tmp(&maze, &situation);
 }
 
-void z3_display_path(const Lang *lang, const Z3_context ctx, const Z3_model model, const Maze *maze) {
+void z3_display_path(const Language *lang, const Z3_context ctx, const Z3_model model, const Maze *maze) {
 
   MazePath maze_path;
   MazePath_init(&maze_path, maze->size);

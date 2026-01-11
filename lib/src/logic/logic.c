@@ -20,13 +20,13 @@ Z3_context z3_mk_anima_ctx() {
   return ctx;
 }
 
-void Lang_setup_base(Lang *lang, Z3_context ctx) {
+void Lang_setup_base(Language *lang, Z3_context ctx) {
   lang->u8.sort = Z3_mk_bv_sort(ctx, 6);
 }
 
 // Path fns
 
-void Lang_setup_path(Lang *lang, Z3_context ctx) {
+void Lang_setup_path(Language *lang, Z3_context ctx) {
 
   {
     lang->path.enum_names[0] = Z3_mk_string_symbol(ctx, "o_n");
@@ -70,7 +70,7 @@ void Lang_setup_path(Lang *lang, Z3_context ctx) {
 
 /// Shortest paths are found by placing a penatly on the assignment of a non empty path value to each potentiial path tile.
 /// So long as a path is required and optimisation is enforced, no shorter path can exist on SAT.
-void Lang_assert_shortest_path_empty_hints(const Lang *lang, Z3_context ctx, Z3_optimize otz, const Maze *maze) {
+void Lang_assert_shortest_path_empty_hints(const Language *lang, Z3_context ctx, Z3_optimize otz, const Maze *maze) {
 
   Z3_ast col_row[2] = {};
 
@@ -91,7 +91,7 @@ void Lang_assert_shortest_path_empty_hints(const Lang *lang, Z3_context ctx, Z3_
   }
 }
 
-void Lang_assert_path_non_empty_hints(const Lang *lang, Z3_context ctx, Z3_optimize otz, const Maze *maze) {
+void Lang_assert_path_non_empty_hints(const Language *lang, Z3_context ctx, Z3_optimize otz, const Maze *maze) {
 
   Z3_ast col_row[2] = {};
 
@@ -206,7 +206,7 @@ void Lang_assert_path_non_empty_hints(const Lang *lang, Z3_context ctx, Z3_optim
 
 /// Anima fns
 
-void Lang_setup_animas(Lang *lang, Z3_context ctx, size_t anima_count) {
+void Lang_setup_animas(Language *lang, Z3_context ctx, size_t anima_count) {
 
   if (1 <= anima_count) {
     lang->anima.enum_names[0] = Z3_mk_string_symbol(ctx, "gottlob");
@@ -244,7 +244,7 @@ void Lang_setup_animas(Lang *lang, Z3_context ctx, size_t anima_count) {
   }
 }
 
-void Lang_assert_anima_location(const Lang *lang, Z3_context ctx, Z3_optimize otz, const Situation *situation, const uint8_t id) {
+void Lang_assert_anima_location(const Language *lang, Z3_context ctx, Z3_optimize otz, const Situation *situation, const uint8_t id) {
 
   Pair_uint8 anima_location = atomic_load(&situation->animas[id].location);
   slog_display(SLOG_DEBUG, 0, "Asserted anima %d at %dx%d\n", id, anima_location.x, anima_location.y);
@@ -262,7 +262,7 @@ void Lang_assert_anima_location(const Lang *lang, Z3_context ctx, Z3_optimize ot
   }
 }
 
-void Lang_anima_tile_is_origin(const Lang *lang, Z3_context ctx, Z3_optimize otz, uint8_t id) {
+void Lang_anima_tile_is_origin(const Language *lang, Z3_context ctx, Z3_optimize otz, uint8_t id) {
 
   Z3_ast anima_ast = Z3_mk_app(ctx, lang->anima.enum_consts[id], 0, 0);
 
@@ -281,7 +281,7 @@ void Lang_anima_tile_is_origin(const Lang *lang, Z3_context ctx, Z3_optimize otz
 
 /// Persona fns
 
-void Lang_setup_persona(Lang *lang, Z3_context ctx) {
+void Lang_setup_persona(Language *lang, Z3_context ctx) {
 
   lang->persona.enum_name = Z3_mk_string_symbol(ctx, "smt-man");
 
@@ -307,7 +307,7 @@ void Lang_setup_persona(Lang *lang, Z3_context ctx) {
   }
 }
 
-void Lang_persona_tile_is_origin(const Lang *lang, Z3_context ctx, Z3_optimize otz) {
+void Lang_persona_tile_is_origin(const Language *lang, Z3_context ctx, Z3_optimize otz) {
 
   Z3_ast persona_ast = Z3_mk_app(ctx, lang->persona.enum_const, 0, 0);
 
@@ -324,7 +324,7 @@ void Lang_persona_tile_is_origin(const Lang *lang, Z3_context ctx, Z3_optimize o
   Z3_optimize_assert(ctx, otz, Z3_mk_or(ctx, ARRAY_LEN(value_is_origin), value_is_origin));
 }
 
-void Lang_assert_persona_location(const Lang *lang, Z3_context ctx, Z3_optimize otz, const Situation *situation) {
+void Lang_assert_persona_location(const Language *lang, Z3_context ctx, Z3_optimize otz, const Situation *situation) {
 
   auto persona_location = atomic_load(&situation->persona.location);
   printf("Asserted persona at %dx%d\n", persona_location.x, persona_location.y);
@@ -345,7 +345,7 @@ void Lang_assert_persona_location(const Lang *lang, Z3_context ctx, Z3_optimize 
 /// Link
 
 // Require a non-origin tile on non-anima tiles
-void Lang_assert_link_reqs(const Lang *lang, Z3_context ctx, Z3_optimize otz, const Situation *situation, const Maze *maze, const uint8_t id) {
+void Lang_assert_link_reqs(const Language *lang, Z3_context ctx, Z3_optimize otz, const Situation *situation, const Maze *maze, const uint8_t id) {
 
   Pair_uint8 anima_location = atomic_load(&situation->animas[id].location);
   Pair_uint8 persona_location = atomic_load(&situation->persona.location);

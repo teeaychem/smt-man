@@ -84,7 +84,7 @@ void *setup_spirit(void *void_setup_struct) {
 void setup_anima(Anima *animas, pthread_t *threads, Sprites *sprites, uint8_t id, Pair_uint8 location, const Maze *maze, size_t anima_count) {
   assert(id < anima_count);
 
-  Anima_default(&animas[id], id, location, CARDINAL_S);
+  Anima_init(&animas[id], id, location, CARDINAL_S);
   if (sprites != nullptr) {
     Sprite_init(&sprites->animas[id], 16, location, RENDER_TOP);
   }

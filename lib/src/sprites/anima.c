@@ -8,7 +8,7 @@
 #include "generic/pairs.h"
 #include "random.h"
 
-void Anima_default(Anima *anima, const uint8_t id, const Pair_uint8 location, const Cardinal direction) {
+void Anima_init(Anima *anima, const uint8_t id, const Pair_uint8 location, const Cardinal direction) {
   slog_display(SLOG_DEBUG, 0, "Creating anima: %d", id);
 
   anima->id = id;
@@ -40,7 +40,7 @@ void Anima_default(Anima *anima, const uint8_t id, const Pair_uint8 location, co
   atomic_init(&anima->contact.flag_suspend, false);
 }
 
-void Anima_destroy(Anima *self) {
+void Anima_drop(Anima *self) {
   assert(self != nullptr);
 }
 
@@ -51,17 +51,17 @@ void Anima_instinct(Anima *self) {
 void Anima_touch(Anima *self, const Maze *maze, size_t anima_count) {
   assert(self != nullptr);
 
-  Lang_setup_base(&self->smt.lang, self->smt.ctx);
-  Lang_setup_path(&self->smt.lang, self->smt.ctx);
-  Lang_setup_animas(&self->smt.lang, self->smt.ctx, anima_count);
-  Lang_setup_persona(&self->smt.lang, self->smt.ctx);
+  Lang_setup_base(&self->smt.language, self->smt.ctx);
+  Lang_setup_path(&self->smt.language, self->smt.ctx);
+  Lang_setup_animas(&self->smt.language, self->smt.ctx, anima_count);
+  Lang_setup_persona(&self->smt.language, self->smt.ctx);
   /* Lang_setup_facing(&self->smt.lang, self->smt.ctx); */
 
-  Lang_anima_tile_is_origin(&self->smt.lang, self->smt.ctx, self->smt.opz, self->id);
-  Lang_persona_tile_is_origin(&self->smt.lang, self->smt.ctx, self->smt.opz);
+  Lang_anima_tile_is_origin(&self->smt.language, self->smt.ctx, self->smt.opz, self->id);
+  Lang_persona_tile_is_origin(&self->smt.language, self->smt.ctx, self->smt.opz);
 
-  Lang_assert_shortest_path_empty_hints(&self->smt.lang, self->smt.ctx, self->smt.opz, maze);
-  Lang_assert_path_non_empty_hints(&self->smt.lang, self->smt.ctx, self->smt.opz, maze);
+  Lang_assert_shortest_path_empty_hints(&self->smt.language, self->smt.ctx, self->smt.opz, maze);
+  Lang_assert_path_non_empty_hints(&self->smt.language, self->smt.ctx, self->smt.opz, maze);
 }
 
 void Anima_deduct(Anima *self, const Maze *maze) {
@@ -70,9 +70,9 @@ void Anima_deduct(Anima *self, const Maze *maze) {
 
   auto anima_location = atomic_load(&self->smt.situation.animas[self->id].location);
 
-  Lang_assert_anima_location(&self->smt.lang, self->smt.ctx, self->smt.opz, &self->smt.situation, self->id);
-  Lang_assert_persona_location(&self->smt.lang, self->smt.ctx, self->smt.opz, &self->smt.situation);
-  Lang_assert_link_reqs(&self->smt.lang, self->smt.ctx, self->smt.opz, &self->smt.situation, maze, self->id);
+  Lang_assert_anima_location(&self->smt.language, self->smt.ctx, self->smt.opz, &self->smt.situation, self->id);
+  Lang_assert_persona_location(&self->smt.language, self->smt.ctx, self->smt.opz, &self->smt.situation);
+  Lang_assert_link_reqs(&self->smt.language, self->smt.ctx, self->smt.opz, &self->smt.situation, maze, self->id);
 
   switch (Z3_optimize_check(self->smt.ctx, self->smt.opz, 0, nullptr)) {
   case Z3_L_FALSE: {
@@ -95,25 +95,25 @@ void Anima_deduct(Anima *self, const Maze *maze) {
   Z3_ast anima_origin = nullptr;
 
   Z3_ast row_col[2] = {
-      Z3_mk_int(self->smt.ctx, anima_location.x, self->smt.lang.u8.sort),
-      Z3_mk_int(self->smt.ctx, anima_location.y, self->smt.lang.u8.sort),
+      Z3_mk_int(self->smt.ctx, anima_location.x, self->smt.language.u8.sort),
+      Z3_mk_int(self->smt.ctx, anima_location.y, self->smt.language.u8.sort),
   };
-  auto tile = Z3_mk_app(self->smt.ctx, self->smt.lang.path.tile_is_f, 2, row_col);
+  auto tile = Z3_mk_app(self->smt.ctx, self->smt.language.path.tile_is_f, 2, row_col);
   Z3_model_eval(self->smt.ctx, model, tile, false, &anima_origin);
 
-  if (anima_origin == self->smt.lang.path.token.o_n) {
+  if (anima_origin == self->smt.language.path.token.o_n) {
     self->direction_intent = CARDINAL_N;
   }
 
-  else if (anima_origin == self->smt.lang.path.token.o_e) {
+  else if (anima_origin == self->smt.language.path.token.o_e) {
     self->direction_intent = CARDINAL_E;
   }
 
-  else if (anima_origin == self->smt.lang.path.token.o_s) {
+  else if (anima_origin == self->smt.language.path.token.o_s) {
     self->direction_intent = CARDINAL_S;
   }
 
-  else if (anima_origin == self->smt.lang.path.token.o_w) {
+  else if (anima_origin == self->smt.language.path.token.o_w) {
     self->direction_intent = CARDINAL_W;
   }
 

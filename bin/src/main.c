@@ -49,7 +49,7 @@ int main() { // int main(int argc, char *argv[]) {
     animas[idx].smt.situation.anima_count = ANIMA_COUNT;
     animas[idx].smt.situation.animas = mind_animas[idx];
 
-    animas[idx].smt.lang = (Lang){
+    animas[idx].smt.language = (Language){
         .anima.enum_names = lang_anima_enum_names[idx],
         .anima.enum_consts = lang_anima_enum_consts[idx],
         .anima.enum_testers = lang_anima_enum_testers[idx],

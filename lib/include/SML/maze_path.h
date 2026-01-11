@@ -21,6 +21,6 @@ void MazePath_init(MazePath *self, Pair_uint8 size);
 
 void MazePath_clear(MazePath *self);
 
-void MazePath_read(MazePath *self, const Lang *lang, const Z3_context ctx, const Z3_model model, const Maze *maze);
+void MazePath_read(MazePath *self, const Language *lang, const Z3_context ctx, const Z3_model model, const Maze *maze);
 
-void MazePath_display(MazePath *self, const Lang *lang);
+void MazePath_display(MazePath *self, const Language *lang);

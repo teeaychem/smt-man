@@ -85,31 +85,31 @@ struct z3_lang {
     Z3_func_decl tile_is_f;
   } path;
 };
-typedef struct z3_lang Lang;
+typedef struct z3_lang Language;
 
 //
 
-void Lang_setup_base(Lang *lang, Z3_context ctx);
-void Lang_setup_path(Lang *lang, Z3_context ctx);
-void Lang_setup_animas(Lang *lang, Z3_context ctx, size_t count);
-void Lang_setup_persona(Lang *lang, Z3_context ctx);
+void Lang_setup_base(Language *lang, Z3_context ctx);
+void Lang_setup_path(Language *lang, Z3_context ctx);
+void Lang_setup_animas(Language *lang, Z3_context ctx, size_t count);
+void Lang_setup_persona(Language *lang, Z3_context ctx);
 
-void Lang_assert_shortest_path_empty_hints(const Lang *lang, Z3_context ctx, Z3_optimize optimizer, const Maze *maze);
-void Lang_assert_path_non_empty_hints(const Lang *lang, Z3_context ctx, Z3_optimize optimizer, const Maze *maze);
+void Lang_assert_shortest_path_empty_hints(const Language *lang, Z3_context ctx, Z3_optimize optimizer, const Maze *maze);
+void Lang_assert_path_non_empty_hints(const Language *lang, Z3_context ctx, Z3_optimize optimizer, const Maze *maze);
 
 //
 
 /// Assert the row and column values for each anima
-void Lang_assert_anima_location(const Lang *lang, Z3_context ctx, Z3_optimize otz, const Situation *situation, const uint8_t id);
+void Lang_assert_anima_location(const Language *lang, Z3_context ctx, Z3_optimize otz, const Situation *situation, const uint8_t id);
 
 /// For each tile which is not the location of an anima is a link tile.
-void Lang_assert_link_reqs(const Lang *lang, Z3_context ctx, Z3_optimize otz, const Situation *situation, const Maze *maze, const uint8_t id);
-void Lang_anima_tile_is_origin(const Lang *lang, Z3_context ctx, Z3_optimize optimizer, const uint8_t id);
+void Lang_assert_link_reqs(const Language *lang, Z3_context ctx, Z3_optimize otz, const Situation *situation, const Maze *maze, const uint8_t id);
+void Lang_anima_tile_is_origin(const Language *lang, Z3_context ctx, Z3_optimize optimizer, const uint8_t id);
 
 //
 
-void Lang_persona_tile_is_origin(const Lang *lang, Z3_context ctx, Z3_optimize otz);
-void Lang_assert_persona_location(const Lang *lang, Z3_context ctx, Z3_optimize otz, const Situation *situation);
+void Lang_persona_tile_is_origin(const Language *lang, Z3_context ctx, Z3_optimize otz);
+void Lang_assert_persona_location(const Language *lang, Z3_context ctx, Z3_optimize otz, const Situation *situation);
 
 //
 
