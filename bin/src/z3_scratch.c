@@ -46,10 +46,10 @@ int main() {
 
   AbstractAnima mind_animas[ANIMA_COUNT][ANIMA_COUNT];
   for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
-    animas[idx].situation.anima_count = ANIMA_COUNT;
-    animas[idx].situation.animas = mind_animas[idx];
+    animas[idx].smt.situation.anima_count = ANIMA_COUNT;
+    animas[idx].smt.situation.animas = mind_animas[idx];
 
-    animas[idx].lang = (Lang){
+    animas[idx].smt.lang = (Lang){
         .anima.count = ANIMA_COUNT,
         .anima.enum_names = lang_anima_enum_names[idx],
         .anima.enum_consts = lang_anima_enum_consts[idx],
@@ -62,7 +62,7 @@ int main() {
   }
 
   for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
-    printf("\t%zu\n", animas[idx].situation.anima_count);
+    printf("\t%zu\n", animas[idx].smt.situation.anima_count);
   }
 
   Persona persona;

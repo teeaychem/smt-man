@@ -46,10 +46,10 @@ int main() { // int main(int argc, char *argv[]) {
 
   AbstractAnima mind_animas[ANIMA_COUNT][ANIMA_COUNT];
   for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
-    animas[idx].situation.anima_count = ANIMA_COUNT;
-    animas[idx].situation.animas = mind_animas[idx];
+    animas[idx].smt.situation.anima_count = ANIMA_COUNT;
+    animas[idx].smt.situation.animas = mind_animas[idx];
 
-    animas[idx].lang = (Lang){
+    animas[idx].smt.lang = (Lang){
         .anima.enum_names = lang_anima_enum_names[idx],
         .anima.enum_consts = lang_anima_enum_consts[idx],
         .anima.enum_testers = lang_anima_enum_testers[idx],
@@ -122,7 +122,6 @@ int main() { // int main(int argc, char *argv[]) {
         if (event.type == SDL_EVENT_QUIT) {
           core_loop = false;
         }
-        Anima_handle_event(&animas[0], &event);
         Persona_handle_event(&persona, &maze, &situation, &event);
       }
 

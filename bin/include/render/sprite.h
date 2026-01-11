@@ -32,7 +32,7 @@ typedef struct sprites_t Sprites;
 static inline void Sprite_init(Sprite *self, const uint8_t sprite_size, const Pair_uint8 location, uint32_t offset_n) {
   self->size = sprite_size,
   self->location = (Pair_uint32){.x = ((uint32_t)(location.x)) * TILE_PIXELS,
-                                       .y = ((uint32_t)location.y + offset_n) * TILE_PIXELS};
+                                 .y = ((uint32_t)location.y + offset_n) * TILE_PIXELS};
 }
 
 static inline bool Sprite_is_centered_on_tile(Pair_uint32 location, uint32_t tile_pixels) {

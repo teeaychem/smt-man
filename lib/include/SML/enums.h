@@ -8,4 +8,3 @@ enum turn_e {
   TURN_3Q,
 };
 typedef enum turn_e Turn;
-

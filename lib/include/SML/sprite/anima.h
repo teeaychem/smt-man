@@ -24,17 +24,20 @@ struct anima_t {
   /// Incremented on each tick an action is performed
   uint8_t tick_action;
 
-  AnimaContact contact;
-
-  Z3_context ctx;
-
-  Z3_optimize opz;
-
-  Lang lang;
-
   Cardinal direction_intent;
   /// Point of view, on the situation
-  Situation situation;
+
+  AnimaContact contact;
+
+  struct {
+    Situation situation;
+
+    Z3_context ctx;
+
+    Z3_optimize opz;
+
+    Lang lang;
+  } smt;
 };
 typedef struct anima_t Anima;
 
