@@ -84,7 +84,7 @@ class path4_t:
         optimizer.add(z3f_persona_location_r(persona) == z3s_bv8.cast(row))
 
     def assert_tile_constraint_n(self, optimizer: z3_optimizer_t, maze: maze_t, col: int, row: int) -> None:
-        if row <= 0:
+        if not 0 < row:
             return
 
         tile_x = z3_tile.X(col, row)
@@ -92,9 +92,9 @@ class path4_t:
 
         options: list[z3_bool_t] = [self.tile_h_is(tile_n, self.z3e_o)]
 
-        if col < maze.width - 1 and 0 < row and maze.is_path(col + 1, row - 1):
+        if col < maze.width - 1 and maze.is_path(col + 1, row - 1):
             options.append(self.tile_h_is(tile_n, self.z3e_a))
-        if 0 < col and 0 < row and maze.is_path(col - 1, row - 1):
+        if 0 < col and maze.is_path(col - 1, row - 1):
             options.append(self.tile_h_is(tile_n, self.z3e_b))
 
         consequent: list[z3_bool_t] = [z3.And([self.tile_v_is(tile_n, self.z3e_b), z3.Or(options)])]
@@ -108,7 +108,7 @@ class path4_t:
         optimizer.add(z3.Implies(self.direct_v(tile_x), consequent))
 
     def assert_tile_constraint_s(self, optimizer: z3_optimizer_t, maze: maze_t, col: int, row: int) -> None:
-        if row >= maze.height - 1:
+        if not row + 1 < maze.height:
             return
 
         tile_x = z3_tile.X(col, row)
@@ -116,9 +116,9 @@ class path4_t:
 
         options: list[z3_bool_t] = [self.tile_h_is(tile_s, self.z3e_o)]
 
-        if row < maze.height - 1 and col < maze.width - 1 and maze.is_path(col + 1, row + 1):
+        if col < maze.width - 1 and maze.is_path(col + 1, row + 1):
             options.append(self.tile_h_is(tile_s, self.z3e_a))
-        if row < maze.height - 1 and 0 < col and maze.is_path(col - 1, row + 1):
+        if 0 < col and maze.is_path(col - 1, row + 1):
             options.append(self.tile_h_is(tile_s, self.z3e_b))
 
         consequent: list[z3_bool_t] = [z3.And([self.tile_v_is(tile_s, self.z3e_a), z3.Or(options)])]
@@ -132,7 +132,7 @@ class path4_t:
         optimizer.add(z3.Implies(self.direct_v(tile_x), consequent))
 
     def assert_tile_constraint_e(self, optimizer: z3_optimizer_t, maze: maze_t, col: int, row: int) -> None:
-        if col >= maze.width - 1:
+        if not col + 1 < maze.width:
             return
 
         tile_x = z3_tile.X(col, row)
@@ -140,10 +140,10 @@ class path4_t:
 
         options: list[z3_bool_t] = [self.tile_v_is(tile_e, self.z3e_o)]
 
-        if row < maze.height - 1 and col < maze.width - 1 and maze.is_path(col + 1, row + 1):
-            options.append(self.tile_v_is(tile_e, self.z3e_b))
-        if 0 < row and col < maze.width - 1 and maze.is_path(col + 1, row - 1):
+        if 0 < row and maze.is_path(col + 1, row - 1):
             options.append(self.tile_v_is(tile_e, self.z3e_a))
+        if row < maze.height - 1 and maze.is_path(col + 1, row + 1):
+            options.append(self.tile_v_is(tile_e, self.z3e_b))
 
         consequent: list[z3_bool_t] = [z3.And([self.tile_h_is(tile_e, self.z3e_b), z3.Or(options)])]
 
@@ -156,7 +156,7 @@ class path4_t:
         optimizer.add(z3.Implies(self.direct_h(tile_x), consequent))
 
     def assert_tile_constraint_w(self, optimizer: z3_optimizer_t, maze: maze_t, col: int, row: int) -> None:
-        if col <= 0:
+        if not 0 < col:
             return
 
         tile_x = z3_tile.X(col, row)
@@ -164,9 +164,9 @@ class path4_t:
 
         options: list[z3_bool_t] = [self.tile_v_is(tile_w, self.z3e_o)]
 
-        if 0 < col and 0 < row and maze.is_path(col - 1, row - 1):
+        if 0 < row and maze.is_path(col - 1, row - 1):
             options.append(self.tile_v_is(tile_w, self.z3e_a))
-        if 0 < col and row < maze.height - 1 and maze.is_path(col - 1, row + 1):
+        if row < maze.height - 1 and maze.is_path(col - 1, row + 1):
             options.append(self.tile_v_is(tile_w, self.z3e_b))
 
         consequent: list[z3_bool_t] = [z3.And([self.tile_h_is(tile_w, self.z3e_a), z3.Or(options)])]
@@ -290,6 +290,7 @@ class path4_t:
                 optimizer.add(h_d)
                 optimizer.add(v_d)
 
+    # Redundant, though a significant boost to (some) solves
     def assert_constant_hints(self, optimizer: z3_optimizer_t, maze: maze_t, locations: list[location_t]) -> None:
         for col, row in maze.tiles():
             tile_x = z3_tile.X(col, row)

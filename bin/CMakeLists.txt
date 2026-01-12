@@ -22,6 +22,21 @@ set(COMPILE_FLAGS
     # -DDEBUG
 )
 
+set(DEBUG_FLAGS
+    -Wall
+    -Wextra
+    -Wpedantic
+    -Wformat-security
+    -Wnull-dereference
+    -Wwrite-strings
+    -Wformat=2
+    -Wconversion
+    -Wunreachable-code
+    -DDEBUG
+)
+
+
+
 set(COMPILE_AND_LINK_OPTIONS
     -fsanitize=undefined
     -fsanitize=address
@@ -110,7 +125,7 @@ add_dependencies(${PROJECT_NAME} copy_data)
 # # # scratch
 
 add_executable(z3_scratch src/z3_scratch.c src/setup.c ${SPRITES})
-target_compile_options(z3_scratch PRIVATE ${COMPILE_FLAGS})
+target_compile_options(z3_scratch PRIVATE ${DEBUG_FLAGS})
 
 # # #
 

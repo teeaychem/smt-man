@@ -7,13 +7,19 @@
 #include "SML/logic.h"
 #include "generic/pairs.h"
 
+struct maze_tile_t {
+  Z3_ast h;
+  Z3_ast v;
+};
+typedef struct maze_tile_t MazeTile;
+
 /// Maze path
 
 struct maze_path_t {
   pthread_mutex_t mutex;
   Pair_uint8 size;
   size_t tile_count;
-  Z3_ast *tiles;
+  MazeTile *tiles;
 };
 typedef struct maze_path_t MazePath;
 
@@ -29,4 +35,4 @@ void MazePath_display(MazePath *self, const Language *language);
 
 void MazePath_display(MazePath *self, const Language *language);
 
-Z3_ast MazePath_at(MazePath *self, const Pair_uint8 location);
+MazeTile MazePath_at(MazePath *self, const Pair_uint8 location);

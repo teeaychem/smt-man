@@ -57,6 +57,8 @@ void Anima_touch(Anima *self, const Maze *maze, size_t anima_count) {
   Lang_setup_path(&self->smt.language, self->smt.ctx);
   Lang_setup_animas(&self->smt.language, self->smt.ctx, anima_count);
   Lang_setup_persona(&self->smt.language, self->smt.ctx);
+  Language_assert_constant_hints(&self->smt.language, self->smt.ctx, self->smt.opz, maze);
+  Language_assert_constant_origin_is_anima_or_persona(&self->smt.language, self->smt.ctx, self->smt.opz, maze);
 
   Lang_anima_tile_is_origin(&self->smt.language, self->smt.ctx, self->smt.opz, self->id);
   Lang_persona_tile_is_origin(&self->smt.language, self->smt.ctx, self->smt.opz);
@@ -73,7 +75,6 @@ Result Anima_deduct(Anima *self, const Maze *maze) {
 
   Lang_assert_anima_location(&self->smt.language, self->smt.ctx, self->smt.opz, &self->smt.situation, self->id);
   Lang_assert_persona_location(&self->smt.language, self->smt.ctx, self->smt.opz, &self->smt.situation);
-  Lang_assert_link_reqs(&self->smt.language, self->smt.ctx, self->smt.opz, &self->smt.situation, maze, self->id);
 
   switch (Z3_optimize_check(self->smt.ctx, self->smt.opz, 0, nullptr)) {
   case Z3_L_FALSE: {
@@ -96,51 +97,55 @@ Result Anima_deduct(Anima *self, const Maze *maze) {
   MazePath_clear(&self->path);
   MazePath_read(&self->path, &self->smt.language, self->smt.ctx, model, maze);
 
-  Z3_ast anima_origin = nullptr;
+  Z3_ast anima_origin_h = nullptr;
+  Z3_ast anima_origin_v = nullptr;
 
   Z3_ast row_col[2] = {
       Z3_mk_int(self->smt.ctx, anima_location.x, self->smt.language.u8.sort),
       Z3_mk_int(self->smt.ctx, anima_location.y, self->smt.language.u8.sort),
   };
-  auto tile = Z3_mk_app(self->smt.ctx, self->smt.language.path.tile_is_f, 2, row_col);
-  Z3_model_eval(self->smt.ctx, model, tile, false, &anima_origin);
+  auto tile_h = Z3_mk_app(self->smt.ctx, self->smt.language.path.tile_h_f, 2, row_col);
+  Z3_model_eval(self->smt.ctx, model, tile_h, false, &anima_origin_h);
 
-  if (anima_origin == self->smt.language.path.token.o_n) {
-    self->direction_intent = CARDINAL_N;
-  }
+  auto tile_v = Z3_mk_app(self->smt.ctx, self->smt.language.path.tile_v_f, 2, row_col);
+  Z3_model_eval(self->smt.ctx, model, tile_v, false, &anima_origin_v);
 
-  else if (anima_origin == self->smt.language.path.token.o_e) {
-    self->direction_intent = CARDINAL_E;
-  }
+  /* if (anima_origin == self->smt.language.path.token.o_n) { */
+  /*   self->direction_intent = CARDINAL_N; */
+  /* } */
 
-  else if (anima_origin == self->smt.language.path.token.o_s) {
-    self->direction_intent = CARDINAL_S;
-  }
+  /* else if (anima_origin == self->smt.language.path.token.o_e) { */
+  /*   self->direction_intent = CARDINAL_E; */
+  /* } */
 
-  else if (anima_origin == self->smt.language.path.token.o_w) {
-    self->direction_intent = CARDINAL_W;
-  }
+  /* else if (anima_origin == self->smt.language.path.token.o_s) { */
+  /*   self->direction_intent = CARDINAL_S; */
+  /* } */
 
-  else {
-    // Backup
-    switch (random_in_range(1, 4)) {
-    case 1: {
-      self->direction_intent = CARDINAL_N;
-    } break;
-    case 2: {
-      self->direction_intent = CARDINAL_E;
-    } break;
-    case 3: {
-      self->direction_intent = CARDINAL_S;
-    } break;
-    case 4: {
-      self->direction_intent = CARDINAL_W;
-    } break;
-    default: {
-      assert(false && "No direction");
-    } break;
-    }
-  }
+  /* else if (anima_origin == self->smt.language.path.token.o_w) { */
+  /*   self->direction_intent = CARDINAL_W; */
+  /* } */
+
+  /* else { */
+  /*   // Backup */
+  /*   switch (random_in_range(1, 4)) { */
+  /*   case 1: { */
+  /*     self->direction_intent = CARDINAL_N; */
+  /*   } break; */
+  /*   case 2: { */
+  /*     self->direction_intent = CARDINAL_E; */
+  /*   } break; */
+  /*   case 3: { */
+  /*     self->direction_intent = CARDINAL_S; */
+  /*   } break; */
+  /*   case 4: { */
+  /*     self->direction_intent = CARDINAL_W; */
+  /*   } break; */
+  /*   default: { */
+  /*     assert(false && "No direction"); */
+  /*   } break; */
+  /*   } */
+  /* } */
 
   Z3_model_dec_ref(self->smt.ctx, model);
   Z3_optimize_pop(self->smt.ctx, self->smt.opz);

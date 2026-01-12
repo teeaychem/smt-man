@@ -65,10 +65,7 @@ int main() {
 
 void z3_display_path(const Language *lang, const Z3_context ctx, const Z3_model model, const Maze *maze) {
 
-  MazePath maze_path = {
-      .mutex = PTHREAD_MUTEX_INITIALIZER,
-  };
-  Z3_ast *maze_path_tiles = calloc(maze->size.x * maze->size.y, sizeof(*maze_path_tiles));
+  MazePath maze_path = {  };
 
   MazePath_init(&maze_path, maze->size);
   MazePath_read(&maze_path, lang, ctx, model, maze);
@@ -95,7 +92,8 @@ void z3_tmp(const Maze *maze, const Situation *situation) {
   Lang_anima_tile_is_origin(&language, ctx, optimizer, anima_id);
   Lang_persona_tile_is_origin(&language, ctx, optimizer);
 
-  Lang_assert_link_reqs(&language, ctx, optimizer, situation, maze, anima_id);
+  Language_assert_constant_hints(&language, ctx, optimizer, maze);
+  Language_assert_constant_origin_is_anima_or_persona(&language, ctx, optimizer, maze);
 
   Lang_assert_shortest_path_empty_hints(&language, ctx, optimizer, maze);
   Lang_assert_path_non_empty_hints(&language, ctx, optimizer, maze);
