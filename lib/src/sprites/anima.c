@@ -65,7 +65,7 @@ void Anima_touch(Anima *self, const Maze *maze, size_t anima_count) {
   Lang_assert_path_non_empty_hints(&self->smt.language, self->smt.ctx, self->smt.opz, maze);
 }
 
-void Anima_deduct(Anima *self, const Maze *maze) {
+Result Anima_deduct(Anima *self, const Maze *maze) {
 
   Z3_optimize_push(self->smt.ctx, self->smt.opz);
 
@@ -77,13 +77,13 @@ void Anima_deduct(Anima *self, const Maze *maze) {
 
   switch (Z3_optimize_check(self->smt.ctx, self->smt.opz, 0, nullptr)) {
   case Z3_L_FALSE: {
-    slog_display(SLOG_INFO, 0, "\nStatus:\n%s\n", Z3_optimize_to_string(self->smt.ctx, self->smt.opz));
+    slog_display(SLOG_TRACE, 0, "\nStatus:\n%s\n", Z3_optimize_to_string(self->smt.ctx, self->smt.opz));
     slog_display(SLOG_ERROR, 0, "UNSAT deduction %d\n", self->id);
-    exit(-3);
+    return RESULT_KO;
   } break;
   case Z3_L_UNDEF: {
     slog_display(SLOG_ERROR, 0, "UNKNOWN deduction %d\n", self->id);
-    exit(-3);
+    return RESULT_KO;
   } break;
   case Z3_L_TRUE: {
     slog_display(SLOG_DEBUG, 0, "SAT");
@@ -144,4 +144,6 @@ void Anima_deduct(Anima *self, const Maze *maze) {
 
   Z3_model_dec_ref(self->smt.ctx, model);
   Z3_optimize_pop(self->smt.ctx, self->smt.opz);
+
+  return RESULT_OK;
 }

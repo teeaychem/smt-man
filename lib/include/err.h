@@ -6,18 +6,9 @@ enum result_e {
 };
 typedef enum result_e Result;
 
-#define TRIP(result_)          \
-  {                            \
-    Result result = result_;   \
-    if (result != RESULT_OK) { \
-      return result;           \
-    }                          \
-  }
-
-#define PANIC(result_)         \
-  {                            \
-    Result result = result_;   \
-    if (result != RESULT_OK) { \
-      exit(1);                 \
-    }                          \
+#define ENSURE(result_)         \
+  {                             \
+    if (result_ != RESULT_OK) { \
+      exit(1);                  \
+    }                           \
   }

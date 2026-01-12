@@ -63,4 +63,4 @@ void Anima_drop(Anima *self);
 void Anima_instinct(Anima *self);
 
 /// Generate consequences from deduction
-void Anima_deduct(Anima *self, const Maze *maze);
+Result Anima_deduct(Anima *self, const Maze *maze);

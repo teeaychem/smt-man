@@ -79,7 +79,7 @@ Result Maze_create(Maze *maze, const char *path) {
   if (!preamble_ok) {
     fclose(file_ptr);
     printf("Failed to construct maze from: %s\n", path);
-    exit(1);
+    return RESULT_KO;
   }
 
   maze->tiles = malloc((size_t)maze->size.x * (size_t)maze->size.y * sizeof(*maze->tiles));
@@ -100,7 +100,7 @@ Result Maze_create(Maze *maze, const char *path) {
     case '\n': {
       if (pos_x != maze->size.x) {
         slog_display(SLOG_ERROR, 0, "Invalid width.\n\tHave: %d\n\tExpected: %d\n\tRow: %d\n\tMaze: %s\n", pos_x, maze->size.x, pos_y, path);
-        exit(-1);
+        return RESULT_KO;
       }
       pos_y += 1;
     } break;
@@ -160,7 +160,7 @@ Result Maze_create(Maze *maze, const char *path) {
     assert(pos_y != maze->size.y);
     slog_display(SLOG_ERROR, 0,
                  "Invalid height.\n\tHave: %d\n\tExpected: %d\n\tMaze: %s\n", pos_y, maze->size.y, path);
-    exit(-1);
+    return RESULT_KO;
   }
 
   fclose(file_ptr);
