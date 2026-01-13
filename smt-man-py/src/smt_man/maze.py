@@ -1,11 +1,12 @@
+import typing
 from typing import TypeAlias
 from smt_man.language import location_t
 
 
 class Maze:
     def __init__(self, path):
-        self.width = 0
-        self.height = 0
+        self.width: int = 0
+        self.height: int = 0
         # Character representation of the maze
         self.chars = []
         self.from_path(path)
@@ -52,10 +53,10 @@ class Maze:
                 print(f"{self.chars[row][col]}", end="")
             print("")
 
-    def is_path(self, col, row):
+    def is_path(self, col, row) -> bool:
         return (self.chars[row][col] == " ") or (self.chars[row][col] == "-") or (self.chars[row][col] == "+")
 
-    def tiles(self):
+    def tiles(self) -> typing.Generator[location_t]:
         for row in range(0, self.height):
             for col in range(0, self.width):
                 yield (col, row)

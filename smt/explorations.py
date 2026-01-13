@@ -10,9 +10,6 @@ from smt_man.mind import mind
 from smt_man.types import *
 from smt_man.language import *
 
-VARIABLE_HINTS: bool = False
-
-
 persona: z3_expr_t = z3.Const("persona", z3s_persona_t)
 persona_location: location_t = (11, 26)
 
@@ -39,35 +36,38 @@ path = path4_t()
 
 path.assert_empty_constraints(optimizer, maze)
 path.assert_constant_tile_constraints(optimizer, maze)
+path.assert_constant_origin_is_anima_or_persona(optimizer, maze, animas, persona)
+path.assert_constant_hints(optimizer, maze, anima_locations)
 
 path.assert_persona_is_origin(optimizer, persona)
 for anima in animas:
     path.assert_anima_is_origin(optimizer, anima)
 
-
-if not VARIABLE_HINTS:
-    path.assert_constant_origin_is_anima_or_persona(optimizer, maze, animas, persona)
-    path.assert_constant_hints(optimizer, maze, anima_locations)
-
-
-mind.to_file(optimizer, "./anima.smt2")
-# exit()
-
 optimizer.check()
 
-optimizer.push()
+unsat_instances: list[tuple[location_t, location_t]] = []
 
-path.assert_variable_persona_location(optimizer, persona, persona_location[0], persona_location[1])
-for id in range(len(animas)):
-    path.assert_variable_anima_location(optimizer, animas[id], anima_locations[id][0], anima_locations[id][1])
+for anima_location in maze.tiles():
+    if maze.is_path(anima_location[0], anima_location[1]):
+        for persona_location in maze.tiles():
+            if maze.is_path(persona_location[0], persona_location[1]):
+                if anima_location != persona_location:
+                    print(f"{anima_location} -> {persona_location}")
+                    optimizer.push()
 
-if VARIABLE_HINTS:
-    path.assert_variable_hints(optimizer, maze, anima_locations)
+                    path.assert_variable_anima_location(optimizer, animas[0], anima_location[0], anima_location[1])
+                    path.assert_variable_persona_location(optimizer, persona, persona_location[0], persona_location[1])
 
-model = mind.timed_solve(optimizer, print_stats=True)
-if type(model) == z3_model_t:
-    path.print_path(maze, model)  # ty:ignore[invalid-argument-type]
-    print(model)
+                    model = mind.timed_solve(optimizer, print_stats=True)
+                    if model is not None:
+                        path.print_path(maze, model)
+                        # print(model)
+                    else:
+                        unsat_instances.append((anima_location, persona_location))
+                        input("Hm... ")
+
+                    optimizer.pop()
 
 
-optimizer.pop()
+# mind.to_file(optimizer, "./anima.smt2")
+# exit()
