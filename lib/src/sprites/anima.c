@@ -78,7 +78,7 @@ Result Anima_deduct(Anima *self, const Maze *maze) {
 
   switch (Z3_optimize_check(self->smt.ctx, self->smt.opz, 0, nullptr)) {
   case Z3_L_FALSE: {
-    slog_display(SLOG_TRACE, 0, "\nStatus:\n%s\n", Z3_optimize_to_string(self->smt.ctx, self->smt.opz));
+    /* slog_display(SLOG_TRACE, 0, "\nStatus:\n%s\n", Z3_optimize_to_string(self->smt.ctx, self->smt.opz)); */
     slog_display(SLOG_ERROR, 0, "UNSAT deduction %d\n", self->id);
     return RESULT_KO;
   } break;
@@ -87,7 +87,7 @@ Result Anima_deduct(Anima *self, const Maze *maze) {
     return RESULT_KO;
   } break;
   case Z3_L_TRUE: {
-    slog_display(SLOG_DEBUG, 0, "SAT");
+    slog_display(SLOG_DEBUG, 0, "SAT\n");
   } break;
   }
 
