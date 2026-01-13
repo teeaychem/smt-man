@@ -53,18 +53,18 @@ void Anima_instinct(Anima *self) {
 void Anima_touch(Anima *self, const Maze *maze, size_t anima_count) {
   assert(self != nullptr);
 
-  Lang_setup_base(&self->smt.language, self->smt.ctx);
-  Lang_setup_path(&self->smt.language, self->smt.ctx);
-  Lang_setup_animas(&self->smt.language, self->smt.ctx, anima_count);
-  Lang_setup_persona(&self->smt.language, self->smt.ctx);
-  Language_assert_constant_hints(&self->smt.language, self->smt.ctx, self->smt.opz, maze);
-  Language_assert_constant_origin_is_anima_or_persona(&self->smt.language, self->smt.ctx, self->smt.opz, maze);
+  Lexicon_setup_base(&self->smt.lexicon, self->smt.ctx);
+  Lexicon_setup_path(&self->smt.lexicon, self->smt.ctx);
+  Lexicon_setup_animas(&self->smt.lexicon, self->smt.ctx, anima_count);
+  Lexicon_setup_persona(&self->smt.lexicon, self->smt.ctx);
+  Lexicon_assert_constant_hints(&self->smt.lexicon, self->smt.ctx, self->smt.opz, maze);
+  Lexicon_assert_origin_is_anima_or_persona(&self->smt.lexicon, self->smt.ctx, self->smt.opz, maze);
 
-  Lang_anima_tile_is_origin(&self->smt.language, self->smt.ctx, self->smt.opz, self->id);
-  Lang_persona_tile_is_origin(&self->smt.language, self->smt.ctx, self->smt.opz);
+  Lexicon_anima_tile_is_origin(&self->smt.lexicon, self->smt.ctx, self->smt.opz, self->id);
+  Lexicon_persona_tile_is_origin(&self->smt.lexicon, self->smt.ctx, self->smt.opz);
 
-  Lang_assert_shortest_path_empty_hints(&self->smt.language, self->smt.ctx, self->smt.opz, maze);
-  Lang_assert_path_non_empty_hints(&self->smt.language, self->smt.ctx, self->smt.opz, maze);
+  Lexicon_assert_shortest_path_empty_hints(&self->smt.lexicon, self->smt.ctx, self->smt.opz, maze);
+  Lexicon_assert_path_non_empty_hints(&self->smt.lexicon, self->smt.ctx, self->smt.opz, maze);
 }
 
 Result Anima_deduct(Anima *self, const Maze *maze) {
@@ -73,8 +73,8 @@ Result Anima_deduct(Anima *self, const Maze *maze) {
 
   auto anima_location = atomic_load(&self->smt.situation.animas[self->id].location);
 
-  Lang_assert_anima_location(&self->smt.language, self->smt.ctx, self->smt.opz, &self->smt.situation, self->id);
-  Lang_assert_persona_location(&self->smt.language, self->smt.ctx, self->smt.opz, &self->smt.situation);
+  Lexicon_assert_anima_location(&self->smt.lexicon, self->smt.ctx, self->smt.opz, &self->smt.situation, self->id);
+  Lexicon_assert_persona_location(&self->smt.lexicon, self->smt.ctx, self->smt.opz, &self->smt.situation);
 
   switch (Z3_optimize_check(self->smt.ctx, self->smt.opz, 0, nullptr)) {
   case Z3_L_FALSE: {
@@ -95,34 +95,34 @@ Result Anima_deduct(Anima *self, const Maze *maze) {
   Z3_model_inc_ref(self->smt.ctx, model);
 
   MazePath_clear(&self->path);
-  MazePath_read(&self->path, &self->smt.language, self->smt.ctx, model, maze);
+  MazePath_read(&self->path, &self->smt.lexicon, self->smt.ctx, model, maze);
 
   Z3_ast anima_origin_h = nullptr;
   Z3_ast anima_origin_v = nullptr;
 
   Z3_ast row_col[2] = {
-      Z3_mk_int(self->smt.ctx, anima_location.x, self->smt.language.u8.sort),
-      Z3_mk_int(self->smt.ctx, anima_location.y, self->smt.language.u8.sort),
+      Z3_mk_int(self->smt.ctx, anima_location.x, self->smt.lexicon.u8.sort),
+      Z3_mk_int(self->smt.ctx, anima_location.y, self->smt.lexicon.u8.sort),
   };
-  auto tile_h = Z3_mk_app(self->smt.ctx, self->smt.language.path.tile_h_f, 2, row_col);
+  auto tile_h = Z3_mk_app(self->smt.ctx, self->smt.lexicon.path.tile_h_f, 2, row_col);
   Z3_model_eval(self->smt.ctx, model, tile_h, false, &anima_origin_h);
 
-  auto tile_v = Z3_mk_app(self->smt.ctx, self->smt.language.path.tile_v_f, 2, row_col);
+  auto tile_v = Z3_mk_app(self->smt.ctx, self->smt.lexicon.path.tile_v_f, 2, row_col);
   Z3_model_eval(self->smt.ctx, model, tile_v, false, &anima_origin_v);
 
-  /* if (anima_origin == self->smt.language.path.token.o_n) { */
+  /* if (anima_origin == self->smt.lexicon.path.token.o_n) { */
   /*   self->direction_intent = CARDINAL_N; */
   /* } */
 
-  /* else if (anima_origin == self->smt.language.path.token.o_e) { */
+  /* else if (anima_origin == self->smt.lexicon.path.token.o_e) { */
   /*   self->direction_intent = CARDINAL_E; */
   /* } */
 
-  /* else if (anima_origin == self->smt.language.path.token.o_s) { */
+  /* else if (anima_origin == self->smt.lexicon.path.token.o_s) { */
   /*   self->direction_intent = CARDINAL_S; */
   /* } */
 
-  /* else if (anima_origin == self->smt.language.path.token.o_w) { */
+  /* else if (anima_origin == self->smt.lexicon.path.token.o_w) { */
   /*   self->direction_intent = CARDINAL_W; */
   /* } */
 

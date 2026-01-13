@@ -29,10 +29,10 @@ void MazePath_init(MazePath *self, const Pair_uint8 size);
 
 void MazePath_clear(MazePath *self);
 
-void MazePath_read(MazePath *self, const Language *language, const Z3_context ctx, const Z3_model model, const Maze *maze);
+void MazePath_read(MazePath *self, const Lexicon *lexicon, const Z3_context ctx, const Z3_model model, const Maze *maze);
 
-void MazePath_display(MazePath *self, const Language *language);
+void MazePath_display(MazePath *self, const Lexicon *lexicon);
 
-void MazePath_display(MazePath *self, const Language *language);
+void MazePath_display(MazePath *self, const Lexicon *lexicon);
 
 MazeTile MazePath_at(MazePath *self, const Pair_uint8 location);

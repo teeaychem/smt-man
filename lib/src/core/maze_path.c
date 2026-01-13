@@ -32,7 +32,7 @@ void MazePath_drop(MazePath *self) {
   self->size = (Pair_uint8){.x = 0, .y = 0};
 }
 
-void MazePath_display(MazePath *self, const Language *lexicon) {
+void MazePath_display(MazePath *self, const Lexicon *lexicon) {
   for (uint8_t row = 0; row < self->size.y; row++) {
     for (uint8_t col = 0; col < self->size.x; col++) {
 
@@ -90,7 +90,7 @@ void MazePath_display(MazePath *self, const Language *lexicon) {
   }
 }
 
-void MazePath_read(MazePath *self, const Language *lexicon, const Z3_context ctx, const Z3_model model, const Maze *maze) {
+void MazePath_read(MazePath *self, const Lexicon *lexicon, const Z3_context ctx, const Z3_model model, const Maze *maze) {
   // Read the interpretation to the path buffer
   pthread_mutex_lock(&self->mutex);
 

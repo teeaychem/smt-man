@@ -42,7 +42,7 @@ struct anima_t {
     /// Optimizer used to solve
     Z3_optimize opz;
     /// A DSL for solves
-    Language language;
+    Lexicon lexicon;
 
   } smt;
 };

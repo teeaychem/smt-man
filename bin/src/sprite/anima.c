@@ -40,50 +40,50 @@ void Anima_on_frame(Anima *self, Sprite *sprite, const Maze *maze, uint32_t tile
   /*   Cardinal direction_actual = atomic_load(&self->smt.situation.animas[self->id].direction_actual); */
 
   /*   if (Maze_is_intersection(maze, maze_location.x, maze_location.y)) { */
-  /*     if (self->smt.language.path.token.o_n == path_tile) { */
+  /*     if (self->smt.lexicon.path.token.o_n == path_tile) { */
   /*       self->direction_intent = CARDINAL_N; */
   /*       printf("\tON"); */
-  /*     } else if (self->smt.language.path.token.o_e == path_tile) { */
+  /*     } else if (self->smt.lexicon.path.token.o_e == path_tile) { */
   /*       self->direction_intent = CARDINAL_E; */
   /*       printf("\tOE"); */
-  /*     } else if (self->smt.language.path.token.o_s == path_tile) { */
+  /*     } else if (self->smt.lexicon.path.token.o_s == path_tile) { */
   /*       self->direction_intent = CARDINAL_S; */
   /*       printf("\tOS"); */
-  /*     } else if (self->smt.language.path.token.o_w == path_tile) { */
+  /*     } else if (self->smt.lexicon.path.token.o_w == path_tile) { */
   /*       self->direction_intent = CARDINAL_W; */
   /*       printf("\tOW"); */
   /*     } */
 
-  /*     else if (self->smt.language.path.token.n_s == path_tile) { */
+  /*     else if (self->smt.lexicon.path.token.n_s == path_tile) { */
   /*       printf("\tNS"); */
   /*       // Continue in same direction */
-  /*     } else if (self->smt.language.path.token.e_w == path_tile) { */
+  /*     } else if (self->smt.lexicon.path.token.e_w == path_tile) { */
   /*       printf("\tEW"); */
   /*       // Continue in same direction */
   /*     } */
 
-  /*     else if (self->smt.language.path.token.n_e == path_tile) { */
+  /*     else if (self->smt.lexicon.path.token.n_e == path_tile) { */
   /*       printf("\tNE"); */
   /*       if (direction_actual == CARDINAL_S) { */
   /*         direction_actual = CARDINAL_E; */
   /*       } else { */
   /*         direction_actual = CARDINAL_N; */
   /*       } */
-  /*     } else if (self->smt.language.path.token.s_e == path_tile) { */
+  /*     } else if (self->smt.lexicon.path.token.s_e == path_tile) { */
   /*       printf("\tSE"); */
   /*       if (direction_actual == CARDINAL_N) { */
   /*         direction_actual = CARDINAL_E; */
   /*       } else { */
   /*         direction_actual = CARDINAL_S; */
   /*       } */
-  /*     } else if (self->smt.language.path.token.s_w == path_tile) { */
+  /*     } else if (self->smt.lexicon.path.token.s_w == path_tile) { */
   /*       printf("\tSW"); */
   /*       if (direction_actual == CARDINAL_N) { */
   /*         direction_actual = CARDINAL_W; */
   /*       } else { */
   /*         direction_actual = CARDINAL_S; */
   /*       } */
-  /*     } else if (self->smt.language.path.token.n_w == path_tile) { */
+  /*     } else if (self->smt.lexicon.path.token.n_w == path_tile) { */
   /*       printf("\tNW"); */
   /*       if (direction_actual == CARDINAL_S) { */
   /*         direction_actual = CARDINAL_W; */
@@ -92,7 +92,7 @@ void Anima_on_frame(Anima *self, Sprite *sprite, const Maze *maze, uint32_t tile
   /*       } */
   /*     } */
 
-  /*     else if (self->smt.language.path.token.x_x == path_tile) { */
+  /*     else if (self->smt.lexicon.path.token.x_x == path_tile) { */
   /*       printf("Anima %d is not on a path!\n", self->id); */
   /*     } */
 
@@ -102,7 +102,7 @@ void Anima_on_frame(Anima *self, Sprite *sprite, const Maze *maze, uint32_t tile
 
   /*     atomic_store(&self->smt.situation.animas[self->id].direction_actual, direction_actual); */
 
-  /*     MazePath_display(&self->path, &self->smt.language); */
+  /*     MazePath_display(&self->path, &self->smt.lexicon); */
   /*     printf("Direction: "); */
   /*     Cardinal_print(direction_actual); */
   /*     printf("\n"); */

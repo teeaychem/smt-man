@@ -17,7 +17,7 @@ constexpr size_t ANIMA_COUNT = 1;
 
 pthread_t ANIMA_THREADS[ANIMA_COUNT];
 
-void z3_display_path(const Language *lang, Z3_context ctx, Z3_model model, const Maze *maze);
+void z3_display_path(const Lexicon *lexicon, Z3_context ctx, Z3_model model, const Maze *maze);
 void z3_tmp(const Maze *maze, const Situation *situation);
 
 int main() {
@@ -63,43 +63,43 @@ int main() {
   z3_tmp(&maze, &situation);
 }
 
-void z3_display_path(const Language *lang, const Z3_context ctx, const Z3_model model, const Maze *maze) {
+void z3_display_path(const Lexicon *lexicon, const Z3_context ctx, const Z3_model model, const Maze *maze) {
 
   MazePath maze_path = {  };
 
   MazePath_init(&maze_path, maze->size);
-  MazePath_read(&maze_path, lang, ctx, model, maze);
+  MazePath_read(&maze_path, lexicon, ctx, model, maze);
 
   /* MazePath_clear(&z3_maze); */
-  MazePath_display(&maze_path, lang);
+  MazePath_display(&maze_path, lexicon);
 }
 
 void z3_tmp(const Maze *maze, const Situation *situation) {
   Z3_context ctx = z3_mk_anima_ctx();
 
-  Language language = {};
+  Lexicon lexicon = {};
 
   Z3_optimize optimizer = Z3_mk_optimize(ctx);
   Z3_optimize_inc_ref(ctx, optimizer);
 
   uint8_t anima_id = 0;
 
-  Lang_setup_base(&language, ctx);
-  Lang_setup_path(&language, ctx);
-  Lang_setup_animas(&language, ctx, ANIMA_COUNT);
-  Lang_setup_persona(&language, ctx);
+  Lexicon_setup_base(&lexicon, ctx);
+  Lexicon_setup_path(&lexicon, ctx);
+  Lexicon_setup_animas(&lexicon, ctx, ANIMA_COUNT);
+  Lexicon_setup_persona(&lexicon, ctx);
 
-  Lang_anima_tile_is_origin(&language, ctx, optimizer, anima_id);
-  Lang_persona_tile_is_origin(&language, ctx, optimizer);
+  Lexicon_anima_tile_is_origin(&lexicon, ctx, optimizer, anima_id);
+  Lexicon_persona_tile_is_origin(&lexicon, ctx, optimizer);
 
-  Language_assert_constant_hints(&language, ctx, optimizer, maze);
-  Language_assert_constant_origin_is_anima_or_persona(&language, ctx, optimizer, maze);
+  Lexicon_assert_constant_hints(&lexicon, ctx, optimizer, maze);
+  Lexicon_assert_origin_is_anima_or_persona(&lexicon, ctx, optimizer, maze);
 
-  Lang_assert_shortest_path_empty_hints(&language, ctx, optimizer, maze);
-  Lang_assert_path_non_empty_hints(&language, ctx, optimizer, maze);
+  Lexicon_assert_shortest_path_empty_hints(&lexicon, ctx, optimizer, maze);
+  Lexicon_assert_path_non_empty_hints(&lexicon, ctx, optimizer, maze);
 
-  Lang_assert_anima_location(&language, ctx, optimizer, situation, anima_id);
-  Lang_assert_persona_location(&language, ctx, optimizer, situation);
+  Lexicon_assert_anima_location(&lexicon, ctx, optimizer, situation, anima_id);
+  Lexicon_assert_persona_location(&lexicon, ctx, optimizer, situation);
 
   /* g_log(nullptr, G_LOG_LEVEL_INFO, "\nPre-model:\n%s", Z3_optimize_to_string(ctx, optimizer)); */
   /* exit(0); */
@@ -121,7 +121,7 @@ void z3_tmp(const Maze *maze, const Situation *situation) {
   Z3_model_inc_ref(ctx, model);
 
   printf("\nModel:\n%s", Z3_model_to_string(ctx, model));
-  z3_display_path(&language, ctx, model, maze);
+  z3_display_path(&lexicon, ctx, model, maze);
 
   // Cleanup
 
