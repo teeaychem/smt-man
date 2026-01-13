@@ -8,8 +8,8 @@
 #include "generic/pairs.h"
 
 struct maze_tile_t {
-  Z3_ast h;
-  Z3_ast v;
+  enum path_e h;
+  enum path_e v;
 };
 typedef struct maze_tile_t MazeTile;
 
