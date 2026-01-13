@@ -5,8 +5,8 @@ from smt_man.language import location_t
 
 class Maze:
     def __init__(self, path):
-        self.width: int = 0
-        self.height: int = 0
+        self.x: int = 0
+        self.y: int = 0
         # Character representation of the maze
         self.chars = []
         self.from_path(path)
@@ -18,13 +18,13 @@ class Maze:
             return None
 
     def tile_e(self, col: int, row: int) -> location_t | None:
-        if col + 1 < self.width:
+        if col + 1 < self.x:
             return (col + 1, row)
         else:
             return None
 
     def tile_s(self, col: int, row: int) -> location_t | None:
-        if row + 1 < self.height:
+        if row + 1 < self.y:
             return (col, row + 1)
         else:
             return None
@@ -43,13 +43,13 @@ class Maze:
                         case "m":
                             self.chars.append(list(line[1:-1]))
                         case "w":
-                            self.width = int(line[1:])
+                            self.x = int(line[1:])
                         case "h":
-                            self.height = int(line[1:])
+                            self.y = int(line[1:])
 
     def print(self):
-        for row in range(0, self.height):
-            for col in range(0, self.width):
+        for row in range(0, self.y):
+            for col in range(0, self.x):
                 print(f"{self.chars[row][col]}", end="")
             print("")
 
@@ -57,8 +57,8 @@ class Maze:
         return (self.chars[row][col] == " ") or (self.chars[row][col] == "-") or (self.chars[row][col] == "+")
 
     def tiles(self) -> typing.Generator[location_t]:
-        for row in range(0, self.height):
-            for col in range(0, self.width):
+        for row in range(0, self.y):
+            for col in range(0, self.x):
                 yield (col, row)
 
 
