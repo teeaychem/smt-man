@@ -60,7 +60,7 @@ for anima_location in maze.tiles():
 
                     model = mind.timed_solve(optimizer, print_stats=True)
                     if model is not None:
-                        path.print_path(maze, model)
+                        print(path.to_string(maze, model))
                         # print(model)
                     else:
                         unsat_instances.append((anima_location, persona_location))
