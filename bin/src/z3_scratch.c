@@ -11,6 +11,7 @@
 #include "SML/sprite/anima.h"
 #include "SML/sprite/persona.h"
 
+#include "cwalk.h"
 #include "setup.h"
 
 constexpr size_t ANIMA_COUNT = 1;
@@ -18,9 +19,14 @@ constexpr size_t ANIMA_COUNT = 1;
 pthread_t ANIMA_THREADS[ANIMA_COUNT];
 
 void z3_display_path(const Lexicon *lexicon, Z3_context ctx, Z3_model model, const Maze *maze);
-void z3_tmp(const Maze *maze, const Situation *situation);
+void z3_tmp(Z3_context ctx, Lexicon *lexicon, Z3_optimize optimizer, const Maze *maze, const Situation *situation, uint8_t anima_id);
 
 int main() {
+
+  { // slog setup
+    uint16_t slog_level_flags = SLOG_FLAGS_ALL;
+    slog_init("logfile", slog_level_flags, 1);
+  }
 
   char *source_path;
   { // Set source path, kept until exit
@@ -60,12 +66,73 @@ int main() {
   Sync_update_animas(&situation, animas);
   Sync_update_situation(&situation, animas);
 
-  z3_tmp(&maze, &situation);
+  Z3_context ctx = z3_mk_anima_ctx();
+
+  Lexicon lexicon = {};
+
+  Lexicon_setup_base(&lexicon, ctx);
+  Lexicon_setup_path(&lexicon, ctx);
+  Lexicon_setup_animas(&lexicon, ctx, ANIMA_COUNT);
+  Lexicon_setup_persona(&lexicon, ctx);
+
+  Z3_optimize optimizer = Z3_mk_optimize(ctx);
+  Z3_optimize_inc_ref(ctx, optimizer);
+
+  Z3_parser_context parser = Z3_mk_parser_context(ctx);
+  Z3_parser_context_inc_ref(ctx, parser);
+
+  if (false) {
+    Z3_parser_context_add_sort(ctx, parser, lexicon.anima.sort);
+    /* Z3_parser_context_add_decl(ctx, parser, lexicon.anima.enum_consts); */
+    /* Z3_parser_context_add_decl(ctx, parser, lexicon.anima.enum_testers[0]); */
+
+    Z3_parser_context_add_sort(ctx, parser, lexicon.path.sort);
+    /* for (size_t idx = 0; idx < PATH_VARIANTS; ++idx) { */
+    /*   Z3_parser_context_add_decl(ctx, parser, lexicon.path.enum_consts[idx]); */
+    /* } */
+
+    Z3_parser_context_add_sort(ctx, parser, lexicon.persona.sort);
+
+    Z3_parser_context_add_sort(ctx, parser, lexicon.u8.sort);
+  }
+
+  { // Read smt2
+    char path_buffer[FILENAME_MAX];
+    cwk_path_join(source_path, "../../anima.smt2", path_buffer, FILENAME_MAX);
+
+    FILE *file_ptr;
+    char *line_buffer = nullptr;
+    size_t buffer_size = 0;
+    ssize_t bytes_read;
+
+    file_ptr = fopen(path_buffer, "r");
+    if (file_ptr == nullptr) {
+      printf("File missing: %s\n", path_buffer);
+      exit(EXIT_FAILURE);
+    }
+
+    while (bytes_read = getline(&line_buffer, &buffer_size, file_ptr), 0 <= bytes_read) {
+      if (1 < bytes_read) {
+        line_buffer[bytes_read - 1] = '\0';
+        /* auto z3_vec = Z3_parser_context_from_string(ctx, parser, line_buffer); */
+        Z3_optimize_from_string(ctx, optimizer, line_buffer);
+      }
+    }
+
+    fclose(file_ptr);
+    if (line_buffer != nullptr) {
+      free(line_buffer);
+    }
+  }
+
+  Z3_parser_context_dec_ref(ctx, parser);
+
+  z3_tmp(ctx, &lexicon, optimizer, &maze, &situation, 0);
 }
 
 void z3_display_path(const Lexicon *lexicon, const Z3_context ctx, const Z3_model model, const Maze *maze) {
 
-  MazePath maze_path = {  };
+  MazePath maze_path = {};
 
   MazePath_init(&maze_path, maze->size);
   MazePath_read(&maze_path, lexicon, ctx, model, maze);
@@ -74,32 +141,19 @@ void z3_display_path(const Lexicon *lexicon, const Z3_context ctx, const Z3_mode
   MazePath_display(&maze_path, lexicon);
 }
 
-void z3_tmp(const Maze *maze, const Situation *situation) {
-  Z3_context ctx = z3_mk_anima_ctx();
+void z3_tmp(Z3_context ctx, Lexicon *lexicon, Z3_optimize optimizer, const Maze *maze, const Situation *situation, uint8_t anima_id) {
 
-  Lexicon lexicon = {};
+  /* Lexicon_anima_tile_is_origin(lexicon, ctx, optimizer, anima_id); */
+  /* Lexicon_persona_tile_is_origin(lexicon, ctx, optimizer); */
 
-  Z3_optimize optimizer = Z3_mk_optimize(ctx);
-  Z3_optimize_inc_ref(ctx, optimizer);
+  /* Lexicon_assert_constant_hints(lexicon, ctx, optimizer, maze); */
+  /* Lexicon_assert_origin_is_anima_or_persona(lexicon, ctx, optimizer, maze); */
 
-  uint8_t anima_id = 0;
+  /* Lexicon_assert_shortest_path_empty_hints(lexicon, ctx, optimizer, maze); */
+  /* Lexicon_assert_path_non_empty_hints(lexicon, ctx, optimizer, maze); */
 
-  Lexicon_setup_base(&lexicon, ctx);
-  Lexicon_setup_path(&lexicon, ctx);
-  Lexicon_setup_animas(&lexicon, ctx, ANIMA_COUNT);
-  Lexicon_setup_persona(&lexicon, ctx);
-
-  Lexicon_anima_tile_is_origin(&lexicon, ctx, optimizer, anima_id);
-  Lexicon_persona_tile_is_origin(&lexicon, ctx, optimizer);
-
-  Lexicon_assert_constant_hints(&lexicon, ctx, optimizer, maze);
-  Lexicon_assert_origin_is_anima_or_persona(&lexicon, ctx, optimizer, maze);
-
-  Lexicon_assert_shortest_path_empty_hints(&lexicon, ctx, optimizer, maze);
-  Lexicon_assert_path_non_empty_hints(&lexicon, ctx, optimizer, maze);
-
-  Lexicon_assert_anima_location(&lexicon, ctx, optimizer, situation, anima_id);
-  Lexicon_assert_persona_location(&lexicon, ctx, optimizer, situation);
+  Lexicon_assert_anima_location(lexicon, ctx, optimizer, situation, anima_id);
+  Lexicon_assert_persona_location(lexicon, ctx, optimizer, situation);
 
   /* g_log(nullptr, G_LOG_LEVEL_INFO, "\nPre-model:\n%s", Z3_optimize_to_string(ctx, optimizer)); */
   /* exit(0); */
@@ -121,7 +175,7 @@ void z3_tmp(const Maze *maze, const Situation *situation) {
   Z3_model_inc_ref(ctx, model);
 
   printf("\nModel:\n%s", Z3_model_to_string(ctx, model));
-  z3_display_path(&lexicon, ctx, model, maze);
+  z3_display_path(lexicon, ctx, model, maze);
 
   // Cleanup
 
