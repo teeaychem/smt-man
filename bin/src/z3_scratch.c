@@ -111,13 +111,14 @@ int main() {
       exit(EXIT_FAILURE);
     }
 
-    while (bytes_read = getline(&line_buffer, &buffer_size, file_ptr), 0 <= bytes_read) {
-      if (1 < bytes_read) {
-        line_buffer[bytes_read - 1] = '\0';
-        /* auto z3_vec = Z3_parser_context_from_string(ctx, parser, line_buffer); */
-        Z3_optimize_from_string(ctx, optimizer, line_buffer);
-      }
-    }
+    /* while (bytes_read = getline(&line_buffer, &buffer_size, file_ptr), 0 <= bytes_read) { */
+    /*   if (1 < bytes_read) { */
+    /*     line_buffer[bytes_read - 1] = '\0'; */
+    /*     /\* auto z3_vec = Z3_parser_context_from_string(ctx, parser, line_buffer); *\/ */
+
+    /*   } */
+    /* } */
+    Z3_optimize_from_file(ctx, optimizer, path_buffer);
 
     fclose(file_ptr);
     if (line_buffer != nullptr) {
