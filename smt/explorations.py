@@ -24,7 +24,7 @@ mind.set_defaults(optimizer)
 ###
 
 animas: list[z3_expr_t] = [
-    z3.Const("gottlob", z3s_anima_t),
+    z3.Const("anima_0", z3s_anima_t),
 ]
 anima_locations: list[location_t] = [
     (1, 4),
@@ -34,14 +34,16 @@ anima_locations: list[location_t] = [
 
 path = path4_t()
 
+path.assert_persona_is_origin(optimizer, persona)
+path.assert_anima_is_origin(optimizer, animas[0])
+
 path.assert_empty_constraints(optimizer, maze)
 path.assert_constant_tile_constraints(optimizer, maze)
 path.assert_constant_origin_is_anima_or_persona(optimizer, maze, animas, persona)
 path.assert_constant_hints(optimizer, maze, anima_locations)
 
-path.assert_persona_is_origin(optimizer, persona)
-for anima in animas:
-    path.assert_anima_is_origin(optimizer, anima)
+mind.to_file(optimizer, "./anima.smt2")
+exit()
 
 optimizer.check()
 
@@ -67,7 +69,3 @@ for anima_location in maze.tiles():
                         input("Hm... ")
 
                     optimizer.pop()
-
-
-# mind.to_file(optimizer, "./anima.smt2")
-# exit()
