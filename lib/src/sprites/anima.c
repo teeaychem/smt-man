@@ -9,7 +9,7 @@
 #include "random.h"
 
 void Anima_init(Anima *self, const uint8_t id, const Pair_uint8 location, const Cardinal direction, const Maze *maze) {
-  slog_display(SLOG_DEBUG, 0, "Creating anima: %d", id);
+  slog_display(SLOG_DEBUG, 0, "Creating anima: %d\n", id);
 
   self->id = id;
   self->tick_action = 0;

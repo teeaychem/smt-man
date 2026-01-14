@@ -21,7 +21,7 @@ pthread_t ANIMA_THREADS[ANIMA_COUNT];
 
 int main() { // int main(int argc, char *argv[]) {
 
-  {
+  { // slog setup
     uint16_t slog_level_flags = SLOG_FLAGS_ALL;
     slog_init("logfile", slog_level_flags, 1);
   }
