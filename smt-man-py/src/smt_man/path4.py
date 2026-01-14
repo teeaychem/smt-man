@@ -69,8 +69,7 @@ class path4_t:
             tile_x = z3_tile.X(col, row)
 
             if maze.is_path(col, row):
-                optimizer.add_soft(self.tile_h_is(tile_x, self.z3e_x), weight=1)
-                optimizer.add_soft(self.tile_v_is(tile_x, self.z3e_x), weight=1)
+                optimizer.add_soft(z3.And([self.tile_h_is(tile_x, self.z3e_x), self.tile_v_is(tile_x, self.z3e_x)]), weight=1)
             else:
                 optimizer.add(self.tile_h_is(tile_x, self.z3e_x))
                 optimizer.add(self.tile_v_is(tile_x, self.z3e_x))
@@ -194,8 +193,7 @@ class path4_t:
         if 1 < col and maze.is_path(col - 2, row):
             og_v_tile_req.append(self.direct_h(z3_tile.W(col, row)))
 
-        origin_h_or: z3_bool_t = z3.Or(og_v_tile_req)
-        optimizer.add(z3.Implies(self.tile_v_is(tile_x, self.z3e_o), origin_h_or))
+        optimizer.add(z3.Implies(self.tile_v_is(tile_x, self.z3e_o), z3.Or(og_v_tile_req)))
 
         # Origin h disjunction
         og_h_tile_req: list[z3_bool_t] = []
@@ -203,14 +201,13 @@ class path4_t:
         if 0 < row and maze.is_path(col, row - 1):
             og_h_tile_req.append(self.tile_v_is(z3_tile.N(col, row), self.z3e_b))
         if 1 < row and maze.is_path(col, row - 2):
-            og_v_tile_req.append(self.direct_v(z3_tile.N(col, row)))
+            og_h_tile_req.append(self.direct_v(z3_tile.N(col, row)))
         if row + 1 < maze.y and maze.is_path(col, row + 1):
             og_h_tile_req.append(self.tile_v_is(z3_tile.S(col, row), self.z3e_a))
         if row + 2 < maze.y and maze.is_path(col, row + 2):
-            og_v_tile_req.append(self.direct_v(z3_tile.S(col, row)))
+            og_h_tile_req.append(self.direct_v(z3_tile.S(col, row)))
 
-        origin_v_or: z3_bool_t = z3.Or(og_h_tile_req)
-        optimizer.add(z3.Implies(self.tile_h_is(tile_x, self.z3e_o), origin_v_or))
+        optimizer.add(z3.Implies(self.tile_h_is(tile_x, self.z3e_o), z3.Or(og_h_tile_req)))
 
     def assert_constant_tile_constraints(self, optimizer: z3_optimizer_t, maze: maze_t) -> None:
         # Assert tile constraints which hold for any solve.

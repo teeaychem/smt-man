@@ -8,7 +8,7 @@ class Maze:
         self.x: int = 0
         self.y: int = 0
         # Character representation of the maze
-        self.chars = []
+        self.chars: list[list[str]] = []
         self.from_path(path)
 
     def tile_n(self, col: int, row: int) -> location_t | None:
