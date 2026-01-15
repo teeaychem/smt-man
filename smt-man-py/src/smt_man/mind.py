@@ -1,3 +1,4 @@
+from email.policy import default
 from z3 import Z3_optimize_to_string_bytes
 import time
 
@@ -5,6 +6,23 @@ import z3
 
 from smt_man.types import *
 from smt_man.language import *
+
+
+def balenced_parens(string: str) -> bool:
+    count: int = 0
+
+    for char in string:
+        match char:
+            case "(":
+                count += 1
+            case ")":
+                count -= 1
+                if count < 0:
+                    return False
+            case _:
+                continue
+
+    return count == 0
 
 
 class mind:
@@ -60,15 +78,22 @@ class mind:
                     case "(":
                         if expr[1:-1] in ["check-sat"]:
                             continue
-                        if 4 < len(expr) and expr[1:4] == "set":
+                        if 4 < len(expr) and expr[1:4] in ["set", "dec"]:
                             continue
                         else:
-                            if expr_buffer is not None:
+                            if expr_buffer is None:
+                                expr_buffer = expr.strip()
+                            else:
+                                expr_buffer += " " + expr.strip()
+
+                            if balenced_parens(expr_buffer):
                                 print(expr_buffer, file=file)
-                            expr_buffer: str = expr
+                                expr_buffer = None
                     case " ":
-                        assert expr_buffer is not None
                         expr_buffer += " " + expr.strip()
+                        if expr_buffer is not None and balenced_parens(expr_buffer):
+                            print(expr_buffer, file=file)
+                            expr_buffer = None
 
             if expr_buffer is not None:
                 print(expr_buffer, file=file)

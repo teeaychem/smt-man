@@ -14,7 +14,7 @@ struct z3_lexicon_4 {
 
   struct {
     Z3_sort sort;
-  } u8;
+  } u6;
 
   struct {
     size_t count;

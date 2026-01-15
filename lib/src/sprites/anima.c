@@ -101,8 +101,8 @@ Result Anima_deduct(Anima *self, const Maze *maze) {
   Z3_ast anima_origin_v = nullptr;
 
   Z3_ast row_col[2] = {
-      Z3_mk_int(self->smt.ctx, anima_location.x, self->smt.lexicon.u8.sort),
-      Z3_mk_int(self->smt.ctx, anima_location.y, self->smt.lexicon.u8.sort),
+      Z3_mk_int(self->smt.ctx, anima_location.x, self->smt.lexicon.u6.sort),
+      Z3_mk_int(self->smt.ctx, anima_location.y, self->smt.lexicon.u6.sort),
   };
   auto tile_h = Z3_mk_app(self->smt.ctx, self->smt.lexicon.path.tile_h_f, 2, row_col);
   Z3_model_eval(self->smt.ctx, model, tile_h, false, &anima_origin_h);

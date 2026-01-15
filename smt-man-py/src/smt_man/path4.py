@@ -28,6 +28,8 @@ class path4_t:
         self.z3f_v: z3_fn_t = z3.Function("path4_type_v", z3s_bv_t, z3s_bv_t, self.z3_t)
         self.z3f_h: z3_fn_t = z3.Function("path4_type_h", z3s_bv_t, z3s_bv_t, self.z3_t)
 
+        self.penalty: str = "path_penatly"
+
     def to_string(self, maze: maze_t, model: z3_model_t) -> str:
         path_string = ""
 
@@ -73,7 +75,7 @@ class path4_t:
             tile_x: z3_tile_t = z3_tile.X(col, row)
 
             if maze.is_path(col, row):
-                optimizer.add_soft(z3.And([self.tile_h_is(tile_x, self.z3e_x), self.tile_v_is(tile_x, self.z3e_x)]), weight=1)
+                optimizer.add_soft(z3.And([self.tile_h_is(tile_x, self.z3e_x), self.tile_v_is(tile_x, self.z3e_x)]), weight=1, id=self.penalty)
             else:
                 optimizer.add(self.tile_h_is(tile_x, self.z3e_x))
                 optimizer.add(self.tile_v_is(tile_x, self.z3e_x))
