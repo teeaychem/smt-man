@@ -131,11 +131,17 @@ int main() {
     while (bytes_read = getline(&line_buffer, &buffer_size, file_ptr), 0 <= bytes_read) {
       if (1 < bytes_read) {
         line_buffer[bytes_read - 1] = '\0';
-        printf("%zu: %s\n", line, line_buffer);
         Z3_ast_vector z3_vec = Z3_parser_context_from_string(ctx, parser, line_buffer);
         unsigned int vec_size = Z3_ast_vector_size(ctx, z3_vec);
+
+        if (vec_size == 0) {
+          printf("%zu: %s\n", line, line_buffer);
+        }
+
         for (unsigned int idx = 0; idx < vec_size; ++idx) {
           Z3_ast element = Z3_ast_vector_get(ctx, z3_vec, idx);
+
+          /* Z3_ast_kind ast_kind = Z3_get_ast_kind(ctx, element); */
           Z3_optimize_assert(ctx, optimizer, element);
         }
       }
