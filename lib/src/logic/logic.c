@@ -84,12 +84,15 @@ void Lexicon_assert_shortest_path_empty_hints(const Lexicon *lexicon, Z3_context
       Z3_ast tile_x_h = Z3_mk_app(ctx, lexicon->path.tile_h_f, 2, tile_x);
       Z3_ast tile_x_v = Z3_mk_app(ctx, lexicon->path.tile_v_f, 2, tile_x);
 
+      Z3_ast empty_conjunction[2] = {
+          Z3_mk_eq(ctx, tile_x_h, lexicon->path.token.x),
+          Z3_mk_eq(ctx, tile_x_v, lexicon->path.token.x),
+      };
+
       if (Maze_is_path(maze, col, row)) {
-        Z3_optimize_assert_soft(ctx, otz, Z3_mk_eq(ctx, tile_x_h, lexicon->path.token.x), "1", lexicon->path.penatly);
-        Z3_optimize_assert_soft(ctx, otz, Z3_mk_eq(ctx, tile_x_v, lexicon->path.token.x), "1", lexicon->path.penatly);
+        Z3_optimize_assert_soft(ctx, otz, Z3_mk_and(ctx, 2, empty_conjunction), "1", lexicon->path.penatly);
       } else {
-        Z3_optimize_assert(ctx, otz, Z3_mk_eq(ctx, tile_x_h, lexicon->path.token.x));
-        Z3_optimize_assert(ctx, otz, Z3_mk_eq(ctx, tile_x_v, lexicon->path.token.x));
+        Z3_optimize_assert(ctx, otz, Z3_mk_and(ctx, 2, empty_conjunction));
       }
     }
   }
