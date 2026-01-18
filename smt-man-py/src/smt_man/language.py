@@ -34,17 +34,17 @@ class z3s_bv8:
 
 
 class z3_tile:
-    def X(col: int, row: int) -> z3_tile_t:
-        return z3s_bv8.cast_location((col, row))
+    def X(row: int, col: int) -> z3_tile_t:
+        return z3s_bv8.cast_location((row, col))
 
-    def N(col: int, row: int) -> z3_tile_t:
-        return z3s_bv8.cast_location((col, row - 1))
+    def N(row: int, col: int) -> z3_tile_t:
+        return z3s_bv8.cast_location((row - 1, col))
 
-    def E(col: int, row: int) -> z3_tile_t:
-        return z3s_bv8.cast_location((col + 1, row))
+    def E(row: int, col: int) -> z3_tile_t:
+        return z3s_bv8.cast_location((row, col + 1))
 
-    def S(col: int, row: int) -> z3_tile_t:
-        return z3s_bv8.cast_location((col, row + 1))
+    def S(row: int, col: int) -> z3_tile_t:
+        return z3s_bv8.cast_location((row + 1, col))
 
-    def W(col: int, row: int) -> z3_tile_t:
-        return z3s_bv8.cast_location((col - 1, row))
+    def W(row: int, col: int) -> z3_tile_t:
+        return z3s_bv8.cast_location((row, col - 1))

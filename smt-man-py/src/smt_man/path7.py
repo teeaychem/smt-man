@@ -40,15 +40,15 @@ class path7_t:
     ## General assertion fns
 
     def assert_empty_constraints(self, optimizer: z3_optimizer_t, maze: maze_t) -> None:
-        for col, row in maze.tiles():
-            if maze.is_path(col, row):
-                optimizer.add_soft(self.z3_path_v(z3s_bv8.cast(col), z3s_bv8.cast(row)) == self.EX, weight=1)
+        for row, col in maze.tiles():
+            if maze.is_path(row, col):
+                optimizer.add_soft(self.z3_path_v(z3s_bv8.cast(row), z3s_bv8.cast(col)) == self.EX, weight=1)
             else:
-                optimizer.add(self.z3_path_v(z3s_bv8.cast(col), z3s_bv8.cast(row)) == self.EX)
+                optimizer.add(self.z3_path_v(z3s_bv8.cast(row), z3s_bv8.cast(col)) == self.EX)
 
-    def assert_variable_anima_location(self, optimizer: z3_optimizer_t, anima: z3_expr_t, col: int, row: int) -> None:
-        optimizer.add(z3f_anima_location_c(anima) == z3s_bv8.cast(col))
+    def assert_variable_anima_location(self, optimizer: z3_optimizer_t, anima: z3_expr_t, row: int, col: int) -> None:
         optimizer.add(z3f_anima_location_r(anima) == z3s_bv8.cast(row))
+        optimizer.add(z3f_anima_location_c(anima) == z3s_bv8.cast(col))
 
     def assert_constant_tile_constraints(self, optimizer: z3_optimizer_t, maze: maze_t) -> None:
         for row in range(0, maze.y):
@@ -56,21 +56,21 @@ class path7_t:
             for col in range(0, maze.x):
                 bvc = z3s_bv8.cast(col)
 
-                if maze.is_path(col, row):
-                    tile_x = z3_tile.X(col, row)
-                    tile_n = z3_tile.N(col, row)
-                    tile_e = z3_tile.E(col, row)
-                    tile_s = z3_tile.S(col, row)
-                    tile_w = z3_tile.W(col, row)
+                if maze.is_path(row, col):
+                    tile_x = z3_tile.X(row, col)
+                    tile_n = z3_tile.N(row, col)
+                    tile_e = z3_tile.E(row, col)
+                    tile_s = z3_tile.S(row, col)
+                    tile_w = z3_tile.W(row, col)
 
                     # Up disjunction
                     if row > 0:
                         tile_req_n = [self.z3_path_v(tile_n) == self.OX]
-                        if 0 < row - 1 and maze.is_path(col, row - 2):
+                        if 0 < row - 1 and maze.is_path(row - 2, col):
                             tile_req_n.append(self.z3_path_v(tile_n) == self.NS)
-                        if col < maze.x - 1 and 0 < row and maze.is_path(col + 1, row - 1):
+                        if col < maze.x - 1 and 0 < row and maze.is_path(row - 1, col + 1):
                             tile_req_n.append(self.z3_path_v(tile_n) == self.SE)
-                        if 0 < col and 0 < row and maze.is_path(col - 1, row - 1):
+                        if 0 < col and 0 < row and maze.is_path(row - 1, col - 1):
                             tile_req_n.append(self.z3_path_v(tile_n) == self.SW)
                         tile_or_n = z3.Or(tile_req_n)
                         optimizer.add(z3.Implies(self.z3_path_v(tile_x) == self.NS, tile_or_n))
@@ -80,11 +80,11 @@ class path7_t:
                     # Right disjunction
                     if col < maze.x - 1:
                         tile_req_e = [self.z3_path_v(tile_e) == self.OX]
-                        if col + 1 < maze.x - 1 and maze.is_path(col + 2, row):
+                        if col + 1 < maze.x - 1 and maze.is_path(row, col + 2):
                             tile_req_e.append(self.z3_path_v(tile_e) == self.EW)
-                        if row < maze.y - 1 and col < maze.x - 1 and maze.is_path(col + 1, row + 1):
+                        if row < maze.y - 1 and col < maze.x - 1 and maze.is_path(row + 1, col + 1):
                             tile_req_e.append(self.z3_path_v(tile_e) == self.SW)
-                        if 0 < row and col < maze.x - 1 and maze.is_path(col + 1, row - 1):
+                        if 0 < row and col < maze.x - 1 and maze.is_path(row - 1, col + 1):
                             tile_req_e.append(self.z3_path_v(tile_e) == self.NW)
                         tile_or_e = z3.Or(tile_req_e)
                         optimizer.add(z3.Implies(self.z3_path_v(tile_x) == self.EW, tile_or_e))
@@ -94,11 +94,11 @@ class path7_t:
                     # Down disjunction
                     if row < maze.y - 1:
                         tile_req_s = [self.z3_path_v(tile_s) == self.OX]
-                        if row + 1 < maze.y - 1 and maze.is_path(col, row + 2):
+                        if row + 1 < maze.y - 1 and maze.is_path(row + 2, col):
                             tile_req_s.append(self.z3_path_v(tile_s) == self.NS)
-                        if row < maze.y - 1 and col < maze.x - 1 and maze.is_path(col + 1, row + 1):
+                        if row < maze.y - 1 and col < maze.x - 1 and maze.is_path(row + 1, col + 1):
                             tile_req_s.append(self.z3_path_v(tile_s) == self.NE)
-                        if row < maze.y - 1 and 0 < col and maze.is_path(col - 1, row + 1):
+                        if row < maze.y - 1 and 0 < col and maze.is_path(row + 1, col - 1):
                             tile_req_s.append(self.z3_path_v(tile_s) == self.NW)
                         tile_or_s = z3.Or(tile_req_s)
                         optimizer.add(z3.Implies(self.z3_path_v(tile_x) == self.NS, tile_or_s))
@@ -108,11 +108,11 @@ class path7_t:
                     # Left disjunction
                     if col > 0:
                         tile_req_w = [self.z3_path_v(tile_w) == self.OX]
-                        if 0 < col - 1 and maze.is_path(col - 2, row):
+                        if 0 < col - 1 and maze.is_path(row, col - 2):
                             tile_req_w.append(self.z3_path_v(tile_w) == self.EW)
-                        if 0 < col and 0 < row and maze.is_path(col - 1, row - 1):
+                        if 0 < col and 0 < row and maze.is_path(row - 1, col - 1):
                             tile_req_w.append(self.z3_path_v(tile_w) == self.NE)
-                        if 0 < col and row < maze.y - 1 and maze.is_path(col - 1, row + 1):
+                        if 0 < col and row < maze.y - 1 and maze.is_path(row + 1, col - 1):
                             tile_req_w.append(self.z3_path_v(tile_w) == self.SE)
                         tile_or_w = z3.Or(tile_req_w)
                         optimizer.add(z3.Implies(self.z3_path_v(tile_x) == self.EW, tile_or_w))
@@ -150,12 +150,12 @@ class path7_t:
         optimizer.add(self.z3_path_v(z3f_anima_location_c(anima), z3f_anima_location_r(anima)) == self.OX)
 
     def assert_variable_hints(self, optimizer: z3_optimizer_t, maze: maze_t, locations: list[location_t]) -> None:
-        for col, row in maze.tiles():
-            tile_x = z3_tile.X(col, row)
+        for row, col in maze.tiles():
+            tile_x = z3_tile.X(row, col)
             skip = False
 
             for idx in range(0, len(locations)):
-                if locations[idx][0] == col and locations[idx][1] == row:
+                if locations[idx][0] == row and locations[idx][1] == col:
                     skip = True
 
             if not skip:

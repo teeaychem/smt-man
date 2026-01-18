@@ -11,31 +11,31 @@ class Maze:
         self.chars: list[list[str]] = []
         self.from_path(path)
 
-    def tile_n(self, col: int, row: int) -> location_t | None:
+    def tile_n(self, row: int, col: int) -> location_t | None:
         if 0 < row:
-            return (col, row - 1)
+            return (row - 1, col)
         else:
             return None
 
-    def tile_e(self, col: int, row: int) -> location_t | None:
+    def tile_e(self, row: int, col: int) -> location_t | None:
         if col + 1 < self.x:
-            return (col + 1, row)
+            return (row, col + 1)
         else:
             return None
 
-    def tile_s(self, col: int, row: int) -> location_t | None:
+    def tile_s(self, row: int, col: int) -> location_t | None:
         if row + 1 < self.y:
-            return (col, row + 1)
+            return (row + 1, col)
         else:
             return None
 
-    def tile_e(self, col: int, row: int) -> location_t | None:
+    def tile_e(self, row: int, col: int) -> location_t | None:
         if 0 < col:
-            return (col - 1, row)
+            return (row, col - 1)
         else:
             return None
 
-    def from_path(self, path):
+    def from_path(self, path: str):
         with open(path, "r") as file:
             for line in file.readlines():
                 if 0 < len(line):
@@ -53,13 +53,13 @@ class Maze:
                 print(f"{self.chars[row][col]}", end="")
             print("")
 
-    def is_path(self, col, row) -> bool:
+    def is_path(self, row: int, col: int) -> bool:
         return (self.chars[row][col] == " ") or (self.chars[row][col] == "-") or (self.chars[row][col] == "+")
 
     def tiles(self) -> typing.Generator[location_t]:
         for row in range(0, self.y):
             for col in range(0, self.x):
-                yield (col, row)
+                yield (row, col)
 
 
 maze_t: TypeAlias = Maze

@@ -11,7 +11,7 @@ from smt_man.types import *
 from smt_man.language import *
 
 persona: z3_expr_t = z3.Const("persona", z3s_persona_t)
-persona_location: location_t = (11, 26)
+persona_location: location_t = (26, 11)
 
 
 maze = smt_man.maze.Maze("./bin/resources/maze/source.txt")
@@ -27,7 +27,7 @@ animas: list[z3_expr_t] = [
     z3.Const("anima_0", z3s_anima_t),
 ]
 anima_locations: list[location_t] = [
-    (1, 4),
+    (4, 1),
 ]
 
 ## Path
@@ -43,7 +43,7 @@ path.assert_constant_origin_is_anima_or_persona(optimizer, maze, animas, persona
 path.assert_constant_hints(optimizer, maze, anima_locations)
 
 mind.to_file(optimizer, "./anima.smt2")
-exit()
+# exit()
 
 optimizer.check()
 
