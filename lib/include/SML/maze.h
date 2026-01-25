@@ -8,7 +8,7 @@
 #include "generic/enums.h"
 #include "generic/pairs.h"
 
-constexpr Pair_uint32 STANDARD_MAZE_DIMENSIONS = {.x = 28, .y = 31};
+constexpr Pair_uint32 STANDARD_MAZE_DIMENSIONS = {.x = 31, .y = 28};
 
 struct tile_edge_data_t {
 
@@ -53,6 +53,24 @@ struct tile_data_t {
 };
 typedef struct tile_data_t TileData;
 
+static inline char TileData_as_char(TileData *self) {
+  switch (self->type) {
+  case TILE_EDGE: {
+    return '#';
+  } break;
+  case TILE_EMPTY: {
+    return '_';
+  } break;
+  case TILE_INFO: {
+    return 'X';
+  } break;
+  case TILE_PATH: {
+    return ' ';
+  } break;
+    break;
+  }
+}
+
 /// Maze
 
 struct maze_t {
@@ -63,7 +81,7 @@ typedef struct maze_t Maze;
 
 /// Methods
 
-Result Maze_create(Maze *maze, const char *path);
+Result Maze_from_path(Maze *maze, const char *path);
 
 Result Maze_detail(Maze *self);
 
@@ -71,40 +89,31 @@ void Maze_drop(Maze *self);
 
 bool Maze_tile_in_direction_is_path(const Maze *self, const Pair_uint8 location, const Cardinal direction);
 
-void Maze_complete_line_data(const Maze *self, TileData *tile_data, const uint8_t col, const uint8_t row);
+void Maze_complete_line_data(const Maze *self, TileData *tile_data, const uint8_t row, const uint8_t col);
 
 Result Maze_complete_data(const Maze *self);
 
-/// Satic inline
+/// Static inline
 
-static inline size_t Maze_tile_index(const Maze *self, const uint8_t col, const uint8_t row) {
-  return Pair_uint8_flatten(&self->size, col, row);
+static inline size_t Maze_tile_index(const Maze *self, const uint8_t row, const uint8_t col) {
+  return Pair_uint8_flatten(&self->size, row, col);
 }
 
-static inline TileData *Maze_tile_data_at(const Maze *self, const uint8_t col, const uint8_t row) {
-  return &self->tiles[Maze_tile_index(self, col, row)];
+static inline TileData *Maze_tile_data_at(const Maze *self, const uint8_t row, const uint8_t col) {
+  return &self->tiles[Maze_tile_index(self, row, col)];
 }
 
-static inline bool Maze_is_path(const Maze *self, const uint8_t col, const uint8_t row) {
-  return Maze_tile_data_at(self, col, row)->type == TILE_PATH;
+static inline bool Maze_is_path(const Maze *self, const uint8_t row, const uint8_t col) {
+  return Maze_tile_data_at(self, row, col)->type == TILE_PATH;
 }
 
-static inline bool Maze_is_intersection(const Maze *self, const uint8_t col, const uint8_t row) {
-
+static inline bool Maze_is_intersection(const Maze *self, const uint8_t row, const uint8_t col) {
   // clang-format off
-  bool path_n = row != 0               && Maze_is_path(self, col, row - 1);
-  bool path_e = col + 2 < self->size.x && Maze_is_path(self, col + 1, row);
-  bool path_s = row + 2 < self->size.y && Maze_is_path(self, col, row + 1);
-  bool path_w = col != 0               && Maze_is_path(self, col - 1, row);
+  bool path_n = row > 0                && Maze_is_path(self, row - 1, col);
+  bool path_e = col + 1 < self->size.x && Maze_is_path(self, row, col + 1);
+  bool path_s = row + 1 < self->size.y && Maze_is_path(self, row + 1, col);
+  bool path_w = col > 0                && Maze_is_path(self, row, col - 1);
   // clang-format on
 
-  if (path_n || path_s) {
-    return path_e || path_w;
-  }
-
-  if ((path_e) || (path_w)) {
-    return path_n || path_s;
-  }
-
-  return false;
+  return (path_n || path_s) && (path_e || path_w);
 }

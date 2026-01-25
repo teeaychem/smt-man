@@ -1,14 +1,9 @@
 #include <assert.h>
 #include <stdatomic.h>
-#include <stdio.h>
 
 #include "SML/sprite/persona.h"
 
 void Persona_default(Persona *persona, Situation *situation) {
-  Pair_uint8 location = atomic_load(&situation->persona.location);
-
-  printf("Setting up persona t location: %dx%d\n", location.x, location.y);
-
   *persona = (Persona){
       .direction_intent = CARDINAL_E,
       .tick_action = 0,

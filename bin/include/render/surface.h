@@ -42,6 +42,6 @@ void Surface_tile_fixed_arc(Surface *self, const Pair_uint32 origin, const TileD
 
 /// Static inline
 
-static inline uint32_t Surface_offset(const Surface *self, const uint32_t col, const uint32_t row) {
-  return (row * self->size.x) + col;
+static inline uint32_t Surface_offset(const Surface *self, const uint32_t row, const uint32_t col) {
+  return (row * self->size.y) + col;
 }

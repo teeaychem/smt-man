@@ -48,20 +48,17 @@ int main() {
     animas[idx].smt.situation.animas = mind_animas[idx];
   }
 
-  for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
-    printf("\t%zu\n", animas[idx].smt.situation.anima_count);
-  }
-
   Persona persona;
 
   const Maze maze = setup_maze(source_path);
   { // Setup block
-    setup_situation(&situation, (Pair_uint8){.x = 13, .y = 17});
+    setup_situation(&situation, (Pair_uint8){.x = 1, .y = 12});
 
     Persona_default(&persona, &situation);
 
     setup_animas(animas, ANIMA_THREADS, nullptr, &maze, ANIMA_COUNT);
   }
+  Maze_display(&maze);
 
   Sync_update_animas(&situation, animas);
   Sync_update_situation(&situation, animas);
@@ -100,15 +97,15 @@ int main() {
       /* Z3_parser_context_add_decl(ctx, parser, lexicon.anima.enum_consts); */
       /* Z3_parser_context_add_decl(ctx, parser, lexicon.anima.enum_testers[0]); */
 
-      Z3_parser_context_add_decl(ctx, parser, lexicon.anima.tile_col_f);
       Z3_parser_context_add_decl(ctx, parser, lexicon.anima.tile_row_f);
+      Z3_parser_context_add_decl(ctx, parser, lexicon.anima.tile_col_f);
     }
 
     {
       Z3_parser_context_add_sort(ctx, parser, lexicon.persona.sort);
       /* Z3_parser_context_add_decl(ctx, parser, lexicon.persona.enum_const[0]); */
-      Z3_parser_context_add_decl(ctx, parser, lexicon.persona.tile_col_f);
       Z3_parser_context_add_decl(ctx, parser, lexicon.persona.tile_row_f);
+      Z3_parser_context_add_decl(ctx, parser, lexicon.persona.tile_col_f);
     }
   }
 
@@ -124,7 +121,7 @@ int main() {
 
     file_ptr = fopen(path_buffer, "r");
     if (file_ptr == nullptr) {
-      printf("File missing: %s\n", path_buffer);
+      slog_display(SLOG_ERROR, 0, "File missing: %s\n", path_buffer);
       exit(EXIT_FAILURE);
     }
 
@@ -135,7 +132,7 @@ int main() {
         unsigned int vec_size = Z3_ast_vector_size(ctx, z3_vec);
 
         if (vec_size == 0) {
-          printf("%zu: %s\n", line, line_buffer);
+          /* printf("%zu: %s\n", line, line_buffer); */
         }
 
         for (unsigned int idx = 0; idx < vec_size; ++idx) {

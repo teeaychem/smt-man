@@ -45,9 +45,9 @@ Maze setup_maze(const char *source_path) {
 
   char path_buffer[FILENAME_MAX];
   cwk_path_join(source_path, "resources/maze/source.txt", path_buffer, FILENAME_MAX);
-  ENSURE(Maze_create(&maze, path_buffer));
-  ENSURE(Maze_detail(&maze));
-  ENSURE(Maze_complete_data(&maze));
+  ENSURE(Maze_from_path(&maze, path_buffer));
+  /* ENSURE(Maze_detail(&maze)); */
+  /* ENSURE(Maze_complete_data(&maze)); */
 
   return maze;
 }
@@ -73,6 +73,8 @@ void *setup_spirit(void *void_setup_struct) {
     pthread_mutex_lock(&anima->contact.mtx_suspend);
     if (!atomic_load(&anima->contact.flag_suspend)) {
       if (RESULT_OK != Anima_deduct(anima, setup_struct->maze)) {
+        printf("Pausing on panic...\n");
+        getc(stdin);
         exit(1);
       };
       atomic_store(&anima->contact.flag_suspend, true);
@@ -105,24 +107,23 @@ void setup_anima(Anima *animas, pthread_t *threads, Sprites *sprites, uint8_t id
 void setup_animas(Anima *animas, pthread_t *threads, Sprites *sprites, const Maze *maze, size_t anima_count) {
 
   if (1 <= anima_count) {
-    setup_anima(animas, threads, sprites, 0, Pair_uint8_create(1, 2), maze, anima_count);
+    setup_anima(animas, threads, sprites, 0, Pair_uint8_create(3, 1), maze, anima_count);
   }
 
   if (2 <= anima_count) {
-    setup_anima(animas, threads, sprites, 1, Pair_uint8_create(16, 26), maze, anima_count);
+    setup_anima(animas, threads, sprites, 1, Pair_uint8_create(26, 16), maze, anima_count);
   }
 
   if (3 <= anima_count) {
-    setup_anima(animas, threads, sprites, 2, Pair_uint8_create(21, 12), maze, anima_count);
+    setup_anima(animas, threads, sprites, 2, Pair_uint8_create(12, 21), maze, anima_count);
   }
 
   if (4 <= anima_count) {
-    setup_anima(animas, threads, sprites, 3, Pair_uint8_create(4, 29), maze, anima_count);
+    setup_anima(animas, threads, sprites, 3, Pair_uint8_create(29, 4), maze, anima_count);
   }
 }
 
 void setup_situation(Situation *situation, Pair_uint8 location) {
-  printf("Setting up situation with location: %dx%d\n", location.x, location.y);
   atomic_init(&situation->persona.direction_actual, CARDINAL_E);
   atomic_init(&situation->persona.location, location);
   atomic_init(&situation->persona.movement_pattern, 0x552a552a);

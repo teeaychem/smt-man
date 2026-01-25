@@ -40,7 +40,6 @@ void Anima_on_frame(Anima *self, Sprite *sprite, const Maze *maze, uint32_t tile
     Cardinal direction_actual = atomic_load(&self->smt.situation.animas[self->id].direction_actual);
 
     if (Maze_is_intersection(maze, maze_location.x, maze_location.y)) {
-      printf("Updating anima at %dx%d\n", maze_location.x, maze_location.y);
       MazePath_display(&self->path, &self->smt.lexicon);
 
       switch (tile_path.h) {
@@ -131,10 +130,10 @@ void Anima_on_frame(Anima *self, Sprite *sprite, const Maze *maze, uint32_t tile
 
       atomic_store(&self->smt.situation.animas[self->id].direction_actual, direction_actual);
 
-      printf("Direction: ");
-      Cardinal_print(direction_actual);
-      printf("\n");
-      printf("Anima @ %dx%d\n", maze_location.x, maze_location.y);
+      /* printf("Direction: "); */
+      /* Cardinal_print(direction_actual); */
+      /* printf("\n"); */
+      /* printf("Anima @ %dx%d\n", maze_location.x, maze_location.y); */
       /* getc(stdin); */
     }
 
@@ -172,16 +171,16 @@ void Anima_on_frame(Anima *self, Sprite *sprite, const Maze *maze, uint32_t tile
     // Do nothing
   } break;
   case CARDINAL_N: {
-    sprite->location.y -= SPRITE_VELOCITY;
+    sprite->location.x -= SPRITE_VELOCITY;
   } break;
   case CARDINAL_E: {
-    sprite->location.x += SPRITE_VELOCITY;
-  } break;
-  case CARDINAL_S: {
     sprite->location.y += SPRITE_VELOCITY;
   } break;
+  case CARDINAL_S: {
+    sprite->location.x += SPRITE_VELOCITY;
+  } break;
   case CARDINAL_W: {
-    sprite->location.x -= SPRITE_VELOCITY;
+    sprite->location.y -= SPRITE_VELOCITY;
   } break;
   }
 }

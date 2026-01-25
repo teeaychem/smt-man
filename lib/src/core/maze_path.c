@@ -33,61 +33,44 @@ void MazePath_drop(MazePath *self) {
 }
 
 void MazePath_display(MazePath *self, const Lexicon *lexicon) {
-  for (uint8_t row = 0; row < self->size.y; row++) {
-    for (uint8_t col = 0; col < self->size.x; col++) {
 
-      MazeTile val = self->tiles[Pair_uint8_flatten(&self->size, col, row)];
+  char *line_buffer = malloc(self->size.y * sizeof(*line_buffer));
 
-      if (val.h == PATH_A && val.v == PATH_A) {
-        printf("\\");
-      }
+  for (uint8_t row = 0; row < self->size.x; ++row) {
+    for (uint8_t col = 0; col < self->size.y; ++col) {
 
-      else if (val.h == PATH_A && val.v == PATH_B) {
-        printf("/");
-      }
+      MazeTile val = self->tiles[Pair_uint8_flatten(&self->size, row, col)];
 
-      else if (val.h == PATH_A && val.v == PATH_O) {
-        printf("V");
-      }
-
-      else if (val.h == PATH_A) {
-        printf("-");
-      }
-
-      else if (val.h == PATH_B && val.v == PATH_A) {
-        printf("/");
-      }
-
-      else if (val.h == PATH_B && val.v == PATH_B) {
-        printf("\\");
-      }
-
-      else if (val.h == PATH_B && val.v == PATH_O) {
-        printf("V");
-      }
-
-      else if (val.h == PATH_B) {
-        printf("-");
-      }
-
-      else if (val.h == PATH_O && val.v == PATH_A) {
-        printf("H");
-      }
-
-      else if (val.h == PATH_O && val.v == PATH_B) {
-        printf("H");
-      }
-
-      else if (val.v == PATH_A || val.v == PATH_B) {
-        printf("|");
-      }
-
-      else {
-        printf(" ");
+      if (val.h == PATH_A && val.v == PATH_A) { // NE
+        line_buffer[col] = '\\';
+      } else if (val.h == PATH_A && val.v == PATH_B) { //
+        line_buffer[col] = '/';
+      } else if (val.h == PATH_A && val.v == PATH_O) { //
+        line_buffer[col] = 'V';
+      } else if (val.h == PATH_A && val.v == PATH_X) { //
+        line_buffer[col] = '-';
+      } else if (val.h == PATH_B && val.v == PATH_A) { //
+        line_buffer[col] = '/';
+      } else if (val.h == PATH_B && val.v == PATH_B) { //
+        line_buffer[col] = '\\';
+      } else if (val.h == PATH_B && val.v == PATH_O) { //
+        line_buffer[col] = 'V';
+      } else if (val.h == PATH_B && val.v == PATH_X) { //
+        line_buffer[col] = '-';
+      } else if (val.h == PATH_O && val.v == PATH_A) { //
+        line_buffer[col] = 'H';
+      } else if (val.h == PATH_O && val.v == PATH_B) { //
+        line_buffer[col] = 'H';
+      } else if (val.v == PATH_A || val.v == PATH_B) { //
+        line_buffer[col] = '|';
+      } else { //
+        line_buffer[col] = ' ';
       }
     }
-    printf("|%d\n", row);
+    printf("%s|%d\n", line_buffer, row);
   }
+
+  free(line_buffer);
 }
 
 void MazePath_read(MazePath *self, const Lexicon *lexicon, const Z3_context ctx, const Z3_model model, const Maze *maze) {
@@ -105,7 +88,7 @@ void MazePath_read(MazePath *self, const Lexicon *lexicon, const Z3_context ctx,
 
       size_t tile_index;
       { // Get the tile index
-        uint8_t args_col_row[2];
+        uint8_t args_row_col[2];
         assert(Z3_func_entry_get_num_args(ctx, entry) == 2);
         unsigned int z3_unsigned_tmp;
 
@@ -114,9 +97,9 @@ void MazePath_read(MazePath *self, const Lexicon *lexicon, const Z3_context ctx,
 
           Z3_get_numeral_uint(ctx, arg, &z3_unsigned_tmp);
           assert(z3_unsigned_tmp < UINT8_MAX);
-          args_col_row[arg_idx] = (uint8_t)z3_unsigned_tmp;
+          args_row_col[arg_idx] = (uint8_t)z3_unsigned_tmp;
         }
-        tile_index = Maze_tile_index(maze, args_col_row[0], args_col_row[1]);
+        tile_index = Maze_tile_index(maze, args_row_col[0], args_row_col[1]);
       }
 
       Z3_ast value = Z3_func_entry_get_value(ctx, entry);
@@ -143,7 +126,7 @@ void MazePath_read(MazePath *self, const Lexicon *lexicon, const Z3_context ctx,
 
       size_t tile_index;
       { // Get the tile index
-        uint8_t args_col_row[2];
+        uint8_t args_row_col[2];
         assert(Z3_func_entry_get_num_args(ctx, entry) == 2);
         unsigned int z3_unsigned_tmp;
 
@@ -152,9 +135,9 @@ void MazePath_read(MazePath *self, const Lexicon *lexicon, const Z3_context ctx,
 
           Z3_get_numeral_uint(ctx, arg, &z3_unsigned_tmp);
           assert(z3_unsigned_tmp < UINT8_MAX);
-          args_col_row[arg_idx] = (uint8_t)z3_unsigned_tmp;
+          args_row_col[arg_idx] = (uint8_t)z3_unsigned_tmp;
         }
-        tile_index = Maze_tile_index(maze, args_col_row[0], args_col_row[1]);
+        tile_index = Maze_tile_index(maze, args_row_col[0], args_row_col[1]);
       }
 
       Z3_ast value = Z3_func_entry_get_value(ctx, entry);
@@ -165,16 +148,14 @@ void MazePath_read(MazePath *self, const Lexicon *lexicon, const Z3_context ctx,
         self->tiles[tile_index].v = PATH_B;
       } else if (value == lexicon->path.token.o) {
         self->tiles[tile_index].v = PATH_O;
-      } else {
+      } else if (value == lexicon->path.token.x) {
         self->tiles[tile_index].v = PATH_X;
+      } else {
+        slog_display(SLOG_ERROR, 0, "Unexpected token\n");
       }
     }
     Z3_func_interp_dec_ref(ctx, path_v_f);
   }
 
   pthread_mutex_unlock(&self->mutex);
-}
-
-MazeTile MazePath_at(MazePath *self, const Pair_uint8 location) {
-  return self->tiles[Pair_uint8_flatten(&self->size, location.x, location.y)];
 }

@@ -6,21 +6,21 @@
 #include "SML/logic.h"
 #include "generic/pairs.h"
 
-Z3_ast direct_h(const Lexicon *lexicon, const Z3_context ctx, const Z3_ast col_row[2]) {
+Z3_ast direct_h(const Lexicon *lexicon, const Z3_context ctx, const Z3_ast row_col[2]) {
 
   Z3_ast conjuncts[2] = {
-      Z3_mk_eq(ctx, Z3_mk_app(ctx, lexicon->path.tile_h_f, 2, col_row), lexicon->path.token.a),
-      Z3_mk_eq(ctx, Z3_mk_app(ctx, lexicon->path.tile_v_f, 2, col_row), lexicon->path.token.x),
+      Z3_mk_eq(ctx, Z3_mk_app(ctx, lexicon->path.tile_h_f, 2, row_col), lexicon->path.token.a),
+      Z3_mk_eq(ctx, Z3_mk_app(ctx, lexicon->path.tile_v_f, 2, row_col), lexicon->path.token.x),
   };
 
   return Z3_mk_and(ctx, 2, conjuncts);
 }
 
-Z3_ast direct_v(const Lexicon *lexicon, const Z3_context ctx, const Z3_ast col_row[2]) {
+Z3_ast direct_v(const Lexicon *lexicon, const Z3_context ctx, const Z3_ast row_col[2]) {
 
   Z3_ast conjuncts[2] = {
-      Z3_mk_eq(ctx, Z3_mk_app(ctx, lexicon->path.tile_h_f, 2, col_row), lexicon->path.token.x),
-      Z3_mk_eq(ctx, Z3_mk_app(ctx, lexicon->path.tile_v_f, 2, col_row), lexicon->path.token.a),
+      Z3_mk_eq(ctx, Z3_mk_app(ctx, lexicon->path.tile_h_f, 2, row_col), lexicon->path.token.x),
+      Z3_mk_eq(ctx, Z3_mk_app(ctx, lexicon->path.tile_v_f, 2, row_col), lexicon->path.token.a),
   };
 
   return Z3_mk_and(ctx, 2, conjuncts);
@@ -61,11 +61,11 @@ void Lexicon_setup_path(Lexicon *lexicon, Z3_context ctx) {
   lexicon->path.token.b = Z3_mk_app(ctx, lexicon->path.enum_consts[2], 0, 0);
   lexicon->path.token.x = Z3_mk_app(ctx, lexicon->path.enum_consts[3], 0, 0);
 
-  Z3_sort col_row[2] = {lexicon->u6.sort, lexicon->u6.sort};
+  Z3_sort row_col[2] = {lexicon->u6.sort, lexicon->u6.sort};
 
-  lexicon->path.tile_h_f = Z3_mk_func_decl(ctx, Z3_mk_string_symbol(ctx, "path4_type_h"), 2, col_row, lexicon->path.sort);
+  lexicon->path.tile_h_f = Z3_mk_func_decl(ctx, Z3_mk_string_symbol(ctx, "path4_type_h"), 2, row_col, lexicon->path.sort);
 
-  lexicon->path.tile_v_f = Z3_mk_func_decl(ctx, Z3_mk_string_symbol(ctx, "path4_type_v"), 2, col_row, lexicon->path.sort);
+  lexicon->path.tile_v_f = Z3_mk_func_decl(ctx, Z3_mk_string_symbol(ctx, "path4_type_v"), 2, row_col, lexicon->path.sort);
 
   lexicon->path.penatly = Z3_mk_string_symbol(ctx, "path_penatly");
 }
@@ -74,25 +74,28 @@ void Lexicon_setup_path(Lexicon *lexicon, Z3_context ctx) {
 /// So long as a path is required and optimisation is enforced, no shorter path can exist on SAT.
 void Lexicon_assert_shortest_path_empty_hints(const Lexicon *lexicon, Z3_context ctx, Z3_optimize otz, const Maze *maze) {
 
-  for (uint8_t row = 0; row < maze->size.y; ++row) {
-    for (uint8_t col = 0; col < maze->size.x; ++col) {
+  for (uint8_t row = 0; row < maze->size.x; ++row) {
+    for (uint8_t col = 0; col < maze->size.y; ++col) {
       Z3_ast tile_x[2] = {
-          Z3_mk_int(ctx, col, lexicon->u6.sort),
           Z3_mk_int(ctx, row, lexicon->u6.sort),
+          Z3_mk_int(ctx, col, lexicon->u6.sort),
       };
 
       Z3_ast tile_x_h = Z3_mk_app(ctx, lexicon->path.tile_h_f, 2, tile_x);
       Z3_ast tile_x_v = Z3_mk_app(ctx, lexicon->path.tile_v_f, 2, tile_x);
 
-      Z3_ast empty_conjunction[2] = {
-          Z3_mk_eq(ctx, tile_x_h, lexicon->path.token.x),
-          Z3_mk_eq(ctx, tile_x_v, lexicon->path.token.x),
-      };
+      Z3_ast tile_x_h_is_X = Z3_mk_eq(ctx, tile_x_h, lexicon->path.token.x);
+      Z3_ast tile_x_v_is_X = Z3_mk_eq(ctx, tile_x_v, lexicon->path.token.x);
 
-      if (Maze_is_path(maze, col, row)) {
+      if (Maze_is_path(maze, row, col)) {
+        Z3_ast empty_conjunction[2] = {
+            tile_x_h_is_X,
+            tile_x_v_is_X,
+        };
         Z3_optimize_assert_soft(ctx, otz, Z3_mk_and(ctx, 2, empty_conjunction), "1", lexicon->path.penatly);
       } else {
-        Z3_optimize_assert(ctx, otz, Z3_mk_and(ctx, 2, empty_conjunction));
+        Z3_optimize_assert(ctx, otz, tile_x_h_is_X);
+        Z3_optimize_assert(ctx, otz, tile_x_v_is_X);
       }
     }
   }
@@ -100,26 +103,26 @@ void Lexicon_assert_shortest_path_empty_hints(const Lexicon *lexicon, Z3_context
 
 void Lexicon_assert_path_non_empty_hints(const Lexicon *lexicon, Z3_context ctx, Z3_optimize otz, const Maze *maze) {
 
-  for (uint8_t row = 0; row < maze->size.y; ++row) {
-    for (uint8_t col = 0; col < maze->size.x; ++col) {
+  for (uint8_t row = 0; row < maze->size.x; ++row) {
+    for (uint8_t col = 0; col < maze->size.y; ++col) {
 
       Z3_ast tile_x[2] = {
-          Z3_mk_int(ctx, col, lexicon->u6.sort),
           Z3_mk_int(ctx, row, lexicon->u6.sort),
+          Z3_mk_int(ctx, col, lexicon->u6.sort),
       };
 
-      if (Maze_is_path(maze, col, row)) {
+      if (Maze_is_path(maze, row, col)) {
         Z3_ast tile_x_h = Z3_mk_app(ctx, lexicon->path.tile_h_f, 2, tile_x);
         Z3_ast tile_x_v = Z3_mk_app(ctx, lexicon->path.tile_v_f, 2, tile_x);
 
         { // O H
           Z3_ast tile_e[2] = {
-              Z3_mk_int(ctx, (col + 1), lexicon->u6.sort),
               Z3_mk_int(ctx, row, lexicon->u6.sort),
+              Z3_mk_int(ctx, col + 1, lexicon->u6.sort),
           };
           Z3_ast tile_w[2] = {
-              Z3_mk_int(ctx, (col - 1), lexicon->u6.sort),
               Z3_mk_int(ctx, row, lexicon->u6.sort),
+              Z3_mk_int(ctx, col - 1, lexicon->u6.sort),
           };
 
           uint32_t option_count = 0;
@@ -128,7 +131,7 @@ void Lexicon_assert_path_non_empty_hints(const Lexicon *lexicon, Z3_context ctx,
           if (0 < col) {
             options[option_count++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lexicon->path.tile_h_f, 2, tile_w), lexicon->path.token.a);
           }
-          if (col + 1 < maze->size.x) {
+          if (col + 1 < maze->size.y) {
             options[option_count++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lexicon->path.tile_h_f, 2, tile_e), lexicon->path.token.b);
           }
 
@@ -138,12 +141,12 @@ void Lexicon_assert_path_non_empty_hints(const Lexicon *lexicon, Z3_context ctx,
 
         { // O V
           Z3_ast tile_n[2] = {
+              Z3_mk_int(ctx, row - 1, lexicon->u6.sort),
               Z3_mk_int(ctx, col, lexicon->u6.sort),
-              Z3_mk_int(ctx, (row - 1), lexicon->u6.sort),
           };
           Z3_ast tile_s[2] = {
+              Z3_mk_int(ctx, row + 1, lexicon->u6.sort),
               Z3_mk_int(ctx, col, lexicon->u6.sort),
-              Z3_mk_int(ctx, (row + 1), lexicon->u6.sort),
           };
 
           uint32_t option_count = 0;
@@ -152,7 +155,7 @@ void Lexicon_assert_path_non_empty_hints(const Lexicon *lexicon, Z3_context ctx,
           if (0 < row) {
             options[option_count++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lexicon->path.tile_v_f, 2, tile_n), lexicon->path.token.b);
           }
-          if (row + 1 < maze->size.y) {
+          if (row + 1 < maze->size.x) {
             options[option_count++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lexicon->path.tile_v_f, 2, tile_s), lexicon->path.token.a);
           }
 
@@ -162,8 +165,8 @@ void Lexicon_assert_path_non_empty_hints(const Lexicon *lexicon, Z3_context ctx,
 
         if (0 < row) { // N
           Z3_ast tile_n[2] = {
+              Z3_mk_int(ctx, row - 1, lexicon->u6.sort),
               Z3_mk_int(ctx, col, lexicon->u6.sort),
-              Z3_mk_int(ctx, (row - 1), lexicon->u6.sort),
           };
 
           uint32_t option_count = 0;
@@ -172,10 +175,10 @@ void Lexicon_assert_path_non_empty_hints(const Lexicon *lexicon, Z3_context ctx,
           Z3_ast tile_n_h = Z3_mk_app(ctx, lexicon->path.tile_h_f, 2, tile_n);
 
           options[option_count++] = Z3_mk_eq(ctx, tile_n_h, lexicon->path.token.o);
-          if (col < maze->size.x - 1 && Maze_is_path(maze, col + 1, row - 1)) {
+          if (col + 1 < maze->size.y && Maze_is_path(maze, row - 1, col + 1)) {
             options[option_count++] = Z3_mk_eq(ctx, tile_n_h, lexicon->path.token.a);
           }
-          if (0 < col && Maze_is_path(maze, col - 1, row - 1)) {
+          if (0 < col && Maze_is_path(maze, row - 1, col - 1)) {
             options[option_count++] = Z3_mk_eq(ctx, tile_n_h, lexicon->path.token.b);
           }
 
@@ -185,7 +188,7 @@ void Lexicon_assert_path_non_empty_hints(const Lexicon *lexicon, Z3_context ctx,
                 Z3_mk_or(ctx, option_count, options),
             };
             Z3_ast consequent = Z3_mk_and(ctx, 2, options_conjunction);
-            if (1 < row && Maze_is_path(maze, col, row - 2)) {
+            if (1 < row && Maze_is_path(maze, row - 2, col)) {
               consequent = Z3_mk_or(ctx, 2, (Z3_ast[2]){
                                                 consequent,
                                                 direct_v(lexicon, ctx, tile_n),
@@ -200,10 +203,10 @@ void Lexicon_assert_path_non_empty_hints(const Lexicon *lexicon, Z3_context ctx,
           }
         }
 
-        if (col + 1 < maze->size.x) { // E
+        if (col + 1 < maze->size.y) { // E
           Z3_ast tile_e[2] = {
-              Z3_mk_int(ctx, (col + 1), lexicon->u6.sort),
               Z3_mk_int(ctx, row, lexicon->u6.sort),
+              Z3_mk_int(ctx, col + 1, lexicon->u6.sort),
           };
 
           uint32_t option_count = 0;
@@ -212,10 +215,10 @@ void Lexicon_assert_path_non_empty_hints(const Lexicon *lexicon, Z3_context ctx,
           Z3_ast tile_e_v = Z3_mk_app(ctx, lexicon->path.tile_v_f, 2, tile_e);
 
           options[option_count++] = Z3_mk_eq(ctx, tile_e_v, lexicon->path.token.o);
-          if (0 < row && Maze_is_path(maze, col + 1, row - 1)) {
+          if (0 < row && Maze_is_path(maze, row - 1, col + 1)) {
             options[option_count++] = Z3_mk_eq(ctx, tile_e_v, lexicon->path.token.a);
           }
-          if (row < maze->size.y - 1 && Maze_is_path(maze, col + 1, row + 1)) {
+          if (row + 1 < maze->size.x && Maze_is_path(maze, row + 1, col + 1)) {
             options[option_count++] = Z3_mk_eq(ctx, tile_e_v, lexicon->path.token.b);
           }
 
@@ -225,7 +228,7 @@ void Lexicon_assert_path_non_empty_hints(const Lexicon *lexicon, Z3_context ctx,
                 Z3_mk_or(ctx, option_count, options),
             };
             Z3_ast consequent = Z3_mk_and(ctx, 2, options_conjunction);
-            if (col + 2 < maze->size.x && Maze_is_path(maze, col + 2, row)) {
+            if (col + 2 < maze->size.y && Maze_is_path(maze, row, col + 2)) {
               consequent = Z3_mk_or(ctx, 2, (Z3_ast[2]){
                                                 consequent,
                                                 direct_h(lexicon, ctx, tile_e),
@@ -240,10 +243,10 @@ void Lexicon_assert_path_non_empty_hints(const Lexicon *lexicon, Z3_context ctx,
           }
         }
 
-        if (row + 1 < maze->size.y) { // S
+        if (row + 1 < maze->size.x) { // S
           Z3_ast tile_s[2] = {
+              Z3_mk_int(ctx, row + 1, lexicon->u6.sort),
               Z3_mk_int(ctx, col, lexicon->u6.sort),
-              Z3_mk_int(ctx, (row + 1), lexicon->u6.sort),
           };
 
           uint32_t option_count = 0;
@@ -252,10 +255,10 @@ void Lexicon_assert_path_non_empty_hints(const Lexicon *lexicon, Z3_context ctx,
           Z3_ast tile_s_h = Z3_mk_app(ctx, lexicon->path.tile_h_f, 2, tile_s);
 
           options[option_count++] = Z3_mk_eq(ctx, tile_s_h, lexicon->path.token.o);
-          if (col < maze->size.x - 1 && Maze_is_path(maze, col + 1, row + 1)) {
+          if (col + 1 < maze->size.y && Maze_is_path(maze, row + 1, col + 1)) {
             options[option_count++] = Z3_mk_eq(ctx, tile_s_h, lexicon->path.token.a);
           }
-          if (0 < col && Maze_is_path(maze, col - 1, row + 1)) {
+          if (0 < col && Maze_is_path(maze, row + 1, col - 1)) {
             options[option_count++] = Z3_mk_eq(ctx, tile_s_h, lexicon->path.token.b);
           }
 
@@ -266,7 +269,7 @@ void Lexicon_assert_path_non_empty_hints(const Lexicon *lexicon, Z3_context ctx,
                 Z3_mk_or(ctx, option_count, options),
             };
             Z3_ast consequent = Z3_mk_and(ctx, 2, options_conjunction);
-            if (row + 2 < maze->size.y && Maze_is_path(maze, col, row + 2)) {
+            if (row + 2 < maze->size.x && Maze_is_path(maze, row + 2, col)) {
               consequent = Z3_mk_or(ctx, 2, (Z3_ast[2]){
                                                 consequent,
                                                 direct_v(lexicon, ctx, tile_s),
@@ -283,18 +286,18 @@ void Lexicon_assert_path_non_empty_hints(const Lexicon *lexicon, Z3_context ctx,
 
         if (0 < col) { // W
           Z3_ast tile_w[2] = {
-              Z3_mk_int(ctx, (col - 1), lexicon->u6.sort),
               Z3_mk_int(ctx, row, lexicon->u6.sort),
+              Z3_mk_int(ctx, col - 1, lexicon->u6.sort),
           };
 
           uint32_t option_count = 0;
           Z3_ast options[3] = {};
 
           options[option_count++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lexicon->path.tile_v_f, 2, tile_w), lexicon->path.token.o);
-          if (0 < row && Maze_is_path(maze, col - 1, row - 1)) {
+          if (0 < row && Maze_is_path(maze, row - 1, col - 1)) {
             options[option_count++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lexicon->path.tile_v_f, 2, tile_w), lexicon->path.token.a);
           }
-          if (row < maze->size.y - 1 && Maze_is_path(maze, col - 1, row + 1)) {
+          if (row + 1 < maze->size.x && Maze_is_path(maze, row + 1, col - 1)) {
             options[option_count++] = Z3_mk_eq(ctx, Z3_mk_app(ctx, lexicon->path.tile_v_f, 2, tile_w), lexicon->path.token.b);
           }
 
@@ -305,7 +308,7 @@ void Lexicon_assert_path_non_empty_hints(const Lexicon *lexicon, Z3_context ctx,
             };
             Z3_ast consequent = Z3_mk_and(ctx, 2, options_conjunction);
 
-            if (0 < col - 1 && Maze_is_path(maze, col - 2, row)) {
+            if (1 < col && Maze_is_path(maze, row, col - 2)) {
               consequent = Z3_mk_or(ctx, 2, (Z3_ast[2]){
                                                 consequent,
                                                 direct_h(lexicon, ctx, tile_w),
@@ -370,15 +373,16 @@ void Lexicon_assert_anima_location(const Lexicon *lexicon, Z3_context ctx, Z3_op
   slog_display(SLOG_DEBUG, 0, "Asserted anima %d at %dx%d\n", id, anima_location.x, anima_location.y);
   Z3_ast anima_ast = Z3_mk_app(ctx, lexicon->anima.enum_consts[id], 0, 0);
 
-  { // col block
-    Z3_ast z3_col = z3_mk_unary_app(ctx, lexicon->anima.tile_col_f, anima_ast);
-    Z3_ast col = Z3_mk_int(ctx, anima_location.x, lexicon->u6.sort);
-    Z3_optimize_assert(ctx, otz, Z3_mk_eq(ctx, z3_col, col));
-  }
   { // row block
     Z3_ast z3_row = z3_mk_unary_app(ctx, lexicon->anima.tile_row_f, anima_ast);
-    Z3_ast row = Z3_mk_int(ctx, anima_location.y, lexicon->u6.sort);
+    Z3_ast row = Z3_mk_int(ctx, anima_location.x, lexicon->u6.sort);
     Z3_optimize_assert(ctx, otz, Z3_mk_eq(ctx, z3_row, row));
+  }
+
+  { // col block
+    Z3_ast z3_col = z3_mk_unary_app(ctx, lexicon->anima.tile_col_f, anima_ast);
+    Z3_ast col = Z3_mk_int(ctx, anima_location.y, lexicon->u6.sort);
+    Z3_optimize_assert(ctx, otz, Z3_mk_eq(ctx, z3_col, col));
   }
 }
 
@@ -386,11 +390,11 @@ void Lexicon_anima_tile_is_origin(const Lexicon *lexicon, Z3_context ctx, Z3_opt
 
   Z3_ast anima_ast = Z3_mk_app(ctx, lexicon->anima.enum_consts[id], 0, 0);
 
-  Z3_ast anima_col_row[2] = {z3_mk_unary_app(ctx, lexicon->anima.tile_col_f, anima_ast),
-                             z3_mk_unary_app(ctx, lexicon->anima.tile_row_f, anima_ast)};
+  Z3_ast anima_row_col[2] = {z3_mk_unary_app(ctx, lexicon->anima.tile_row_f, anima_ast),
+                             z3_mk_unary_app(ctx, lexicon->anima.tile_col_f, anima_ast)};
 
-  Z3_ast anima_h = Z3_mk_app(ctx, lexicon->path.tile_h_f, 2, anima_col_row);
-  Z3_ast anima_v = Z3_mk_app(ctx, lexicon->path.tile_v_f, 2, anima_col_row);
+  Z3_ast anima_h = Z3_mk_app(ctx, lexicon->path.tile_h_f, 2, anima_row_col);
+  Z3_ast anima_v = Z3_mk_app(ctx, lexicon->path.tile_v_f, 2, anima_row_col);
 
   Z3_ast ho = Z3_mk_eq(ctx, anima_h, lexicon->path.token.o);
   Z3_ast vo = Z3_mk_eq(ctx, anima_v, lexicon->path.token.o);
@@ -435,11 +439,11 @@ void Lexicon_persona_tile_is_origin(const Lexicon *lexicon, Z3_context ctx, Z3_o
 
   Z3_ast persona_ast = Z3_mk_app(ctx, lexicon->persona.enum_const[0], 0, 0);
 
-  Z3_ast persona_col_row[2] = {z3_mk_unary_app(ctx, lexicon->persona.tile_col_f, persona_ast),
-                               z3_mk_unary_app(ctx, lexicon->persona.tile_row_f, persona_ast)};
+  Z3_ast persona_row_col[2] = {z3_mk_unary_app(ctx, lexicon->persona.tile_row_f, persona_ast),
+                               z3_mk_unary_app(ctx, lexicon->persona.tile_col_f, persona_ast)};
 
-  Z3_ast persona_h = Z3_mk_app(ctx, lexicon->path.tile_h_f, 2, persona_col_row);
-  Z3_ast persona_v = Z3_mk_app(ctx, lexicon->path.tile_v_f, 2, persona_col_row);
+  Z3_ast persona_h = Z3_mk_app(ctx, lexicon->path.tile_h_f, 2, persona_row_col);
+  Z3_ast persona_v = Z3_mk_app(ctx, lexicon->path.tile_v_f, 2, persona_row_col);
 
   Z3_ast ho = Z3_mk_eq(ctx, persona_h, lexicon->path.token.o);
   Z3_ast vo = Z3_mk_eq(ctx, persona_v, lexicon->path.token.o);
@@ -454,18 +458,19 @@ void Lexicon_persona_tile_is_origin(const Lexicon *lexicon, Z3_context ctx, Z3_o
 void Lexicon_assert_persona_location(const Lexicon *lexicon, Z3_context ctx, Z3_optimize otz, const Situation *situation) {
 
   Pair_uint8 persona_location = atomic_load(&situation->persona.location);
-  printf("Asserted persona at %dx%d\n", persona_location.x, persona_location.y);
+
   Z3_ast persona_ast = Z3_mk_app(ctx, lexicon->persona.enum_const[0], 0, 0);
+
+  { // row block
+    Z3_ast z3_row = z3_mk_unary_app(ctx, lexicon->persona.tile_row_f, persona_ast);
+    Z3_ast row = Z3_mk_int(ctx, persona_location.x, lexicon->u6.sort);
+    Z3_optimize_assert(ctx, otz, Z3_mk_eq(ctx, z3_row, row));
+  }
 
   { // col block
     Z3_ast z3_col = z3_mk_unary_app(ctx, lexicon->persona.tile_col_f, persona_ast);
-    Z3_ast col = Z3_mk_int(ctx, persona_location.x, lexicon->u6.sort);
+    Z3_ast col = Z3_mk_int(ctx, persona_location.y, lexicon->u6.sort);
     Z3_optimize_assert(ctx, otz, Z3_mk_eq(ctx, z3_col, col));
-  }
-  { // row block
-    Z3_ast z3_row = z3_mk_unary_app(ctx, lexicon->persona.tile_row_f, persona_ast);
-    Z3_ast row = Z3_mk_int(ctx, persona_location.y, lexicon->u6.sort);
-    Z3_optimize_assert(ctx, otz, Z3_mk_eq(ctx, z3_row, row));
   }
 }
 
@@ -474,10 +479,11 @@ void Lexicon_assert_persona_location(const Lexicon *lexicon, Z3_context ctx, Z3_
 // ...
 void Lexicon_assert_constant_hints(const Lexicon *lexicon, Z3_context ctx, Z3_optimize otz, const Maze *maze) {
 
-  for (uint8_t row = 0; row < maze->size.y; row++) {
-    for (uint8_t col = 0; col < maze->size.x; col++) {
+  for (uint8_t row = 0; row < maze->size.x; ++row) {
+    for (uint8_t col = 0; col < maze->size.y; ++col) {
 
-      Z3_ast tile_x[2] = {Z3_mk_int(ctx, col, lexicon->u6.sort), Z3_mk_int(ctx, row, lexicon->u6.sort)};
+      Z3_ast tile_x[2] = {Z3_mk_int(ctx, row, lexicon->u6.sort),
+                          Z3_mk_int(ctx, col, lexicon->u6.sort)};
 
       Z3_ast tile_x_h = Z3_mk_app(ctx, lexicon->path.tile_h_f, 2, tile_x);
       Z3_ast tile_x_v = Z3_mk_app(ctx, lexicon->path.tile_v_f, 2, tile_x);
@@ -505,27 +511,29 @@ void Lexicon_assert_origin_is_anima_or_persona(const Lexicon *lexicon, Z3_contex
 
   Z3_ast persona_ast = Z3_mk_app(ctx, lexicon->persona.enum_const[0], 0, 0);
 
-  for (uint8_t row = 0; row < maze->size.y; row++) {
-    for (uint8_t col = 0; col < maze->size.x; col++) {
+  for (uint8_t row = 0; row < maze->size.x; ++row) {
+    for (uint8_t col = 0; col < maze->size.y; ++col) {
 
-      Z3_ast tile_x[2] = {Z3_mk_int(ctx, col, lexicon->u6.sort), Z3_mk_int(ctx, row, lexicon->u6.sort)};
+      Z3_ast tile_x[2] = {Z3_mk_int(ctx, row, lexicon->u6.sort),
+                          Z3_mk_int(ctx, col, lexicon->u6.sort)};
+
       Z3_ast tile_x_h = Z3_mk_app(ctx, lexicon->path.tile_h_f, 2, tile_x);
       Z3_ast tile_x_v = Z3_mk_app(ctx, lexicon->path.tile_v_f, 2, tile_x);
 
-      Z3_ast persona_col = Z3_mk_eq(ctx, z3_mk_unary_app(ctx, lexicon->persona.tile_col_f, persona_ast), tile_x[0]);
-      Z3_ast persona_row = Z3_mk_eq(ctx, z3_mk_unary_app(ctx, lexicon->persona.tile_row_f, persona_ast), tile_x[1]);
+      Z3_ast persona_row = Z3_mk_eq(ctx, z3_mk_unary_app(ctx, lexicon->persona.tile_row_f, persona_ast), tile_x[0]);
+      Z3_ast persona_col = Z3_mk_eq(ctx, z3_mk_unary_app(ctx, lexicon->persona.tile_col_f, persona_ast), tile_x[1]);
 
       unsigned int options_idx = 0;
       Z3_ast options[LEXICON_ANIMAS + 1];
-      options[options_idx++] = Z3_mk_and(ctx, 2, (Z3_ast[2]){persona_col, persona_row});
+      options[options_idx++] = Z3_mk_and(ctx, 2, (Z3_ast[2]){persona_row, persona_col});
 
       for (size_t anima_id = 0; anima_id < LEXICON_ANIMAS; ++anima_id) {
 
         Z3_ast anima_ast = Z3_mk_app(ctx, lexicon->anima.enum_consts[anima_id], 0, 0);
-        Z3_ast anima_col = Z3_mk_eq(ctx, z3_mk_unary_app(ctx, lexicon->anima.tile_col_f, anima_ast), tile_x[0]);
-        Z3_ast anima_row = Z3_mk_eq(ctx, z3_mk_unary_app(ctx, lexicon->anima.tile_row_f, anima_ast), tile_x[1]);
+        Z3_ast anima_row = Z3_mk_eq(ctx, z3_mk_unary_app(ctx, lexicon->anima.tile_row_f, anima_ast), tile_x[0]);
+        Z3_ast anima_col = Z3_mk_eq(ctx, z3_mk_unary_app(ctx, lexicon->anima.tile_col_f, anima_ast), tile_x[1]);
 
-        options[options_idx++] = Z3_mk_and(ctx, 2, (Z3_ast[2]){anima_col, anima_row});
+        options[options_idx++] = Z3_mk_and(ctx, 2, (Z3_ast[2]){anima_row, anima_col});
       }
 
       Z3_ast options_disjunction = Z3_mk_or(ctx, options_idx, options);

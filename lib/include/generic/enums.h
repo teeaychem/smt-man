@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include <stdio.h>
 
 /// Cardinal directions
 // Directions are flags
@@ -14,23 +13,23 @@ enum cardinal_e : uint8_t {
 };
 typedef enum cardinal_e Cardinal;
 
-static inline void Cardinal_print(Cardinal self) {
+static inline char Cardinal_to_char(Cardinal self) {
   switch (self) {
 
   case CARDINAL_NONE: {
-    printf("X");
+    return 'X';
   } break;
   case CARDINAL_N: {
-    printf("N");
+    return 'N';
   } break;
   case CARDINAL_E: {
-    printf("E");
+    return 'E';
   } break;
   case CARDINAL_S: {
-    printf("S");
+    return 'S';
   } break;
   case CARDINAL_W: {
-    printf("W");
+    return 'W';
   } break;
   }
 }

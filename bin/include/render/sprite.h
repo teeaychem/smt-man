@@ -29,10 +29,10 @@ typedef struct sprites_t Sprites;
 
 /// Methods
 
-static inline void Sprite_init(Sprite *self, const uint8_t sprite_size, const Pair_uint8 location, uint32_t offset_n) {
+static inline void Sprite_init(Sprite *self, const uint8_t sprite_size, const Pair_uint8 maze_location, uint32_t offset_n) {
   self->size = sprite_size,
-  self->location = (Pair_uint32){.x = ((uint32_t)(location.x)) * TILE_PIXELS,
-                                 .y = ((uint32_t)location.y + offset_n) * TILE_PIXELS};
+  self->location = (Pair_uint32){.x = (((uint32_t)maze_location.x) + offset_n) * TILE_PIXELS,
+                                 .y = (uint32_t)maze_location.y * TILE_PIXELS};
 }
 
 static inline bool Sprite_is_centered_on_tile(Pair_uint32 location, uint32_t tile_pixels) {
@@ -42,23 +42,26 @@ static inline bool Sprite_is_centered_on_tile(Pair_uint32 location, uint32_t til
 static inline Pair_uint8 Sprite_maze_location(const Pair_uint32 *sprite_location, uint32_t tile_pixels, uint32_t offset_n) {
 
   uint32_t x_mod = sprite_location->x % tile_pixels;
-  uint32_t y_mod = sprite_location->y % tile_pixels;
 
   Pair_uint8 maze_location = {};
 
-  if (x_mod < tile_pixels / 2) {
-    maze_location.x = (uint8_t)((sprite_location->x - x_mod) / tile_pixels);
-  } else {
-    maze_location.x = (uint8_t)((sprite_location->x + (tile_pixels - x_mod)) / tile_pixels);
+  { // x
+    if (x_mod < tile_pixels / 2) {
+      maze_location.x = (uint8_t)((sprite_location->x - x_mod) / tile_pixels);
+    } else {
+      maze_location.x = (uint8_t)((sprite_location->x + (tile_pixels - x_mod)) / tile_pixels);
+    }
+    maze_location.x -= offset_n;
   }
 
-  if (y_mod < tile_pixels / 2) {
-    maze_location.y = (uint8_t)((sprite_location->y - y_mod) / tile_pixels);
-  } else {
-    maze_location.y = (uint8_t)((sprite_location->y + (tile_pixels - y_mod)) / tile_pixels);
+  { // y
+    uint32_t y_mod = sprite_location->y % tile_pixels;
+    if (y_mod < tile_pixels / 2) {
+      maze_location.y = (uint8_t)((sprite_location->y - y_mod) / tile_pixels);
+    } else {
+      maze_location.y = (uint8_t)((sprite_location->y + (tile_pixels - y_mod)) / tile_pixels);
+    }
   }
-
-  maze_location.y -= offset_n;
 
   return maze_location;
 }

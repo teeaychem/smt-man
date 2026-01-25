@@ -6,6 +6,7 @@
 #define SUFFIX TYPE
 #endif
 
+#include <slog.h>
 #include <stddef.h>
 
 #define _CAT(A, B) A##_##B
@@ -35,10 +36,13 @@ S_TYPE CAT(S_TYPE, create)(const TYPE x, const TYPE y) {
 }
 
 size_t CAT(S_TYPE, flatten)(const S_TYPE *self, const TYPE x, const TYPE y) {
-  assert(x < self->x && "Invalid col");
-  assert(y < self->y && "Invalid row");
+  if (!(x < self->x && y < self->y)) {
+    slog_display(SLOG_ERROR, 0, "Invalid x: %d !< %d\n", x, self->x);
+    slog_display(SLOG_ERROR, 0, "Invalid y: %d !< %d\n", y, self->y);
+    assert(false);
+  };
 
-  return ((size_t)y * self->x) + (size_t)x;
+  return ((size_t)x * self->y) + (size_t)y;
 }
 
 S_TYPE CAT(S_TYPE, scale)(const S_TYPE *self, const TYPE factor) {

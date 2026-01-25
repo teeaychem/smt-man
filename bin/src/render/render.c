@@ -11,8 +11,11 @@
 void Renderer_create(Renderer *renderer, const Pair_uint8 maze_dimensions, const char *sheet_path) {
 
   Surface sheet = {};
-  Surface_from_path(&sheet, sheet_path);
-  Pair_uint32 pixel_dimensions = {.x = maze_dimensions.x * TILE_PIXELS, .y = (maze_dimensions.y + (RENDER_TOP + RENDER_BOT)) * TILE_PIXELS};
+  { // Sheet init
+    Surface_from_path(&sheet, sheet_path);
+  }
+  Pair_uint32 pixel_dimensions = {.x = (maze_dimensions.x + (RENDER_TOP + RENDER_BOT)) * TILE_PIXELS,
+                                  .y = maze_dimensions.y * TILE_PIXELS};
 
   *renderer = (Renderer){
       .frame_buffer = {.size = pixel_dimensions,
@@ -26,7 +29,7 @@ void Renderer_create(Renderer *renderer, const Pair_uint8 maze_dimensions, const
     exit(-1);
   }
 
-  renderer->window = SDL_CreateWindow("smt-man", (int)(renderer->frame_buffer.size.x * UI_SCALE), (int)(renderer->frame_buffer.size.y * UI_SCALE), 0);
+  renderer->window = SDL_CreateWindow("smt-man", (int)(renderer->frame_buffer.size.y * UI_SCALE), (int)(renderer->frame_buffer.size.x * UI_SCALE), 0);
   if (renderer->window == nullptr) {
     SDL_Log("Failed to create window: %s", SDL_GetError());
     exit(SDL_APP_FAILURE);
@@ -41,8 +44,8 @@ void Renderer_create(Renderer *renderer, const Pair_uint8 maze_dimensions, const
   renderer->texture = SDL_CreateTexture(renderer->renderer,
                                         SDL_PIXELFORMAT_ABGR8888,
                                         SDL_TEXTUREACCESS_STREAMING,
-                                        (int)renderer->frame_buffer.size.x,
-                                        (int)renderer->frame_buffer.size.y);
+                                        (int)renderer->frame_buffer.size.y,
+                                        (int)renderer->frame_buffer.size.x);
   if (renderer->texture == nullptr) {
     SDL_Log("Failed to create texture: %s", SDL_GetError());
     exit(SDL_APP_FAILURE);
@@ -69,8 +72,8 @@ void Renderer_render_frame_buffer(Renderer *self) {
     size_t i = 0;
     size_t sp = 0;
     size_t dp = 0;
-    for (; i < self->frame_buffer.size.y; i++, dp += self->frame_buffer.size.x, sp += (size_t)pitch) {
-      memcpy(pixels + sp, self->frame_buffer.pixels + dp, self->frame_buffer.size.x * sizeof(*self->frame_buffer.pixels));
+    for (; i < self->frame_buffer.size.x; i++, dp += self->frame_buffer.size.y, sp += (size_t)pitch) {
+      memcpy(pixels + sp, self->frame_buffer.pixels + dp, self->frame_buffer.size.y * sizeof(*self->frame_buffer.pixels));
     }
 
     SDL_UnlockTexture(self->texture);
@@ -86,16 +89,16 @@ void Renderer_render_frame_buffer(Renderer *self) {
 }
 
 void Renderer_draw_maze(Renderer *self, const Maze *maze) {
-  // For each tile...
 
-  for (uint8_t col = 0; col < maze->size.x; ++col) {
-    uint32_t col_scaled = (col * TILE_PIXELS);
+  for (uint8_t row = 0; row < maze->size.x; ++row) {
+    uint32_t row_scaled = ((row + RENDER_TOP) * TILE_PIXELS);
 
-    for (uint8_t row = 0; row < maze->size.y; ++row) {
-      uint32_t row_scaled = ((row + RENDER_TOP) * TILE_PIXELS);
-      Pair_uint32 tile_position = {.x = col_scaled, .y = row_scaled};
+    for (uint8_t col = 0; col < maze->size.y; ++col) {
+      uint32_t col_scaled = (col * TILE_PIXELS);
 
-      TileData *tile_data = Maze_tile_data_at(maze, col, row);
+      Pair_uint32 tile_position = {.x = row_scaled, .y = col_scaled};
+
+      TileData *tile_data = Maze_tile_data_at(maze, row, col);
 
       switch (tile_data->type) {
 
@@ -107,6 +110,8 @@ void Renderer_draw_maze(Renderer *self, const Maze *maze) {
         } break;
 
         case TILE_STYLE_LINE: {
+          Surface_fill_tile(&self->frame_buffer, tile_position, TILE_PIXELS, 0xF0F0F0F0);
+          /*
           Plane plane = tile_data->value.edge_value.edge_line_plane;
 
           uint32_t adjustment;
@@ -130,24 +135,22 @@ void Renderer_draw_maze(Renderer *self, const Maze *maze) {
 
           switch (plane) {
           case PLANE_H: {
-
             Surface_tile_line(&self->frame_buffer, col_scaled, row_scaled + adjustment, plane, TILE_PIXELS, 0xffffffff);
-
           } break;
           case PLANE_V: {
-
             Surface_tile_line(&self->frame_buffer, col_scaled + adjustment, row_scaled, plane, TILE_PIXELS, 0xffffffff);
-
           } break;
           }
-
+           */
         } break;
+
         case TILE_STYLE_ARC: {
-          Surface_tile_fixed_arc(&self->frame_buffer, tile_position, tile_data, 0xffffffff);
+          Surface_fill_tile(&self->frame_buffer, tile_position, TILE_PIXELS, 0x00000000);
+          /* Surface_tile_fixed_arc(&self->frame_buffer, tile_position, tile_data, 0xffffffff); */
         } break;
         }
-
       } break;
+
       case TILE_EMPTY: {
         Surface_fill_tile(&self->frame_buffer, tile_position, TILE_PIXELS, 0x00000000);
       } break;
@@ -190,7 +193,8 @@ void Renderer_anima(Renderer *self, const Anima *anima, Sprite *sprite, const Re
     Renderer_sprite_buffer_map_to(self, Sheet_anima_offset(anima), sprite->size);
     Surface_apply_pallete(&self->sprite_buffer, sprite->size, DEFAULT_PALLETES.animas[anima->id]);
 
-    Renderer_draw_from_sprite_buffer(self, sprite->location, sprite->size);
+    Renderer_sprite_fill(self, sprite->location, sprite->size, 0xFFFFFFFF, false);
+    /* Renderer_draw_from_sprite_buffer(self, sprite->location, sprite->size); */
   } break;
   case RENDER_ERASE: {
     Renderer_sprite_fill(self, sprite->location, sprite->size, 0x00000000, false);
@@ -224,7 +228,8 @@ void Renderer_persona(Renderer *self, const Persona *persona, Sprite *sprite, co
     }
 
     Surface_apply_pallete(&self->sprite_buffer, sprite->size, DEFAULT_PALLETES.persona);
-    Renderer_draw_from_sprite_buffer(self, sprite->location, sprite->size);
+    Renderer_sprite_fill(self, sprite->location, sprite->size, 0xFFF00FFF, false);
+    /* Renderer_draw_from_sprite_buffer(self, sprite->location, sprite->size); */
   } break;
   case RENDER_ERASE: {
     Renderer_sprite_fill(self, sprite->location, sprite->size, 0x00000000, false);
@@ -235,8 +240,8 @@ void Renderer_persona(Renderer *self, const Persona *persona, Sprite *sprite, co
 void Renderer_sprite_buffer_map_to(Renderer *self, const Pair_uint32 sprite_offset, const uint8_t size) {
 
   for (uint32_t row = 0; row < size; ++row) {
-    uint32_t pre_offset = Surface_offset(&self->sprite_buffer, 0, row);
-    uint32_t sheet_offset = Surface_offset(&self->sheet, sprite_offset.x, sprite_offset.y + row);
+    uint32_t pre_offset = Surface_offset(&self->sprite_buffer, row, 0);
+    uint32_t sheet_offset = Surface_offset(&self->sheet, sprite_offset.x + row, sprite_offset.y);
 
     memcpy(&self->sprite_buffer.pixels[pre_offset], &self->sheet.pixels[sheet_offset], size * sizeof(*self->sprite_buffer.pixels));
   }
@@ -249,10 +254,12 @@ void Renderer_draw_from_sprite_buffer(Renderer *self, const Pair_uint32 destinat
 
   for (uint32_t row = 0; row < size; ++row) {
     for (uint32_t col = 0; col < size; ++col) {
-      pixel_fb = Surface_offset(&self->frame_buffer, destination.x + col - centre_offset, destination.y + row - centre_offset);
+      pixel_fb = Surface_offset(&self->frame_buffer,
+                                destination.y + row - centre_offset,
+                                destination.x + col - centre_offset);
 
       if (self->frame_buffer.pixels[pixel_fb] == 0x00000000) {
-        pixel_s = Surface_offset(&self->sprite_buffer, col, row);
+        pixel_s = Surface_offset(&self->sprite_buffer, row, col);
         self->frame_buffer.pixels[pixel_fb] = self->sprite_buffer.pixels[pixel_s];
       }
     }

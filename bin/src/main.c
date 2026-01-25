@@ -59,7 +59,7 @@ int main() { // int main(int argc, char *argv[]) {
 
   const Maze maze = setup_maze(source_path);
   { // Setup block
-    Pair_uint8 persona_location = {.x = 13, .y = 17};
+    Pair_uint8 persona_location = {.x = 17, .y = 15};
     setup_situation(&situation, persona_location);
 
     Persona_default(&persona, &situation);
