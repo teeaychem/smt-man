@@ -46,8 +46,8 @@ Maze setup_maze(const char *source_path) {
   char path_buffer[FILENAME_MAX];
   cwk_path_join(source_path, "resources/maze/source.txt", path_buffer, FILENAME_MAX);
   ENSURE(Maze_from_path(&maze, path_buffer));
-  /* ENSURE(Maze_detail(&maze)); */
-  /* ENSURE(Maze_complete_data(&maze)); */
+  ENSURE(Maze_detail(&maze));
+  ENSURE(Maze_complete_data(&maze));
 
   return maze;
 }

@@ -137,6 +137,7 @@ int main() { // int main(int argc, char *argv[]) {
 
         Renderer_render_frame_buffer(&renderer);
       }
+      getc(stdin);
 
       { /// Post-render block
         Renderer_persona(&renderer, &persona, &sprites.persona, &situation, RENDER_ERASE);

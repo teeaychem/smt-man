@@ -4,6 +4,7 @@
 
 #include <SDL3/SDL.h>
 #include <png.h>
+#include <stdlib.h>
 
 #include "SML/maze.h"
 #include "generic/pairs.h"
@@ -21,7 +22,9 @@ void Surface_from_path(Surface *self, const char *path);
 
 void Surface_drop(Surface *self);
 
-void Surface_char_projection(const Surface *self, char *destination, size_t *length);
+void Surface_char_projection(const Surface *self, char **destination, size_t *length);
+
+void Surface_stdout(const Surface *self);
 
 void Surface_mirror(Surface *self, const uint32_t size);
 
@@ -39,9 +42,3 @@ void Surface_circle_draw(Surface *self, const Pair_uint32 *origin, const Pair_ui
 void Surface_tile_arc(Surface *self, const Pair_uint32 origin, const uint32_t radius, const Quadrant quadrant, const uint32_t colour);
 
 void Surface_tile_fixed_arc(Surface *self, const Pair_uint32 origin, const TileData *tile_data, const uint32_t colour);
-
-/// Static inline
-
-static inline uint32_t Surface_offset(const Surface *self, const uint32_t row, const uint32_t col) {
-  return (row * self->size.y) + col;
-}

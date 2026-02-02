@@ -36,74 +36,85 @@ void Surface_drop(Surface *self) {
   self->size.y = 0;
 }
 
-void Surface_char_projection(const Surface *self, char *destination, size_t *length) {
+void Surface_char_projection(const Surface *self, char **destination, size_t *length) {
 
   size_t size = (self->size.x * (self->size.y + 1)) + 1;
   *length = size;
 
-  destination = malloc(size * sizeof(*destination));
-  memset(destination, ' ', size);
-  destination[size - 1] = '\0';
+  char *buffer = malloc(size * sizeof(*buffer));
+  memset(buffer, ' ', size);
+  buffer[size - 1] = '\0';
 
   size_t idx = 0;
-  for (uint32_t r = 0; r < self->size.y; ++r) {
-    for (uint32_t c = 0; c < self->size.x; ++c, ++idx) {
-      if ((self->pixels)[r * self->size.x + c] != 0x00000000) {
-        destination[idx] = '#';
+  for (uint32_t row = 0; row < self->size.x; ++row) {
+    for (uint32_t col = 0; col < self->size.y; ++col, ++idx) {
+      if ((self->pixels)[Pair_uint32_flatten(&self->size, row, col)] != 0x00000000) {
+        buffer[idx] = '#';
       }
     }
-    destination[idx++] = '\n';
+    buffer[idx++] = '\n';
   }
+
+  *destination = buffer;
+}
+
+void Surface_stdout(const Surface *self) {
+
+  size_t length = 0;
+  char *buffer = nullptr;
+  Surface_char_projection(self, &buffer, &length);
+  printf("%s", buffer);
+  free(buffer);
 }
 
 void Surface_mirror(Surface *self, const uint32_t size) {
-  for (uint32_t i = 0; i < size; ++i) {
-    for (uint32_t j = 0; j < size / 2; ++j) {
-      uint32_t tmp = self->pixels[Surface_offset(self, j, i)];
-      self->pixels[Surface_offset(self, j, i)] = self->pixels[Surface_offset(self, size - j - 1, i)];
-      self->pixels[Surface_offset(self, size - j - 1, i)] = tmp;
+  for (uint32_t row = 0; row < size; ++row) {
+    for (uint32_t col = 0; col < size / 2; ++col) {
+      uint32_t tmp = self->pixels[Pair_uint32_flatten(&self->size, col, row)];
+      self->pixels[Pair_uint32_flatten(&self->size, col, row)] = self->pixels[Pair_uint32_flatten(&self->size, size - col - 1, row)];
+      self->pixels[Pair_uint32_flatten(&self->size, size - col - 1, row)] = tmp;
     }
   }
 }
 
 void Surface_transpose(Surface *self, const uint32_t size) {
-  for (uint32_t i = 0; i < size; ++i) {
-    for (uint32_t j = i + 1; j < size; ++j) {
-      uint32_t tmp = self->pixels[Surface_offset(self, j, i)];
-      self->pixels[Surface_offset(self, j, i)] = self->pixels[Surface_offset(self, i, j)];
-      self->pixels[Surface_offset(self, i, j)] = tmp;
+  for (uint32_t row = 0; row < size; ++row) {
+    for (uint32_t col = row + 1; col < size; ++col) {
+      uint32_t tmp = self->pixels[Pair_uint32_flatten(&self->size, col, row)];
+      self->pixels[Pair_uint32_flatten(&self->size, col, row)] = self->pixels[Pair_uint32_flatten(&self->size, row, col)];
+      self->pixels[Pair_uint32_flatten(&self->size, row, col)] = tmp;
     }
   }
 }
 
 void Surface_apply_pallete(Surface *self, const uint32_t size, const Pallete pallete) {
-  for (uint32_t i = 0; i < size; ++i) {
-    for (uint32_t j = 0; j < size; ++j) {
-      uint32_t pix = Surface_offset(self, j, i);
+  for (uint32_t row = 0; row < size; ++row) {
+    for (uint32_t col = 0; col < size; ++col) {
+      uint32_t pix = Pair_uint32_flatten(&self->size, row, col);
       Pallete_apply(&self->pixels[pix], pallete);
     }
   }
 }
 
 void Surface_fill_tile(Surface *self, const Pair_uint32 destination, const uint32_t size, const uint32_t colour) {
-  for (uint32_t i = 0; i < size; ++i) {
-    for (uint32_t j = 0; j < size; ++j) {
-      self->pixels[Surface_offset(self, destination.x + j, destination.y + i)] = colour;
+  for (uint32_t row = 0; row < size; ++row) {
+    for (uint32_t col = 0; col < size; ++col) {
+      self->pixels[Pair_uint32_flatten(&self->size, destination.x + row, destination.y + col)] = colour;
     }
   }
 }
 
-void Surface_tile_line(Surface *self, const uint32_t x, const uint32_t y, const Plane plane, const uint32_t length, const uint32_t colour) {
+void Surface_tile_line(Surface *self, const uint32_t row, const uint32_t col, const Plane plane, const uint32_t length, const uint32_t colour) {
 
   switch (plane) {
   case PLANE_H: {
     for (uint32_t idx = 0; idx < length; ++idx) {
-      self->pixels[Surface_offset(self, x + idx, y)] = colour;
+      self->pixels[Pair_uint32_flatten(&self->size, row, col + idx)] = colour;
     }
   } break;
   case PLANE_V: {
     for (uint32_t idx = 0; idx < length; ++idx) {
-      self->pixels[Surface_offset(self, x, y + idx)] = colour;
+      self->pixels[Pair_uint32_flatten(&self->size, row + idx, col)] = colour;
     }
   } break;
   }
@@ -114,34 +125,34 @@ void Surface_circle_draw(Surface *self, const Pair_uint32 *origin, const Pair_ui
   switch (quadrant) {
 
   case QUADRANT_1: {
-    uint32_t pixel_a = Surface_offset(self, origin->x + offset->x, origin->y - offset->y);
+    uint32_t pixel_a = Pair_uint32_flatten(&self->size, origin->x + offset->x, origin->y - offset->y);
     self->pixels[pixel_a] = colour;
 
-    uint32_t pixel_b = Surface_offset(self, origin->x + offset->y, origin->y - offset->x);
+    uint32_t pixel_b = Pair_uint32_flatten(&self->size, origin->x + offset->y, origin->y - offset->x);
     self->pixels[pixel_b] = colour;
   } break;
 
   case QUADRANT_2: {
-    uint32_t pixel_a = Surface_offset(self, origin->x - offset->y, origin->y - offset->x);
+    uint32_t pixel_a = Pair_uint32_flatten(&self->size, origin->x - offset->y, origin->y - offset->x);
     self->pixels[pixel_a] = colour;
 
-    uint32_t pixel_b = Surface_offset(self, origin->x - offset->x, origin->y - offset->y);
+    uint32_t pixel_b = Pair_uint32_flatten(&self->size, origin->x - offset->x, origin->y - offset->y);
     self->pixels[pixel_b] = colour;
   } break;
 
   case QUADRANT_3: {
-    uint32_t pixel_a = Surface_offset(self, origin->x - offset->x, origin->y + offset->y);
+    uint32_t pixel_a = Pair_uint32_flatten(&self->size, origin->x - offset->x, origin->y + offset->y);
     self->pixels[pixel_a] = colour;
 
-    uint32_t pixel_b = Surface_offset(self, origin->x - offset->y, origin->y + offset->x);
+    uint32_t pixel_b = Pair_uint32_flatten(&self->size, origin->x - offset->y, origin->y + offset->x);
     self->pixels[pixel_b] = colour;
   } break;
 
   case QUADRANT_4: {
-    uint32_t pixel_a = Surface_offset(self, origin->x + offset->x, origin->y + offset->y);
+    uint32_t pixel_a = Pair_uint32_flatten(&self->size, origin->x + offset->x, origin->y + offset->y);
     self->pixels[pixel_a] = colour;
 
-    uint32_t pixel_b = Surface_offset(self, origin->x + offset->y, origin->y + offset->x);
+    uint32_t pixel_b = Pair_uint32_flatten(&self->size, origin->x + offset->y, origin->y + offset->x);
     self->pixels[pixel_b] = colour;
   } break;
   }

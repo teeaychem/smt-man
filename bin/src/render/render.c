@@ -110,8 +110,7 @@ void Renderer_draw_maze(Renderer *self, const Maze *maze) {
         } break;
 
         case TILE_STYLE_LINE: {
-          Surface_fill_tile(&self->frame_buffer, tile_position, TILE_PIXELS, 0xF0F0F0F0);
-          /*
+
           Plane plane = tile_data->value.edge_value.edge_line_plane;
 
           uint32_t adjustment;
@@ -126,41 +125,32 @@ void Renderer_draw_maze(Renderer *self, const Maze *maze) {
 
           switch (plane) {
           case PLANE_H: {
-            Surface_tile_line(&self->frame_buffer, col_scaled, row_scaled + adjustment, plane, TILE_PIXELS, 0xffffffff);
+            Surface_tile_line(&self->frame_buffer, row_scaled + adjustment, col_scaled, plane, TILE_PIXELS, 0xffffffff);
           } break;
           case PLANE_V: {
-            Surface_tile_line(&self->frame_buffer, col_scaled + adjustment, row_scaled, plane, TILE_PIXELS, 0xffffffff);
+            Surface_tile_line(&self->frame_buffer, row_scaled, col_scaled + adjustment, plane, TILE_PIXELS, 0xffffffff);
           } break;
           }
 
-          switch (plane) {
-          case PLANE_H: {
-            Surface_tile_line(&self->frame_buffer, col_scaled, row_scaled + adjustment, plane, TILE_PIXELS, 0xffffffff);
-          } break;
-          case PLANE_V: {
-            Surface_tile_line(&self->frame_buffer, col_scaled + adjustment, row_scaled, plane, TILE_PIXELS, 0xffffffff);
-          } break;
-          }
-           */
         } break;
 
         case TILE_STYLE_ARC: {
-          Surface_fill_tile(&self->frame_buffer, tile_position, TILE_PIXELS, 0x00000000);
-          /* Surface_tile_fixed_arc(&self->frame_buffer, tile_position, tile_data, 0xffffffff); */
+          /* Surface_fill_tile(&self->frame_buffer, tile_position, TILE_PIXELS, 0x55555555); */
+          Surface_tile_fixed_arc(&self->frame_buffer, tile_position, tile_data, 0x55555555);
         } break;
         }
       } break;
 
       case TILE_EMPTY: {
-        Surface_fill_tile(&self->frame_buffer, tile_position, TILE_PIXELS, 0x00000000);
+        /* Surface_fill_tile(&self->frame_buffer, tile_position, TILE_PIXELS, 0x00000000); */
       } break;
 
       case TILE_INFO: {
-        Surface_fill_tile(&self->frame_buffer, tile_position, TILE_PIXELS, 0x00ffffff);
+        /* Surface_fill_tile(&self->frame_buffer, tile_position, TILE_PIXELS, 0x00ffffff); */
       } break;
 
       case TILE_PATH: {
-        Surface_fill_tile(&self->frame_buffer, tile_position, TILE_PIXELS, 0x00000000);
+        /* Surface_fill_tile(&self->frame_buffer, tile_position, TILE_PIXELS, 0x00000000); */
       } break;
       }
     }
@@ -176,10 +166,10 @@ void Renderer_draw_from_sheet(Renderer *self, const Pair_uint32 destination, con
   for (uint32_t row = 0; row < size; ++row) {
     for (uint32_t col = 0; col < size; ++col) {
 
-      pixel_fb = Surface_offset(&self->frame_buffer, destination.x + col - centre_offset, destination.y + row - centre_offset);
+      pixel_fb = Pair_uint32_flatten(&self->frame_buffer.size, destination.x + col - centre_offset, destination.y + row - centre_offset);
 
       if (self->frame_buffer.pixels[pixel_fb] == 0x00000000) {
-        pixel_s = Surface_offset(&self->sheet, source.x + col, source.y + row);
+        pixel_s = Pair_uint32_flatten(&self->sheet.size, source.x + col, source.y + row);
         self->frame_buffer.pixels[pixel_fb] = Pallete_offset(self->sheet.pixels[pixel_s], pallete);
       }
     }
@@ -191,6 +181,7 @@ void Renderer_anima(Renderer *self, const Anima *anima, Sprite *sprite, const Re
   switch (action) {
   case RENDER_DRAW: {
     Renderer_sprite_buffer_map_to(self, Sheet_anima_offset(anima), sprite->size);
+    Surface_stdout(&self->sprite_buffer);
     Surface_apply_pallete(&self->sprite_buffer, sprite->size, DEFAULT_PALLETES.animas[anima->id]);
 
     Renderer_sprite_fill(self, sprite->location, sprite->size, 0xFFFFFFFF, false);
@@ -240,10 +231,10 @@ void Renderer_persona(Renderer *self, const Persona *persona, Sprite *sprite, co
 void Renderer_sprite_buffer_map_to(Renderer *self, const Pair_uint32 sprite_offset, const uint8_t size) {
 
   for (uint32_t row = 0; row < size; ++row) {
-    uint32_t pre_offset = Surface_offset(&self->sprite_buffer, row, 0);
-    uint32_t sheet_offset = Surface_offset(&self->sheet, sprite_offset.x + row, sprite_offset.y);
+    uint32_t buffer_offset = Pair_uint32_flatten(&self->sprite_buffer.size, row, 0);
+    uint32_t sheet_offset = Pair_uint32_flatten(&self->sheet.size, sprite_offset.x + row, sprite_offset.y);
 
-    memcpy(&self->sprite_buffer.pixels[pre_offset], &self->sheet.pixels[sheet_offset], size * sizeof(*self->sprite_buffer.pixels));
+    memcpy(&self->sprite_buffer.pixels[buffer_offset], &self->sheet.pixels[sheet_offset], size * sizeof(*self->sprite_buffer.pixels));
   }
 }
 
@@ -254,12 +245,12 @@ void Renderer_draw_from_sprite_buffer(Renderer *self, const Pair_uint32 destinat
 
   for (uint32_t row = 0; row < size; ++row) {
     for (uint32_t col = 0; col < size; ++col) {
-      pixel_fb = Surface_offset(&self->frame_buffer,
-                                destination.y + row - centre_offset,
-                                destination.x + col - centre_offset);
+      pixel_fb = Pair_uint32_flatten(&self->frame_buffer.size,
+                                     destination.x + row - centre_offset,
+                                     destination.y + col - centre_offset);
 
       if (self->frame_buffer.pixels[pixel_fb] == 0x00000000) {
-        pixel_s = Surface_offset(&self->sprite_buffer, row, col);
+        pixel_s = Pair_uint32_flatten(&self->sprite_buffer.size, row, col);
         self->frame_buffer.pixels[pixel_fb] = self->sprite_buffer.pixels[pixel_s];
       }
     }

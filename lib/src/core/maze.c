@@ -107,7 +107,10 @@ Result Maze_from_path(Maze *maze, const char *path) {
 
     default: {
 
-      TileData data = {};
+      TileData data = {
+          .type = TILE_EMPTY
+
+      };
 
       switch (read) {
 
@@ -209,7 +212,7 @@ void Maze_detail_arc_outer(Maze *self) {
     }
 
     { // BOTTOM
-      tile = Maze_tile_data_at(self, self->size.y - 1, col);
+      tile = Maze_tile_data_at(self, self->size.x - 1, col);
       if (tile->type == TILE_EDGE) {
         Tile_set_arc(tile, QUADRANT_3);
         tile->value.edge_value.lines = TILE_LINES_OUTER;
@@ -217,7 +220,7 @@ void Maze_detail_arc_outer(Maze *self) {
     }
 
     { // INTERMEDIATE
-      for (uint8_t row = 4; row < self->size.y - 1; ++row) {
+      for (uint8_t row = 4; row < self->size.x - 1; ++row) {
         tile = Maze_tile_data_at(self, row, col);
         if (tile->type == TILE_EDGE) {
           if (Maze_tile_data_at(self, row, col + 1)->type == TILE_EDGE) {
@@ -251,7 +254,7 @@ void Maze_detail_arc_outer(Maze *self) {
   }
 
   { // RIGHT
-    uint8_t col = self->size.x - 1;
+    uint8_t col = self->size.y - 1;
     TileData *tile = nullptr;
 
     { // TOP
@@ -263,7 +266,7 @@ void Maze_detail_arc_outer(Maze *self) {
     }
 
     { // BOTTOM
-      tile = Maze_tile_data_at(self, self->size.y - 1, col);
+      tile = Maze_tile_data_at(self, self->size.x - 1, col);
       if (tile->type == TILE_EDGE) {
         Tile_set_arc(tile, QUADRANT_4);
         tile->value.edge_value.lines = TILE_LINES_OUTER;
@@ -271,7 +274,7 @@ void Maze_detail_arc_outer(Maze *self) {
     }
 
     { // INTERMEDIATE
-      for (uint8_t row = 4; row < self->size.y - 1; ++row) {
+      for (uint8_t row = 4; row < self->size.x - 1; ++row) {
         fflush(stdout);
         tile = Maze_tile_data_at(self, row, col);
         if (tile->type == TILE_EDGE) {
@@ -318,7 +321,7 @@ void Maze_detail_arc_outer(Maze *self) {
     }
 
     { // RIGHT
-      tile = Maze_tile_data_at(self, row, self->size.x - 1);
+      tile = Maze_tile_data_at(self, row, self->size.y - 1);
       if (tile->type == TILE_EDGE) {
         Tile_set_arc(tile, QUADRANT_1);
         tile->value.edge_value.lines = TILE_LINES_OUTER;
@@ -326,7 +329,7 @@ void Maze_detail_arc_outer(Maze *self) {
     }
 
     { // INTERMEDIATE
-      for (uint8_t col = 1; col < self->size.x - 1; ++col) {
+      for (uint8_t col = 1; col < self->size.y - 1; ++col) {
         tile = Maze_tile_data_at(self, row, col);
         if (tile->type == TILE_EDGE) {
           if (Maze_tile_data_at(self, row + 1, col)->type == TILE_EDGE) {
@@ -348,7 +351,7 @@ void Maze_detail_arc_outer(Maze *self) {
   }
 
   { // BOTTOM
-    uint8_t row = self->size.y - 1;
+    uint8_t row = self->size.x - 1;
     TileData *tile = nullptr;
 
     { // LEFT
@@ -360,7 +363,7 @@ void Maze_detail_arc_outer(Maze *self) {
     }
 
     { // RIGHT
-      tile = Maze_tile_data_at(self, row, self->size.x - 1);
+      tile = Maze_tile_data_at(self, row, self->size.y - 1);
       if (tile->type == TILE_EDGE) {
         Tile_set_arc(tile, QUADRANT_4);
         tile->value.edge_value.lines = TILE_LINES_OUTER;
@@ -368,7 +371,7 @@ void Maze_detail_arc_outer(Maze *self) {
     }
 
     { // INTERMEDIATE
-      for (uint8_t col = 1; col < self->size.x - 1; ++col) {
+      for (uint8_t col = 1; col < self->size.y - 1; ++col) {
         tile = Maze_tile_data_at(self, row, col);
         if (tile->type == TILE_EDGE) {
           if (Maze_tile_data_at(self, row - 1, col)->type == TILE_EDGE) {
@@ -391,8 +394,8 @@ void Maze_detail_arc_outer(Maze *self) {
 }
 
 void Maze_detail_arc_inner(Maze *self) {
-  for (uint8_t row = 1; row < self->size.y - 1; ++row) {
-    for (uint8_t col = 1; col < self->size.x - 1; ++col) {
+  for (uint8_t row = 1; row < self->size.x - 1; ++row) {
+    for (uint8_t col = 1; col < self->size.y - 1; ++col) {
 
       TileData *tile = Maze_tile_data_at(self, row, col);
       if (tile->type == TILE_EDGE) {
@@ -483,24 +486,24 @@ void Maze_complete_line_data(const Maze *self, TileData *tile_data, const uint8_
     tile_data->value.edge_value.edge_line_plane = PLANE_H;
   }
   // Bottom row
-  else if (row == (self->size.y - 1)) {
+  else if (row == (self->size.x - 1)) {
     tile_data->value.edge_value.lines = TILE_LINES_OUTER;
     tile_data->value.edge_value.edge_line_plane = PLANE_H;
   }
   // Intermediate rows
   else {
     // Above path
-    if (Maze_tile_data_at(self, row + 1, col)->type == TILE_PATH) {
+    if (Maze_tile_data_at(self, row - 1, col)->type == TILE_PATH) {
       tile_data->value.edge_value.lines = TILE_LINES_INNER;
       tile_data->value.edge_value.edge_line_plane = PLANE_H;
     }
     // Below path
-    else if (Maze_tile_data_at(self, row - 1, col)->type == TILE_PATH) {
+    else if (Maze_tile_data_at(self, row + 1, col)->type == TILE_PATH) {
       tile_data->value.edge_value.lines = TILE_LINES_OUTER;
       tile_data->value.edge_value.edge_line_plane = PLANE_H;
     }
     // Left of path
-    else if (col + 1 < self->size.x && Maze_tile_data_at(self, row, col + 1)->type == TILE_PATH) {
+    else if (col + 1 < self->size.y && Maze_tile_data_at(self, row, col + 1)->type == TILE_PATH) {
       tile_data->value.edge_value.lines = TILE_LINES_INNER;
       tile_data->value.edge_value.edge_line_plane = PLANE_V;
     }
@@ -519,8 +522,8 @@ void Maze_complete_line_data(const Maze *self, TileData *tile_data, const uint8_
 Result Maze_complete_data(const Maze *self) {
   // For each tile...
 
-  for (uint8_t row = 0; row < self->size.y; ++row) {
-    for (uint8_t col = 0; col < self->size.x; ++col) {
+  for (uint8_t row = 0; row < self->size.x; ++row) {
+    for (uint8_t col = 0; col < self->size.y; ++col) {
 
       TileData *tile_data = Maze_tile_data_at(self, row, col);
 
