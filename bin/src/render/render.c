@@ -115,11 +115,11 @@ void Renderer_draw_maze(Renderer *self, const Maze *maze) {
 
           uint32_t adjustment;
           switch (tile_data->value.edge_value.lines) {
-          case TILE_LINES_INNER: {
-            adjustment = MAZE_INDENT - 1;
-          } break;
-          case TILE_LINES_OUTER: {
+          case TILE_LINES_P: {
             adjustment = MAZE_INDENT;
+          } break;
+          case TILE_LINES_M: {
+            adjustment = MAZE_INDENT - 1;
           } break;
           }
 
@@ -135,8 +135,7 @@ void Renderer_draw_maze(Renderer *self, const Maze *maze) {
         } break;
 
         case TILE_STYLE_ARC: {
-          /* Surface_fill_tile(&self->frame_buffer, tile_position, TILE_PIXELS, 0x55555555); */
-          Surface_tile_fixed_arc(&self->frame_buffer, tile_position, tile_data, 0x55555555);
+          Surface_tile_fixed_arc(&self->frame_buffer, tile_position, tile_data, 0xffffffff);
         } break;
         }
       } break;

@@ -13,8 +13,8 @@ constexpr Pair_uint32 STANDARD_MAZE_DIMENSIONS = {.x = 31, .y = 28};
 struct tile_edge_data_t {
 
   enum : uint8_t {
-    TILE_LINES_INNER = 1,
-    TILE_LINES_OUTER = 2,
+    TILE_LINES_P = 1,
+    TILE_LINES_M = 2,
   } lines;
 
   enum {
