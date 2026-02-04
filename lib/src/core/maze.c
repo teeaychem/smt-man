@@ -275,7 +275,6 @@ void Maze_detail_arc_outer(Maze *self) {
 
     { // INTERMEDIATE
       for (uint8_t row = 4; row < self->size.x - 1; ++row) {
-        fflush(stdout);
         tile = Maze_tile_data_at(self, row, col);
         if (tile->type == TILE_EDGE) {
           if (Maze_tile_data_at(self, row, col - 1)->type == TILE_EDGE) {

@@ -180,11 +180,9 @@ void Renderer_anima(Renderer *self, const Anima *anima, Sprite *sprite, const Re
   switch (action) {
   case RENDER_DRAW: {
     Renderer_sprite_buffer_map_to(self, Sheet_anima_offset(anima), sprite->size);
-    Surface_stdout(&self->sprite_buffer);
     Surface_apply_pallete(&self->sprite_buffer, sprite->size, DEFAULT_PALLETES.animas[anima->id]);
 
-    Renderer_sprite_fill(self, sprite->location, sprite->size, 0xFFFFFFFF, false);
-    /* Renderer_draw_from_sprite_buffer(self, sprite->location, sprite->size); */
+    Renderer_draw_from_sprite_buffer(self, sprite->location, sprite->size);
   } break;
   case RENDER_ERASE: {
     Renderer_sprite_fill(self, sprite->location, sprite->size, 0x00000000, false);
@@ -218,8 +216,7 @@ void Renderer_persona(Renderer *self, const Persona *persona, Sprite *sprite, co
     }
 
     Surface_apply_pallete(&self->sprite_buffer, sprite->size, DEFAULT_PALLETES.persona);
-    Renderer_sprite_fill(self, sprite->location, sprite->size, 0xFFF00FFF, false);
-    /* Renderer_draw_from_sprite_buffer(self, sprite->location, sprite->size); */
+    Renderer_draw_from_sprite_buffer(self, sprite->location, sprite->size);
   } break;
   case RENDER_ERASE: {
     Renderer_sprite_fill(self, sprite->location, sprite->size, 0x00000000, false);

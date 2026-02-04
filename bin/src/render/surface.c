@@ -15,8 +15,8 @@ void Surface_from_path(Surface *self, const char *path) {
   if (png_image_begin_read_from_file(&image, path)) {
     image.format = PNG_FORMAT_RGBA;
 
-    self->size.x = image.width;
-    self->size.y = image.height;
+    self->size.x = image.height;
+    self->size.y = image.width;
     self->pixels = malloc(PNG_IMAGE_SIZE(image));
 
     if (self->pixels != nullptr &&
@@ -38,7 +38,7 @@ void Surface_drop(Surface *self) {
 
 void Surface_char_projection(const Surface *self, char **destination, size_t *length) {
 
-  size_t size = (self->size.x * (self->size.y + 1)) + 1;
+  size_t size = (self->size.x * (self->size.y + 2)) + 1;
   *length = size;
 
   char *buffer = malloc(size * sizeof(*buffer));
@@ -48,10 +48,11 @@ void Surface_char_projection(const Surface *self, char **destination, size_t *le
   size_t idx = 0;
   for (uint32_t row = 0; row < self->size.x; ++row) {
     for (uint32_t col = 0; col < self->size.y; ++col, ++idx) {
-      if ((self->pixels)[Pair_uint32_flatten(&self->size, row, col)] != 0x00000000) {
+      if (self->pixels[Pair_uint32_flatten(&self->size, row, col)] != 0x00000000) {
         buffer[idx] = '#';
       }
     }
+    buffer[idx++] = '|';
     buffer[idx++] = '\n';
   }
 
@@ -218,8 +219,8 @@ void Surface_tile_fixed_arc(Surface *self, const Pair_uint32 origin, const TileD
     switch (tile_data->value.edge_value.edge_arc_quadrant) {
     case QUADRANT_1: {
       Surface_tile_line(self, origin.x + half_pixels, origin.y, PLANE_H, length, colour);
-      Surface_tile_line(self, origin.x + half_pixels + 2, origin.y + half_pixels - 1, PLANE_V, length, colour);
-      Surface_tile_line(self, origin.x + half_pixels + 1, origin.y + half_pixels - 2, PLANE_H, 1, colour);
+      Surface_tile_line(self, origin.x + half_pixels + 2, origin.y + length + 1, PLANE_V, length, colour);
+      Surface_tile_line(self, origin.x + half_pixels + 1, origin.y + length, PLANE_H, 1, colour);
     } break;
 
     case QUADRANT_2: {
