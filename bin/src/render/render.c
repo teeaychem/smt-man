@@ -56,10 +56,19 @@ void Renderer_create(Renderer *renderer, const Pair_uint8 maze_dimensions, const
 
 void Renderer_drop(Renderer *self) {
 
+  SDL_DestroyTexture(self->texture);
+  self->texture = nullptr;
+
+  SDL_DestroyRenderer(self->renderer);
+  self->renderer = nullptr;
+
   SDL_DestroyWindow(self->window);
   self->window = nullptr;
 
-  // TODO: Free other allocations
+  Surface_drop(&self->sprite_buffer);
+  Surface_drop(&self->frame_buffer);
+
+  Surface_drop(&self->sheet);
 }
 
 void Renderer_render_frame_buffer(Renderer *self) {

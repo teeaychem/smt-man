@@ -72,11 +72,7 @@ void *setup_spirit(void *void_setup_struct) {
   while (true) {
     pthread_mutex_lock(&anima->contact.mtx_suspend);
     if (!atomic_load(&anima->contact.flag_suspend)) {
-      if (RESULT_OK != Anima_deduct(anima, setup_struct->maze)) {
-        printf("Pausing on panic...\n");
-        getc(stdin);
-        exit(1);
-      };
+      ENSURE(Anima_deduct(anima, setup_struct->maze));
       atomic_store(&anima->contact.flag_suspend, true);
     }
     pthread_cond_wait(&anima->contact.cond_resume, &anima->contact.mtx_suspend);
