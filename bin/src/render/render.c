@@ -141,15 +141,15 @@ void Renderer_draw_maze(Renderer *self, const Maze *maze) {
       } break;
 
       case TILE_EMPTY: {
-        /* Surface_fill_tile(&self->frame_buffer, tile_position, TILE_PIXELS, 0x00000000); */
+        Surface_fill_tile(&self->frame_buffer, tile_position, TILE_PIXELS, 0x00000000);
       } break;
 
       case TILE_INFO: {
-        /* Surface_fill_tile(&self->frame_buffer, tile_position, TILE_PIXELS, 0x00ffffff); */
+        Surface_fill_tile(&self->frame_buffer, tile_position, TILE_PIXELS, 0x00ffffff);
       } break;
 
       case TILE_PATH: {
-        /* Surface_fill_tile(&self->frame_buffer, tile_position, TILE_PIXELS, 0x00000000); */
+        Surface_fill_tile(&self->frame_buffer, tile_position, TILE_PIXELS, 0x00000000);
       } break;
       }
     }

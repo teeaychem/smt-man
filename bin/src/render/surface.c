@@ -71,9 +71,9 @@ void Surface_stdout(const Surface *self) {
 void Surface_mirror(Surface *self, const uint32_t size) {
   for (uint32_t row = 0; row < size; ++row) {
     for (uint32_t col = 0; col < size / 2; ++col) {
-      uint32_t tmp = self->pixels[Pair_uint32_flatten(&self->size, col, row)];
-      self->pixels[Pair_uint32_flatten(&self->size, col, row)] = self->pixels[Pair_uint32_flatten(&self->size, size - col - 1, row)];
-      self->pixels[Pair_uint32_flatten(&self->size, size - col - 1, row)] = tmp;
+      uint32_t tmp = self->pixels[Pair_uint32_flatten(&self->size, row, col)];
+      self->pixels[Pair_uint32_flatten(&self->size, row, col)] = self->pixels[Pair_uint32_flatten(&self->size, row, size - col - 1)];
+      self->pixels[Pair_uint32_flatten(&self->size, row, size - col - 1)] = tmp;
     }
   }
 }
@@ -81,9 +81,9 @@ void Surface_mirror(Surface *self, const uint32_t size) {
 void Surface_transpose(Surface *self, const uint32_t size) {
   for (uint32_t row = 0; row < size; ++row) {
     for (uint32_t col = row + 1; col < size; ++col) {
-      uint32_t tmp = self->pixels[Pair_uint32_flatten(&self->size, col, row)];
-      self->pixels[Pair_uint32_flatten(&self->size, col, row)] = self->pixels[Pair_uint32_flatten(&self->size, row, col)];
-      self->pixels[Pair_uint32_flatten(&self->size, row, col)] = tmp;
+      uint32_t tmp = self->pixels[Pair_uint32_flatten(&self->size, row, col)];
+      self->pixels[Pair_uint32_flatten(&self->size, row, col)] = self->pixels[Pair_uint32_flatten(&self->size, col, row)];
+      self->pixels[Pair_uint32_flatten(&self->size, col, row)] = tmp;
     }
   }
 }
