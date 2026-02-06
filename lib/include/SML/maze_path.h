@@ -27,6 +27,8 @@ typedef struct maze_path_t MazePath;
 
 void MazePath_init(MazePath *self, const Pair_uint8 size);
 
+void MazePath_drop(MazePath *self);
+
 void MazePath_clear(MazePath *self);
 
 void MazePath_read(MazePath *self, const Lexicon *lexicon, const Z3_context ctx, const Z3_model model, const Maze *maze);

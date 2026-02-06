@@ -41,6 +41,8 @@ struct anima_t {
     Z3_context ctx;
     /// Optimizer used to solve
     Z3_optimize opz;
+    /// Parser used to detail a context
+    Z3_parser_context parser;
     /// A DSL for solves
     Lexicon lexicon;
 

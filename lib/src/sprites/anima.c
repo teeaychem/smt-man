@@ -6,7 +6,6 @@
 #include "SML/sprite/anima.h"
 #include "generic/enums.h"
 #include "generic/pairs.h"
-#include "random.h"
 
 void Anima_init(Anima *self, const uint8_t id, const Pair_uint8 location, const Cardinal direction, const Maze *maze) {
   slog_display(SLOG_DEBUG, 0, "Creating anima: %d\n", id);
@@ -31,11 +30,13 @@ void Anima_init(Anima *self, const uint8_t id, const Pair_uint8 location, const 
 
   atomic_init(&self->smt.situation.animas[id].movement_pattern, 0x552a552a);
 
-  Z3_context ctx = z3_mk_anima_ctx();
-  Z3_optimize optimizer = Z3_mk_optimize(ctx);
-  Z3_optimize_inc_ref(ctx, optimizer);
-  self->smt.ctx = ctx;
-  self->smt.opz = optimizer;
+  self->smt.ctx = z3_mk_anima_ctx();
+
+  self->smt.opz = Z3_mk_optimize(self->smt.ctx);
+  Z3_optimize_inc_ref(self->smt.ctx, self->smt.opz);
+
+  self->smt.parser = Z3_mk_parser_context(self->smt.ctx);
+  Z3_parser_context_inc_ref(self->smt.ctx, self->smt.parser);
 
   atomic_init(&self->contact.flag_suspend, false);
 
@@ -44,6 +45,14 @@ void Anima_init(Anima *self, const uint8_t id, const Pair_uint8 location, const 
 
 void Anima_drop(Anima *self) {
   assert(self != nullptr);
+
+  MazePath_drop(&self->path);
+
+  Z3_parser_context_dec_ref(self->smt.ctx, self->smt.parser);
+
+  Z3_optimize_dec_ref(self->smt.ctx, self->smt.opz);
+
+
 }
 
 void Anima_instinct(Anima *self) {
@@ -53,18 +62,23 @@ void Anima_instinct(Anima *self) {
 void Anima_touch(Anima *self, const Maze *maze, size_t anima_count) {
   assert(self != nullptr);
 
-  Lexicon_setup_base(&self->smt.lexicon, self->smt.ctx);
-  Lexicon_setup_path(&self->smt.lexicon, self->smt.ctx);
-  Lexicon_setup_animas(&self->smt.lexicon, self->smt.ctx, anima_count);
-  Lexicon_setup_persona(&self->smt.lexicon, self->smt.ctx);
-  Lexicon_assert_constant_hints(&self->smt.lexicon, self->smt.ctx, self->smt.opz, maze);
-  Lexicon_assert_origin_is_anima_or_persona(&self->smt.lexicon, self->smt.ctx, self->smt.opz, maze);
+  { // Lexicon foundations
+    Lexicon_setup_base(&self->smt.lexicon, self->smt.ctx);
+    Lexicon_setup_path(&self->smt.lexicon, self->smt.ctx);
+    Lexicon_setup_animas(&self->smt.lexicon, self->smt.ctx, anima_count);
+    Lexicon_setup_persona(&self->smt.lexicon, self->smt.ctx);
+  }
 
-  Lexicon_anima_tile_is_origin(&self->smt.lexicon, self->smt.ctx, self->smt.opz, self->id);
-  Lexicon_persona_tile_is_origin(&self->smt.lexicon, self->smt.ctx, self->smt.opz);
+  { // C restrictions
+    Lexicon_assert_constant_hints(&self->smt.lexicon, self->smt.ctx, self->smt.opz, maze);
+    Lexicon_assert_origin_is_anima_or_persona(&self->smt.lexicon, self->smt.ctx, self->smt.opz, maze);
 
-  Lexicon_assert_shortest_path_empty_hints(&self->smt.lexicon, self->smt.ctx, self->smt.opz, maze);
-  Lexicon_assert_path_non_empty_hints(&self->smt.lexicon, self->smt.ctx, self->smt.opz, maze);
+    Lexicon_anima_tile_is_origin(&self->smt.lexicon, self->smt.ctx, self->smt.opz, self->id);
+    Lexicon_persona_tile_is_origin(&self->smt.lexicon, self->smt.ctx, self->smt.opz);
+
+    Lexicon_assert_shortest_path_empty_hints(&self->smt.lexicon, self->smt.ctx, self->smt.opz, maze);
+    Lexicon_assert_path_non_empty_hints(&self->smt.lexicon, self->smt.ctx, self->smt.opz, maze);
+  }
 }
 
 Result Anima_deduct(Anima *self, const Maze *maze) {
