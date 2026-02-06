@@ -26,6 +26,7 @@ Z3_ast direct_v(const Lexicon *lexicon, const Z3_context ctx, const Z3_ast row_c
   return Z3_mk_and(ctx, 2, conjuncts);
 }
 
+// TODO: Inline
 Z3_context z3_mk_anima_ctx() {
 
   Z3_config cfg = Z3_mk_config();
@@ -331,17 +332,15 @@ void Lexicon_assert_path_non_empty_hints(const Lexicon *lexicon, Z3_context ctx,
 
 void Lexicon_setup_animas(Lexicon *lexicon, Z3_context ctx, size_t anima_count) {
 
-  if (1 <= anima_count) {
-    lexicon->anima.enum_names[0] = Z3_mk_string_symbol(ctx, "anima_0");
-  }
-  if (2 <= anima_count) {
-    lexicon->anima.enum_names[1] = Z3_mk_string_symbol(ctx, "bertrand");
-  }
-  if (3 <= anima_count) {
-    lexicon->anima.enum_names[2] = Z3_mk_string_symbol(ctx, "herbrand");
-  }
-  if (4 <= anima_count) {
-    lexicon->anima.enum_names[3] = Z3_mk_string_symbol(ctx, "lob");
+  { // Set the (abstract) anima names
+    // Gottlob, Bertrand, Herbrand, Löb, etc.
+    char *name_buffer = malloc(8 * sizeof(*name_buffer));
+    for (uint8_t idx = 0; idx < anima_count; ++idx) {
+      sprintf(name_buffer, "anima_%d", idx);
+
+      lexicon->anima.enum_names[0] = Z3_mk_string_symbol(ctx, name_buffer);
+    }
+    free(name_buffer);
   }
 
   assert(anima_count < UINT_MAX);
