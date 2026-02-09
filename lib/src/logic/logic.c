@@ -337,8 +337,7 @@ void Lexicon_setup_animas(Lexicon *lexicon, Z3_context ctx, size_t anima_count) 
     char *name_buffer = malloc(8 * sizeof(*name_buffer));
     for (uint8_t idx = 0; idx < anima_count; ++idx) {
       sprintf(name_buffer, "anima_%d", idx);
-
-      lexicon->anima.enum_names[0] = Z3_mk_string_symbol(ctx, name_buffer);
+      lexicon->anima.enum_names[idx] = Z3_mk_string_symbol(ctx, name_buffer);
     }
     free(name_buffer);
   }

@@ -1,4 +1,5 @@
 /// Generic struct setup
+#include "macro.h"
 #define ARITHMETIC_IMPLEMENTATION
 #include "generic/arithmetic.h"
 #undef ARITHMETIC_IMPLEMENTATION
@@ -101,21 +102,12 @@ void setup_anima(Anima *animas, pthread_t *threads, Sprites *sprites, uint8_t id
 }
 
 void setup_animas(Anima *animas, pthread_t *threads, Sprites *sprites, const Maze *maze, size_t anima_count) {
+  static Pair_uint8 locations[] = {{3, 1}, {26, 16}, {12, 21}, {29, 4}};
+  assert(anima_count <= ARRAY_LEN(locations));
 
-  if (1 <= anima_count) {
-    setup_anima(animas, threads, sprites, 0, Pair_uint8_create(3, 1), maze, anima_count);
-  }
-
-  if (2 <= anima_count) {
-    setup_anima(animas, threads, sprites, 1, Pair_uint8_create(26, 16), maze, anima_count);
-  }
-
-  if (3 <= anima_count) {
-    setup_anima(animas, threads, sprites, 2, Pair_uint8_create(12, 21), maze, anima_count);
-  }
-
-  if (4 <= anima_count) {
-    setup_anima(animas, threads, sprites, 3, Pair_uint8_create(29, 4), maze, anima_count);
+  for (uint8_t idx = 0; idx < anima_count; ++idx) {
+    auto location = Pair_uint8_create(locations[idx].x, locations[idx].y);
+    setup_anima(animas, threads, sprites, idx, location, maze, anima_count);
   }
 }
 
