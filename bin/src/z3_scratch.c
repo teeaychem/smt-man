@@ -116,7 +116,6 @@ int main() {
       char *line_buffer = nullptr;
       size_t buffer_size = 0;
       ssize_t bytes_read;
-      size_t line = 1;
 
       file_ptr = fopen(path_buffer, "r");
       if (file_ptr == nullptr) {
@@ -141,7 +140,6 @@ int main() {
             Z3_optimize_assert(ctx, optimizer, element);
           }
         }
-        line += 1;
       }
 
       fclose(file_ptr);
