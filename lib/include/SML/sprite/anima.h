@@ -55,11 +55,17 @@ typedef struct anima_t Anima;
 /// Initialize an anima with `id`, at grid `location`, facing `direction`
 void Anima_init(Anima *self, const uint8_t id, const Pair_uint8 location, const Cardinal direction, const Maze *maze);
 
-/// Assert general sentences
-void Anima_touch(Anima *self, const Maze *maze, size_t anima_count);
-
 /// Drop an anima
 void Anima_drop(Anima *self);
+
+///
+void Anima_touch(Anima *self, size_t anima_count);
+
+///
+void Anima_restrict(Anima *self, const Maze *maze);
+
+///
+void Anima_parse(Anima *self, char *smt_path);
 
 /// Generate consequences without deduction
 void Anima_instinct(Anima *self);

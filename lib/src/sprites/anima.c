@@ -2,6 +2,7 @@
 #include <stdint.h>
 
 #include <slog.h>
+#include <stdio.h>
 
 #include "SML/sprite/anima.h"
 #include "generic/enums.h"
@@ -51,33 +52,95 @@ void Anima_drop(Anima *self) {
   Z3_parser_context_dec_ref(self->smt.ctx, self->smt.parser);
 
   Z3_optimize_dec_ref(self->smt.ctx, self->smt.opz);
-
-
 }
 
 void Anima_instinct(Anima *self) {
   assert(self != nullptr);
 }
 
-void Anima_touch(Anima *self, const Maze *maze, size_t anima_count) {
-  assert(self != nullptr);
+void Anima_touch(Anima *self, size_t anima_count) {
 
-  { // Lexicon foundations
-    Lexicon_setup_base(&self->smt.lexicon, self->smt.ctx);
-    Lexicon_setup_path(&self->smt.lexicon, self->smt.ctx);
-    Lexicon_setup_animas(&self->smt.lexicon, self->smt.ctx, anima_count);
-    Lexicon_setup_persona(&self->smt.lexicon, self->smt.ctx);
+  Lexicon_setup_base(&self->smt.lexicon, self->smt.ctx);
+  Lexicon_setup_path(&self->smt.lexicon, self->smt.ctx);
+  Lexicon_setup_animas(&self->smt.lexicon, self->smt.ctx, anima_count);
+  Lexicon_setup_persona(&self->smt.lexicon, self->smt.ctx);
+}
+
+void Anima_restrict(Anima *self, const Maze *maze) {
+
+  Lexicon_assert_constant_hints(&self->smt.lexicon, self->smt.ctx, self->smt.opz, maze);
+  Lexicon_assert_origin_is_anima_or_persona(&self->smt.lexicon, self->smt.ctx, self->smt.opz, maze);
+
+  Lexicon_anima_tile_is_origin(&self->smt.lexicon, self->smt.ctx, self->smt.opz, self->id);
+  Lexicon_persona_tile_is_origin(&self->smt.lexicon, self->smt.ctx, self->smt.opz);
+
+  Lexicon_assert_shortest_path_empty_hints(&self->smt.lexicon, self->smt.ctx, self->smt.opz, maze);
+  Lexicon_assert_path_non_empty_hints(&self->smt.lexicon, self->smt.ctx, self->smt.opz, maze);
+}
+
+void Anima_parse(Anima *self, char *smt_path) {
+  {
+
+    Z3_parser_context_add_sort(self->smt.ctx, self->smt.parser, self->smt.lexicon.u6.sort);
+
+    {
+
+      for (size_t idx = 0; idx < PATH_VARIANTS; ++idx) {
+        Z3_parser_context_add_decl(self->smt.ctx, self->smt.parser, self->smt.lexicon.path.enum_consts[idx]);
+      }
+      Z3_parser_context_add_decl(self->smt.ctx, self->smt.parser, self->smt.lexicon.path.tile_h_f);
+      Z3_parser_context_add_decl(self->smt.ctx, self->smt.parser, self->smt.lexicon.path.tile_v_f);
+    }
+
+    {
+      Z3_parser_context_add_sort(self->smt.ctx, self->smt.parser, self->smt.lexicon.anima.sort);
+
+      Z3_parser_context_add_decl(self->smt.ctx, self->smt.parser, self->smt.lexicon.anima.tile_row_f);
+      Z3_parser_context_add_decl(self->smt.ctx, self->smt.parser, self->smt.lexicon.anima.tile_col_f);
+    }
+
+    {
+      Z3_parser_context_add_sort(self->smt.ctx, self->smt.parser, self->smt.lexicon.persona.sort);
+      Z3_parser_context_add_decl(self->smt.ctx, self->smt.parser, self->smt.lexicon.persona.tile_row_f);
+      Z3_parser_context_add_decl(self->smt.ctx, self->smt.parser, self->smt.lexicon.persona.tile_col_f);
+    }
   }
 
-  { // C restrictions
-    Lexicon_assert_constant_hints(&self->smt.lexicon, self->smt.ctx, self->smt.opz, maze);
-    Lexicon_assert_origin_is_anima_or_persona(&self->smt.lexicon, self->smt.ctx, self->smt.opz, maze);
+  { // Read smt2
+    FILE *file_ptr;
+    char *line_buffer = nullptr;
+    size_t buffer_size = 0;
+    ssize_t bytes_read;
 
-    Lexicon_anima_tile_is_origin(&self->smt.lexicon, self->smt.ctx, self->smt.opz, self->id);
-    Lexicon_persona_tile_is_origin(&self->smt.lexicon, self->smt.ctx, self->smt.opz);
+    file_ptr = fopen(smt_path, "r");
+    if (file_ptr == nullptr) {
+      slog_display(SLOG_ERROR, 0, "File missing: %s\n", smt_path);
+      exit(EXIT_FAILURE);
+    }
 
-    Lexicon_assert_shortest_path_empty_hints(&self->smt.lexicon, self->smt.ctx, self->smt.opz, maze);
-    Lexicon_assert_path_non_empty_hints(&self->smt.lexicon, self->smt.ctx, self->smt.opz, maze);
+    while (bytes_read = getline(&line_buffer, &buffer_size, file_ptr), 0 <= bytes_read) {
+      if (1 < bytes_read) {
+        line_buffer[bytes_read - 1] = '\0';
+        Z3_ast_vector z3_vec = Z3_parser_context_from_string(self->smt.ctx, self->smt.parser, line_buffer);
+        unsigned int vec_size = Z3_ast_vector_size(self->smt.ctx, z3_vec);
+
+        if (vec_size == 0) {
+          /* printf("%zu: %s\n", line, line_buffer); */
+        }
+
+        for (unsigned int idx = 0; idx < vec_size; ++idx) {
+          Z3_ast element = Z3_ast_vector_get(self->smt.ctx, z3_vec, idx);
+
+          /* Z3_ast_kind ast_kind = Z3_get_ast_kind(ctx, element); */
+          Z3_optimize_assert(self->smt.ctx, self->smt.opz, element);
+        }
+      }
+    }
+
+    fclose(file_ptr);
+    if (line_buffer != nullptr) {
+      free(line_buffer);
+    }
   }
 }
 

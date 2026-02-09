@@ -66,7 +66,21 @@ void *setup_spirit(void *void_setup_struct) {
   struct spirit_setup_t *setup_struct = void_setup_struct;
   Anima *anima = setup_struct->anima;
 
-  Anima_touch(anima, setup_struct->maze, setup_struct->anima_count);
+  Anima_touch(anima, setup_struct->anima_count);
+  /* Anima_restrict(anima, setup_struct->maze); */
+
+  {
+    char *source_path;
+    { // Set source path, kept until exit
+      int source_path_length;
+      set_source_path(&source_path, &source_path_length);
+    }
+    char smt_path[FILENAME_MAX];
+    cwk_path_join(source_path, "../../anima.smt2", smt_path, FILENAME_MAX);
+    Anima_parse(anima, smt_path);
+  }
+
+  Lexicon_assert_shortest_path_empty_hints(&anima->smt.lexicon, anima->smt.ctx, anima->smt.opz, setup_struct->maze);
 
   atomic_store(&anima->contact.flag_suspend, true);
 
@@ -90,13 +104,12 @@ void setup_anima(Anima *animas, pthread_t *threads, Sprites *sprites, uint8_t id
     Sprite_init(&sprites->animas[id], 16, location, RENDER_TOP);
   }
 
-  SpiritSetup setup = {
+  SpiritSetup *setup_ptr = malloc(sizeof(*setup_ptr));
+  *setup_ptr = (SpiritSetup){
       .anima_count = anima_count,
       .anima = &animas[id],
       .maze = maze,
   };
-  SpiritSetup *setup_ptr = malloc(sizeof(setup));
-  *setup_ptr = setup;
 
   pthread_create(&threads[id], nullptr, setup_spirit, (void *)setup_ptr);
 }
