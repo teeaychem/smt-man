@@ -77,7 +77,7 @@ void *setup_spirit(void *void_setup_struct) {
     }
     char smt_path[FILENAME_MAX];
     cwk_path_join(source_path, "../../anima.smt2", smt_path, FILENAME_MAX);
-    Anima_parse(anima, smt_path);
+    Anima_parse_fundamentals(anima, smt_path);
   }
 
   Lexicon_assert_shortest_path_empty_hints(&anima->smt.lexicon, anima->smt.ctx, anima->smt.opz, setup_struct->maze);

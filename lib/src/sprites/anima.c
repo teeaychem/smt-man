@@ -66,25 +66,14 @@ void Anima_touch(Anima *self, size_t anima_count) {
   Lexicon_setup_persona(&self->smt.lexicon, self->smt.ctx);
 }
 
-void Anima_restrict(Anima *self, const Maze *maze) {
-
-  Lexicon_assert_constant_hints(&self->smt.lexicon, self->smt.ctx, self->smt.opz, maze);
-  Lexicon_assert_origin_is_anima_or_persona(&self->smt.lexicon, self->smt.ctx, self->smt.opz, maze);
-
-  Lexicon_anima_tile_is_origin(&self->smt.lexicon, self->smt.ctx, self->smt.opz, self->id);
-  Lexicon_persona_tile_is_origin(&self->smt.lexicon, self->smt.ctx, self->smt.opz);
-
-  Lexicon_assert_shortest_path_empty_hints(&self->smt.lexicon, self->smt.ctx, self->smt.opz, maze);
-  Lexicon_assert_path_non_empty_hints(&self->smt.lexicon, self->smt.ctx, self->smt.opz, maze);
-}
-
-void Anima_parse(Anima *self, char *smt_path) {
+void Anima_parse_fundamentals(Anima *self, char *smt_path) {
   {
 
-    Z3_parser_context_add_sort(self->smt.ctx, self->smt.parser, self->smt.lexicon.u6.sort);
+    { // Fundamental setup
+      Z3_parser_context_add_sort(self->smt.ctx, self->smt.parser, self->smt.lexicon.u6.sort);
+    }
 
-    {
-
+    { // Path setup
       for (size_t idx = 0; idx < PATH_VARIANTS; ++idx) {
         Z3_parser_context_add_decl(self->smt.ctx, self->smt.parser, self->smt.lexicon.path.enum_consts[idx]);
       }
@@ -92,14 +81,13 @@ void Anima_parse(Anima *self, char *smt_path) {
       Z3_parser_context_add_decl(self->smt.ctx, self->smt.parser, self->smt.lexicon.path.tile_v_f);
     }
 
-    {
+    { // Anima setup
       Z3_parser_context_add_sort(self->smt.ctx, self->smt.parser, self->smt.lexicon.anima.sort);
-
       Z3_parser_context_add_decl(self->smt.ctx, self->smt.parser, self->smt.lexicon.anima.tile_row_f);
       Z3_parser_context_add_decl(self->smt.ctx, self->smt.parser, self->smt.lexicon.anima.tile_col_f);
     }
 
-    {
+    { // Persona setup
       Z3_parser_context_add_sort(self->smt.ctx, self->smt.parser, self->smt.lexicon.persona.sort);
       Z3_parser_context_add_decl(self->smt.ctx, self->smt.parser, self->smt.lexicon.persona.tile_row_f);
       Z3_parser_context_add_decl(self->smt.ctx, self->smt.parser, self->smt.lexicon.persona.tile_col_f);

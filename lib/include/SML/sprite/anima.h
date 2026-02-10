@@ -62,10 +62,7 @@ void Anima_drop(Anima *self);
 void Anima_touch(Anima *self, size_t anima_count);
 
 ///
-void Anima_restrict(Anima *self, const Maze *maze);
-
-///
-void Anima_parse(Anima *self, char *smt_path);
+void Anima_parse_fundamentals(Anima *self, char *smt_path);
 
 /// Generate consequences without deduction
 void Anima_instinct(Anima *self);
