@@ -4,7 +4,7 @@ from smt_man.language import location_t
 
 
 class Maze:
-    def __init__(self, path):
+    def __init__(self, path: str):
         self.rows: int = 0
         self.cols: int = 0
         # Character representation of the maze

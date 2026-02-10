@@ -1,6 +1,6 @@
-from smt_man.path7 import path7_t
 from smt_man.path4 import path4_t
 import time
+import argparse
 
 import z3
 
@@ -10,9 +10,30 @@ from smt_man.mind import mind
 from smt_man.types import *
 from smt_man.language import *
 
-persona: z3_expr_t = z3.Const("persona", z3s_persona_t)
 
-maze = smt_man.maze.Maze("./bin/resources/maze/source.txt")
+parser = argparse.ArgumentParser(
+    prog="explorations",
+    description="tmp",
+)
+
+parser.add_argument("-a", "--anima", type=str, help="Anima name", default="anima")
+parser.add_argument("-m", "--maze", help="path to the maze", type=str, default="./bin/resources/maze/source.txt")
+parser.add_argument("-p", "--persona", type=str, help="Persona name", default="persona")
+parser.add_argument("-t", "--test", help="Test paths", action=argparse.BooleanOptionalAction)
+parser.add_argument("-f", "--file", help="File", type=str)
+
+
+parsed_args = parser.parse_args()
+print(parsed_args)
+
+maze_path: str = parsed_args.maze
+anima_name: str = parsed_args.anima
+persona_name: str = parsed_args.persona
+
+
+persona: z3_expr_t = z3.Const(persona_name, z3s_persona_t)
+
+maze = smt_man.maze.Maze(maze_path)
 
 
 optimizer = z3.Optimize()
@@ -22,9 +43,11 @@ mind.set_defaults(optimizer)
 ###
 
 animas: list[z3_expr_t] = [
-    z3.Const("anima_0", z3s_anima_t),
+    z3.Const(anima_name, z3s_anima_t),
 ]
 ## Path
+
+print(f"\nGenerating constraints for persona named '{persona_name}' and anima named '{anima_name}' ... ", end="")
 
 path = path4_t()
 
@@ -36,30 +59,36 @@ path.assert_constant_tile_constraints(optimizer, maze)
 path.assert_constant_origin_is_anima_or_persona(optimizer, maze, animas, persona)
 path.assert_constant_hints(optimizer, maze)
 
-mind.to_file(optimizer, "./anima.smt2")
-# exit()
+print("done!")
 
-optimizer.check()
+if parsed_args.file is not None:
+    print(f"Writing constraints to {parsed_args.file} ... ", end="")
+    mind.to_file(optimizer, parsed_args.file)
+    print("done!")
 
-unsat_instances: list[tuple[location_t, location_t]] = []
 
-for anima_location in maze.tiles():
-    if maze.is_path(anima_location[0], anima_location[1]):
-        for persona_location in maze.tiles():
-            if maze.is_path(persona_location[0], persona_location[1]):
-                if anima_location != persona_location:
-                    print(f"{anima_location} -> {persona_location}")
-                    optimizer.push()
+if parsed_args.test:
+    optimizer.check()
 
-                    path.assert_variable_anima_location(optimizer, animas[0], anima_location[0], anima_location[1])
-                    path.assert_variable_persona_location(optimizer, persona, persona_location[0], persona_location[1])
+    unsat_instances: list[tuple[location_t, location_t]] = []
 
-                    model = mind.timed_solve(optimizer, print_stats=True)
-                    if model is not None:
-                        print(path.to_string(maze, model))
-                        # print(model)
-                    else:
-                        unsat_instances.append((anima_location, persona_location))
-                        input("Hm... ")
+    for anima_location in maze.tiles():
+        if maze.is_path(anima_location[0], anima_location[1]):
+            for persona_location in maze.tiles():
+                if maze.is_path(persona_location[0], persona_location[1]):
+                    if anima_location != persona_location:
+                        print(f"{anima_location} -> {persona_location}")
+                        optimizer.push()
 
-                    optimizer.pop()
+                        path.assert_variable_anima_location(optimizer, animas[0], anima_location[0], anima_location[1])
+                        path.assert_variable_persona_location(optimizer, persona, persona_location[0], persona_location[1])
+
+                        model = mind.timed_solve(optimizer, print_stats=True)
+                        if model is not None:
+                            print(path.to_string(maze, model))
+                            # print(model)
+                        else:
+                            unsat_instances.append((anima_location, persona_location))
+                            input("Hm... ")
+
+                        optimizer.pop()
