@@ -65,7 +65,7 @@ int main() { // int main(int argc, char *argv[]) {
     Persona_default(&persona, &situation);
     Sprite_init(&sprites.persona, 16, persona_location, RENDER_TOP);
 
-    setup_animas(animas, ANIMA_THREADS, &sprites, &maze, ANIMA_COUNT);
+    setup_animas(animas, ANIMA_THREADS, &sprites, &maze, ANIMA_COUNT, source_path);
   }
   Renderer renderer = {};
   {

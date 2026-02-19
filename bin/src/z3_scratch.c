@@ -56,7 +56,7 @@ int main() {
 
     Persona_default(&persona, &situation);
 
-    setup_animas(animas, ANIMA_THREADS, nullptr, &maze, ANIMA_COUNT);
+    setup_animas(animas, ANIMA_THREADS, nullptr, &maze, ANIMA_COUNT, source_path);
   }
   Maze_display(&maze);
 

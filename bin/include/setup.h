@@ -16,6 +16,6 @@ Maze setup_maze(const char *source_path);
 
 void setup_renderer(Renderer *renderer, const Maze *maze, const char *source_path);
 
-void setup_animas(Anima *animas, pthread_t *threads, Sprites *sprites, const Maze *maze, size_t anima_count);
+void setup_animas(Anima *animas, pthread_t *threads, Sprites *sprites, const Maze *maze, size_t anima_count, const char *source_path);
 
 void setup_situation(Situation *situation, Pair_uint8 location);

@@ -54,12 +54,13 @@ Maze setup_maze(const char *source_path) {
 }
 
 struct spirit_setup_t {
-  size_t anima_count;
   Anima *anima;
+  size_t anima_count;
   const Maze *maze;
+  const char *source_path;
   pthread_t *thread;
 };
-typedef struct spirit_setup_t SpiritSetup;
+typedef struct spirit_setup_t spirit_setup_s;
 
 void *setup_spirit(void *void_setup_struct) {
 
@@ -70,13 +71,8 @@ void *setup_spirit(void *void_setup_struct) {
   /* Anima_restrict(anima, setup_struct->maze); */
 
   {
-    char *source_path;
-    { // Set source path, kept until exit
-      int source_path_length;
-      set_source_path(&source_path, &source_path_length);
-    }
     char smt_path[FILENAME_MAX];
-    cwk_path_join(source_path, "../../anima.smt2", smt_path, FILENAME_MAX);
+    cwk_path_join(setup_struct->source_path, "resources/anima_0.smt2", smt_path, FILENAME_MAX);
     Anima_parse_fundamentals(anima, smt_path);
   }
 
@@ -96,31 +92,29 @@ void *setup_spirit(void *void_setup_struct) {
   return 0;
 }
 
-void setup_anima(Anima *animas, pthread_t *threads, Sprites *sprites, uint8_t id, Pair_uint8 location, const Maze *maze, size_t anima_count) {
-  assert(id < anima_count);
-
-  Anima_init(&animas[id], id, location, CARDINAL_S, maze);
-  if (sprites != nullptr) {
-    Sprite_init(&sprites->animas[id], 16, location, RENDER_TOP);
-  }
-
-  SpiritSetup *setup_ptr = malloc(sizeof(*setup_ptr));
-  *setup_ptr = (SpiritSetup){
-      .anima_count = anima_count,
-      .anima = &animas[id],
-      .maze = maze,
-  };
-
-  pthread_create(&threads[id], nullptr, setup_spirit, (void *)setup_ptr);
-}
-
-void setup_animas(Anima *animas, pthread_t *threads, Sprites *sprites, const Maze *maze, size_t anima_count) {
+void setup_animas(Anima *animas, pthread_t *threads, Sprites *sprites, const Maze *maze, size_t anima_count, const char *source_path) {
   static Pair_uint8 locations[] = {{3, 1}, {26, 16}, {12, 21}, {29, 4}};
   assert(anima_count <= ARRAY_LEN(locations));
 
   for (uint8_t idx = 0; idx < anima_count; ++idx) {
-    auto location = Pair_uint8_create(locations[idx].x, locations[idx].y);
-    setup_anima(animas, threads, sprites, idx, location, maze, anima_count);
+
+    Pair_uint8 location = Pair_uint8_create(locations[idx].x, locations[idx].y);
+
+    spirit_setup_s *setup = malloc(sizeof(*setup));
+    // binary lifetime, as thread lives until exit
+    *setup = (spirit_setup_s){
+        .anima = &animas[idx],
+        .anima_count = anima_count,
+        .maze = maze,
+        .source_path = source_path,
+    };
+
+    Anima_init(&animas[idx], idx, location, CARDINAL_S, maze);
+    if (sprites != nullptr) {
+      Sprite_init(&sprites->animas[idx], 16, location, RENDER_TOP);
+    }
+
+    pthread_create(&threads[setup->anima->id], nullptr, setup_spirit, (void *)setup);
   }
 }
 

@@ -17,11 +17,10 @@ parser = argparse.ArgumentParser(
 )
 
 parser.add_argument("-a", "--anima", type=str, help="Anima name", required=True)
-parser.add_argument("-m", "--maze", help="path to the maze", type=str, default="./bin/resources/maze/source.txt")
+parser.add_argument("-m", "--maze", help="path to the maze", type=str, default="./resources/maze/source.txt")
 parser.add_argument("-p", "--persona", type=str, help="Persona name", default="persona")
 parser.add_argument("-t", "--test", help="Test paths", action=argparse.BooleanOptionalAction)
-parser.add_argument("-f", "--file", help="File", type=str)
-
+parser.add_argument("-f", "--file", help="File", type=str, required=True)
 
 parsed_args = parser.parse_args()
 print(parsed_args)
@@ -67,28 +66,3 @@ if parsed_args.file is not None:
     print("done!")
 
 
-if parsed_args.test:
-    optimizer.check()
-
-    unsat_instances: list[tuple[location_t, location_t]] = []
-
-    for anima_location in maze.tiles():
-        if maze.is_path(anima_location[0], anima_location[1]):
-            for persona_location in maze.tiles():
-                if maze.is_path(persona_location[0], persona_location[1]):
-                    if anima_location != persona_location:
-                        print(f"{anima_location} -> {persona_location}")
-                        optimizer.push()
-
-                        path.assert_variable_anima_location(optimizer, animas[0], anima_location[0], anima_location[1])
-                        path.assert_variable_persona_location(optimizer, persona, persona_location[0], persona_location[1])
-
-                        model = mind.timed_solve(optimizer, print_stats=True)
-                        if model is not None:
-                            print(path.to_string(maze, model))
-                            # print(model)
-                        else:
-                            unsat_instances.append((anima_location, persona_location))
-                            input("Hm... ")
-
-                        optimizer.pop()
