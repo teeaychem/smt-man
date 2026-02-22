@@ -10,7 +10,6 @@ class Maze:
         # Character representation of the maze
         self.chars: list[list[str]] = []
         self.from_path(path)
-        self.print()
 
     def tile_n(self, row: int, col: int) -> location_t | None:
         if 0 < row:
