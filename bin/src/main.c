@@ -15,7 +15,7 @@
 #include "render/sprite.h"
 #include "render/timer_nano.h"
 
-constexpr size_t ANIMA_COUNT = 1;
+constexpr size_t ANIMA_COUNT = 2;
 
 pthread_t ANIMA_THREADS[ANIMA_COUNT];
 

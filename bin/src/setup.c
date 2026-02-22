@@ -71,8 +71,11 @@ void *setup_spirit(void *void_setup_struct) {
   /* Anima_restrict(anima, setup_struct->maze); */
 
   {
+    char smt2_path[32];
+    sprintf(smt2_path, "resources/anima_%d.smt2", anima->id);
+
     char smt_path[FILENAME_MAX];
-    cwk_path_join(setup_struct->source_path, "resources/anima_0.smt2", smt_path, FILENAME_MAX);
+    cwk_path_join(setup_struct->source_path, smt2_path, smt_path, FILENAME_MAX);
     Anima_parse_fundamentals(anima, smt_path);
   }
 
@@ -89,6 +92,7 @@ void *setup_spirit(void *void_setup_struct) {
     pthread_cond_wait(&anima->contact.cond_resume, &anima->contact.mtx_suspend);
     pthread_mutex_unlock(&anima->contact.mtx_suspend);
   }
+
   return 0;
 }
 
@@ -101,7 +105,7 @@ void setup_animas(Anima *animas, pthread_t *threads, Sprites *sprites, const Maz
     Pair_uint8 location = Pair_uint8_create(locations[idx].x, locations[idx].y);
 
     spirit_setup_s *setup = malloc(sizeof(*setup));
-    // binary lifetime, as thread lives until exit
+    // static lifetime, as thread lives until exit
     *setup = (spirit_setup_s){
         .anima = &animas[idx],
         .anima_count = anima_count,
