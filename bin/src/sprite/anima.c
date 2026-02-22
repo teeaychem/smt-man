@@ -40,7 +40,6 @@ void Anima_on_frame(Anima *self, Sprite *sprite, const Maze *maze, uint32_t tile
     Cardinal direction_actual = atomic_load(&self->smt.situation.animas[self->id].direction_actual);
 
     if (Maze_is_intersection(maze, maze_location.x, maze_location.y)) {
-      MazePath_display(&self->path, &self->smt.lexicon);
 
       switch (tile_path.h) {
       case PATH_X: {

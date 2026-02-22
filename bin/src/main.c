@@ -85,9 +85,6 @@ int main() { // int main(int argc, char *argv[]) {
     goto exit_block;
   }
 
-  // Draw the maze only once...
-  Renderer_draw_maze(&renderer, &maze);
-
   { // core block
     bool core_loop = true;
 
@@ -99,6 +96,9 @@ int main() { // int main(int argc, char *argv[]) {
 
     while (core_loop) {
       TimerNano_start(&frame_cap_timer);
+
+      // Draw the maze only once...
+      Renderer_draw_maze(&renderer, &maze);
 
       while (SDL_PollEvent(&event)) {
         if (event.type == SDL_EVENT_QUIT) {
@@ -139,10 +139,7 @@ int main() { // int main(int argc, char *argv[]) {
       }
 
       { /// Post-render block
-        Renderer_persona(&renderer, &persona, &sprites.persona, &situation, RENDER_ERASE);
-        for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
-          Renderer_anima(&renderer, &animas[id], &sprites.animas[id], RENDER_ERASE);
-        }
+        Renderer_clear(&renderer);
       }
 
       { // wait block

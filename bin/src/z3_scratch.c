@@ -18,7 +18,7 @@ constexpr size_t ANIMA_COUNT = 1;
 
 pthread_t ANIMA_THREADS[ANIMA_COUNT];
 
-void z3_display_path(const Lexicon *lexicon, Z3_context ctx, Z3_model model, const Maze *maze);
+void z3_read_and_display_path(const Lexicon *lexicon, Z3_context ctx, Z3_model model, const Maze *maze);
 void z3_tmp(Z3_context ctx, Lexicon *lexicon, Z3_optimize optimizer, const Maze *maze, const Situation *situation, uint8_t anima_id);
 
 int main() {
@@ -154,15 +154,17 @@ int main() {
   z3_tmp(ctx, &lexicon, optimizer, &maze, &situation, 0);
 }
 
-void z3_display_path(const Lexicon *lexicon, const Z3_context ctx, const Z3_model model, const Maze *maze) {
+void z3_read_and_display_path(const Lexicon *lexicon, const Z3_context ctx, const Z3_model model, const Maze *maze) {
 
   MazePath maze_path = {};
 
   MazePath_init(&maze_path, maze->size);
+
   MazePath_read(&maze_path, lexicon, ctx, model, maze);
 
-  /* MazePath_clear(&z3_maze); */
   MazePath_display(&maze_path, lexicon);
+
+  MazePath_drop(&maze_path);
 }
 
 void z3_tmp(Z3_context ctx, Lexicon *lexicon, Z3_optimize optimizer, const Maze *maze, const Situation *situation, uint8_t anima_id) {
@@ -192,7 +194,7 @@ void z3_tmp(Z3_context ctx, Lexicon *lexicon, Z3_optimize optimizer, const Maze 
   Z3_model_inc_ref(ctx, model);
 
   printf("\nModel:\n%s", Z3_model_to_string(ctx, model));
-  z3_display_path(lexicon, ctx, model, maze);
+  z3_read_and_display_path(lexicon, ctx, model, maze);
 
   // Cleanup
 

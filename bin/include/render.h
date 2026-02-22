@@ -37,6 +37,8 @@ void Renderer_create(Renderer *renderer, const Pair_uint8 maze_size, const char 
 
 void Renderer_drop(Renderer *self);
 
+void Renderer_clear(Renderer *self);
+
 void Renderer_draw_maze(Renderer *self, const Maze *maze);
 
 void Renderer_render_frame_buffer(Renderer *self);

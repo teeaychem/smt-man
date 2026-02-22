@@ -35,8 +35,6 @@ void MazePath_read(MazePath *self, const Lexicon *lexicon, const Z3_context ctx,
 
 void MazePath_display(MazePath *self, const Lexicon *lexicon);
 
-void MazePath_display(MazePath *self, const Lexicon *lexicon);
-
 static inline MazeTile MazePath_at(MazePath *self, const Pair_uint8 location) {
   return self->tiles[Pair_uint8_flatten(&self->size, location.x, location.y)];
 }
