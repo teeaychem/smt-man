@@ -72,12 +72,7 @@ void Renderer_drop(Renderer *self) {
 }
 
 void Renderer_clear(Renderer *self) {
-  // TODO: OPtimize
-  for (uint32_t row = 0; row < self->frame_buffer.size.x; ++row) {
-    for (uint32_t col = 0; col < self->frame_buffer.size.y; ++col) {
-      self->frame_buffer.pixels[Pair_uint32_flatten(&self->frame_buffer.size, row, col)] = 0x00000000;
-    }
-  }
+  memset(self->frame_buffer.pixels, 0, sizeof(*self->frame_buffer.pixels) * self->frame_buffer.size.x * self->frame_buffer.size.y);
 }
 
 void Renderer_render_frame_buffer(Renderer *self) {
