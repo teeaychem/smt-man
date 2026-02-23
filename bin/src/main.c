@@ -19,66 +19,145 @@ constexpr size_t ANIMA_COUNT = 2;
 
 pthread_t ANIMA_THREADS[ANIMA_COUNT];
 
+struct core_logic {
+  Anima animas[ANIMA_COUNT];
+  Maze maze;
+  Persona persona;
+  Situation situation;
+};
+typedef struct core_logic core_logic_s;
+
+struct core_render {
+  Renderer renderer;
+  Sprites sprites;
+};
+typedef struct core_render core_render_s;
+
+void game_state(core_logic_s *logic, core_render_s *render) {
+  SDL_Event event;
+  SDL_zero(event);
+
+  bool game_loop = true;
+
+  uint64_t frame_nanoseconds = 0;
+  TimerNano frame_cap_timer = TimerNano_default();
+
+  RGBMomentum colour = {};
+
+  while (game_loop) {
+    TimerNano_start(&frame_cap_timer);
+
+    // Draw the maze only once...
+    Renderer_draw_maze(&render->renderer, &logic->maze);
+
+    while (SDL_PollEvent(&event)) {
+      if (event.type == SDL_EVENT_QUIT) {
+        game_loop = false;
+      }
+
+      Persona_handle_event(&logic->persona, &logic->maze, &logic->situation, &event);
+    }
+
+    { /// Pre-render block
+      Sync_update_animas(&logic->situation, logic->animas);
+      Sync_update_situation(&logic->situation, logic->animas);
+      rgb_momentum_advance(&colour);
+
+      for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
+        Anima_on_frame(&logic->animas[id], &render->sprites.animas[id], &logic->maze, TILE_PIXELS, RENDER_TOP);
+      }
+      Persona_on_frame(&logic->persona, &render->sprites.persona, &logic->maze, &logic->situation, TILE_PIXELS, RENDER_TOP);
+
+      for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
+        if (atomic_load(&logic->animas[id].contact.flag_suspend)) {
+          atomic_store(&logic->animas[id].contact.flag_suspend, false);
+          pthread_cond_broadcast(&logic->animas[id].contact.cond_resume);
+        }
+      }
+    }
+
+    { /// Render_block
+      SDL_RenderClear(render->renderer.renderer);
+
+      SDL_SetRenderDrawColor(render->renderer.renderer, colour.state[0].value, colour.state[1].value, colour.state[2].value, 0x000000ff);
+
+      for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
+        Renderer_anima(&render->renderer, &logic->animas[id], &render->sprites.animas[id], RENDER_DRAW);
+      }
+      Renderer_persona(&render->renderer, &logic->persona, &render->sprites.persona, &logic->situation, RENDER_DRAW);
+
+      Renderer_render_frame_buffer(&render->renderer);
+    }
+
+    { /// Post-render block
+      Renderer_clear(&render->renderer);
+    }
+
+    { // wait block
+      frame_nanoseconds = TimerNano_get_ticks(&frame_cap_timer);
+      if (frame_nanoseconds < NS_PER_FRAME) {
+        SDL_DelayNS(NS_PER_FRAME - frame_nanoseconds);
+      }
+    }
+  }
+}
+
 int main() { // int main(int argc, char *argv[]) {
+
+  int exit_code = 0;
 
   { // slog setup
     uint16_t slog_level_flags = SLOG_FLAGS_ALL;
     slog_init("logfile", slog_level_flags, 1);
   }
 
-  int exit_code = 0;
-
   char *source_path;
-  { // Set source path, kept until exit
+  { // Set source path, static lifetime
     int source_path_length;
     set_source_path(&source_path, &source_path_length);
   }
 
-  Anima animas[ANIMA_COUNT];
+  core_logic_s core_logic = {
+      .maze = setup_maze(source_path),
+      .situation = {
+          .anima_count = ANIMA_COUNT,
+          .animas = alloca(ANIMA_COUNT * sizeof(AbstractAnima)),
+      },
+  };
 
-  AbstractAnima mind_animas[ANIMA_COUNT][ANIMA_COUNT];
+  core_render_s core_render = {
+      .sprites = {
+          .anima_count = ANIMA_COUNT,
+          .animas = alloca(ANIMA_COUNT * sizeof(Sprite)),
+      },
+  };
+
   for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
-    animas[idx].smt.situation.anima_count = ANIMA_COUNT;
-    animas[idx].smt.situation.animas = mind_animas[idx];
+    core_logic.animas[idx].smt.situation.anima_count = ANIMA_COUNT;
+    core_logic.animas[idx].smt.situation.animas = alloca(ANIMA_COUNT * sizeof(AbstractAnima));
   }
 
-  AbstractAnima situation_animas[ANIMA_COUNT] = {};
-  Situation situation = {
-      .anima_count = ANIMA_COUNT,
-      .animas = situation_animas,
-  };
-
-  Sprite anima_sprites[ANIMA_COUNT];
-  Sprites sprites = {
-      .anima_count = ANIMA_COUNT,
-      .animas = anima_sprites,
-  };
-  Persona persona;
-
-  RGBMomentum colour = {};
-
-  const Maze maze = setup_maze(source_path);
-  { // Setup block
+  { // Anima and persona block
     Pair_uint8 persona_location = {.x = 17, .y = 15};
-    setup_situation(&situation, persona_location);
+    setup_situation(&core_logic.situation, persona_location);
 
-    Persona_default(&persona, &situation);
-    Sprite_init(&sprites.persona, 16, persona_location, RENDER_TOP);
+    Persona_default(&core_logic.persona, &core_logic.situation);
+    Sprite_init(&core_render.sprites.persona, 16, persona_location, RENDER_TOP);
 
-    setup_animas(animas, ANIMA_THREADS, &sprites, &maze, ANIMA_COUNT, source_path);
+    setup_animas(core_logic.animas, ANIMA_THREADS, &core_render.sprites, &core_logic.maze, ANIMA_COUNT, source_path);
   }
-  Renderer renderer = {};
-  {
+
+  { // Renderer
     char path_buffer[FILENAME_MAX];
 
     cwk_path_join(source_path, "resources/sheet.png", path_buffer, FILENAME_MAX);
     slog_display(SLOG_INFO, 0, "Renderer with sheet from: %s\n", path_buffer);
 
-    Renderer_create(&renderer, maze.size, path_buffer);
+    Renderer_create(&core_render.renderer, core_logic.maze.size, path_buffer);
   }
 
-  Sync_update_animas(&situation, animas);
-  Sync_update_situation(&situation, animas);
+  Sync_update_animas(&core_logic.situation, core_logic.animas);
+  Sync_update_situation(&core_logic.situation, core_logic.animas);
 
   if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
     exit_code = 1;
@@ -88,71 +167,11 @@ int main() { // int main(int argc, char *argv[]) {
   { // core block
     bool core_loop = true;
 
-    uint64_t frame_nanoseconds = 0;
-    TimerNano frame_cap_timer = TimerNano_default();
-
-    SDL_Event event;
-    SDL_zero(event);
-
-    while (core_loop) {
-      TimerNano_start(&frame_cap_timer);
-
-      // Draw the maze only once...
-      Renderer_draw_maze(&renderer, &maze);
-
-      while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_EVENT_QUIT) {
-          core_loop = false;
-        }
-        Persona_handle_event(&persona, &maze, &situation, &event);
-      }
-
-      { /// Pre-render block
-        Sync_update_animas(&situation, animas);
-        Sync_update_situation(&situation, animas);
-        rgb_momentum_advance(&colour);
-
-        for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
-          Anima_on_frame(&animas[id], &sprites.animas[id], &maze, TILE_PIXELS, RENDER_TOP);
-        }
-        Persona_on_frame(&persona, &sprites.persona, &maze, &situation, TILE_PIXELS, RENDER_TOP);
-
-        for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
-          if (atomic_load(&animas[id].contact.flag_suspend)) {
-            atomic_store(&animas[id].contact.flag_suspend, false);
-            pthread_cond_broadcast(&animas[id].contact.cond_resume);
-          }
-        }
-      }
-
-      { /// Render_block
-        SDL_RenderClear(renderer.renderer);
-
-        SDL_SetRenderDrawColor(renderer.renderer, colour.state[0].value, colour.state[1].value, colour.state[2].value, 0x000000ff);
-
-        for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
-          Renderer_anima(&renderer, &animas[id], &sprites.animas[id], RENDER_DRAW);
-        }
-        Renderer_persona(&renderer, &persona, &sprites.persona, &situation, RENDER_DRAW);
-
-        Renderer_render_frame_buffer(&renderer);
-      }
-
-      { /// Post-render block
-        Renderer_clear(&renderer);
-      }
-
-      { // wait block
-        frame_nanoseconds = TimerNano_get_ticks(&frame_cap_timer);
-        if (frame_nanoseconds < NS_PER_FRAME) {
-          SDL_DelayNS(NS_PER_FRAME - frame_nanoseconds);
-        }
-      }
-    }
+    game_state(&core_logic, &core_render);
   }
 
 exit_block: {
-  Renderer_drop(&renderer);
+  Renderer_drop(&core_render.renderer);
   SDL_Quit();
 
   for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
@@ -160,7 +179,7 @@ exit_block: {
     pthread_join(ANIMA_THREADS[idx], nullptr);
   }
 
-  Maze_drop((Maze *)&maze);
+  Maze_drop((Maze *)&core_logic.maze);
   free(source_path);
   slog_destroy();
 

@@ -1,14 +1,16 @@
 #pragma once
 
+#include <stdatomic.h>
+#include <stdint.h>
+
 #include <SDL3/SDL_events.h>
 
 #include "SML/maze.h"
 #include "SML/sprite/anima.h"
 #include "SML/sprite/persona.h"
+
 #include "consts.h"
 #include "generic/pairs.h"
-#include <stdatomic.h>
-#include <stdint.h>
 
 constexpr int32_t SPRITE_VELOCITY = 1;
 
