@@ -96,7 +96,7 @@ void *setup_spirit(void *void_setup_struct) {
   return 0;
 }
 
-void setup_animas(Anima *animas, pthread_t *threads, Sprites *sprites, const Maze *maze, size_t anima_count, const char *source_path) {
+void setup_animas(Anima *animas, pthread_t *threads, const Maze *maze, size_t anima_count, const char *source_path) {
   static Pair_uint8 locations[] = {{3, 1}, {26, 16}, {12, 21}, {29, 4}};
   assert(anima_count <= ARRAY_LEN(locations));
 
@@ -114,9 +114,6 @@ void setup_animas(Anima *animas, pthread_t *threads, Sprites *sprites, const Maz
     };
 
     Anima_init(&animas[idx], idx, location, CARDINAL_S, maze);
-    if (sprites != nullptr) {
-      Sprite_init(&sprites->animas[idx], 16, location, RENDER_TOP);
-    }
 
     pthread_create(&threads[setup->anima->id], nullptr, setup_spirit, (void *)setup);
   }

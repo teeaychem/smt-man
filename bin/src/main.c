@@ -33,6 +33,28 @@ struct core_render {
 };
 typedef struct core_render core_render_s;
 
+void core_render_setup(core_render_s *self, const core_logic_s *core_logic, const char *source_path) {
+  char path_buffer[FILENAME_MAX];
+
+  cwk_path_join(source_path, "resources/sheet.png", path_buffer, FILENAME_MAX);
+  slog_display(SLOG_INFO, 0, "Renderer with sheet from: %s\n", path_buffer);
+
+  Renderer_create(&self->renderer, core_logic->maze.size, path_buffer);
+
+  { // Sprite block
+    self->sprites.anima_count = ANIMA_COUNT;
+    self->sprites.animas = alloca(ANIMA_COUNT * sizeof(Sprite));
+
+    // Persona
+    Sprite_init(&self->sprites.persona, 16, atomic_load(&core_logic->situation.persona.location), RENDER_TOP);
+
+    // Animas
+    for (uint8_t idx = 0; idx < ANIMA_COUNT; ++idx) {
+      Sprite_init(&self->sprites.animas[idx], 16, atomic_load(&core_logic->animas[idx].smt.situation.animas[idx].location), RENDER_TOP);
+    }
+  }
+}
+
 void game_state(core_logic_s *logic, core_render_s *render) {
   SDL_Event event;
   SDL_zero(event);
@@ -125,36 +147,22 @@ int main() { // int main(int argc, char *argv[]) {
       },
   };
 
-  core_render_s core_render = {
-      .sprites = {
-          .anima_count = ANIMA_COUNT,
-          .animas = alloca(ANIMA_COUNT * sizeof(Sprite)),
-      },
-  };
+  { // Core logic
+    for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
+      core_logic.animas[idx].smt.situation.anima_count = ANIMA_COUNT;
+      core_logic.animas[idx].smt.situation.animas = alloca(ANIMA_COUNT * sizeof(AbstractAnima));
+    }
 
-  for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
-    core_logic.animas[idx].smt.situation.anima_count = ANIMA_COUNT;
-    core_logic.animas[idx].smt.situation.animas = alloca(ANIMA_COUNT * sizeof(AbstractAnima));
-  }
-
-  { // Anima and persona block
     Pair_uint8 persona_location = {.x = 17, .y = 15};
     setup_situation(&core_logic.situation, persona_location);
 
     Persona_default(&core_logic.persona, &core_logic.situation);
-    Sprite_init(&core_render.sprites.persona, 16, persona_location, RENDER_TOP);
 
-    setup_animas(core_logic.animas, ANIMA_THREADS, &core_render.sprites, &core_logic.maze, ANIMA_COUNT, source_path);
+    setup_animas(core_logic.animas, ANIMA_THREADS, &core_logic.maze, ANIMA_COUNT, source_path);
   }
 
-  { // Renderer
-    char path_buffer[FILENAME_MAX];
-
-    cwk_path_join(source_path, "resources/sheet.png", path_buffer, FILENAME_MAX);
-    slog_display(SLOG_INFO, 0, "Renderer with sheet from: %s\n", path_buffer);
-
-    Renderer_create(&core_render.renderer, core_logic.maze.size, path_buffer);
-  }
+  core_render_s core_render = {};
+  core_render_setup(&core_render, &core_logic, source_path);
 
   Sync_update_animas(&core_logic.situation, core_logic.animas);
   Sync_update_situation(&core_logic.situation, core_logic.animas);
