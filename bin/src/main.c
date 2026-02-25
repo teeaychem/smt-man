@@ -42,8 +42,6 @@ void core_render_setup(core_render_s *self, const core_logic_s *core_logic, cons
   Renderer_create(&self->renderer, core_logic->maze.size, path_buffer);
 
   { // Sprite block
-    self->sprites.anima_count = ANIMA_COUNT;
-    self->sprites.animas = alloca(ANIMA_COUNT * sizeof(Sprite));
 
     // Persona
     Sprite_init(&self->sprites.persona, 16, atomic_load(&core_logic->situation.persona.location), RENDER_TOP);
@@ -161,7 +159,10 @@ int main() { // int main(int argc, char *argv[]) {
     setup_animas(core_logic.animas, ANIMA_THREADS, &core_logic.maze, ANIMA_COUNT, source_path);
   }
 
-  core_render_s core_render = {};
+  core_render_s core_render = {
+      .sprites = {.anima_count = ANIMA_COUNT,
+                  .animas = alloca(ANIMA_COUNT * sizeof(Sprite))},
+  };
   core_render_setup(&core_render, &core_logic, source_path);
 
   Sync_update_animas(&core_logic.situation, core_logic.animas);
