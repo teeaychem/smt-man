@@ -152,7 +152,7 @@ Result Anima_deduct(Anima *self, const Maze *maze) {
     return RESULT_KO;
   } break;
   case Z3_L_TRUE: {
-    slog_display(SLOG_DEBUG, 0, "SAT\n");
+    slog_display(SLOG_INFO, 0, "SAT\n");
   } break;
   }
 

@@ -127,7 +127,7 @@ int main() { // int main(int argc, char *argv[]) {
   int exit_code = 0;
 
   { // slog setup
-    uint16_t slog_level_flags = SLOG_FLAGS_ALL;
+    uint16_t slog_level_flags = SLOG_DEBUG;
     slog_init("logfile", slog_level_flags, 1);
   }
 
