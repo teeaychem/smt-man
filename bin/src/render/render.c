@@ -4,51 +4,48 @@
 
 #include <SDL3/SDL_error.h>
 
+#include "err.h"
 #include "generic/pairs.h"
 #include "render.h"
 #include "render/sheet.h"
 
 void Renderer_create(Renderer *renderer, const Pair_uint8 maze_dimensions, const char *sheet_path) {
 
-  Surface sheet = {};
-  { // Sheet init
-    Surface_from_path(&sheet, sheet_path);
-  }
-  Pair_uint32 pixel_dimensions = {.x = (maze_dimensions.x + (RENDER_TOP + RENDER_BOT)) * TILE_PIXELS,
-                                  .y = maze_dimensions.y * TILE_PIXELS};
-
-  *renderer = (Renderer){
-      .frame_buffer = {.size = pixel_dimensions,
-                       .pixels = malloc(pixel_dimensions.x * pixel_dimensions.y * sizeof(*renderer->frame_buffer.pixels))},
-      .sprite_buffer = {.size = {SPRITE_BUFFER_SIZE, SPRITE_BUFFER_SIZE},
-                        .pixels = malloc(SPRITE_BUFFER_SIZE * SPRITE_BUFFER_SIZE * sizeof(*renderer->sprite_buffer.pixels))},
-      .sheet = sheet,
+  Pair_uint32 pixel_dimensions = {
+      .x = (maze_dimensions.x + RENDER_TOP + RENDER_BOT) * TILE_PIXELS,
+      .y = maze_dimensions.y * TILE_PIXELS,
   };
-  if (renderer->frame_buffer.pixels == nullptr) {
-    SDL_Log("Failed to create frame_buffer");
-    exit(-1);
-  }
 
-  renderer->window = SDL_CreateWindow("smt-man", (int)(renderer->frame_buffer.size.y * UI_SCALE), (int)(renderer->frame_buffer.size.x * UI_SCALE), 0);
-  if (renderer->window == nullptr) {
-    SDL_Log("Failed to create window: %s", SDL_GetError());
-    exit(SDL_APP_FAILURE);
-  }
+  renderer->frame_buffer.size = pixel_dimensions;
+  renderer->frame_buffer.pixels = malloc(pixel_dimensions.x * pixel_dimensions.y * sizeof(*renderer->frame_buffer.pixels));
+  panic(renderer->frame_buffer.pixels == nullptr, "Failed to create frame buffer", SDL_APP_FAILURE);
 
-  renderer->renderer = SDL_CreateRenderer(renderer->window, nullptr);
-  if (renderer->renderer == nullptr) {
-    SDL_Log("Failed to create renderer: %s", SDL_GetError());
-    exit(SDL_APP_FAILURE);
-  }
+  renderer->sprite_buffer.size = (Pair_uint32){
+      .x = SPRITE_BUFFER_SIZE,
+      .y = SPRITE_BUFFER_SIZE,
+  };
+  renderer->sprite_buffer.pixels = malloc(SPRITE_BUFFER_SIZE * SPRITE_BUFFER_SIZE * sizeof(*renderer->sprite_buffer.pixels));
+  panic(renderer->sprite_buffer.pixels == nullptr, "Failed to create sprite buffer", -1);
 
-  renderer->texture = SDL_CreateTexture(renderer->renderer,
-                                        SDL_PIXELFORMAT_ABGR8888,
-                                        SDL_TEXTUREACCESS_STREAMING,
-                                        (int)renderer->frame_buffer.size.y,
-                                        (int)renderer->frame_buffer.size.x);
-  if (renderer->texture == nullptr) {
-    SDL_Log("Failed to create texture: %s", SDL_GetError());
-    exit(SDL_APP_FAILURE);
+  Surface_from_path(&renderer->sheet, sheet_path);
+
+  {     // Renderer texture
+    {   // Renderer
+      { // Window
+        renderer->window = SDL_CreateWindow("smt-man", (int)(renderer->frame_buffer.size.y * UI_SCALE), (int)(renderer->frame_buffer.size.x * UI_SCALE), 0);
+        panic(renderer->window == nullptr, "Failed to create window", SDL_APP_FAILURE);
+      }
+
+      renderer->renderer = SDL_CreateRenderer(renderer->window, nullptr);
+      panic(renderer->renderer == nullptr, "Failed to create renderer", SDL_APP_FAILURE);
+    }
+
+    renderer->texture = SDL_CreateTexture(renderer->renderer,
+                                          SDL_PIXELFORMAT_ABGR8888,
+                                          SDL_TEXTUREACCESS_STREAMING,
+                                          (int)renderer->frame_buffer.size.y,
+                                          (int)renderer->frame_buffer.size.x);
+    panic(renderer->texture == nullptr, "Failed to create texture", SDL_APP_FAILURE);
   }
 
   SDL_SetRenderTarget(renderer->renderer, renderer->texture);
@@ -93,10 +90,7 @@ void Renderer_render_frame_buffer(Renderer *self) {
   }
 
   auto render_result = SDL_RenderTexture(self->renderer, self->texture, nullptr, nullptr);
-  if (!render_result) {
-    SDL_Log("Failed to render texture: %s", SDL_GetError());
-    exit(SDL_APP_FAILURE);
-  }
+  panic(!render_result, "Failed to render texture", SDL_APP_FAILURE);
 
   SDL_RenderPresent(self->renderer);
 }

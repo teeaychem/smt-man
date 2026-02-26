@@ -46,9 +46,9 @@ Maze setup_maze(const char *source_path) {
 
   char path_buffer[FILENAME_MAX];
   cwk_path_join(source_path, "resources/maze/source.txt", path_buffer, FILENAME_MAX);
-  ENSURE(Maze_from_path(&maze, path_buffer));
-  ENSURE(Maze_detail(&maze));
-  ENSURE(Maze_complete_data(&maze));
+  ensure(Maze_from_path(&maze, path_buffer));
+  ensure(Maze_detail(&maze));
+  ensure(Maze_complete_data(&maze));
 
   return maze;
 }
@@ -86,7 +86,7 @@ void *setup_spirit(void *void_setup_struct) {
   while (true) {
     pthread_mutex_lock(&anima->contact.mtx_suspend);
     if (!atomic_load(&anima->contact.flag_suspend)) {
-      ENSURE(Anima_deduct(anima, setup_struct->maze));
+      ensure(Anima_deduct(anima, setup_struct->maze));
       atomic_store(&anima->contact.flag_suspend, true);
     }
     pthread_cond_wait(&anima->contact.cond_resume, &anima->contact.mtx_suspend);

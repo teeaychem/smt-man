@@ -15,8 +15,11 @@ void Surface_from_path(Surface *self, const char *path) {
   if (png_image_begin_read_from_file(&image, path)) {
     image.format = PNG_FORMAT_RGBA;
 
-    self->size.x = image.height;
-    self->size.y = image.width;
+    self->size = (Pair_uint32){
+        .x = image.height,
+        .y = image.width,
+    };
+
     self->pixels = malloc(PNG_IMAGE_SIZE(image));
 
     if (self->pixels != nullptr &&
@@ -24,6 +27,7 @@ void Surface_from_path(Surface *self, const char *path) {
     } else {
       png_image_free(&image);
       free(self->pixels);
+      panic(true, "Failed to create surface", -1);
     }
   }
 }

@@ -17,7 +17,6 @@ set(COMPILE_FLAGS
     -Wformat=2
     -Wconversion
     -Wunreachable-code
-    -g3
     -O3
     # -DDEBUG
 )
@@ -32,10 +31,9 @@ set(DEBUG_FLAGS
     -Wformat=2
     -Wconversion
     -Wunreachable-code
+    -g3
     -DDEBUG
 )
-
-
 
 set(COMPILE_AND_LINK_OPTIONS
     -fsanitize=undefined
@@ -73,10 +71,7 @@ file(GLOB_RECURSE SPRITES src/sprite/*.c)
 # # main
 
 add_executable(${PROJECT_NAME} ${MAIN} ${RENDER} ${SPRITES})
-target_compile_options(
-    ${PROJECT_NAME}
-    PRIVATE # ${COMPILE_FLAGS}
-)
+target_compile_options(${PROJECT_NAME} PRIVATE ${DEBUG_FLAGS})
 # add_link_options(${PROJECT_NAME} ${COMPILE_AND_LINK_OPTIONS})
 
 target_include_directories(
