@@ -172,10 +172,10 @@ void Renderer_draw_from_sheet(Renderer *self, const Pair_uint32 destination, con
   for (uint32_t row = 0; row < size; ++row) {
     for (uint32_t col = 0; col < size; ++col) {
 
-      pixel_fb = Pair_uint32_flatten(&self->frame_buffer.size, destination.x + col - centre_offset, destination.y + row - centre_offset);
+      pixel_fb = (uint32_t)Pair_uint32_flatten(&self->frame_buffer.size, destination.x + col - centre_offset, destination.y + row - centre_offset);
 
       if (self->frame_buffer.pixels[pixel_fb] == 0x00000000) {
-        pixel_s = Pair_uint32_flatten(&self->sheet.size, source.x + col, source.y + row);
+        pixel_s = (uint32_t)Pair_uint32_flatten(&self->sheet.size, source.x + col, source.y + row);
         self->frame_buffer.pixels[pixel_fb] = Pallete_offset(self->sheet.pixels[pixel_s], pallete);
       }
     }
@@ -234,16 +234,16 @@ void Renderer_persona(Renderer *self, const Persona *persona, Sprite *sprite, co
 void Renderer_sprite_buffer_map_to(Renderer *self, const Pair_uint32 sprite_offset, const uint8_t size) {
 
   for (uint32_t row = 0; row < size; ++row) {
-    uint32_t buffer_offset = Pair_uint32_flatten(&self->sprite_buffer.size, row, 0);
-    uint32_t sheet_offset = Pair_uint32_flatten(&self->sheet.size, sprite_offset.x + row, sprite_offset.y);
+    size_t buffer_offset = Pair_uint32_flatten(&self->sprite_buffer.size, row, 0);
+    size_t sheet_offset = Pair_uint32_flatten(&self->sheet.size, sprite_offset.x + row, sprite_offset.y);
 
     memcpy(&self->sprite_buffer.pixels[buffer_offset], &self->sheet.pixels[sheet_offset], size * sizeof(*self->sprite_buffer.pixels));
   }
 }
 
 void Renderer_draw_from_sprite_buffer(Renderer *self, const Pair_uint32 destination, const uint32_t size) {
-  uint32_t pixel_fb;
-  uint32_t pixel_s;
+  size_t pixel_fb;
+  size_t pixel_s;
   uint32_t centre_offset = Renderer_centre_offset(size);
 
   for (uint32_t row = 0; row < size; ++row) {

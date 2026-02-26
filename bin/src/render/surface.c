@@ -95,7 +95,7 @@ void Surface_transpose(Surface *self, const uint32_t size) {
 void Surface_apply_pallete(Surface *self, const uint32_t size, const Pallete pallete) {
   for (uint32_t row = 0; row < size; ++row) {
     for (uint32_t col = 0; col < size; ++col) {
-      uint32_t pix = Pair_uint32_flatten(&self->size, row, col);
+      size_t pix = Pair_uint32_flatten(&self->size, row, col);
       Pallete_apply(&self->pixels[pix], pallete);
     }
   }
@@ -130,34 +130,34 @@ void Surface_circle_draw(Surface *self, const Pair_uint32 *origin, const Pair_ui
   switch (quadrant) {
 
   case QUADRANT_1: {
-    uint32_t pixel_a = Pair_uint32_flatten(&self->size, origin->x + offset->x, origin->y - offset->y);
+    size_t pixel_a = Pair_uint32_flatten(&self->size, origin->x + offset->x, origin->y - offset->y);
     self->pixels[pixel_a] = colour;
 
-    uint32_t pixel_b = Pair_uint32_flatten(&self->size, origin->x + offset->y, origin->y - offset->x);
+    size_t pixel_b = Pair_uint32_flatten(&self->size, origin->x + offset->y, origin->y - offset->x);
     self->pixels[pixel_b] = colour;
   } break;
 
   case QUADRANT_2: {
-    uint32_t pixel_a = Pair_uint32_flatten(&self->size, origin->x - offset->y, origin->y - offset->x);
+    size_t pixel_a = Pair_uint32_flatten(&self->size, origin->x - offset->y, origin->y - offset->x);
     self->pixels[pixel_a] = colour;
 
-    uint32_t pixel_b = Pair_uint32_flatten(&self->size, origin->x - offset->x, origin->y - offset->y);
+    size_t pixel_b = Pair_uint32_flatten(&self->size, origin->x - offset->x, origin->y - offset->y);
     self->pixels[pixel_b] = colour;
   } break;
 
   case QUADRANT_3: {
-    uint32_t pixel_a = Pair_uint32_flatten(&self->size, origin->x - offset->x, origin->y + offset->y);
+    size_t pixel_a = Pair_uint32_flatten(&self->size, origin->x - offset->x, origin->y + offset->y);
     self->pixels[pixel_a] = colour;
 
-    uint32_t pixel_b = Pair_uint32_flatten(&self->size, origin->x - offset->y, origin->y + offset->x);
+    size_t pixel_b = Pair_uint32_flatten(&self->size, origin->x - offset->y, origin->y + offset->x);
     self->pixels[pixel_b] = colour;
   } break;
 
   case QUADRANT_4: {
-    uint32_t pixel_a = Pair_uint32_flatten(&self->size, origin->x + offset->x, origin->y + offset->y);
+    size_t pixel_a = Pair_uint32_flatten(&self->size, origin->x + offset->x, origin->y + offset->y);
     self->pixels[pixel_a] = colour;
 
-    uint32_t pixel_b = Pair_uint32_flatten(&self->size, origin->x + offset->y, origin->y + offset->x);
+    size_t pixel_b = Pair_uint32_flatten(&self->size, origin->x + offset->y, origin->y + offset->x);
     self->pixels[pixel_b] = colour;
   } break;
   }
