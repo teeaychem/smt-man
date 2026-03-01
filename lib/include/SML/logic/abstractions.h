@@ -5,7 +5,7 @@
 #include "generic/pairs.h"
 
 /// Animas
-struct abstract_anima_t {
+struct anima_state_t {
   _Atomic(Pair_uint8) location;
 
   _Atomic(Cardinal) direction_actual;
@@ -14,14 +14,14 @@ struct abstract_anima_t {
 
   _Atomic(uint32_t) movement_pattern;
 };
-typedef struct abstract_anima_t AbstractAnima;
+typedef struct anima_state_t AnimaState;
 
 /// Persona
-struct abstract_persona_t {
+struct persona_state_t {
   _Atomic(Pair_uint8) location;
 
   _Atomic(Cardinal) direction_actual;
 
   _Atomic(uint32_t) movement_pattern;
 };
-typedef struct abstract_persona_t AbstractPersona;
+typedef struct persona_state_t PersonaState;

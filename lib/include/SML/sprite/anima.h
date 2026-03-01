@@ -18,7 +18,7 @@ struct anima_contact_t {
 
   pthread_cond_t cond_resume;
 };
-typedef struct anima_contact_t AnimaContact;
+typedef struct anima_contact_t AnimaAtomics;
 
 /// Something which performs deductions
 struct anima_t {
@@ -29,7 +29,7 @@ struct anima_t {
 
   Cardinal direction_intent;
   /// Tools for contacting the anima from a different thread
-  AnimaContact contact;
+  AnimaAtomics contact;
 
   /// Path
   MazePath path;

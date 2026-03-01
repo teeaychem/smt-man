@@ -5,7 +5,7 @@
 
 void Persona_default(Persona *persona, Situation *situation) {
   *persona = (Persona){
-      .direction_intent = CARDINAL_E,
+      .direction_intent = CARDINAL_NONE,
       .tick_action = 0,
   };
 }

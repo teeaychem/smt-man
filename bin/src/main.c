@@ -48,7 +48,7 @@ void core_render_setup(core_render_s *self, const core_logic_s *core_logic, cons
 
     // Animas
     for (uint8_t idx = 0; idx < ANIMA_COUNT; ++idx) {
-      Sprite_init(&self->sprites.animas[idx], 16, atomic_load(&core_logic->animas[idx].smt.situation.animas[idx].location), RENDER_TOP);
+      Sprite_init(&self->sprites.animas[idx], 16, atomic_load(&core_logic->animas[idx].smt.situation.animas.states[idx].location), RENDER_TOP);
     }
   }
 }
@@ -139,16 +139,16 @@ int main() { // int main(int argc, char *argv[]) {
 
   core_logic_s core_logic = {
       .maze = setup_maze(source_path),
-      .situation = {
-          .anima_count = ANIMA_COUNT,
-          .animas = alloca(ANIMA_COUNT * sizeof(AbstractAnima)),
+      .situation.animas = {
+          .count = ANIMA_COUNT,
+          .states = alloca(ANIMA_COUNT * sizeof(AnimaState)),
       },
   };
 
   { // Core logic
     for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
-      core_logic.animas[idx].smt.situation.anima_count = ANIMA_COUNT;
-      core_logic.animas[idx].smt.situation.animas = alloca(ANIMA_COUNT * sizeof(AbstractAnima));
+      core_logic.animas[idx].smt.situation.animas.count = ANIMA_COUNT;
+      core_logic.animas[idx].smt.situation.animas.states = alloca(ANIMA_COUNT * sizeof(AnimaState));
     }
 
     Pair_uint8 persona_location = {.x = 17, .y = 15};

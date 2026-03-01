@@ -142,7 +142,7 @@ void Lexicon_setup_animas(Lexicon *lexicon, Z3_context ctx, size_t anima_count) 
 
 void Lexicon_assert_anima_location(const Lexicon *lexicon, Z3_context ctx, Z3_optimize otz, const Situation *situation, const uint8_t id) {
 
-  Pair_uint8 anima_location = atomic_load(&situation->animas[id].location);
+  Pair_uint8 anima_location = atomic_load(&situation->animas.states[id].location);
   slog_display(SLOG_INFO, 0, "Asserted anima %d at %dx%d\n", id, anima_location.x, anima_location.y);
   Z3_ast anima_ast = Z3_mk_app(ctx, lexicon->anima.enum_consts[id], 0, 0);
 

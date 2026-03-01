@@ -34,18 +34,16 @@ int main() {
     set_source_path(&source_path, &source_path_length);
   }
 
-  AbstractAnima situation_animas[ANIMA_COUNT] = {};
   Situation situation = {
-      .anima_count = ANIMA_COUNT,
-      .animas = situation_animas,
+      .animas.count = ANIMA_COUNT,
+      .animas.states = alloca(ANIMA_COUNT * sizeof(*situation.animas.states)),
   };
 
   Anima animas[ANIMA_COUNT];
 
-  AbstractAnima mind_animas[ANIMA_COUNT][ANIMA_COUNT];
   for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
-    animas[idx].smt.situation.anima_count = ANIMA_COUNT;
-    animas[idx].smt.situation.animas = mind_animas[idx];
+    animas[idx].smt.situation.animas.count = ANIMA_COUNT;
+    animas[idx].smt.situation.animas.states = alloca(ANIMA_COUNT * sizeof(*situation.animas.states));
   }
 
   Persona persona;
@@ -110,7 +108,7 @@ int main() {
 
     { // Read smt2
       char path_buffer[FILENAME_MAX];
-      cwk_path_join(source_path, "../../anima.smt2", path_buffer, FILENAME_MAX);
+      cwk_path_join(source_path, "resources/anima_0.smt2", path_buffer, FILENAME_MAX);
 
       FILE *file_ptr;
       char *line_buffer = nullptr;
