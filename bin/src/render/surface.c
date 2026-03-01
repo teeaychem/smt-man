@@ -5,7 +5,7 @@
 #include "consts.h"
 #include "render/surface.h"
 
-void Surface_from_path(Surface *self, const char *path) {
+void Surface_ctor(Surface *self, const char *path) {
 
   png_image image;
 
@@ -32,7 +32,7 @@ void Surface_from_path(Surface *self, const char *path) {
   }
 }
 
-void Surface_drop(Surface *self) {
+void Surface_dtor(Surface *self) {
   free(self->pixels);
 
   self->pixels = nullptr;

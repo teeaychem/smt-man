@@ -9,49 +9,56 @@
 #include "render.h"
 #include "render/sheet.h"
 
-void Renderer_create(Renderer *renderer, const Pair_uint8 maze_dimensions, const char *sheet_path) {
+void Renderer_ctor(Renderer *self, const Pair_uint8 maze_dimensions, const char *sheet_path) {
 
   Pair_uint32 pixel_dimensions = {
       .x = (maze_dimensions.x + RENDER_TOP + RENDER_BOT) * TILE_PIXELS,
       .y = maze_dimensions.y * TILE_PIXELS,
   };
 
-  renderer->frame_buffer.size = pixel_dimensions;
-  renderer->frame_buffer.pixels = malloc(pixel_dimensions.x * pixel_dimensions.y * sizeof(*renderer->frame_buffer.pixels));
-  panic(renderer->frame_buffer.pixels == nullptr, "Failed to create frame buffer", SDL_APP_FAILURE);
+  *self = (Renderer){
+      .frame_buffer = {
+          .size = pixel_dimensions,
+          .pixels = malloc(pixel_dimensions.x * pixel_dimensions.y * sizeof(*self->frame_buffer.pixels)),
+      },
 
-  renderer->sprite_buffer.size = (Pair_uint32){
-      .x = SPRITE_BUFFER_SIZE,
-      .y = SPRITE_BUFFER_SIZE,
+      .sprite_buffer = {
+          .size = (Pair_uint32){
+              .x = SPRITE_BUFFER_SIZE,
+              .y = SPRITE_BUFFER_SIZE,
+          },
+          .pixels = malloc(SPRITE_BUFFER_SIZE * SPRITE_BUFFER_SIZE * sizeof(*self->sprite_buffer.pixels)),
+      },
   };
-  renderer->sprite_buffer.pixels = malloc(SPRITE_BUFFER_SIZE * SPRITE_BUFFER_SIZE * sizeof(*renderer->sprite_buffer.pixels));
-  panic(renderer->sprite_buffer.pixels == nullptr, "Failed to create sprite buffer", -1);
 
-  Surface_from_path(&renderer->sheet, sheet_path);
+  panic(self->frame_buffer.pixels == nullptr, "Failed to create frame buffer", SDL_APP_FAILURE);
+  panic(self->sprite_buffer.pixels == nullptr, "Failed to create sprite buffer", -1);
+
+  Surface_ctor(&self->sheet, sheet_path);
 
   {     // Renderer texture
     {   // Renderer
       { // Window
-        renderer->window = SDL_CreateWindow("smt-man", (int)(renderer->frame_buffer.size.y * UI_SCALE), (int)(renderer->frame_buffer.size.x * UI_SCALE), 0);
-        panic(renderer->window == nullptr, "Failed to create window", SDL_APP_FAILURE);
+        self->window = SDL_CreateWindow("smt-man", (int)(self->frame_buffer.size.y * UI_SCALE), (int)(self->frame_buffer.size.x * UI_SCALE), 0);
+        panic(self->window == nullptr, "Failed to create window", SDL_APP_FAILURE);
       }
 
-      renderer->renderer = SDL_CreateRenderer(renderer->window, nullptr);
-      panic(renderer->renderer == nullptr, "Failed to create renderer", SDL_APP_FAILURE);
+      self->renderer = SDL_CreateRenderer(self->window, nullptr);
+      panic(self->renderer == nullptr, "Failed to create renderer", SDL_APP_FAILURE);
     }
 
-    renderer->texture = SDL_CreateTexture(renderer->renderer,
-                                          SDL_PIXELFORMAT_ABGR8888,
-                                          SDL_TEXTUREACCESS_STREAMING,
-                                          (int)renderer->frame_buffer.size.y,
-                                          (int)renderer->frame_buffer.size.x);
-    panic(renderer->texture == nullptr, "Failed to create texture", SDL_APP_FAILURE);
+    self->texture = SDL_CreateTexture(self->renderer,
+                                      SDL_PIXELFORMAT_ABGR8888,
+                                      SDL_TEXTUREACCESS_STREAMING,
+                                      (int)self->frame_buffer.size.y,
+                                      (int)self->frame_buffer.size.x);
+    panic(self->texture == nullptr, "Failed to create texture", SDL_APP_FAILURE);
   }
 
-  SDL_SetRenderTarget(renderer->renderer, renderer->texture);
+  SDL_SetRenderTarget(self->renderer, self->texture);
 }
 
-void Renderer_drop(Renderer *self) {
+void Renderer_dtor(Renderer *self) {
 
   SDL_DestroyTexture(self->texture);
   self->texture = nullptr;
@@ -62,10 +69,10 @@ void Renderer_drop(Renderer *self) {
   SDL_DestroyWindow(self->window);
   self->window = nullptr;
 
-  Surface_drop(&self->sprite_buffer);
-  Surface_drop(&self->frame_buffer);
+  Surface_dtor(&self->sprite_buffer);
+  Surface_dtor(&self->frame_buffer);
 
-  Surface_drop(&self->sheet);
+  Surface_dtor(&self->sheet);
 }
 
 void Renderer_clear(Renderer *self) {

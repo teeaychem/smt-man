@@ -14,3 +14,7 @@ struct situation_t {
 typedef struct situation_t Situation;
 
 // Methods
+
+void situation_ctor(Situation *self, size_t anima_count);
+
+void situation_dtor(Situation *self);

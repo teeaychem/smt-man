@@ -34,10 +34,7 @@ int main() {
     set_source_path(&source_path, &source_path_length);
   }
 
-  Situation situation = {
-      .animas.count = ANIMA_COUNT,
-      .animas.states = alloca(ANIMA_COUNT * sizeof(*situation.animas.states)),
-  };
+  Situation situation = {};
 
   Anima animas[ANIMA_COUNT];
 
@@ -50,9 +47,11 @@ int main() {
 
   const Maze maze = setup_maze(source_path);
   { // Setup block
-    setup_situation(&situation, (Pair_uint8){.x = 1, .y = 12});
+    situation_ctor(&situation, ANIMA_COUNT);
+    Pair_uint8 persona_location = {.x = 1, .y = 12};
+    atomic_store(&situation.persona.location, persona_location);
 
-    Persona_default(&persona, &situation);
+    Persona_ctor(&persona, &situation);
 
     setup_animas(animas, ANIMA_THREADS, &maze, ANIMA_COUNT, source_path);
   }
@@ -64,6 +63,7 @@ int main() {
   Z3_context ctx = z3_mk_anima_ctx();
 
   Lexicon lexicon = {};
+  Lexicon_ctor(&lexicon);
 
   Z3_optimize optimizer = Z3_mk_optimize(ctx);
   Z3_optimize_inc_ref(ctx, optimizer);
@@ -156,13 +156,13 @@ void z3_read_and_display_path(const Lexicon *lexicon, const Z3_context ctx, cons
 
   MazePath maze_path = {};
 
-  MazePath_init(&maze_path, maze->size);
+  MazePath_ctor(&maze_path, maze->size);
 
   MazePath_read(&maze_path, lexicon, ctx, model, maze);
 
   MazePath_display(&maze_path, lexicon);
 
-  MazePath_drop(&maze_path);
+  MazePath_dtor(&maze_path);
 }
 
 void z3_tmp(Z3_context ctx, Lexicon *lexicon, Z3_optimize optimizer, const Maze *maze, const Situation *situation, uint8_t anima_id) {

@@ -33,9 +33,9 @@ enum renderer_action_e {
 };
 typedef enum renderer_action_e RenderAction;
 
-void Renderer_create(Renderer *renderer, const Pair_uint8 maze_size, const char *sheet_path);
+void Renderer_ctor(Renderer *renderer, const Pair_uint8 maze_size, const char *sheet_path);
 
-void Renderer_drop(Renderer *self);
+void Renderer_dtor(Renderer *self);
 
 void Renderer_clear(Renderer *self);
 

@@ -18,9 +18,9 @@ typedef struct surface_t Surface;
 
 /// Methods
 
-void Surface_from_path(Surface *self, const char *path);
+void Surface_ctor(Surface *self, const char *path);
 
-void Surface_drop(Surface *self);
+void Surface_dtor(Surface *self);
 
 void Surface_char_projection(const Surface *self, char **destination, size_t *length);
 

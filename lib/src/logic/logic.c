@@ -40,6 +40,23 @@ Z3_context z3_mk_anima_ctx() {
   return ctx;
 }
 
+void Lexicon_ctor(Lexicon *self) {
+
+  *self = (Lexicon){
+      .anima = {
+          .enum_consts = malloc(self->anima.count * sizeof(*self->anima.enum_consts)),
+          .enum_names = malloc(self->anima.count * sizeof(*self->anima.enum_names)),
+          .enum_testers = malloc(self->anima.count * sizeof(*self->anima.enum_testers)),
+      },
+  };
+}
+
+void Lexicon_dtor(Lexicon *self) {
+  free(*self->anima.enum_testers);
+  free(*self->anima.enum_names);
+  free(*self->anima.enum_consts);
+}
+
 void Lexicon_setup_base(Lexicon *lexicon, Z3_context ctx) {
   lexicon->u6.sort = Z3_mk_bv_sort(ctx, 6);
 }
@@ -101,7 +118,6 @@ void Lexicon_assert_shortest_path_empty_hints(const Lexicon *lexicon, Z3_context
     }
   }
 }
-
 
 /// Anima fns
 

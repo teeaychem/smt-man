@@ -8,20 +8,26 @@
 #include "generic/enums.h"
 #include "generic/pairs.h"
 
-void Anima_init(Anima *self, const uint8_t id, const Pair_uint8 location, const Cardinal direction, const Maze *maze) {
+void Anima_ctor(Anima *self, const size_t anima_count, const uint8_t id, const Pair_uint8 location, const Cardinal direction, const Maze *maze) {
   slog_display(SLOG_DEBUG, 0, "Creating anima: %d\n", id);
 
-  self->id = id;
-  self->tick_action = 0;
-  self->contact = (AnimaAtomics){
-      .cond_resume = PTHREAD_COND_INITIALIZER,
-      .mtx_suspend = PTHREAD_MUTEX_INITIALIZER,
-  },
+  *self = (Anima){
+      .contact = (AnimaAtomics){
+          .cond_resume = PTHREAD_COND_INITIALIZER,
+          .mtx_suspend = PTHREAD_MUTEX_INITIALIZER,
+      },
+      .id = id,
+      .direction_intent = direction,
+      .tick_action = 0,
+
+      .smt = {
+          .ctx = z3_mk_anima_ctx(),
+      },
+  };
+
+  situation_ctor(&self->smt.situation, anima_count);
 
   assert(0 < self->smt.situation.animas.count);
-
-  self->id = id;
-  self->direction_intent = direction;
 
   atomic_init(&self->smt.situation.animas.states[id].direction_actual, direction);
 
@@ -31,8 +37,6 @@ void Anima_init(Anima *self, const uint8_t id, const Pair_uint8 location, const 
 
   atomic_init(&self->smt.situation.animas.states[id].movement_pattern, 0x552a552a);
 
-  self->smt.ctx = z3_mk_anima_ctx();
-
   self->smt.opz = Z3_mk_optimize(self->smt.ctx);
   Z3_optimize_inc_ref(self->smt.ctx, self->smt.opz);
 
@@ -41,13 +45,15 @@ void Anima_init(Anima *self, const uint8_t id, const Pair_uint8 location, const 
 
   atomic_init(&self->contact.flag_suspend, false);
 
-  MazePath_init(&self->path, maze->size);
+  Lexicon_ctor(&self->smt.lexicon);
+
+  MazePath_ctor(&self->path, maze->size);
 }
 
-void Anima_drop(Anima *self) {
+void Anima_dtor(Anima *self) {
   assert(self != nullptr);
 
-  MazePath_drop(&self->path);
+  MazePath_dtor(&self->path);
 
   Z3_parser_context_dec_ref(self->smt.ctx, self->smt.parser);
 

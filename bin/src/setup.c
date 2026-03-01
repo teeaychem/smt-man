@@ -46,7 +46,7 @@ Maze setup_maze(const char *source_path) {
 
   char path_buffer[FILENAME_MAX];
   cwk_path_join(source_path, "resources/maze/source.txt", path_buffer, FILENAME_MAX);
-  ensure(Maze_from_path(&maze, path_buffer));
+  ensure(Maze_ctor(&maze, path_buffer));
   ensure(Maze_detail(&maze));
   ensure(Maze_complete_data(&maze));
 
@@ -113,14 +113,18 @@ void setup_animas(Anima *animas, pthread_t *threads, const Maze *maze, size_t an
         .source_path = source_path,
     };
 
-    Anima_init(&animas[idx], idx, location, CARDINAL_S, maze);
+    Anima_ctor(&animas[idx], anima_count, idx, location, CARDINAL_S, maze);
 
     pthread_create(&threads[setup->anima->id], nullptr, setup_spirit, (void *)setup);
   }
 }
 
-void setup_situation(Situation *situation, Pair_uint8 location) {
-  atomic_init(&situation->persona.direction_actual, CARDINAL_E);
-  atomic_init(&situation->persona.location, location);
-  atomic_init(&situation->persona.movement_pattern, 0x552a552a);
+void situation_ctor(Situation *self, size_t anima_count) {
+
+  self->animas.count = anima_count,
+  self->animas.states = malloc(anima_count * sizeof(*self->animas.states));
+}
+
+void situation_dtor(Situation *self) {
+  // TODO
 }

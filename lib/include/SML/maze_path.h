@@ -25,9 +25,9 @@ typedef struct maze_path_t MazePath;
 
 /// Methods
 
-void MazePath_init(MazePath *self, const Pair_uint8 size);
+void MazePath_ctor(MazePath *self, const Pair_uint8 size);
 
-void MazePath_drop(MazePath *self);
+void MazePath_dtor(MazePath *self);
 
 void MazePath_clear(MazePath *self);
 

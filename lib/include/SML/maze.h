@@ -81,11 +81,11 @@ typedef struct maze_t Maze;
 
 /// Methods
 
-Result Maze_from_path(Maze *maze, const char *path);
+Result Maze_ctor(Maze *maze, const char *path);
 
 Result Maze_detail(Maze *self);
 
-void Maze_drop(Maze *self);
+void Maze_dtor(Maze *self);
 
 bool Maze_tile_in_direction_is_path(const Maze *self, const Pair_uint8 location, const Cardinal direction);
 

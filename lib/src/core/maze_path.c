@@ -4,7 +4,7 @@
 
 #include "SML/maze_path.h"
 
-void MazePath_init(MazePath *self, const Pair_uint8 size) {
+void MazePath_ctor(MazePath *self, const Pair_uint8 size) {
   /* assert(self->tiles == nullptr && "oh"); */
   size_t tile_count = (size_t)size.x * (size_t)size.y;
 
@@ -25,7 +25,7 @@ void MazePath_clear(MazePath *self) {
   }
 }
 
-void MazePath_drop(MazePath *self) {
+void MazePath_dtor(MazePath *self) {
   free(self->tiles);
   self->tiles = nullptr;
   self->tile_count = 0;

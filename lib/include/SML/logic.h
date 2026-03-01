@@ -8,7 +8,6 @@
 #include "SML/maze.h"
 
 constexpr size_t PATH_VARIANTS = 4;
-constexpr size_t LEXICON_ANIMAS = 1;
 
 struct z3_lexicon_4 {
 
@@ -21,9 +20,9 @@ struct z3_lexicon_4 {
 
     Z3_sort sort;
 
-    Z3_symbol enum_names[LEXICON_ANIMAS];
-    Z3_func_decl enum_consts[LEXICON_ANIMAS];
-    Z3_func_decl enum_testers[LEXICON_ANIMAS];
+    Z3_symbol *enum_names;
+    Z3_func_decl *enum_consts;
+    Z3_func_decl *enum_testers;
 
     /// anima -> u8
     Z3_func_decl tile_row_f;
@@ -75,13 +74,15 @@ typedef struct z3_lexicon_4 Lexicon;
 
 //
 
+void Lexicon_ctor(Lexicon *self);
+void Lexicon_dtor(Lexicon *self);
+
 void Lexicon_setup_base(Lexicon *lexicon, Z3_context ctx);
 void Lexicon_setup_path(Lexicon *lexicon, Z3_context ctx);
 void Lexicon_setup_animas(Lexicon *lexicon, Z3_context ctx, size_t count);
 void Lexicon_setup_persona(Lexicon *lexicon, Z3_context ctx);
 
 void Lexicon_assert_shortest_path_empty_hints(const Lexicon *lexicon, Z3_context ctx, Z3_optimize optimizer, const Maze *maze);
-
 
 //
 
@@ -91,9 +92,7 @@ void Lexicon_assert_anima_location(const Lexicon *lexicon, Z3_context ctx, Z3_op
 /// For each tile which is not the location of an anima is a link tile.
 void Lexicon_assert_constant_hints(const Lexicon *lexicon, Z3_context ctx, Z3_optimize otz, const Maze *maze);
 
-
 //
-
 
 void Lexicon_assert_persona_location(const Lexicon *lexicon, Z3_context ctx, Z3_optimize otz, const Situation *situation);
 

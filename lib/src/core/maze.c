@@ -17,7 +17,7 @@ void next_line(FILE *file) {
   }
 }
 
-Result Maze_from_path(Maze *maze, const char *path) {
+Result Maze_ctor(Maze *maze, const char *path) {
 
   *maze = (Maze){
       .tiles = nullptr,
@@ -171,7 +171,7 @@ Result Maze_from_path(Maze *maze, const char *path) {
   return RESULT_OK;
 }
 
-void Maze_drop(Maze *self) {
+void Maze_dtor(Maze *self) {
   free(self->tiles);
   self->tiles = nullptr;
   self->size.x = 0;

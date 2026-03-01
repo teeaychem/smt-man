@@ -13,6 +13,6 @@ struct persona_t {
 };
 typedef struct persona_t Persona;
 
-void Persona_default(Persona *persona, Situation *situation);
+void Persona_ctor(Persona *persona, Situation *situation);
 
-void Persona_drop(Persona *self);
+void Persona_dtor(Persona *self);

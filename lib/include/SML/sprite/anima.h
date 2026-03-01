@@ -52,11 +52,9 @@ typedef struct anima_t Anima;
 
 // Methods
 
-/// Initialize an anima with `id`, at grid `location`, facing `direction`
-void Anima_init(Anima *self, const uint8_t id, const Pair_uint8 location, const Cardinal direction, const Maze *maze);
+void Anima_ctor(Anima *self, const size_t anima_count, const uint8_t id, const Pair_uint8 location, const Cardinal direction, const Maze *maze);
 
-/// Drop an anima
-void Anima_drop(Anima *self);
+void Anima_dtor(Anima *self);
 
 ///
 void Anima_touch(Anima *self, size_t anima_count);
