@@ -18,8 +18,8 @@ constexpr size_t ANIMA_COUNT = 1;
 
 pthread_t ANIMA_THREADS[ANIMA_COUNT];
 
-void z3_read_and_display_path(const Lexicon *lexicon, Z3_context ctx, Z3_model model, const Maze *maze);
-void z3_tmp(Z3_context ctx, Lexicon *lexicon, Z3_optimize optimizer, const Maze *maze, const Situation *situation, uint8_t anima_id);
+void z3_read_and_display_path(const Lexicon *lexicon, Z3_context ctx, Z3_model model, const maze_s *maze);
+void z3_tmp(Z3_context ctx, Lexicon *lexicon, Z3_optimize optimizer, const maze_s *maze, const Situation *situation, uint8_t anima_id);
 
 int main() {
 
@@ -45,11 +45,11 @@ int main() {
 
   Persona persona;
 
-  Maze maze = {};
+  maze_s maze = {};
   {
     char path_buffer[FILENAME_MAX];
     cwk_path_join(source_path, "resources/maze/source.txt", path_buffer, FILENAME_MAX);
-    Maze_ctor_from_path(&maze, path_buffer);
+    maze_ctor_from_path(&maze, path_buffer);
   }
   { // Setup block
     situation_ctor(&situation, ANIMA_COUNT);
@@ -60,7 +60,9 @@ int main() {
 
     setup_animas(animas, ANIMA_THREADS, &maze, ANIMA_COUNT, source_path);
   }
-  Maze_display(&maze);
+  char * maze_string = maze_as_string(&maze);
+  printf("%s", maze_string);
+  free(maze_string);
 
   Sync_update_animas(&situation, animas);
   Sync_update_situation(&situation, animas);
@@ -157,7 +159,7 @@ int main() {
   z3_tmp(ctx, &lexicon, optimizer, &maze, &situation, 0);
 }
 
-void z3_read_and_display_path(const Lexicon *lexicon, const Z3_context ctx, const Z3_model model, const Maze *maze) {
+void z3_read_and_display_path(const Lexicon *lexicon, const Z3_context ctx, const Z3_model model, const maze_s *maze) {
 
   maze_path_s maze_path = {};
 
@@ -170,7 +172,7 @@ void z3_read_and_display_path(const Lexicon *lexicon, const Z3_context ctx, cons
   maze_path_dtor(&maze_path);
 }
 
-void z3_tmp(Z3_context ctx, Lexicon *lexicon, Z3_optimize optimizer, const Maze *maze, const Situation *situation, uint8_t anima_id) {
+void z3_tmp(Z3_context ctx, Lexicon *lexicon, Z3_optimize optimizer, const maze_s *maze, const Situation *situation, uint8_t anima_id) {
 
   Lexicon_assert_shortest_path_empty_hints(lexicon, ctx, optimizer, maze);
 

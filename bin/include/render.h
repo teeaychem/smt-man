@@ -39,7 +39,7 @@ void Renderer_dtor(Renderer *self);
 
 void Renderer_clear(Renderer *self);
 
-void Renderer_draw_maze(Renderer *self, const Maze *maze);
+void Renderer_draw_maze(Renderer *self, const maze_s *maze);
 
 void Renderer_render_frame_buffer(Renderer *self);
 

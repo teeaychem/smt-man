@@ -36,7 +36,7 @@ void maze_path_dtor(maze_path_s *self);
 
 void maze_path_clear(maze_path_s *self);
 
-void maze_path_read(maze_path_s *self, const Lexicon *lexicon, const Z3_context ctx, const Z3_model model, const Maze *maze);
+void maze_path_read(maze_path_s *self, const Lexicon *lexicon, const Z3_context ctx, const Z3_model model, const maze_s *maze);
 
 void maze_path_display(maze_path_s *self, const Lexicon *lexicon);
 

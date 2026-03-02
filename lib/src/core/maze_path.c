@@ -76,7 +76,7 @@ void maze_path_display(maze_path_s *self, const Lexicon *lexicon) {
   free(line_buffer);
 }
 
-void maze_path_read(maze_path_s *self, const Lexicon *lexicon, const Z3_context ctx, const Z3_model model, const Maze *maze) {
+void maze_path_read(maze_path_s *self, const Lexicon *lexicon, const Z3_context ctx, const Z3_model model, const maze_s *maze) {
   // Read the interpretation to the path buffer
   pthread_mutex_lock(&self->access_mutex);
 
@@ -102,7 +102,7 @@ void maze_path_read(maze_path_s *self, const Lexicon *lexicon, const Z3_context 
           assert(z3_unsigned_tmp < UINT8_MAX);
           args_row_col[arg_idx] = (uint8_t)z3_unsigned_tmp;
         }
-        tile_index = Maze_tile_index(maze, args_row_col[0], args_row_col[1]);
+        tile_index = maze_tile_index(maze, args_row_col[0], args_row_col[1]);
       }
 
       Z3_ast value = Z3_func_entry_get_value(ctx, entry);
@@ -140,7 +140,7 @@ void maze_path_read(maze_path_s *self, const Lexicon *lexicon, const Z3_context 
           assert(z3_unsigned_tmp < UINT8_MAX);
           args_row_col[arg_idx] = (uint8_t)z3_unsigned_tmp;
         }
-        tile_index = Maze_tile_index(maze, args_row_col[0], args_row_col[1]);
+        tile_index = maze_tile_index(maze, args_row_col[0], args_row_col[1]);
       }
 
       Z3_ast value = Z3_func_entry_get_value(ctx, entry);

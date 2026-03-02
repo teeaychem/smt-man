@@ -70,7 +70,7 @@ void Lexicon_setup_path(Lexicon *lexicon, Z3_context ctx) {
 
 /// Shortest paths are found by placing a penatly on the assignment of a non empty path value to each potentiial path tile.
 /// So long as a path is required and optimisation is enforced, no shorter path can exist on SAT.
-void Lexicon_assert_shortest_path_empty_hints(const Lexicon *lexicon, Z3_context ctx, Z3_optimize otz, const Maze *maze) {
+void Lexicon_assert_shortest_path_empty_hints(const Lexicon *lexicon, Z3_context ctx, Z3_optimize otz, const maze_s *maze) {
 
   for (uint8_t row = 0; row < maze->dimensions.x; ++row) {
     for (uint8_t col = 0; col < maze->dimensions.y; ++col) {
@@ -85,7 +85,7 @@ void Lexicon_assert_shortest_path_empty_hints(const Lexicon *lexicon, Z3_context
       Z3_ast tile_x_h_is_X = Z3_mk_eq(ctx, tile_x_h, lexicon->path.token.x);
       Z3_ast tile_x_v_is_X = Z3_mk_eq(ctx, tile_x_v, lexicon->path.token.x);
 
-      if (Maze_is_path(maze, row, col)) {
+      if (maze_is_path(maze, row, col)) {
         Z3_ast empty_conjunction[2] = {
             tile_x_h_is_X,
             tile_x_v_is_X,

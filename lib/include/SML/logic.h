@@ -82,7 +82,7 @@ void Lexicon_setup_path(Lexicon *lexicon, Z3_context ctx);
 void Lexicon_setup_animas(Lexicon *lexicon, Z3_context ctx, size_t count);
 void Lexicon_setup_persona(Lexicon *lexicon, Z3_context ctx);
 
-void Lexicon_assert_shortest_path_empty_hints(const Lexicon *lexicon, Z3_context ctx, Z3_optimize optimizer, const Maze *maze);
+void Lexicon_assert_shortest_path_empty_hints(const Lexicon *lexicon, Z3_context ctx, Z3_optimize optimizer, const maze_s *maze);
 
 //
 
@@ -90,7 +90,7 @@ void Lexicon_assert_shortest_path_empty_hints(const Lexicon *lexicon, Z3_context
 void Lexicon_assert_anima_location(const Lexicon *lexicon, Z3_context ctx, Z3_optimize otz, const Situation *situation, const uint8_t id);
 
 /// For each tile which is not the location of an anima is a link tile.
-void Lexicon_assert_constant_hints(const Lexicon *lexicon, Z3_context ctx, Z3_optimize otz, const Maze *maze);
+void Lexicon_assert_constant_hints(const Lexicon *lexicon, Z3_context ctx, Z3_optimize otz, const maze_s *maze);
 
 //
 

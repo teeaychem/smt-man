@@ -210,7 +210,7 @@ void Surface_tile_arc(Surface *self, const Pair_uint32 origin, const uint32_t ra
   }
 }
 
-void Surface_tile_fixed_arc(Surface *self, const Pair_uint32 origin, const TileData *tile_data, const uint32_t colour) {
+void Surface_tile_fixed_arc(Surface *self, const Pair_uint32 origin, const tile_data_s *tile_data, const uint32_t colour) {
 
   uint32_t half_pixels = TILE_PIXELS / 2;
 

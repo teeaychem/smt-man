@@ -24,7 +24,7 @@ struct core_logic {
     size_t count;
     Anima *data;
   } animas;
-  Maze maze;
+  maze_s maze;
   Persona persona;
   Situation situation;
 };
@@ -43,7 +43,7 @@ void core_logic_ctor(core_logic_s *self, size_t anima_count, const char *source_
   {
     char path_buffer[FILENAME_MAX];
     cwk_path_join(source_path, "resources/maze/source.txt", path_buffer, FILENAME_MAX);
-    Maze_ctor_from_path(&self->maze, path_buffer);
+    maze_ctor_from_path(&self->maze, path_buffer);
   }
 
   situation_ctor(&self->situation, ANIMA_COUNT);
@@ -218,7 +218,7 @@ exit_block: {
     pthread_join(ANIMA_THREADS[idx], nullptr);
   }
 
-  Maze_dtor((Maze *)&core_logic.maze);
+  maze_dtor((maze_s *)&core_logic.maze);
   free(source_path);
   slog_destroy();
 

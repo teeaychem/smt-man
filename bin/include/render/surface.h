@@ -41,4 +41,4 @@ void Surface_circle_draw(Surface *self, const Pair_uint32 *origin, const Pair_ui
 // INVARIANT: The tile has an even number of pixels, and the origin is given by: (x += width/2, y += height/2).
 void Surface_tile_arc(Surface *self, const Pair_uint32 origin, const uint32_t radius, const quadrant_e quadrant, const uint32_t colour);
 
-void Surface_tile_fixed_arc(Surface *self, const Pair_uint32 origin, const TileData *tile_data, const uint32_t colour);
+void Surface_tile_fixed_arc(Surface *self, const Pair_uint32 origin, const tile_data_s *tile_data, const uint32_t colour);

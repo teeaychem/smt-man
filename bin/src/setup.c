@@ -42,7 +42,7 @@ void set_source_path(char **source_path, int *length) {
 struct spirit_setup_t {
   Anima *anima;
   size_t anima_count;
-  const Maze *maze;
+  const maze_s *maze;
   const char *source_path;
   pthread_t *thread;
 };
@@ -82,7 +82,7 @@ void *setup_spirit(void *void_setup_struct) {
   return 0;
 }
 
-void setup_animas(Anima *animas, pthread_t *threads, const Maze *maze, size_t anima_count, const char *source_path) {
+void setup_animas(Anima *animas, pthread_t *threads, const maze_s *maze, size_t anima_count, const char *source_path) {
 
   for (uint8_t idx = 0; idx < anima_count; ++idx) {
 

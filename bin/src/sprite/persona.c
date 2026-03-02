@@ -2,29 +2,29 @@
 
 #include "render/sprite.h"
 
-void Persona_on_tile(Persona *self, Sprite *sprite, Situation *situation, const Maze *maze, Pair_uint8 maze_location) {
+void Persona_on_tile(Persona *self, Sprite *sprite, Situation *situation, const maze_s *maze, Pair_uint8 maze_location) {
 
   /// Update location
   atomic_store(&situation->persona.location, maze_location);
 
   /// Update direction
-  if (Maze_tile_in_direction_is_path(maze, maze_location, self->direction_intent)) {
+  if (maze_tile_in_direction_is_path(maze, maze_location, self->direction_intent)) {
     atomic_store(&situation->persona.direction_actual, self->direction_intent);
-  } else if (Maze_tile_in_direction_is_path(maze, maze_location, situation->persona.direction_actual)) {
+  } else if (maze_tile_in_direction_is_path(maze, maze_location, situation->persona.direction_actual)) {
     // Keep current direction.
   } else {
     atomic_store(&situation->persona.direction_actual, CARDINAL_NONE);
   }
 }
 
-void Persona_off_tile(Persona *self, Sprite *sprite, Situation *situation, const Maze *maze, Pair_uint8 maze_location) {
+void Persona_off_tile(Persona *self, Sprite *sprite, Situation *situation, const maze_s *maze, Pair_uint8 maze_location) {
 
   if ((self->direction_intent | situation->persona.direction_actual) == (CARDINAL_E | CARDINAL_W) ||
       (self->direction_intent | situation->persona.direction_actual) == (CARDINAL_S | CARDINAL_N)) {
     /// Update direction
-    if (Maze_tile_in_direction_is_path(maze, maze_location, self->direction_intent)) {
+    if (maze_tile_in_direction_is_path(maze, maze_location, self->direction_intent)) {
       atomic_store(&situation->persona.direction_actual, self->direction_intent);
-    } else if (Maze_tile_in_direction_is_path(maze, maze_location, situation->persona.direction_actual)) {
+    } else if (maze_tile_in_direction_is_path(maze, maze_location, situation->persona.direction_actual)) {
       // Keep current direction.
     } else {
       atomic_store(&situation->persona.direction_actual, CARDINAL_NONE);
@@ -32,7 +32,7 @@ void Persona_off_tile(Persona *self, Sprite *sprite, Situation *situation, const
   }
 }
 
-void Persona_on_frame(Persona *self, Sprite *sprite, const Maze *maze, Situation *situation, uint32_t tile_pixels, uint32_t offset_n) {
+void Persona_on_frame(Persona *self, Sprite *sprite, const maze_s *maze, Situation *situation, uint32_t tile_pixels, uint32_t offset_n) {
 
   uint32_t movement = atomic_load(&situation->persona.movement_pattern);
   movement = uint32_rotl1(movement);
@@ -71,7 +71,7 @@ void Persona_on_frame(Persona *self, Sprite *sprite, const Maze *maze, Situation
   }
 }
 
-void Persona_handle_event(Persona *self, const Maze *maze, Situation *situation, const SDL_Event *event) {
+void Persona_handle_event(Persona *self, const maze_s *maze, Situation *situation, const SDL_Event *event) {
   if (event->type == SDL_EVENT_KEY_DOWN && !event->key.repeat) {
 
     switch (event->key.key) {

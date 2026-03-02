@@ -49,7 +49,7 @@ typedef struct anima_t Anima;
 
 // Methods
 
-void Anima_ctor(Anima *self, const size_t anima_count, const uint8_t id, const Maze *maze);
+void Anima_ctor(Anima *self, const size_t anima_count, const uint8_t id, const maze_s *maze);
 
 void Anima_dtor(Anima *self);
 
@@ -63,4 +63,4 @@ void Anima_parse_fundamentals(Anima *self, char *smt_path);
 void Anima_instinct(Anima *self);
 
 /// Generate consequences from deduction
-Result Anima_deduct(Anima *self, const Maze *maze);
+Result Anima_deduct(Anima *self, const maze_s *maze);

@@ -102,7 +102,7 @@ void Renderer_render_frame_buffer(Renderer *self) {
   SDL_RenderPresent(self->renderer);
 }
 
-void Renderer_draw_maze(Renderer *self, const Maze *maze) {
+void Renderer_draw_maze(Renderer *self, const maze_s *maze) {
 
   for (uint8_t row = 0; row < maze->dimensions.x; ++row) {
     uint32_t row_scaled = ((row + RENDER_TOP) * TILE_PIXELS);
@@ -112,7 +112,7 @@ void Renderer_draw_maze(Renderer *self, const Maze *maze) {
 
       Pair_uint32 tile_position = {.x = row_scaled, .y = col_scaled};
 
-      TileData *tile_data = Maze_tile_data_at(maze, row, col);
+      tile_data_s *tile_data = maze_tile_data_at(maze, row, col);
 
       switch (tile_data->type) {
 
