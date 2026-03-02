@@ -31,7 +31,7 @@ int main() {
   char *source_path;
   { // Set source path, kept until exit
     int source_path_length;
-    set_source_path(&source_path, &source_path_length);
+    source_path_build(&source_path, &source_path_length);
   }
 
   Situation situation = {};

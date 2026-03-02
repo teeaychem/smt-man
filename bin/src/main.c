@@ -18,6 +18,7 @@
 constexpr size_t ANIMA_COUNT = 1;
 
 pthread_t ANIMA_THREADS[ANIMA_COUNT];
+spirit_setup_s ANIMA_SPIRITS[ANIMA_COUNT];
 
 struct core_logic {
   struct {
@@ -127,7 +128,7 @@ void game_state(core_logic_s *logic, core_render_s *render) {
       Sync_update_situation(&logic->situation, logic->animas.data);
 
       for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
-        pthread_cond_broadcast(&logic->animas.data[id].contact.cond_resume);
+        pthread_cond_broadcast(&ANIMA_SPIRITS[id].cond_frame);
       }
     }
 
@@ -179,7 +180,7 @@ int main() { // int main(int argc, char *argv[]) {
   char *source_path;
   { // Set source path, static lifetime
     int source_path_length;
-    set_source_path(&source_path, &source_path_length);
+    source_path_build(&source_path, &source_path_length);
   }
 
   core_logic_s core_logic = {};
@@ -188,18 +189,21 @@ int main() { // int main(int argc, char *argv[]) {
   { // Core logic
     for (uint8_t idx = 0; idx < ANIMA_COUNT; ++idx) {
 
-      spirit_setup_s *setup = malloc(sizeof(*setup));
       // static lifetime, as thread lives until exit
-      *setup = (spirit_setup_s){
+      ANIMA_SPIRITS[idx] = (spirit_setup_s){
           .anima = &core_logic.animas.data[idx],
           .anima_count = ANIMA_COUNT,
           .maze = &core_logic.maze,
           .source_path = source_path,
+
+          .cond_frame = PTHREAD_COND_INITIALIZER,
+          .mtx_spirit = PTHREAD_MUTEX_INITIALIZER,
+
       };
 
       anima_ctor(&core_logic.animas.data[idx], ANIMA_COUNT, idx, &core_logic.maze);
 
-      pthread_create(&ANIMA_THREADS[setup->anima->id], nullptr, setup_spirit, (void *)setup);
+      pthread_create(&ANIMA_THREADS[ANIMA_SPIRITS[idx].anima->id], nullptr, spirit_ctor, (void *)&ANIMA_SPIRITS[idx]);
     }
 
     for (size_t idx = 0; idx < core_logic.animas.count; ++idx) {

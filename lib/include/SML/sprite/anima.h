@@ -8,24 +8,12 @@
 #include "SML/maze.h"
 #include "SML/maze_path.h"
 
-/// Tools for contacting the anima from a different thread
-struct anima_contact_t {
-
-  pthread_mutex_t mtx_suspend;
-
-  pthread_cond_t cond_resume;
-};
-typedef struct anima_contact_t anima_contact_s;
-
 /// Something which performs deductions
 struct anima_t {
   /// Uniqie identifier
   uint8_t id;
   /// Incremented on each tick an action is performed
   uint8_t tick_action;
-
-  /// Communication between threads
-  anima_contact_s contact;
 
   /// Path
   maze_path_s path;

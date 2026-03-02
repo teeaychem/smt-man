@@ -27,7 +27,7 @@
 #include <whereami.h>
 
 // Set the source path for resources, etc.
-void set_source_path(char **source_path, int *length) {
+void source_path_build(char **source_path, int *length) {
 
   *length = wai_getExecutablePath(nullptr, 0, nullptr) + 1;
   assert(*length >= 0);
@@ -38,7 +38,7 @@ void set_source_path(char **source_path, int *length) {
   (*source_path)[dirname_length] = '\0';
 }
 
-void *setup_spirit(void *void_setup_struct) {
+void *spirit_ctor(void *void_setup_struct) {
 
   struct spirit_setup_t *setup_struct = void_setup_struct;
   anima_s *anima = setup_struct->anima;
@@ -59,10 +59,10 @@ void *setup_spirit(void *void_setup_struct) {
 
   bool sat = true;
 
-  pthread_mutex_lock(&anima->contact.mtx_suspend);
+  pthread_mutex_lock(&setup_struct->mtx_spirit);
   while (sat) {
 
-    pthread_cond_wait(&anima->contact.cond_resume, &anima->contact.mtx_suspend);
+    pthread_cond_wait(&setup_struct->cond_frame, &setup_struct->mtx_spirit);
 
     Z3_optimize_push(anima->smt.ctx, anima->smt.opz);
     Z3_lbool result = anima_solve(anima, setup_struct->maze);
@@ -91,7 +91,7 @@ void *setup_spirit(void *void_setup_struct) {
     } break;
     }
   }
-  pthread_mutex_unlock(&anima->contact.mtx_suspend);
+  pthread_mutex_unlock(&setup_struct->mtx_spirit);
 
   return 0;
 }

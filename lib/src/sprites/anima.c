@@ -11,10 +11,6 @@ void anima_ctor(anima_s *self, const size_t anima_count, const uint8_t id, const
   slog_display(SLOG_DEBUG, 0, "Creating anima: %d\n", id);
 
   *self = (anima_s){
-      .contact = (anima_contact_s){
-          .cond_resume = PTHREAD_COND_INITIALIZER,
-          .mtx_suspend = PTHREAD_MUTEX_INITIALIZER,
-      },
       .id = id,
       .tick_action = 0,
 
