@@ -17,12 +17,27 @@ void next_line(FILE *file) {
   }
 }
 
-Result Maze_ctor(Maze *maze, const char *path) {
+Result Maze_ctor(Maze *maze) {
 
   *maze = (Maze){
       .tiles = nullptr,
-      .size = {},
+      .dimensions = {.x = 0, .y = 0},
   };
+
+  return RESULT_OK;
+}
+
+void Maze_dtor(Maze *self) {
+  free(self->tiles);
+  self->tiles = nullptr;
+  self->dimensions.x = 0;
+  self->dimensions.y = 0;
+}
+
+Result Maze_from_path(Maze *maze, const char *path) {
+
+  assert(Pair_uint8_eq(&maze->dimensions, &(Pair_uint8){0, 0}));
+  assert(maze->tiles == nullptr);
 
   size_t tile_count = 0;
   bool preamble_ok = true;
@@ -42,14 +57,14 @@ Result Maze_ctor(Maze *maze, const char *path) {
     } break;
 
     case 'w': {
-      if (!fscanf(file_ptr, "%" SCNu8, &(maze->size.y))) {
+      if (!fscanf(file_ptr, "%" SCNu8, &(maze->dimensions.y))) {
         slog_display(SLOG_ERROR, 0, "Failed to read maze width: %s", path);
         preamble_ok = false;
       };
     } break;
 
     case 'h': {
-      if (!fscanf(file_ptr, "%" SCNu8, &(maze->size.x))) {
+      if (!fscanf(file_ptr, "%" SCNu8, &(maze->dimensions.x))) {
         slog_display(SLOG_ERROR, 0, "Failed to read maze height: %s", path);
         preamble_ok = false;
       };
@@ -69,9 +84,9 @@ Result Maze_ctor(Maze *maze, const char *path) {
     }
   }
 
-  if ((maze->size.x % STANDARD_MAZE_DIMENSIONS.x) != 0 | (maze->size.y % STANDARD_MAZE_DIMENSIONS.y) != 0) {
+  if ((maze->dimensions.x % STANDARD_MAZE_DIMENSIONS.x) != 0 | (maze->dimensions.y % STANDARD_MAZE_DIMENSIONS.y) != 0) {
     slog_display(SLOG_WARN, 0,
-                 "Maze dimension %dx%d is not an integer scale of %dx%d\n", maze->size.x, maze->size.y, STANDARD_MAZE_DIMENSIONS.x, STANDARD_MAZE_DIMENSIONS.y);
+                 "Maze dimension %dx%d is not an integer scale of %dx%d\n", maze->dimensions.x, maze->dimensions.y, STANDARD_MAZE_DIMENSIONS.x, STANDARD_MAZE_DIMENSIONS.y);
 
     preamble_ok = false;
   }
@@ -82,7 +97,7 @@ Result Maze_ctor(Maze *maze, const char *path) {
     return RESULT_KO;
   }
 
-  maze->tiles = malloc((size_t)maze->size.x * (size_t)maze->size.y * sizeof(*maze->tiles));
+  maze->tiles = malloc((size_t)maze->dimensions.x * (size_t)maze->dimensions.y * sizeof(*maze->tiles));
 
   uint8_t row = 0;
   uint8_t col = 0;
@@ -98,8 +113,8 @@ Result Maze_ctor(Maze *maze, const char *path) {
     } break;
 
     case '\n': {
-      if (col != maze->size.y) {
-        slog_display(SLOG_ERROR, 0, "Invalid width.\n\tHave: %d\n\tExpected: %d\n\tRow: %d\n\tMaze: %s\n", row, maze->size.y, col, path);
+      if (col != maze->dimensions.y) {
+        slog_display(SLOG_ERROR, 0, "Invalid width.\n\tHave: %d\n\tExpected: %d\n\tRow: %d\n\tMaze: %s\n", row, maze->dimensions.y, col, path);
         return RESULT_KO;
       }
       row += 1;
@@ -159,31 +174,24 @@ Result Maze_ctor(Maze *maze, const char *path) {
     }
   }
 
-  if (row != maze->size.x) {
+  if (row != maze->dimensions.x) {
     slog_display(SLOG_ERROR, 0,
-                 "Invalid height.\n\tHave: %d\n\tExpected: %d\n\tMaze: %s\n", row, maze->size.y, path);
+                 "Invalid height.\n\tHave: %d\n\tExpected: %d\n\tMaze: %s\n", row, maze->dimensions.y, path);
     return RESULT_KO;
   }
 
   fclose(file_ptr);
 
-  slog_display(SLOG_INFO, 0, "Constructed maze %dx%d (%zu)\n", maze->size.x, maze->size.y, tile_count);
+  slog_display(SLOG_INFO, 0, "Constructed maze %dx%d (%zu)\n", maze->dimensions.x, maze->dimensions.y, tile_count);
   return RESULT_OK;
-}
-
-void Maze_dtor(Maze *self) {
-  free(self->tiles);
-  self->tiles = nullptr;
-  self->size.x = 0;
-  self->size.y = 0;
 }
 
 void Maze_display(const Maze *self) {
 
-  char *line_buffer = malloc(self->size.y * sizeof(*line_buffer));
+  char *line_buffer = malloc(self->dimensions.y * sizeof(*line_buffer));
 
-  for (uint8_t row = 0; row < self->size.x; ++row) {
-    for (uint8_t col = 0; col < self->size.y; ++col) {
+  for (uint8_t row = 0; row < self->dimensions.x; ++row) {
+    for (uint8_t col = 0; col < self->dimensions.y; ++col) {
       line_buffer[col] = TileData_as_char(Maze_tile_data_at(self, row, col));
     }
     printf("%s\n", line_buffer);
@@ -212,7 +220,7 @@ void Maze_detail_arc_outer(Maze *self) {
     }
 
     { // BOTTOM
-      tile = Maze_tile_data_at(self, self->size.x - 1, col);
+      tile = Maze_tile_data_at(self, self->dimensions.x - 1, col);
       if (tile->type == TILE_EDGE) {
         Tile_set_arc(tile, QUADRANT_3);
         tile->value.edge_value.lines = TILE_LINES_M;
@@ -220,7 +228,7 @@ void Maze_detail_arc_outer(Maze *self) {
     }
 
     { // INTERMEDIATE
-      for (uint8_t row = 4; row < self->size.x - 1; ++row) {
+      for (uint8_t row = 4; row < self->dimensions.x - 1; ++row) {
         tile = Maze_tile_data_at(self, row, col);
         if (tile->type == TILE_EDGE) {
           if (Maze_tile_data_at(self, row, col + 1)->type == TILE_EDGE) {
@@ -254,7 +262,7 @@ void Maze_detail_arc_outer(Maze *self) {
   }
 
   { // RIGHT
-    uint8_t col = self->size.y - 1;
+    uint8_t col = self->dimensions.y - 1;
     TileData *tile = nullptr;
 
     { // TOP
@@ -266,7 +274,7 @@ void Maze_detail_arc_outer(Maze *self) {
     }
 
     { // BOTTOM
-      tile = Maze_tile_data_at(self, self->size.x - 1, col);
+      tile = Maze_tile_data_at(self, self->dimensions.x - 1, col);
       if (tile->type == TILE_EDGE) {
         Tile_set_arc(tile, QUADRANT_4);
         tile->value.edge_value.lines = TILE_LINES_M;
@@ -274,7 +282,7 @@ void Maze_detail_arc_outer(Maze *self) {
     }
 
     { // INTERMEDIATE
-      for (uint8_t row = 4; row < self->size.x - 1; ++row) {
+      for (uint8_t row = 4; row < self->dimensions.x - 1; ++row) {
         tile = Maze_tile_data_at(self, row, col);
         if (tile->type == TILE_EDGE) {
           if (Maze_tile_data_at(self, row, col - 1)->type == TILE_EDGE) {
@@ -320,7 +328,7 @@ void Maze_detail_arc_outer(Maze *self) {
     }
 
     { // RIGHT
-      tile = Maze_tile_data_at(self, row, self->size.y - 1);
+      tile = Maze_tile_data_at(self, row, self->dimensions.y - 1);
       if (tile->type == TILE_EDGE) {
         Tile_set_arc(tile, QUADRANT_1);
         tile->value.edge_value.lines = TILE_LINES_M;
@@ -328,7 +336,7 @@ void Maze_detail_arc_outer(Maze *self) {
     }
 
     { // INTERMEDIATE
-      for (uint8_t col = 1; col < self->size.y - 1; ++col) {
+      for (uint8_t col = 1; col < self->dimensions.y - 1; ++col) {
         tile = Maze_tile_data_at(self, row, col);
         if (tile->type == TILE_EDGE) {
           if (Maze_tile_data_at(self, row + 1, col)->type == TILE_EDGE) {
@@ -350,7 +358,7 @@ void Maze_detail_arc_outer(Maze *self) {
   }
 
   { // BOTTOM
-    uint8_t row = self->size.x - 1;
+    uint8_t row = self->dimensions.x - 1;
     TileData *tile = nullptr;
 
     { // LEFT
@@ -362,7 +370,7 @@ void Maze_detail_arc_outer(Maze *self) {
     }
 
     { // RIGHT
-      tile = Maze_tile_data_at(self, row, self->size.y - 1);
+      tile = Maze_tile_data_at(self, row, self->dimensions.y - 1);
       if (tile->type == TILE_EDGE) {
         Tile_set_arc(tile, QUADRANT_4);
         tile->value.edge_value.lines = TILE_LINES_M;
@@ -370,7 +378,7 @@ void Maze_detail_arc_outer(Maze *self) {
     }
 
     { // INTERMEDIATE
-      for (uint8_t col = 1; col < self->size.y - 1; ++col) {
+      for (uint8_t col = 1; col < self->dimensions.y - 1; ++col) {
         tile = Maze_tile_data_at(self, row, col);
         if (tile->type == TILE_EDGE) {
           if (Maze_tile_data_at(self, row - 1, col)->type == TILE_EDGE) {
@@ -393,8 +401,8 @@ void Maze_detail_arc_outer(Maze *self) {
 }
 
 void Maze_detail_arc_inner(Maze *self) {
-  for (uint8_t row = 1; row < self->size.x - 1; ++row) {
-    for (uint8_t col = 1; col < self->size.y - 1; ++col) {
+  for (uint8_t row = 1; row < self->dimensions.x - 1; ++row) {
+    for (uint8_t col = 1; col < self->dimensions.y - 1; ++col) {
 
       TileData *tile = Maze_tile_data_at(self, row, col);
       if (tile->type == TILE_EDGE) {
@@ -463,10 +471,10 @@ bool Maze_tile_in_direction_is_path(const Maze *self, const Pair_uint8 location,
     return (0 < location.x) && Maze_is_path(self, location.x - 1, location.y);
   } break;
   case CARDINAL_E: {
-    return (location.y + 1 < self->size.y) && Maze_is_path(self, location.x, location.y + 1);
+    return (location.y + 1 < self->dimensions.y) && Maze_is_path(self, location.x, location.y + 1);
   } break;
   case CARDINAL_S: {
-    return (location.x + 1 < self->size.x) && Maze_is_path(self, location.x + 1, location.y);
+    return (location.x + 1 < self->dimensions.x) && Maze_is_path(self, location.x + 1, location.y);
   } break;
   case CARDINAL_W: {
     return (0 < location.y) && Maze_is_path(self, location.x, location.y - 1);
@@ -485,7 +493,7 @@ void Maze_complete_line_data(const Maze *self, TileData *tile_data, const uint8_
     tile_data->value.edge_value.edge_line_plane = PLANE_H;
   }
   // Bottom row
-  else if (row == (self->size.x - 1)) {
+  else if (row == (self->dimensions.x - 1)) {
     tile_data->value.edge_value.lines = TILE_LINES_P;
     tile_data->value.edge_value.edge_line_plane = PLANE_H;
   }
@@ -502,7 +510,7 @@ void Maze_complete_line_data(const Maze *self, TileData *tile_data, const uint8_
       tile_data->value.edge_value.edge_line_plane = PLANE_H;
     }
     // East of path
-    else if (col + 1 < self->size.y && Maze_tile_data_at(self, row, col + 1)->type == TILE_PATH) {
+    else if (col + 1 < self->dimensions.y && Maze_tile_data_at(self, row, col + 1)->type == TILE_PATH) {
       tile_data->value.edge_value.lines = TILE_LINES_M;
       tile_data->value.edge_value.edge_line_plane = PLANE_V;
     }
@@ -521,8 +529,8 @@ void Maze_complete_line_data(const Maze *self, TileData *tile_data, const uint8_
 Result Maze_complete_data(const Maze *self) {
   // For each tile...
 
-  for (uint8_t row = 0; row < self->size.x; ++row) {
-    for (uint8_t col = 0; col < self->size.y; ++col) {
+  for (uint8_t row = 0; row < self->dimensions.x; ++row) {
+    for (uint8_t col = 0; col < self->dimensions.y; ++col) {
 
       TileData *tile_data = Maze_tile_data_at(self, row, col);
 

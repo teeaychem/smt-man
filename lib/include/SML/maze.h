@@ -74,16 +74,18 @@ static inline char TileData_as_char(TileData *self) {
 /// Maze
 
 struct maze_t {
-  Pair_uint8 size;
+  Pair_uint8 dimensions;
   TileData *tiles;
 };
 typedef struct maze_t Maze;
 
 /// Methods
 
-Result Maze_ctor(Maze *maze, const char *path);
+Result Maze_ctor(Maze *maze);
 
 void Maze_dtor(Maze *self);
+
+Result Maze_from_path(Maze *maze, const char *path);
 
 Result Maze_detail(Maze *self);
 
@@ -98,7 +100,7 @@ Result Maze_complete_data(const Maze *self);
 /// Static inline
 
 static inline size_t Maze_tile_index(const Maze *self, const uint8_t row, const uint8_t col) {
-  return Pair_uint8_flatten(&self->size, row, col);
+  return Pair_uint8_flatten(&self->dimensions, row, col);
 }
 
 static inline TileData *Maze_tile_data_at(const Maze *self, const uint8_t row, const uint8_t col) {
@@ -112,8 +114,8 @@ static inline bool Maze_is_path(const Maze *self, const uint8_t row, const uint8
 static inline bool Maze_is_intersection(const Maze *self, const uint8_t row, const uint8_t col) {
   // clang-format off
   bool path_n = row > 0                && Maze_is_path(self, row - 1, col);
-  bool path_e = col + 1 < self->size.x && Maze_is_path(self, row, col + 1);
-  bool path_s = row + 1 < self->size.y && Maze_is_path(self, row + 1, col);
+  bool path_e = col + 1 < self->dimensions.x && Maze_is_path(self, row, col + 1);
+  bool path_s = row + 1 < self->dimensions.y && Maze_is_path(self, row + 1, col);
   bool path_w = col > 0                && Maze_is_path(self, row, col - 1);
   // clang-format on
 

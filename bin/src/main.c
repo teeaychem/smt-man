@@ -71,7 +71,7 @@ void core_render_ctor(core_render_s *self, const core_logic_s *core_logic, const
   cwk_path_join(source_path, "resources/sheet.png", path_buffer, FILENAME_MAX);
   slog_display(SLOG_INFO, 0, "Renderer with sheet from: %s\n", path_buffer);
 
-  Renderer_ctor(&self->renderer, core_logic->maze.size, path_buffer);
+  Renderer_ctor(&self->renderer, core_logic->maze.dimensions, path_buffer);
 
   { // Sprite block
 

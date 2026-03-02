@@ -41,7 +41,7 @@ void Anima_ctor(Anima *self, const size_t anima_count, const uint8_t id, const M
 
   Lexicon_ctor(&self->smt.lexicon);
 
-  maze_path_ctor(&self->path, maze->size);
+  maze_path_ctor(&self->path, maze->dimensions);
 }
 
 void Anima_dtor(Anima *self) {

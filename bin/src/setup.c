@@ -26,7 +26,7 @@
 #include <cwalk.h>
 #include <whereami.h>
 
-#include "render/sprite.h"
+
 
 // Set the source path for resources, etc.
 void set_source_path(char **source_path, int *length) {
@@ -46,7 +46,8 @@ Maze setup_maze(const char *source_path) {
 
   char path_buffer[FILENAME_MAX];
   cwk_path_join(source_path, "resources/maze/source.txt", path_buffer, FILENAME_MAX);
-  ensure(Maze_ctor(&maze, path_buffer));
+  ensure(Maze_ctor(&maze));
+  ensure(Maze_from_path(&maze, path_buffer));
   ensure(Maze_detail(&maze));
   ensure(Maze_complete_data(&maze));
 

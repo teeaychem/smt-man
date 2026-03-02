@@ -156,7 +156,7 @@ void z3_read_and_display_path(const Lexicon *lexicon, const Z3_context ctx, cons
 
   maze_path_s maze_path = {};
 
-  maze_path_ctor(&maze_path, maze->size);
+  maze_path_ctor(&maze_path, maze->dimensions);
 
   maze_path_read(&maze_path, lexicon, ctx, model, maze);
 

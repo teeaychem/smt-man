@@ -104,10 +104,10 @@ void Renderer_render_frame_buffer(Renderer *self) {
 
 void Renderer_draw_maze(Renderer *self, const Maze *maze) {
 
-  for (uint8_t row = 0; row < maze->size.x; ++row) {
+  for (uint8_t row = 0; row < maze->dimensions.x; ++row) {
     uint32_t row_scaled = ((row + RENDER_TOP) * TILE_PIXELS);
 
-    for (uint8_t col = 0; col < maze->size.y; ++col) {
+    for (uint8_t col = 0; col < maze->dimensions.y; ++col) {
       uint32_t col_scaled = (col * TILE_PIXELS);
 
       Pair_uint32 tile_position = {.x = row_scaled, .y = col_scaled};

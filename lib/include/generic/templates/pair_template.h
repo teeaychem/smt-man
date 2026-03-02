@@ -27,6 +27,8 @@ S_TYPE CAT(S_TYPE, scale)(const S_TYPE *self, const TYPE factor);
 
 S_TYPE CAT(S_TYPE, abstract_by)(const S_TYPE *self, const TYPE interval);
 
+bool CAT(S_TYPE, eq)(const S_TYPE *self, const S_TYPE *other);
+
 #ifdef PAIR_IMPLEMENTATION
 
 #include <assert.h>
@@ -55,6 +57,10 @@ S_TYPE CAT(S_TYPE, abstract_by)(const S_TYPE *self, const TYPE interval) {
   return (S_TYPE){
       .x = (self->x / interval),
       .y = (self->y / interval)};
+}
+
+bool CAT(S_TYPE, eq)(const S_TYPE *self, const S_TYPE *other) {
+  return (self->x == other->x) && (self->y == other->y);
 }
 
 #endif
