@@ -26,8 +26,6 @@
 #include <cwalk.h>
 #include <whereami.h>
 
-
-
 // Set the source path for resources, etc.
 void set_source_path(char **source_path, int *length) {
 
@@ -40,19 +38,6 @@ void set_source_path(char **source_path, int *length) {
   (*source_path)[dirname_length] = '\0';
 }
 
-Maze setup_maze(const char *source_path) {
-
-  Maze maze;
-
-  char path_buffer[FILENAME_MAX];
-  cwk_path_join(source_path, "resources/maze/source.txt", path_buffer, FILENAME_MAX);
-  ensure(Maze_ctor(&maze));
-  ensure(Maze_from_path(&maze, path_buffer));
-  ensure(Maze_detail(&maze));
-  ensure(Maze_complete_data(&maze));
-
-  return maze;
-}
 
 struct spirit_setup_t {
   Anima *anima;
@@ -115,4 +100,3 @@ void setup_animas(Anima *animas, pthread_t *threads, const Maze *maze, size_t an
     pthread_create(&threads[setup->anima->id], nullptr, setup_spirit, (void *)setup);
   }
 }
-

@@ -37,8 +37,14 @@ void core_logic_ctor(core_logic_s *self, size_t anima_count, const char *source_
           .count = anima_count,
           .data = malloc(anima_count * sizeof(*self->animas.data)),
       },
-      .maze = setup_maze(source_path),
+      .maze = {},
   };
+
+  {
+    char path_buffer[FILENAME_MAX];
+    cwk_path_join(source_path, "resources/maze/source.txt", path_buffer, FILENAME_MAX);
+    Maze_ctor_from_path(&self->maze, path_buffer);
+  }
 
   situation_ctor(&self->situation, ANIMA_COUNT);
   situation_reset(&self->situation);

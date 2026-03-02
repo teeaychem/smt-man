@@ -27,6 +27,15 @@ Result Maze_ctor(Maze *maze) {
   return RESULT_OK;
 }
 
+Result Maze_ctor_from_path(Maze *maze, const char *path) {
+
+  ensure(Maze_ctor(maze));
+  ensure(Maze_read_from_path(maze, path));
+  ensure(Maze_detail(maze));
+
+  return RESULT_OK;
+}
+
 void Maze_dtor(Maze *self) {
   free(self->tiles);
   self->tiles = nullptr;
@@ -34,7 +43,7 @@ void Maze_dtor(Maze *self) {
   self->dimensions.y = 0;
 }
 
-Result Maze_from_path(Maze *maze, const char *path) {
+Result Maze_read_from_path(Maze *maze, const char *path) {
 
   assert(Pair_uint8_eq(&maze->dimensions, &(Pair_uint8){0, 0}));
   assert(maze->tiles == nullptr);
@@ -459,6 +468,48 @@ void Maze_detail_arc_inner(Maze *self) {
 Result Maze_detail(Maze *self) {
   Maze_detail_arc_outer(self);
   Maze_detail_arc_inner(self);
+
+  // Complete tile related details
+  for (uint8_t row = 0; row < self->dimensions.x; ++row) {
+    for (uint8_t col = 0; col < self->dimensions.y; ++col) {
+
+      TileData *tile_data = Maze_tile_data_at(self, row, col);
+
+      switch (tile_data->type) {
+
+      case TILE_EDGE: {
+
+        switch (tile_data->value.edge_value.edge_style) {
+        case TILE_STYLE_NONE: {
+          // No action
+        } break;
+
+        case TILE_STYLE_LINE: {
+          Maze_complete_line_data(self, tile_data, row, col);
+        } break;
+
+        case TILE_STYLE_ARC: {
+          // No action
+        } break;
+        }
+
+      } break;
+
+      case TILE_EMPTY: {
+        // No action
+      } break;
+
+      case TILE_INFO: {
+        // No action
+      } break;
+      case TILE_PATH: {
+        // No action
+      } break;
+      }
+    }
+  }
+  return RESULT_OK;
+
   return RESULT_OK;
 }
 
@@ -524,47 +575,4 @@ void Maze_complete_line_data(const Maze *self, TileData *tile_data, const uint8_
       // printf("??? %d %d\n", row, col);
     }
   }
-}
-
-Result Maze_complete_data(const Maze *self) {
-  // For each tile...
-
-  for (uint8_t row = 0; row < self->dimensions.x; ++row) {
-    for (uint8_t col = 0; col < self->dimensions.y; ++col) {
-
-      TileData *tile_data = Maze_tile_data_at(self, row, col);
-
-      switch (tile_data->type) {
-
-      case TILE_EDGE: {
-
-        switch (tile_data->value.edge_value.edge_style) {
-        case TILE_STYLE_NONE: {
-        } break;
-
-        case TILE_STYLE_LINE: {
-          Maze_complete_line_data(self, tile_data, row, col);
-        } break;
-
-        case TILE_STYLE_ARC: {
-          // No action
-        } break;
-        }
-
-      } break;
-
-      case TILE_EMPTY: {
-        // Do nothing
-      } break;
-
-      case TILE_INFO: {
-        // Do nothing
-      } break;
-      case TILE_PATH: {
-        // Do nothing
-      } break;
-      }
-    }
-  }
-  return RESULT_OK;
 }

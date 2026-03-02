@@ -45,7 +45,12 @@ int main() {
 
   Persona persona;
 
-  const Maze maze = setup_maze(source_path);
+  Maze maze = {};
+  {
+    char path_buffer[FILENAME_MAX];
+    cwk_path_join(source_path, "resources/maze/source.txt", path_buffer, FILENAME_MAX);
+    Maze_ctor_from_path(&maze, path_buffer);
+  }
   { // Setup block
     situation_ctor(&situation, ANIMA_COUNT);
     Pair_uint8 persona_location = {.x = 1, .y = 12};
