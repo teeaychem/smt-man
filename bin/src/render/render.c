@@ -125,7 +125,7 @@ void Renderer_draw_maze(Renderer *self, const Maze *maze) {
 
         case TILE_STYLE_LINE: {
 
-          Plane plane = tile_data->value.edge_value.edge_line_plane;
+          plane_e plane = tile_data->value.edge_value.edge_line_plane;
 
           uint32_t adjustment;
           switch (tile_data->value.edge_value.lines) {

@@ -24,8 +24,8 @@ struct tile_edge_data_t {
   } edge_style;
 
   union {
-    Plane edge_line_plane;
-    Quadrant edge_arc_quadrant;
+    plane_e edge_line_plane;
+    quadrant_e edge_arc_quadrant;
   };
 };
 
@@ -89,7 +89,7 @@ Result Maze_detail(Maze *self);
 
 void Maze_display(const Maze *self);
 
-bool Maze_tile_in_direction_is_path(const Maze *self, const Pair_uint8 location, const Cardinal direction);
+bool Maze_tile_in_direction_is_path(const Maze *self, const Pair_uint8 location, const cardinal_e direction);
 
 void Maze_complete_line_data(const Maze *self, TileData *tile_data, const uint8_t row, const uint8_t col);
 

@@ -11,7 +11,7 @@ struct situation_t {
   struct {
     size_t count;
     struct anima_state_t {
-      _Atomic(Cardinal) direction_actual;
+      _Atomic(cardinal_e) direction_actual;
 
       _Atomic(Pair_uint8) location;
 
@@ -23,7 +23,7 @@ struct situation_t {
   } animas;
 
   struct persona_state_t {
-    _Atomic(Cardinal) direction_actual;
+    _Atomic(cardinal_e) direction_actual;
 
     _Atomic(Pair_uint8) location;
 

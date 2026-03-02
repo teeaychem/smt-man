@@ -34,11 +34,11 @@ void Surface_apply_pallete(Surface *self, const uint32_t size, const Pallete pal
 
 void Surface_fill_tile(Surface *self, const Pair_uint32 destination, const uint32_t size, const uint32_t colour);
 
-void Surface_tile_line(Surface *self, const uint32_t x, const uint32_t y, const Plane plane, const uint32_t length, const uint32_t colour);
+void Surface_tile_line(Surface *self, const uint32_t x, const uint32_t y, const plane_e plane, const uint32_t length, const uint32_t colour);
 
-void Surface_circle_draw(Surface *self, const Pair_uint32 *origin, const Pair_uint32 *offset, const Quadrant quadrant, const uint32_t colour);
+void Surface_circle_draw(Surface *self, const Pair_uint32 *origin, const Pair_uint32 *offset, const quadrant_e quadrant, const uint32_t colour);
 
 // INVARIANT: The tile has an even number of pixels, and the origin is given by: (x += width/2, y += height/2).
-void Surface_tile_arc(Surface *self, const Pair_uint32 origin, const uint32_t radius, const Quadrant quadrant, const uint32_t colour);
+void Surface_tile_arc(Surface *self, const Pair_uint32 origin, const uint32_t radius, const quadrant_e quadrant, const uint32_t colour);
 
 void Surface_tile_fixed_arc(Surface *self, const Pair_uint32 origin, const TileData *tile_data, const uint32_t colour);

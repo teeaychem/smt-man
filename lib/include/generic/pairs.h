@@ -17,11 +17,11 @@
 #undef SUFFIX
 #undef TYPE
 
-Pair_uint8 Pair_uint8_steps_in_direction(const Pair_uint8 *origin, Cardinal direction, uint8_t steps);
+Pair_uint8 Pair_uint8_steps_in_direction(const Pair_uint8 *origin, cardinal_e direction, uint8_t steps);
 
 #ifdef PAIR_IMPLEMENTATION
 
-Pair_uint8 Pair_uint8_steps_in_direction(const Pair_uint8 *origin, Cardinal direction, uint8_t steps) {
+Pair_uint8 Pair_uint8_steps_in_direction(const Pair_uint8 *origin, cardinal_e direction, uint8_t steps) {
 
   Pair_uint8 destination = {.x = origin->x, .y = origin->y};
 

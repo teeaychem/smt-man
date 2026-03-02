@@ -8,7 +8,7 @@
 #include "generic/enums.h"
 #include "generic/pairs.h"
 
-void Anima_ctor(Anima *self, const size_t anima_count, const uint8_t id, const Pair_uint8 location, const Cardinal direction, const Maze *maze) {
+void Anima_ctor(Anima *self, const size_t anima_count, const uint8_t id, const Pair_uint8 location, const cardinal_e direction, const Maze *maze) {
   slog_display(SLOG_DEBUG, 0, "Creating anima: %d\n", id);
 
   *self = (Anima){

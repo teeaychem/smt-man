@@ -192,7 +192,7 @@ void Maze_display(const Maze *self) {
   free(line_buffer);
 }
 
-void Tile_set_arc(TileData *tile, Quadrant quadrant) {
+void Tile_set_arc(TileData *tile, quadrant_e quadrant) {
   tile->value.edge_value.edge_style = TILE_STYLE_ARC;
   tile->value.edge_value.edge_arc_quadrant = quadrant;
 }
@@ -454,7 +454,7 @@ Result Maze_detail(Maze *self) {
   return RESULT_OK;
 }
 
-bool Maze_tile_in_direction_is_path(const Maze *self, const Pair_uint8 location, const Cardinal direction) {
+bool Maze_tile_in_direction_is_path(const Maze *self, const Pair_uint8 location, const cardinal_e direction) {
   switch (direction) {
   case CARDINAL_NONE: {
     return true;

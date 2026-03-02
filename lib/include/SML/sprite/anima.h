@@ -27,7 +27,7 @@ struct anima_t {
   /// Incremented on each tick an action is performed
   uint8_t tick_action;
 
-  Cardinal direction_intent;
+  cardinal_e direction_intent;
   /// Tools for contacting the anima from a different thread
   AnimaAtomics contact;
 
@@ -52,7 +52,7 @@ typedef struct anima_t Anima;
 
 // Methods
 
-void Anima_ctor(Anima *self, const size_t anima_count, const uint8_t id, const Pair_uint8 location, const Cardinal direction, const Maze *maze);
+void Anima_ctor(Anima *self, const size_t anima_count, const uint8_t id, const Pair_uint8 location, const cardinal_e direction, const Maze *maze);
 
 void Anima_dtor(Anima *self);
 

@@ -109,7 +109,7 @@ void Surface_fill_tile(Surface *self, const Pair_uint32 destination, const uint3
   }
 }
 
-void Surface_tile_line(Surface *self, const uint32_t row, const uint32_t col, const Plane plane, const uint32_t length, const uint32_t colour) {
+void Surface_tile_line(Surface *self, const uint32_t row, const uint32_t col, const plane_e plane, const uint32_t length, const uint32_t colour) {
 
   switch (plane) {
   case PLANE_H: {
@@ -125,7 +125,7 @@ void Surface_tile_line(Surface *self, const uint32_t row, const uint32_t col, co
   }
 }
 
-void Surface_circle_draw(Surface *self, const Pair_uint32 *origin, const Pair_uint32 *offset, const Quadrant quadrant, const uint32_t colour) {
+void Surface_circle_draw(Surface *self, const Pair_uint32 *origin, const Pair_uint32 *offset, const quadrant_e quadrant, const uint32_t colour) {
 
   switch (quadrant) {
 
@@ -163,7 +163,7 @@ void Surface_circle_draw(Surface *self, const Pair_uint32 *origin, const Pair_ui
   }
 }
 
-void Surface_tile_arc(Surface *self, const Pair_uint32 origin, const uint32_t radius, const Quadrant quadrant, const uint32_t colour) {
+void Surface_tile_arc(Surface *self, const Pair_uint32 origin, const uint32_t radius, const quadrant_e quadrant, const uint32_t colour) {
 
   assert(radius <= INT32_MAX);
 
