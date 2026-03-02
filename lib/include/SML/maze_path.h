@@ -37,5 +37,9 @@ void maze_path_read(maze_path_s *self, const Lexicon *lexicon, const Z3_context 
 void maze_path_display(maze_path_s *self, const Lexicon *lexicon);
 
 static inline maze_tile_s maze_path_at(maze_path_s *self, const Pair_uint8 location) {
-  return self->tiles[Pair_uint8_flatten(&self->size, location.x, location.y)];
+
+  size_t tile_idx = Pair_uint8_flatten(&self->size, location.x, location.y);
+  assert(tile_idx < self->tile_count);
+
+  return self->tiles[tile_idx];
 }
