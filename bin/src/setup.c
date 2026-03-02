@@ -44,7 +44,6 @@ void *spirit_ctor(void *void_setup_struct) {
   anima_s *anima = setup_struct->anima;
 
   anima_touch(anima, setup_struct->anima_count);
-  /* Anima_restrict(anima, setup_struct->maze); */
 
   {
     char constraints_path[32];

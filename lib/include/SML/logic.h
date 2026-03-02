@@ -76,13 +76,7 @@ void lexicon_ctor(lexicon_s *self);
 
 void lexicon_dtor(lexicon_s *self);
 
-void lexicon_setup_base_type(lexicon_s *lexicon, Z3_context ctx);
-
-void lexicon_setup_path(lexicon_s *lexicon, Z3_context ctx);
-
-void lexicon_setup_animas(lexicon_s *lexicon, Z3_context ctx, size_t count);
-
-void lexicon_setup_persona(lexicon_s *lexicon, Z3_context ctx);
+void lexicon_setup(lexicon_s *lexicon, Z3_context ctx, size_t anima_count);
 
 /// Shortest paths are found by placing a penatly on the assignment of a non empty path value to each potentiial path tile.
 /// So long as a path is required and optimisation is enforced, no shorter path can exist on SAT.

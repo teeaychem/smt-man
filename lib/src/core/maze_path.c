@@ -5,7 +5,7 @@
 #include "SML/maze_path.h"
 
 void maze_path_ctor(maze_path_s *self, const Pair_uint8 size) {
-  /* assert(self->tiles == nullptr && "oh"); */
+
   size_t tile_count = (size_t)size.x * (size_t)size.y;
 
   *self = (maze_path_s){

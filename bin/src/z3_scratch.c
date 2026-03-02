@@ -67,12 +67,7 @@ int main() {
   Z3_optimize optimizer = Z3_mk_optimize(ctx);
   Z3_optimize_inc_ref(ctx, optimizer);
 
-  { // Lexicon foundations
-    lexicon_setup_base_type(&lexicon, ctx);
-    lexicon_setup_path(&lexicon, ctx);
-    lexicon_setup_animas(&lexicon, ctx, ANIMA_COUNT);
-    lexicon_setup_persona(&lexicon, ctx);
-  }
+  lexicon_setup(&lexicon, ctx, ANIMA_COUNT);
 
   { // Parse
     Z3_parser_context parser = Z3_mk_parser_context(ctx);
@@ -170,9 +165,6 @@ void z3_tmp(Z3_context ctx, lexicon_s *lexicon, Z3_optimize optimizer, const maz
 
   lexicon_assert_anima_location(lexicon, ctx, optimizer, situation, anima_id);
   lexicon_assert_persona_location(lexicon, ctx, optimizer, situation);
-
-  /* g_log(nullptr, G_LOG_LEVEL_INFO, "\nPre-model:\n%s", Z3_optimize_to_string(ctx, optimizer)); */
-  /* exit(0); */
 
   // Checks
   switch (Z3_optimize_check(ctx, optimizer, 0, nullptr)) {

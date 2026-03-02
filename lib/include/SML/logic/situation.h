@@ -6,7 +6,6 @@
 #include "generic/pairs.h"
 
 #include "SML/logic/enums.h"
-#include "SML/maze.h"
 
 struct situation_t {
 
@@ -42,4 +41,4 @@ void situation_dtor(Situation *self);
 
 void situation_reset(Situation *self);
 
-void sync_situation_to_situation(const Situation *from, Situation *to);
+void situation_copy(const Situation *from, Situation *to);

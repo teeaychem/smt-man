@@ -111,7 +111,7 @@ void game_state(core_logic_s *logic, core_render_s *render) {
         game_loop = false;
       }
 
-      Persona_handle_event(&logic->persona, &logic->maze, &logic->situation, &event);
+      persona_handle_event(&logic->persona, &logic->situation, &event);
     }
 
     { // logic block
@@ -126,9 +126,9 @@ void game_state(core_logic_s *logic, core_render_s *render) {
       rgb_momentum_advance(&colour);
 
       for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
-        Anima_on_frame(&logic->animas.data[id], &render->sprites.animas[id], &logic->maze, TILE_PIXELS, RENDER_TOP);
+        anima_on_frame(&logic->animas.data[id], &render->sprites.animas[id], &logic->maze, TILE_PIXELS, RENDER_TOP);
       }
-      Persona_on_frame(&logic->persona, &render->sprites.persona, &logic->maze, &logic->situation, TILE_PIXELS, RENDER_TOP);
+      persona_on_frame(&logic->persona, &render->sprites.persona, &logic->maze, &logic->situation, TILE_PIXELS, RENDER_TOP);
     }
 
     { /// Render_block
@@ -195,15 +195,12 @@ int main() { // int main(int argc, char *argv[]) {
     }
 
     for (size_t idx = 0; idx < core_logic.animas.count; ++idx) {
-      sync_situation_to_situation(&core_logic.situation, core_logic.animas.data[idx].smt.situation);
+      situation_copy(&core_logic.situation, core_logic.animas.data[idx].smt.situation);
     }
   }
 
   core_render_s core_render = {};
   core_render_ctor(&core_render, &core_logic, source_path);
-
-  /* Sync_update_animas(&core_logic.situation, core_logic.animas.data); */
-  /* Sync_update_situation(&core_logic.situation, core_logic.animas.data); */
 
   if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
     exit_code = 1;

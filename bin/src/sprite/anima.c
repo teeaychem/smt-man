@@ -50,10 +50,7 @@ void anima_instinct(anima_s *self) {
 
 void anima_touch(anima_s *self, size_t anima_count) {
 
-  lexicon_setup_base_type(&self->smt.lexicon, self->smt.ctx);
-  lexicon_setup_path(&self->smt.lexicon, self->smt.ctx);
-  lexicon_setup_animas(&self->smt.lexicon, self->smt.ctx, anima_count);
-  lexicon_setup_persona(&self->smt.lexicon, self->smt.ctx);
+  lexicon_setup(&self->smt.lexicon, self->smt.ctx, anima_count);
 }
 
 void anima_parse_fundamentals(anima_s *self, char *smt_path) {
@@ -160,18 +157,18 @@ Result anima_path_from_model(anima_s *self, const maze_s *maze) {
   return RESULT_OK;
 }
 
-void Anima_on_tile(anima_s *self, Sprite *sprite, const maze_s *maze, Pair_uint8 maze_location) {
+void anima_on_tile(anima_s *self, Sprite *sprite, const maze_s *maze, Pair_uint8 maze_location) {
 
   /// Update location
   atomic_store(&self->smt.situation->animas.data[self->id].location, maze_location);
 }
 
-void Anima_update_direction(anima_s *self, const maze_s *maze, Pair_uint8 maze_location) {
+void anima_update_direction(anima_s *self, const maze_s *maze, Pair_uint8 maze_location) {
 
   /// Update direction
 }
 
-void Anima_on_frame(anima_s *self, Sprite *sprite, const maze_s *maze, uint32_t tile_pixels, uint32_t offset_n) {
+void anima_on_frame(anima_s *self, Sprite *sprite, const maze_s *maze, uint32_t tile_pixels, uint32_t offset_n) {
 
   uint32_t movement = atomic_load(&self->smt.situation->animas.data[self->id].movement_pattern);
   movement = uint32_rotl1(movement);
@@ -189,7 +186,7 @@ void Anima_on_frame(anima_s *self, Sprite *sprite, const maze_s *maze, uint32_t 
   if (Sprite_is_centered_on_tile(sprite->location, tile_pixels)) {
     Pair_uint8 maze_location = Sprite_maze_location(&sprite->location, tile_pixels, offset_n);
 
-    Anima_on_tile(self, sprite, maze, maze_location);
+    anima_on_tile(self, sprite, maze, maze_location);
 
     pthread_mutex_lock(&self->path.access_mutex);
 
@@ -285,12 +282,6 @@ void Anima_on_frame(anima_s *self, Sprite *sprite, const maze_s *maze, uint32_t 
       }
 
       atomic_store(&self->smt.situation->animas.data[self->id].direction_actual, direction_actual);
-
-      /* printf("Direction: "); */
-      /* Cardinal_print(direction_actual); */
-      /* printf("\n"); */
-      /* printf("Anima @ %dx%d\n", maze_location.x, maze_location.y); */
-      /* getc(stdin); */
     }
 
     pthread_mutex_unlock(&self->path.access_mutex);
@@ -319,7 +310,7 @@ void Anima_on_frame(anima_s *self, Sprite *sprite, const maze_s *maze, uint32_t 
     atomic_store(&self->smt.situation->animas.data[self->id].direction_actual, direction_actual);
 
     // TODO: Empty fn
-    Anima_update_direction(self, maze, maze_location);
+    anima_update_direction(self, maze, maze_location);
   }
 
   switch (atomic_load(&self->smt.situation->animas.data[self->id].direction_actual)) {
@@ -341,6 +332,6 @@ void Anima_on_frame(anima_s *self, Sprite *sprite, const maze_s *maze, uint32_t 
   }
 }
 
-void Anima_handle_event(anima_s *self, const SDL_Event *event) {
+void anima_handle_event(anima_s *self, const SDL_Event *event) {
   assert(self != nullptr && event != nullptr);
 }

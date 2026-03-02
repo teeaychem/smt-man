@@ -44,7 +44,7 @@ void situation_reset(Situation *self) {
   }
 }
 
-void sync_situation_to_situation(const Situation *from, Situation *to) {
+void situation_copy(const Situation *from, Situation *to) {
 
   { // animas
     assert(from->animas.count == to->animas.count);

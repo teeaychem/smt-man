@@ -68,7 +68,6 @@ void lexicon_setup_path(lexicon_s *lexicon, Z3_context ctx) {
   lexicon->path.penatly = Z3_mk_string_symbol(ctx, "path_penatly");
 }
 
-
 void lexicon_setup_shortest_path_empty_hints(const lexicon_s *lexicon, Z3_context ctx, Z3_optimize otz, const maze_s *maze) {
 
   for (uint8_t row = 0; row < maze->dimensions.x; ++row) {
@@ -135,27 +134,6 @@ void lexicon_setup_animas(lexicon_s *lexicon, Z3_context ctx, size_t anima_count
   }
 }
 
-void lexicon_assert_anima_location(const lexicon_s *lexicon, Z3_context ctx, Z3_optimize otz, const Situation *situation, const uint8_t id) {
-
-  Pair_uint8 anima_location = atomic_load(&situation->animas.data[id].location);
-  slog_display(SLOG_INFO, 0, "Asserted anima %d at %dx%d\n", id, anima_location.x, anima_location.y);
-  Z3_ast anima_ast = Z3_mk_app(ctx, lexicon->anima.enum_consts[id], 0, 0);
-
-  { // row block
-    Z3_ast z3_row = z3_mk_unary_app(ctx, lexicon->anima.tile_row_f, anima_ast);
-    Z3_ast row = Z3_mk_int(ctx, anima_location.x, lexicon->tile_offset_bv_sort.sort);
-    Z3_optimize_assert(ctx, otz, Z3_mk_eq(ctx, z3_row, row));
-  }
-
-  { // col block
-    Z3_ast z3_col = z3_mk_unary_app(ctx, lexicon->anima.tile_col_f, anima_ast);
-    Z3_ast col = Z3_mk_int(ctx, anima_location.y, lexicon->tile_offset_bv_sort.sort);
-    Z3_optimize_assert(ctx, otz, Z3_mk_eq(ctx, z3_col, col));
-  }
-}
-
-/// Persona fns
-
 void lexicon_setup_persona(lexicon_s *lexicon, Z3_context ctx) {
 
   lexicon->persona.enum_name[0] = Z3_mk_string_symbol(ctx, "persona");
@@ -179,6 +157,33 @@ void lexicon_setup_persona(lexicon_s *lexicon, Z3_context ctx) {
     Z3_sort domain[1] = {lexicon->persona.sort};
     Z3_sort range = lexicon->tile_offset_bv_sort.sort;
     lexicon->persona.tile_col_f = Z3_mk_func_decl(ctx, id, 1, domain, range);
+  }
+}
+
+void lexicon_setup(lexicon_s *self, Z3_context ctx, size_t anima_count) {
+
+  lexicon_setup_base_type(self, ctx);
+  lexicon_setup_path(self, ctx);
+  lexicon_setup_animas(self, ctx, anima_count);
+  lexicon_setup_persona(self, ctx);
+}
+
+void lexicon_assert_anima_location(const lexicon_s *lexicon, Z3_context ctx, Z3_optimize otz, const Situation *situation, const uint8_t id) {
+
+  Pair_uint8 anima_location = atomic_load(&situation->animas.data[id].location);
+  slog_display(SLOG_INFO, 0, "Asserted anima %d at %dx%d\n", id, anima_location.x, anima_location.y);
+  Z3_ast anima_ast = Z3_mk_app(ctx, lexicon->anima.enum_consts[id], 0, 0);
+
+  { // row block
+    Z3_ast z3_row = z3_mk_unary_app(ctx, lexicon->anima.tile_row_f, anima_ast);
+    Z3_ast row = Z3_mk_int(ctx, anima_location.x, lexicon->tile_offset_bv_sort.sort);
+    Z3_optimize_assert(ctx, otz, Z3_mk_eq(ctx, z3_row, row));
+  }
+
+  { // col block
+    Z3_ast z3_col = z3_mk_unary_app(ctx, lexicon->anima.tile_col_f, anima_ast);
+    Z3_ast col = Z3_mk_int(ctx, anima_location.y, lexicon->tile_offset_bv_sort.sort);
+    Z3_optimize_assert(ctx, otz, Z3_mk_eq(ctx, z3_col, col));
   }
 }
 
