@@ -38,15 +38,6 @@ void set_source_path(char **source_path, int *length) {
   (*source_path)[dirname_length] = '\0';
 }
 
-struct spirit_setup_t {
-  anima_s *anima;
-  size_t anima_count;
-  const maze_s *maze;
-  const char *source_path;
-  pthread_t *thread;
-};
-typedef struct spirit_setup_t spirit_setup_s;
-
 void *setup_spirit(void *void_setup_struct) {
 
   struct spirit_setup_t *setup_struct = void_setup_struct;
@@ -66,63 +57,41 @@ void *setup_spirit(void *void_setup_struct) {
 
   lexicon_setup_shortest_path_empty_hints(&anima->smt.lexicon, anima->smt.ctx, anima->smt.opz, setup_struct->maze);
 
-  atomic_store(&anima->contact.flag_suspend, true);
+  bool sat = true;
 
-  while (true) {
-    pthread_mutex_lock(&anima->contact.mtx_suspend);
-    if (!atomic_load(&anima->contact.flag_suspend)) {
-
-      Z3_optimize_push(anima->smt.ctx, anima->smt.opz);
-      Z3_lbool result = anima_solve(anima, setup_struct->maze);
-
-      if (result == Z3_L_TRUE) {
-        anima_path_from_model(anima, setup_struct->maze);
-      }
-
-      Z3_optimize_pop(anima->smt.ctx, anima->smt.opz);
-
-      switch (result) {
-      case Z3_L_FALSE: {
-        /* slog_display(SLOG_TRACE, 0, "\nStatus:\n%s\n", Z3_optimize_to_string(self->smt.ctx, self->smt.opz)); */
-        slog_display(SLOG_ERROR, 0, "UNSAT deduction %d\n", anima->id);
-        exit(333);
-
-      } break;
-      case Z3_L_UNDEF: {
-        slog_display(SLOG_ERROR, 0, "UNKNOWN deduction %d\n", anima->id);
-        exit(323);
-
-      } break;
-      case Z3_L_TRUE: {
-        slog_display(SLOG_INFO, 0, "SAT\n");
-      } break;
-      }
-
-      atomic_store(&anima->contact.flag_suspend, true);
-    }
+  pthread_mutex_lock(&anima->contact.mtx_suspend);
+  while (sat) {
 
     pthread_cond_wait(&anima->contact.cond_resume, &anima->contact.mtx_suspend);
-    pthread_mutex_unlock(&anima->contact.mtx_suspend);
+
+    Z3_optimize_push(anima->smt.ctx, anima->smt.opz);
+    Z3_lbool result = anima_solve(anima, setup_struct->maze);
+
+    // Other work within the push / pop
+    if (result == Z3_L_TRUE) {
+      anima_path_from_model(anima, setup_struct->maze);
+    }
+
+    Z3_optimize_pop(anima->smt.ctx, anima->smt.opz);
+
+    switch (result) {
+    case Z3_L_FALSE: {
+      /* slog_display(SLOG_TRACE, 0, "\nStatus:\n%s\n", Z3_optimize_to_string(self->smt.ctx, self->smt.opz)); */
+      slog_display(SLOG_ERROR, 0, "UNSAT deduction %d\n", anima->id);
+      sat = false;
+
+    } break;
+    case Z3_L_UNDEF: {
+      slog_display(SLOG_ERROR, 0, "UNKNOWN deduction %d\n", anima->id);
+      exit(323);
+
+    } break;
+    case Z3_L_TRUE: {
+      slog_display(SLOG_INFO, 0, "SAT\n");
+    } break;
+    }
   }
+  pthread_mutex_unlock(&anima->contact.mtx_suspend);
 
   return 0;
-}
-
-void setup_animas(anima_s *animas, pthread_t *threads, const maze_s *maze, size_t anima_count, const char *source_path) {
-
-  for (uint8_t idx = 0; idx < anima_count; ++idx) {
-
-    spirit_setup_s *setup = malloc(sizeof(*setup));
-    // static lifetime, as thread lives until exit
-    *setup = (spirit_setup_s){
-        .anima = &animas[idx],
-        .anima_count = anima_count,
-        .maze = maze,
-        .source_path = source_path,
-    };
-
-    anima_ctor(&animas[idx], anima_count, idx, maze);
-
-    pthread_create(&threads[setup->anima->id], nullptr, setup_spirit, (void *)setup);
-  }
 }

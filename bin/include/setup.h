@@ -9,8 +9,17 @@
 ///
 /// Called by main.
 
+struct spirit_setup_t {
+  anima_s *anima;
+  size_t anima_count;
+  const maze_s *maze;
+  const char *source_path;
+  pthread_t *thread;
+};
+typedef struct spirit_setup_t spirit_setup_s;
+
 void set_source_path(char **source_path, int *length);
 
 void setup_renderer(Renderer *renderer, const maze_s *maze, const char *source_path);
 
-void setup_animas(anima_s *animas, pthread_t *threads, const maze_s *maze, size_t anima_count, const char *source_path);
+void *setup_spirit(void *void_setup_struct);

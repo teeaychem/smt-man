@@ -10,7 +10,6 @@
 
 /// Tools for contacting the anima from a different thread
 struct anima_contact_t {
-  _Atomic(bool) flag_suspend;
 
   pthread_mutex_t mtx_suspend;
 

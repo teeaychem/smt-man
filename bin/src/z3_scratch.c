@@ -58,7 +58,7 @@ int main() {
 
     Persona_ctor(&persona, &situation);
 
-    setup_animas(animas, ANIMA_THREADS, &maze, ANIMA_COUNT, source_path);
+    /* setup_animas(animas, ANIMA_THREADS, &maze, ANIMA_COUNT, source_path); */
   }
   char * maze_string = maze_as_string(&maze);
   printf("%s", maze_string);

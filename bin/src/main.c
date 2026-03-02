@@ -122,22 +122,23 @@ void game_state(core_logic_s *logic, core_render_s *render) {
       Persona_handle_event(&logic->persona, &logic->maze, &logic->situation, &event);
     }
 
-    { /// Pre-render block
+    { // logic block
       Sync_update_animas(&logic->situation, logic->animas.data);
       Sync_update_situation(&logic->situation, logic->animas.data);
+
+      for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
+        pthread_cond_broadcast(&logic->animas.data[id].contact.cond_resume);
+      }
+    }
+
+    { /// Pre-render block
+
       rgb_momentum_advance(&colour);
 
       for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
         Anima_on_frame(&logic->animas.data[id], &render->sprites.animas[id], &logic->maze, TILE_PIXELS, RENDER_TOP);
       }
       Persona_on_frame(&logic->persona, &render->sprites.persona, &logic->maze, &logic->situation, TILE_PIXELS, RENDER_TOP);
-
-      for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
-        if (atomic_load(&logic->animas.data[id].contact.flag_suspend)) {
-          atomic_store(&logic->animas.data[id].contact.flag_suspend, false);
-          pthread_cond_broadcast(&logic->animas.data[id].contact.cond_resume);
-        }
-      }
     }
 
     { /// Render_block
@@ -185,7 +186,21 @@ int main() { // int main(int argc, char *argv[]) {
   core_logic_ctor(&core_logic, ANIMA_COUNT, source_path);
 
   { // Core logic
-    setup_animas(core_logic.animas.data, ANIMA_THREADS, &core_logic.maze, ANIMA_COUNT, source_path);
+    for (uint8_t idx = 0; idx < ANIMA_COUNT; ++idx) {
+
+      spirit_setup_s *setup = malloc(sizeof(*setup));
+      // static lifetime, as thread lives until exit
+      *setup = (spirit_setup_s){
+          .anima = &core_logic.animas.data[idx],
+          .anima_count = ANIMA_COUNT,
+          .maze = &core_logic.maze,
+          .source_path = source_path,
+      };
+
+      anima_ctor(&core_logic.animas.data[idx], ANIMA_COUNT, idx, &core_logic.maze);
+
+      pthread_create(&ANIMA_THREADS[setup->anima->id], nullptr, setup_spirit, (void *)setup);
+    }
 
     for (size_t idx = 0; idx < core_logic.animas.count; ++idx) {
       sync_situation_to_situation(&core_logic.situation, &core_logic.animas.data[idx].smt.situation);
@@ -206,7 +221,9 @@ int main() { // int main(int argc, char *argv[]) {
   { // core block
     bool core_loop = true;
 
+    /* while (core_loop) { */
     game_state(&core_logic, &core_render);
+    /* } */
   }
 
 exit_block: {

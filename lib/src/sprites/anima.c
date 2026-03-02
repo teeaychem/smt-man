@@ -36,8 +36,6 @@ void anima_ctor(anima_s *self, const size_t anima_count, const uint8_t id, const
   self->smt.parser = Z3_mk_parser_context(self->smt.ctx);
   Z3_parser_context_inc_ref(self->smt.ctx, self->smt.parser);
 
-  atomic_init(&self->contact.flag_suspend, false);
-
   lexicon_ctor(&self->smt.lexicon);
 
   maze_path_ctor(&self->path, maze->dimensions);
