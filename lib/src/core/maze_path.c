@@ -9,37 +9,40 @@ void maze_path_ctor(maze_path_s *self, const Pair_uint8 size) {
   size_t tile_count = (size_t)size.x * (size_t)size.y;
 
   *self = (maze_path_s){
-      .mutex = PTHREAD_MUTEX_INITIALIZER,
-      .size = size,
-      .tile_count = tile_count,
-      .tiles = malloc(tile_count * sizeof(*self->tiles)),
+      .access_mutex = PTHREAD_MUTEX_INITIALIZER,
+      .dimensions = size,
+      .tiles = {
+          .count = tile_count,
+          .data = malloc(tile_count * sizeof(*self->tiles.data)),
+      },
+
   };
   maze_path_clear(self);
 }
 
 void maze_path_clear(maze_path_s *self) {
-  assert(self->tiles != nullptr);
-  for (size_t idx = 0; idx < self->tile_count; ++idx) {
-    self->tiles[idx].h = PATH_X;
-    self->tiles[idx].v = PATH_X;
+  assert(self->tiles.data != nullptr);
+  for (size_t idx = 0; idx < self->tiles.count; ++idx) {
+    self->tiles.data[idx].h = PATH_X;
+    self->tiles.data[idx].v = PATH_X;
   }
 }
 
 void maze_path_dtor(maze_path_s *self) {
-  free(self->tiles);
-  self->tiles = nullptr;
-  self->tile_count = 0;
-  self->size = (Pair_uint8){.x = 0, .y = 0};
+  free(self->tiles.data);
+  self->tiles.data = nullptr;
+  self->tiles.count = 0;
+  self->dimensions = (Pair_uint8){.x = 0, .y = 0};
 }
 
 void maze_path_display(maze_path_s *self, const Lexicon *lexicon) {
 
-  char *line_buffer = malloc(self->size.y * sizeof(*line_buffer));
+  char *line_buffer = malloc(self->dimensions.y * sizeof(*line_buffer));
 
-  for (uint8_t row = 0; row < self->size.x; ++row) {
-    for (uint8_t col = 0; col < self->size.y; ++col) {
+  for (uint8_t row = 0; row < self->dimensions.x; ++row) {
+    for (uint8_t col = 0; col < self->dimensions.y; ++col) {
 
-      maze_tile_s val = self->tiles[Pair_uint8_flatten(&self->size, row, col)];
+      maze_tile_s val = self->tiles.data[Pair_uint8_flatten(&self->dimensions, row, col)];
 
       if (val.h == PATH_A && val.v == PATH_A) { // NE
         line_buffer[col] = '\\';
@@ -75,7 +78,7 @@ void maze_path_display(maze_path_s *self, const Lexicon *lexicon) {
 
 void maze_path_read(maze_path_s *self, const Lexicon *lexicon, const Z3_context ctx, const Z3_model model, const Maze *maze) {
   // Read the interpretation to the path buffer
-  pthread_mutex_lock(&self->mutex);
+  pthread_mutex_lock(&self->access_mutex);
 
   { // fn h
     Z3_func_interp path_h_f = Z3_model_get_func_interp(ctx, model, lexicon->path.tile_h_f);
@@ -105,13 +108,13 @@ void maze_path_read(maze_path_s *self, const Lexicon *lexicon, const Z3_context 
       Z3_ast value = Z3_func_entry_get_value(ctx, entry);
 
       if (value == lexicon->path.token.a) {
-        self->tiles[tile_index].h = PATH_A;
+        self->tiles.data[tile_index].h = PATH_A;
       } else if (value == lexicon->path.token.b) {
-        self->tiles[tile_index].h = PATH_B;
+        self->tiles.data[tile_index].h = PATH_B;
       } else if (value == lexicon->path.token.o) {
-        self->tiles[tile_index].h = PATH_O;
+        self->tiles.data[tile_index].h = PATH_O;
       } else {
-        self->tiles[tile_index].h = PATH_X;
+        self->tiles.data[tile_index].h = PATH_X;
       }
     }
     Z3_func_interp_dec_ref(ctx, path_h_f);
@@ -143,13 +146,13 @@ void maze_path_read(maze_path_s *self, const Lexicon *lexicon, const Z3_context 
       Z3_ast value = Z3_func_entry_get_value(ctx, entry);
 
       if (value == lexicon->path.token.a) {
-        self->tiles[tile_index].v = PATH_A;
+        self->tiles.data[tile_index].v = PATH_A;
       } else if (value == lexicon->path.token.b) {
-        self->tiles[tile_index].v = PATH_B;
+        self->tiles.data[tile_index].v = PATH_B;
       } else if (value == lexicon->path.token.o) {
-        self->tiles[tile_index].v = PATH_O;
+        self->tiles.data[tile_index].v = PATH_O;
       } else if (value == lexicon->path.token.x) {
-        self->tiles[tile_index].v = PATH_X;
+        self->tiles.data[tile_index].v = PATH_X;
       } else {
         slog_display(SLOG_ERROR, 0, "Unexpected token\n");
       }
@@ -157,5 +160,5 @@ void maze_path_read(maze_path_s *self, const Lexicon *lexicon, const Z3_context 
     Z3_func_interp_dec_ref(ctx, path_v_f);
   }
 
-  pthread_mutex_unlock(&self->mutex);
+  pthread_mutex_unlock(&self->access_mutex);
 }

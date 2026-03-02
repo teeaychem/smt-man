@@ -17,10 +17,14 @@ typedef struct maze_tile_t maze_tile_s;
 /// Maze path
 
 struct maze_path_t {
-  pthread_mutex_t mutex;
-  Pair_uint8 size;
-  size_t tile_count;
-  maze_tile_s *tiles;
+  pthread_mutex_t access_mutex;
+
+  Pair_uint8 dimensions;
+
+  struct {
+    size_t count;
+    maze_tile_s *data;
+  } tiles;
 };
 typedef struct maze_path_t maze_path_s;
 
@@ -38,8 +42,8 @@ void maze_path_display(maze_path_s *self, const Lexicon *lexicon);
 
 static inline maze_tile_s maze_path_at(maze_path_s *self, const Pair_uint8 location) {
 
-  size_t tile_idx = Pair_uint8_flatten(&self->size, location.x, location.y);
-  assert(tile_idx < self->tile_count);
+  size_t tile_idx = Pair_uint8_flatten(&self->dimensions, location.x, location.y);
+  assert(tile_idx < self->tiles.count);
 
-  return self->tiles[tile_idx];
+  return self->tiles.data[tile_idx];
 }

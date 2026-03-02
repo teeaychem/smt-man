@@ -34,7 +34,7 @@ void Anima_on_frame(Anima *self, Sprite *sprite, const Maze *maze, uint32_t tile
 
     Anima_on_tile(self, sprite, maze, maze_location);
 
-    pthread_mutex_lock(&self->path.mutex);
+    pthread_mutex_lock(&self->path.access_mutex);
 
     maze_tile_s tile_path = maze_path_at(&self->path, maze_location);
     cardinal_e direction_actual = atomic_load(&self->smt.situation.animas.states[self->id].direction_actual);
@@ -136,7 +136,7 @@ void Anima_on_frame(Anima *self, Sprite *sprite, const Maze *maze, uint32_t tile
       /* getc(stdin); */
     }
 
-    pthread_mutex_unlock(&self->path.mutex);
+    pthread_mutex_unlock(&self->path.access_mutex);
 
     // TODO:
     while (!Maze_tile_in_direction_is_path(maze, maze_location, direction_actual)) {
