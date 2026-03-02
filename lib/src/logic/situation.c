@@ -25,7 +25,7 @@ void situation_dtor(Situation *self) {
 void situation_reset(Situation *self) {
 
   { // animas
-    static Pair_uint8 locations[] = {{11, 13}, {14, 11}, {12, 21}, {29, 4}};
+    static Pair_uint8 locations[] = {{11, 13}, {2, 15}, {12, 21}, {29, 4}};
     assert(self->animas.count <= ARRAY_LEN(locations));
 
     for (uint8_t idx = 0; idx < self->animas.count; ++idx) {

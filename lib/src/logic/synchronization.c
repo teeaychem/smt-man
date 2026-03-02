@@ -5,13 +5,13 @@
 void Sync_update_animas(const Situation *situation, anima_s *animas) {
 
   for (size_t id = 0; id < situation->animas.count; ++id) {
-    atomic_store(&animas[id].smt.situation.persona.direction_actual,
+    atomic_store(&animas[id].smt.situation->persona.direction_actual,
                  atomic_load(&situation->persona.direction_actual));
 
-    atomic_store(&animas[id].smt.situation.persona.location,
+    atomic_store(&animas[id].smt.situation->persona.location,
                  atomic_load(&situation->persona.location));
 
-    atomic_store(&animas[id].smt.situation.persona.movement_pattern,
+    atomic_store(&animas[id].smt.situation->persona.movement_pattern,
                  atomic_load(&situation->persona.movement_pattern));
   }
 }
@@ -20,16 +20,16 @@ void Sync_update_situation(Situation *situation, const anima_s *animas) {
 
   for (size_t id = 0; id < situation->animas.count; ++id) {
     atomic_store(&situation->animas.data[id].direction_actual,
-                 atomic_load(&animas[id].smt.situation.animas.data[id].direction_actual));
+                 atomic_load(&animas[id].smt.situation->animas.data[id].direction_actual));
 
     atomic_store(&situation->animas.data[id].location,
-                 atomic_load(&animas[id].smt.situation.animas.data[id].location));
+                 atomic_load(&animas[id].smt.situation->animas.data[id].location));
 
     atomic_store(&situation->animas.data[id].movement_pattern,
-                 atomic_load(&animas[id].smt.situation.animas.data[id].movement_pattern));
+                 atomic_load(&animas[id].smt.situation->animas.data[id].movement_pattern));
 
     atomic_store(&situation->animas.data[id].status,
-                 atomic_load(&animas[id].smt.situation.animas.data[id].status));
+                 atomic_load(&animas[id].smt.situation->animas.data[id].status));
   }
 }
 

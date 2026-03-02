@@ -15,7 +15,7 @@
 #include "render/sprite.h"
 #include "render/timer_nano.h"
 
-constexpr size_t ANIMA_COUNT = 1;
+constexpr size_t ANIMA_COUNT = 2;
 
 pthread_t ANIMA_THREADS[ANIMA_COUNT];
 spirit_setup_s ANIMA_SPIRITS[ANIMA_COUNT];
@@ -87,7 +87,7 @@ void core_render_ctor(core_render_s *self, const core_logic_s *core_logic, const
 
     // Animas
     for (uint8_t idx = 0; idx < ANIMA_COUNT; ++idx) {
-      Sprite_init(&self->sprites.animas[idx], 16, atomic_load(&core_logic->animas.data[idx].smt.situation.animas.data[idx].location), RENDER_TOP);
+      Sprite_init(&self->sprites.animas[idx], 16, atomic_load(&core_logic->animas.data[idx].smt.situation->animas.data[idx].location), RENDER_TOP);
     }
   }
 }
@@ -105,10 +105,6 @@ void game_state(core_logic_s *logic, core_render_s *render) {
 
   situation_reset(&logic->situation);
 
-  for (size_t idx = 0; idx < logic->animas.count; ++idx) {
-    sync_situation_to_situation(&logic->situation, &logic->animas.data[idx].smt.situation);
-  }
-
   while (game_loop) {
     TimerNano_start(&frame_cap_timer);
 
@@ -124,8 +120,6 @@ void game_state(core_logic_s *logic, core_render_s *render) {
     }
 
     { // logic block
-      Sync_update_animas(&logic->situation, logic->animas.data);
-      Sync_update_situation(&logic->situation, logic->animas.data);
 
       for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
         pthread_cond_broadcast(&ANIMA_SPIRITS[id].cond_frame);
@@ -189,7 +183,6 @@ int main() { // int main(int argc, char *argv[]) {
   { // Core logic
     for (uint8_t idx = 0; idx < ANIMA_COUNT; ++idx) {
 
-      // static lifetime, as thread lives until exit
       ANIMA_SPIRITS[idx] = (spirit_setup_s){
           .anima = &core_logic.animas.data[idx],
           .anima_count = ANIMA_COUNT,
@@ -201,13 +194,13 @@ int main() { // int main(int argc, char *argv[]) {
 
       };
 
-      anima_ctor(&core_logic.animas.data[idx], ANIMA_COUNT, idx, &core_logic.maze);
+      anima_ctor(&core_logic.animas.data[idx], &core_logic.situation, idx, &core_logic.maze);
 
       pthread_create(&ANIMA_THREADS[ANIMA_SPIRITS[idx].anima->id], nullptr, spirit_ctor, (void *)&ANIMA_SPIRITS[idx]);
     }
 
     for (size_t idx = 0; idx < core_logic.animas.count; ++idx) {
-      sync_situation_to_situation(&core_logic.situation, &core_logic.animas.data[idx].smt.situation);
+      sync_situation_to_situation(&core_logic.situation, core_logic.animas.data[idx].smt.situation);
     }
   }
 

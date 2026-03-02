@@ -7,7 +7,7 @@
 #include "SML/sprite/anima.h"
 #include "generic/pairs.h"
 
-void anima_ctor(anima_s *self, const size_t anima_count, const uint8_t id, const maze_s *maze) {
+void anima_ctor(anima_s *self, Situation *situation, const uint8_t id, const maze_s *maze) {
   slog_display(SLOG_DEBUG, 0, "Creating anima: %d\n", id);
 
   *self = (anima_s){
@@ -15,11 +15,10 @@ void anima_ctor(anima_s *self, const size_t anima_count, const uint8_t id, const
       .tick_action = 0,
 
       .smt = {
+          .situation = situation,
           .ctx = z3_mk_anima_ctx(),
       },
   };
-
-  situation_ctor(&self->smt.situation, anima_count);
 
   /* atomic_init(&self->smt.situation.animas.data[id].direction_actual, direction); */
   /* atomic_init(&self->smt.situation.animas.data[id].location, location); */
@@ -125,10 +124,10 @@ void anima_parse_fundamentals(anima_s *self, char *smt_path) {
   }
 }
 
-Z3_lbool anima_solve(anima_s *self, const maze_s *maze) {
+Z3_lbool anima_solve(anima_s *self) {
 
-  lexicon_assert_anima_location(&self->smt.lexicon, self->smt.ctx, self->smt.opz, &self->smt.situation, self->id);
-  lexicon_assert_persona_location(&self->smt.lexicon, self->smt.ctx, self->smt.opz, &self->smt.situation);
+  lexicon_assert_anima_location(&self->smt.lexicon, self->smt.ctx, self->smt.opz, self->smt.situation, self->id);
+  lexicon_assert_persona_location(&self->smt.lexicon, self->smt.ctx, self->smt.opz, self->smt.situation);
 
   Z3_lbool result = Z3_optimize_check(self->smt.ctx, self->smt.opz, 0, nullptr);
 
@@ -137,7 +136,7 @@ Z3_lbool anima_solve(anima_s *self, const maze_s *maze) {
 
 Result anima_path_from_model(anima_s *self, const maze_s *maze) {
 
-  auto anima_location = atomic_load(&self->smt.situation.animas.data[self->id].location);
+  auto anima_location = atomic_load(&self->smt.situation->animas.data[self->id].location);
 
   Z3_model model = Z3_optimize_get_model(self->smt.ctx, self->smt.opz);
   Z3_model_inc_ref(self->smt.ctx, model);

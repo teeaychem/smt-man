@@ -47,11 +47,11 @@ void *spirit_ctor(void *void_setup_struct) {
   /* Anima_restrict(anima, setup_struct->maze); */
 
   {
-    char smt2_path[32];
-    sprintf(smt2_path, "resources/anima_%d.smt2", anima->id);
+    char constraints_path[32];
+    sprintf(constraints_path, "resources/anima_%d.smt2", anima->id);
 
     char smt_path[FILENAME_MAX];
-    cwk_path_join(setup_struct->source_path, smt2_path, smt_path, FILENAME_MAX);
+    cwk_path_join(setup_struct->source_path, constraints_path, smt_path, FILENAME_MAX);
     anima_parse_fundamentals(anima, smt_path);
   }
 
@@ -65,7 +65,7 @@ void *spirit_ctor(void *void_setup_struct) {
     pthread_cond_wait(&setup_struct->cond_frame, &setup_struct->mtx_spirit);
 
     Z3_optimize_push(anima->smt.ctx, anima->smt.opz);
-    Z3_lbool result = anima_solve(anima, setup_struct->maze);
+    Z3_lbool result = anima_solve(anima);
 
     // Other work within the push / pop
     if (result == Z3_L_TRUE) {

@@ -19,8 +19,8 @@ struct anima_t {
   maze_path_s path;
 
   struct {
-    /// Point of view, on the situation
-    Situation situation;
+    /// The situation
+    Situation *situation;
     /// Context of a solve
     Z3_context ctx;
     /// Optimizer used to solve
@@ -36,7 +36,7 @@ typedef struct anima_t anima_s;
 
 // Methods
 
-void anima_ctor(anima_s *self, const size_t anima_count, const uint8_t id, const maze_s *maze);
+void anima_ctor(anima_s *self, Situation *situation, const uint8_t id, const maze_s *maze);
 
 void anima_dtor(anima_s *self);
 
@@ -50,6 +50,6 @@ void anima_parse_fundamentals(anima_s *self, char *smt_path);
 void anima_instinct(anima_s *self);
 
 /// Generate consequences from deduction
-Z3_lbool anima_solve(anima_s *self, const maze_s *maze);
+Z3_lbool anima_solve(anima_s *self);
 
 Result anima_path_from_model(anima_s *self, const maze_s *maze);
