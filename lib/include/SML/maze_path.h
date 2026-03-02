@@ -4,14 +4,15 @@
 #include <stddef.h>
 #include <z3.h>
 
-#include "SML/logic.h"
 #include "generic/pairs.h"
 
+#include "SML/logic.h"
+
 struct maze_tile_t {
-  enum path_e h;
-  enum path_e v;
+  path_e h;
+  path_e v;
 };
-typedef struct maze_tile_t MazeTile;
+typedef struct maze_tile_t maze_tile_s;
 
 /// Maze path
 
@@ -19,24 +20,22 @@ struct maze_path_t {
   pthread_mutex_t mutex;
   Pair_uint8 size;
   size_t tile_count;
-  MazeTile *tiles;
+  maze_tile_s *tiles;
 };
-typedef struct maze_path_t MazePath;
+typedef struct maze_path_t maze_path_s;
 
 /// Methods
 
-void MazePath_ctor(MazePath *self, const Pair_uint8 size);
+void maze_path_ctor(maze_path_s *self, const Pair_uint8 size);
 
-void MazePath_dtor(MazePath *self);
+void maze_path_dtor(maze_path_s *self);
 
-void MazePath_clear(MazePath *self);
+void maze_path_clear(maze_path_s *self);
 
-void MazePath_read(MazePath *self, const Lexicon *lexicon, const Z3_context ctx, const Z3_model model, const Maze *maze);
+void maze_path_read(maze_path_s *self, const Lexicon *lexicon, const Z3_context ctx, const Z3_model model, const Maze *maze);
 
-void MazePath_display(MazePath *self, const Lexicon *lexicon);
+void maze_path_display(maze_path_s *self, const Lexicon *lexicon);
 
-static inline MazeTile MazePath_at(MazePath *self, const Pair_uint8 location) {
+static inline maze_tile_s maze_path_at(maze_path_s *self, const Pair_uint8 location) {
   return self->tiles[Pair_uint8_flatten(&self->size, location.x, location.y)];
 }
-
-void Maze_display(const Maze *self);

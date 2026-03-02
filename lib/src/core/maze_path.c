@@ -4,20 +4,20 @@
 
 #include "SML/maze_path.h"
 
-void MazePath_ctor(MazePath *self, const Pair_uint8 size) {
+void maze_path_ctor(maze_path_s *self, const Pair_uint8 size) {
   /* assert(self->tiles == nullptr && "oh"); */
   size_t tile_count = (size_t)size.x * (size_t)size.y;
 
-  *self = (MazePath){
+  *self = (maze_path_s){
       .mutex = PTHREAD_MUTEX_INITIALIZER,
       .size = size,
       .tile_count = tile_count,
       .tiles = malloc(tile_count * sizeof(*self->tiles)),
   };
-  MazePath_clear(self);
+  maze_path_clear(self);
 }
 
-void MazePath_clear(MazePath *self) {
+void maze_path_clear(maze_path_s *self) {
   assert(self->tiles != nullptr);
   for (size_t idx = 0; idx < self->tile_count; ++idx) {
     self->tiles[idx].h = PATH_X;
@@ -25,21 +25,21 @@ void MazePath_clear(MazePath *self) {
   }
 }
 
-void MazePath_dtor(MazePath *self) {
+void maze_path_dtor(maze_path_s *self) {
   free(self->tiles);
   self->tiles = nullptr;
   self->tile_count = 0;
   self->size = (Pair_uint8){.x = 0, .y = 0};
 }
 
-void MazePath_display(MazePath *self, const Lexicon *lexicon) {
+void maze_path_display(maze_path_s *self, const Lexicon *lexicon) {
 
   char *line_buffer = malloc(self->size.y * sizeof(*line_buffer));
 
   for (uint8_t row = 0; row < self->size.x; ++row) {
     for (uint8_t col = 0; col < self->size.y; ++col) {
 
-      MazeTile val = self->tiles[Pair_uint8_flatten(&self->size, row, col)];
+      maze_tile_s val = self->tiles[Pair_uint8_flatten(&self->size, row, col)];
 
       if (val.h == PATH_A && val.v == PATH_A) { // NE
         line_buffer[col] = '\\';
@@ -73,7 +73,7 @@ void MazePath_display(MazePath *self, const Lexicon *lexicon) {
   free(line_buffer);
 }
 
-void MazePath_read(MazePath *self, const Lexicon *lexicon, const Z3_context ctx, const Z3_model model, const Maze *maze) {
+void maze_path_read(maze_path_s *self, const Lexicon *lexicon, const Z3_context ctx, const Z3_model model, const Maze *maze) {
   // Read the interpretation to the path buffer
   pthread_mutex_lock(&self->mutex);
 

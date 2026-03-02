@@ -154,15 +154,15 @@ int main() {
 
 void z3_read_and_display_path(const Lexicon *lexicon, const Z3_context ctx, const Z3_model model, const Maze *maze) {
 
-  MazePath maze_path = {};
+  maze_path_s maze_path = {};
 
-  MazePath_ctor(&maze_path, maze->size);
+  maze_path_ctor(&maze_path, maze->size);
 
-  MazePath_read(&maze_path, lexicon, ctx, model, maze);
+  maze_path_read(&maze_path, lexicon, ctx, model, maze);
 
-  MazePath_display(&maze_path, lexicon);
+  maze_path_display(&maze_path, lexicon);
 
-  MazePath_dtor(&maze_path);
+  maze_path_dtor(&maze_path);
 }
 
 void z3_tmp(Z3_context ctx, Lexicon *lexicon, Z3_optimize optimizer, const Maze *maze, const Situation *situation, uint8_t anima_id) {

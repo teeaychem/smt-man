@@ -32,7 +32,7 @@ struct anima_t {
   AnimaAtomics contact;
 
   /// Path
-  MazePath path;
+  maze_path_s path;
 
   struct {
     /// Point of view, on the situation

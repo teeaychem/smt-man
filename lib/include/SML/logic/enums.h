@@ -5,10 +5,10 @@
 enum anima_status_t {
   ANIMA_STATUS_SEARCH,
 };
-typedef enum anima_status_t AnimaStatus;
+typedef enum anima_status_t anima_status_e;
 
 /// The path value of a tile, given by some map.
-enum path_e : uint8_t {
+enum path_t : uint8_t {
   /// Empty
   PATH_X = 0,
   /// North / East
@@ -18,3 +18,4 @@ enum path_e : uint8_t {
   /// Origin
   PATH_O,
 };
+typedef enum path_t path_e;

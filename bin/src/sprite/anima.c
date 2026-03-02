@@ -36,7 +36,7 @@ void Anima_on_frame(Anima *self, Sprite *sprite, const Maze *maze, uint32_t tile
 
     pthread_mutex_lock(&self->path.mutex);
 
-    MazeTile tile_path = MazePath_at(&self->path, maze_location);
+    maze_tile_s tile_path = maze_path_at(&self->path, maze_location);
     Cardinal direction_actual = atomic_load(&self->smt.situation.animas.states[self->id].direction_actual);
 
     if (Maze_is_intersection(maze, maze_location.x, maze_location.y)) {

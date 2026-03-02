@@ -47,13 +47,13 @@ void Anima_ctor(Anima *self, const size_t anima_count, const uint8_t id, const P
 
   Lexicon_ctor(&self->smt.lexicon);
 
-  MazePath_ctor(&self->path, maze->size);
+  maze_path_ctor(&self->path, maze->size);
 }
 
 void Anima_dtor(Anima *self) {
   assert(self != nullptr);
 
-  MazePath_dtor(&self->path);
+  maze_path_dtor(&self->path);
 
   Z3_parser_context_dec_ref(self->smt.ctx, self->smt.parser);
 
@@ -165,8 +165,8 @@ Result Anima_deduct(Anima *self, const Maze *maze) {
   Z3_model model = Z3_optimize_get_model(self->smt.ctx, self->smt.opz);
   Z3_model_inc_ref(self->smt.ctx, model);
 
-  MazePath_clear(&self->path);
-  MazePath_read(&self->path, &self->smt.lexicon, self->smt.ctx, model, maze);
+  maze_path_clear(&self->path);
+  maze_path_read(&self->path, &self->smt.lexicon, self->smt.ctx, model, maze);
 
   Z3_ast anima_origin_h = nullptr;
   Z3_ast anima_origin_v = nullptr;
