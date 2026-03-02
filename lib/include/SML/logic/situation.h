@@ -6,8 +6,10 @@
 #include "generic/pairs.h"
 
 #include "SML/logic/enums.h"
+#include "SML/maze.h"
 
 struct situation_t {
+
   struct {
     size_t count;
     struct anima_state_t {

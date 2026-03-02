@@ -9,7 +9,6 @@
 #include "SML/logic/synchronization.h"
 #include "SML/sprite/persona.h"
 
-#include "generic/pairs.h"
 #include "render.h"
 #include "render/rgb_momentum.h"
 #include "render/sprite.h"
@@ -41,13 +40,12 @@ void core_logic_ctor(core_logic_s *self, size_t anima_count, const char *source_
       .maze = {},
   };
 
+  situation_ctor(&self->situation, ANIMA_COUNT);
   {
     char path_buffer[FILENAME_MAX];
     cwk_path_join(source_path, "resources/maze/source.txt", path_buffer, FILENAME_MAX);
     maze_ctor_from_path(&self->maze, path_buffer);
   }
-
-  situation_ctor(&self->situation, ANIMA_COUNT);
   situation_reset(&self->situation);
 
   Persona_ctor(&self->persona, &self->situation);

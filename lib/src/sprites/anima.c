@@ -20,11 +20,6 @@ void anima_ctor(anima_s *self, Situation *situation, const uint8_t id, const maz
       },
   };
 
-  /* atomic_init(&self->smt.situation.animas.data[id].direction_actual, direction); */
-  /* atomic_init(&self->smt.situation.animas.data[id].location, location); */
-  /* atomic_init(&self->smt.situation.animas.data[id].status, ANIMA_STATUS_SEARCH); */
-  /* atomic_init(&self->smt.situation.animas.data[id].movement_pattern, 0x552a552a); */
-
   self->smt.opz = Z3_mk_optimize(self->smt.ctx);
   Z3_optimize_inc_ref(self->smt.ctx, self->smt.opz);
 
@@ -61,7 +56,7 @@ void anima_touch(anima_s *self, size_t anima_count) {
 void anima_parse_fundamentals(anima_s *self, char *smt_path) {
   {
 
-    { // Fundamental setup
+    { // Foundation setup
       Z3_parser_context_add_sort(self->smt.ctx, self->smt.parser, self->smt.lexicon.tile_offset_bv_sort.sort);
     }
 
@@ -156,43 +151,6 @@ Result anima_path_from_model(anima_s *self, const maze_s *maze) {
 
   auto tile_v = Z3_mk_app(self->smt.ctx, self->smt.lexicon.path.tile_v_f, 2, row_col);
   Z3_model_eval(self->smt.ctx, model, tile_v, false, &anima_origin_v);
-
-  /* if (anima_origin == self->smt.lexicon.path.token.o_n) { */
-  /*   self->direction_intent = CARDINAL_N; */
-  /* } */
-
-  /* else if (anima_origin == self->smt.lexicon.path.token.o_e) { */
-  /*   self->direction_intent = CARDINAL_E; */
-  /* } */
-
-  /* else if (anima_origin == self->smt.lexicon.path.token.o_s) { */
-  /*   self->direction_intent = CARDINAL_S; */
-  /* } */
-
-  /* else if (anima_origin == self->smt.lexicon.path.token.o_w) { */
-  /*   self->direction_intent = CARDINAL_W; */
-  /* } */
-
-  /* else { */
-  /*   // Backup */
-  /*   switch (random_in_range(1, 4)) { */
-  /*   case 1: { */
-  /*     self->direction_intent = CARDINAL_N; */
-  /*   } break; */
-  /*   case 2: { */
-  /*     self->direction_intent = CARDINAL_E; */
-  /*   } break; */
-  /*   case 3: { */
-  /*     self->direction_intent = CARDINAL_S; */
-  /*   } break; */
-  /*   case 4: { */
-  /*     self->direction_intent = CARDINAL_W; */
-  /*   } break; */
-  /*   default: { */
-  /*     assert(false && "No direction"); */
-  /*   } break; */
-  /*   } */
-  /* } */
 
   Z3_model_dec_ref(self->smt.ctx, model);
 

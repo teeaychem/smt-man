@@ -53,14 +53,12 @@ int main() {
   }
   { // Setup block
     situation_ctor(&situation, ANIMA_COUNT);
-    Pair_uint8 persona_location = {.x = 1, .y = 12};
-    atomic_store(&situation.persona.location, persona_location);
 
     Persona_ctor(&persona, &situation);
 
     /* setup_animas(animas, ANIMA_THREADS, &maze, ANIMA_COUNT, source_path); */
   }
-  char * maze_string = maze_as_string(&maze);
+  char *maze_string = maze_as_string(&maze);
   printf("%s", maze_string);
   free(maze_string);
 
