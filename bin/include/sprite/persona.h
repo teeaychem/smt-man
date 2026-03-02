@@ -11,8 +11,8 @@ struct persona_t {
 
   cardinal_e direction_intent;
 };
-typedef struct persona_t Persona;
+typedef struct persona_t persona_s;
 
-void Persona_ctor(Persona *persona, Situation *situation);
+void persona_ctor(persona_s *self, Situation *situation);
 
-void Persona_dtor(Persona *self);
+void persona_dtor(persona_s *self);

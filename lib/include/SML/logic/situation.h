@@ -41,3 +41,5 @@ void situation_ctor(Situation *self, size_t anima_count);
 void situation_dtor(Situation *self);
 
 void situation_reset(Situation *self);
+
+void sync_situation_to_situation(const Situation *from, Situation *to);

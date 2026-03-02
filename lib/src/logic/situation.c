@@ -43,3 +43,23 @@ void situation_reset(Situation *self) {
     atomic_init(&self->persona.movement_pattern, 0x552a552a);
   }
 }
+
+void sync_situation_to_situation(const Situation *from, Situation *to) {
+
+  { // animas
+    assert(from->animas.count == to->animas.count);
+
+    for (size_t idx = 0; idx < from->animas.count; ++idx) {
+      atomic_store(&to->animas.data[idx].direction_actual, atomic_load(&from->animas.data[idx].direction_actual));
+      atomic_store(&to->animas.data[idx].location, atomic_load(&from->animas.data[idx].location));
+      atomic_store(&to->animas.data[idx].movement_pattern, atomic_load(&from->animas.data[idx].movement_pattern));
+      atomic_store(&to->animas.data[idx].status, atomic_load(&from->animas.data[idx].status));
+    }
+  }
+
+  { // persona
+    atomic_store(&to->persona.direction_actual, atomic_load(&from->persona.direction_actual));
+    atomic_store(&to->persona.location, atomic_load(&from->persona.location));
+    atomic_store(&to->persona.movement_pattern, atomic_load(&from->persona.movement_pattern));
+  }
+}

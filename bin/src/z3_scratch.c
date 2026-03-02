@@ -5,11 +5,8 @@
 #include <z3.h>
 
 #include "SML/logic.h"
-#include "SML/logic/synchronization.h"
 #include "SML/maze.h"
 #include "SML/maze_path.h"
-#include "SML/sprite/anima.h"
-#include "SML/sprite/persona.h"
 
 #include "cwalk.h"
 #include "setup.h"
@@ -43,7 +40,7 @@ int main() {
     animas[idx].smt.situation->animas.data = alloca(ANIMA_COUNT * sizeof(*situation.animas.data));
   }
 
-  Persona persona;
+  persona_s persona;
 
   maze_s maze = {};
   {
@@ -54,16 +51,13 @@ int main() {
   { // Setup block
     situation_ctor(&situation, ANIMA_COUNT);
 
-    Persona_ctor(&persona, &situation);
+    persona_ctor(&persona, &situation);
 
     /* setup_animas(animas, ANIMA_THREADS, &maze, ANIMA_COUNT, source_path); */
   }
   char *maze_string = maze_as_string(&maze);
   printf("%s", maze_string);
   free(maze_string);
-
-  Sync_update_animas(&situation, animas);
-  Sync_update_situation(&situation, animas);
 
   Z3_context ctx = z3_mk_anima_ctx();
 

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "SML/maze.h"
-#include "SML/sprite/anima.h"
 
 #include "render.h"
 

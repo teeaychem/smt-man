@@ -8,8 +8,6 @@
 
 #include "SML/logic/situation.h"
 #include "SML/maze.h"
-#include "SML/sprite/anima.h"
-#include "SML/sprite/persona.h"
 
 #include "generic/pairs.h"
 #include "render/palette.h"
@@ -47,7 +45,7 @@ void Renderer_draw_from_sheet(Renderer *self, const Pair_uint32 destination, con
 
 void Renderer_anima(Renderer *self, const anima_s *anima, Sprite *sprite, const RenderAction action);
 
-void Renderer_persona(Renderer *self, const Persona *persona, Sprite *sprite, const Situation *situation, const RenderAction action);
+void Renderer_persona(Renderer *self, const persona_s *persona, Sprite *sprite, const Situation *situation, const RenderAction action);
 
 void Renderer_sprite_fill(Renderer *self, const Pair_uint32 location, const uint32_t size, const uint32_t colour, const bool edge);
 

@@ -6,11 +6,13 @@
 #include <SDL3/SDL_events.h>
 
 #include "SML/maze.h"
-#include "SML/sprite/anima.h"
-#include "SML/sprite/persona.h"
+
+
 
 #include "consts.h"
 #include "generic/pairs.h"
+#include "sprite/anima.h"
+#include "sprite/persona.h"
 
 constexpr int32_t SPRITE_VELOCITY = 1;
 
@@ -80,6 +82,6 @@ void Anima_handle_event(anima_s *self, const SDL_Event *event);
 
 /// Persona
 
-void Persona_on_frame(Persona *self, Sprite *sprite, const maze_s *maze, Situation *situation, uint32_t tile_pixels, uint32_t offset_n);
+void Persona_on_frame(persona_s *self, Sprite *sprite, const maze_s *maze, Situation *situation, uint32_t tile_pixels, uint32_t offset_n);
 
-void Persona_handle_event(Persona *self, const maze_s *maze, Situation *situation, const SDL_Event *event);
+void Persona_handle_event(persona_s *self, const maze_s *maze, Situation *situation, const SDL_Event *event);

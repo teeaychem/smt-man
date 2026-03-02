@@ -1,9 +1,9 @@
 #pragma once
 
-#include "SML/sprite/anima.h"
-#include "SML/sprite/persona.h"
-
 #include "generic/pairs.h"
+
+#include "sprite/anima.h"
+#include "sprite/persona.h"
 
 struct sheet_offsets_t {
   struct {
@@ -27,4 +27,4 @@ extern SheetOffsets sheet_data;
 
 Pair_uint32 Sheet_anima_offset(const anima_s *anima);
 
-Pair_uint32 Sheet_persona_offset(const Persona *persona, const Situation *situation);
+Pair_uint32 Sheet_persona_offset(const persona_s *persona, const Situation *situation);

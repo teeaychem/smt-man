@@ -1,8 +1,21 @@
+#include "sprite/persona.h"
 #include "generic/bitvec.h"
 
 #include "render/sprite.h"
 
-void Persona_on_tile(Persona *self, Sprite *sprite, Situation *situation, const maze_s *maze, Pair_uint8 maze_location) {
+void persona_ctor(persona_s *self, Situation *situation) {
+  *self = (persona_s){
+      .direction_intent = CARDINAL_NONE,
+      .tick_action = 0,
+  };
+}
+
+void persona_dtor(persona_s *self) {
+  assert(self != nullptr);
+}
+
+
+void Persona_on_tile(persona_s *self, Sprite *sprite, Situation *situation, const maze_s *maze, Pair_uint8 maze_location) {
 
   /// Update location
   atomic_store(&situation->persona.location, maze_location);
@@ -17,7 +30,7 @@ void Persona_on_tile(Persona *self, Sprite *sprite, Situation *situation, const 
   }
 }
 
-void Persona_off_tile(Persona *self, Sprite *sprite, Situation *situation, const maze_s *maze, Pair_uint8 maze_location) {
+void Persona_off_tile(persona_s *self, Sprite *sprite, Situation *situation, const maze_s *maze, Pair_uint8 maze_location) {
 
   if ((self->direction_intent | situation->persona.direction_actual) == (CARDINAL_E | CARDINAL_W) ||
       (self->direction_intent | situation->persona.direction_actual) == (CARDINAL_S | CARDINAL_N)) {
@@ -32,7 +45,7 @@ void Persona_off_tile(Persona *self, Sprite *sprite, Situation *situation, const
   }
 }
 
-void Persona_on_frame(Persona *self, Sprite *sprite, const maze_s *maze, Situation *situation, uint32_t tile_pixels, uint32_t offset_n) {
+void Persona_on_frame(persona_s *self, Sprite *sprite, const maze_s *maze, Situation *situation, uint32_t tile_pixels, uint32_t offset_n) {
 
   uint32_t movement = atomic_load(&situation->persona.movement_pattern);
   movement = uint32_rotl1(movement);
@@ -71,7 +84,7 @@ void Persona_on_frame(Persona *self, Sprite *sprite, const maze_s *maze, Situati
   }
 }
 
-void Persona_handle_event(Persona *self, const maze_s *maze, Situation *situation, const SDL_Event *event) {
+void Persona_handle_event(persona_s *self, const maze_s *maze, Situation *situation, const SDL_Event *event) {
   if (event->type == SDL_EVENT_KEY_DOWN && !event->key.repeat) {
 
     switch (event->key.key) {

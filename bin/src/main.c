@@ -6,9 +6,6 @@
 
 #include "cwalk.h"
 
-#include "SML/logic/synchronization.h"
-#include "SML/sprite/persona.h"
-
 #include "render.h"
 #include "render/rgb_momentum.h"
 #include "render/sprite.h"
@@ -25,7 +22,7 @@ struct core_logic {
     anima_s *data;
   } animas;
   maze_s maze;
-  Persona persona;
+  persona_s persona;
   Situation situation;
 };
 typedef struct core_logic core_logic_s;
@@ -48,7 +45,7 @@ void core_logic_ctor(core_logic_s *self, size_t anima_count, const char *source_
   }
   situation_reset(&self->situation);
 
-  Persona_ctor(&self->persona, &self->situation);
+  persona_ctor(&self->persona, &self->situation);
 }
 
 void core_logic_dtor(core_logic_s *self) {

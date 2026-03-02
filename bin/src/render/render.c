@@ -204,7 +204,7 @@ void Renderer_anima(Renderer *self, const anima_s *anima, Sprite *sprite, const 
   }
 }
 
-void Renderer_persona(Renderer *self, const Persona *persona, Sprite *sprite, const Situation *situation, const RenderAction action) {
+void Renderer_persona(Renderer *self, const persona_s *persona, Sprite *sprite, const Situation *situation, const RenderAction action) {
 
   switch (action) {
   case RENDER_DRAW: {
