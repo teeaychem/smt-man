@@ -2,14 +2,33 @@
 
 #include <stddef.h>
 
-#include "SML/logic/abstractions.h"
+#include "generic/enums.h"
+#include "generic/pairs.h"
+
+#include "SML/logic/enums.h"
 
 struct situation_t {
   struct {
     size_t count;
-    AnimaState *states;
+    struct anima_state_t {
+      _Atomic(Cardinal) direction_actual;
+
+      _Atomic(Pair_uint8) location;
+
+      _Atomic(uint32_t) movement_pattern;
+
+      _Atomic(anima_status_e) status;
+
+    } *states;
   } animas;
-  PersonaState persona;
+
+  struct persona_state_t {
+    _Atomic(Cardinal) direction_actual;
+
+    _Atomic(Pair_uint8) location;
+
+    _Atomic(uint32_t) movement_pattern;
+  } persona;
 };
 typedef struct situation_t Situation;
 
