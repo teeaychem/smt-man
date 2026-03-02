@@ -35,7 +35,7 @@ void maze_path_dtor(maze_path_s *self) {
   self->dimensions = (Pair_uint8){.x = 0, .y = 0};
 }
 
-void maze_path_display(maze_path_s *self, const Lexicon *lexicon) {
+void maze_path_display(maze_path_s *self, const lexicon_s *lexicon) {
 
   char *line_buffer = malloc(self->dimensions.y * sizeof(*line_buffer));
 
@@ -76,7 +76,7 @@ void maze_path_display(maze_path_s *self, const Lexicon *lexicon) {
   free(line_buffer);
 }
 
-void maze_path_read(maze_path_s *self, const Lexicon *lexicon, const Z3_context ctx, const Z3_model model, const maze_s *maze) {
+void maze_path_read(maze_path_s *self, const lexicon_s *lexicon, const Z3_context ctx, const Z3_model model, const maze_s *maze) {
   // Read the interpretation to the path buffer
   pthread_mutex_lock(&self->access_mutex);
 

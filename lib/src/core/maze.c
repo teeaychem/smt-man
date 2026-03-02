@@ -2,19 +2,24 @@
 #include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <slog.h>
-#include <stdlib.h>
 
 #include "generic/pairs.h"
 
 #include "SML/maze.h"
 
-void next_line(FILE *file) {
-  char chx = ' ';
-  while (chx != EOF && chx != '\n') {
+void tile_set_arc(tile_data_s *tile, quadrant_e quadrant) {
+  tile->value.edge_value.edge_style = TILE_STYLE_ARC;
+  tile->value.edge_value.edge_arc_quadrant = quadrant;
+}
+
+inline void next_line(FILE *file) {
+  char chx;
+  do {
     chx = (char)fgetc(file);
-  }
+  } while (chx != EOF && chx != '\n');
 }
 
 Result maze_ctor(maze_s *maze) {
@@ -39,8 +44,7 @@ Result maze_ctor_from_path(maze_s *maze, const char *path) {
 void maze_dtor(maze_s *self) {
   free(self->tiles);
   self->tiles = nullptr;
-  self->dimensions.x = 0;
-  self->dimensions.y = 0;
+  Pair_uint8_set(&self->dimensions, 0, 0);
 }
 
 Result maze_read_from_path(maze_s *maze, const char *path) {
@@ -209,11 +213,6 @@ char *maze_as_string(const maze_s *self) {
   return string;
 }
 
-void Tile_set_arc(tile_data_s *tile, quadrant_e quadrant) {
-  tile->value.edge_value.edge_style = TILE_STYLE_ARC;
-  tile->value.edge_value.edge_arc_quadrant = quadrant;
-}
-
 void Maze_detail_arc_outer(maze_s *self) {
 
   { // LEFT
@@ -223,7 +222,7 @@ void Maze_detail_arc_outer(maze_s *self) {
     { // TOP
       tile = maze_tile_data_at(self, 0, col);
       if (tile->type == TILE_EDGE) {
-        Tile_set_arc(tile, QUADRANT_2);
+        tile_set_arc(tile, QUADRANT_2);
         tile->value.edge_value.lines = TILE_LINES_M;
       }
     }
@@ -231,7 +230,7 @@ void Maze_detail_arc_outer(maze_s *self) {
     { // BOTTOM
       tile = maze_tile_data_at(self, self->dimensions.x - 1, col);
       if (tile->type == TILE_EDGE) {
-        Tile_set_arc(tile, QUADRANT_3);
+        tile_set_arc(tile, QUADRANT_3);
         tile->value.edge_value.lines = TILE_LINES_M;
       }
     }
@@ -245,23 +244,23 @@ void Maze_detail_arc_outer(maze_s *self) {
             if ((maze_tile_data_at(self, row - 1, col)->type == TILE_EDGE) &&
                 (maze_tile_data_at(self, row + 1, col)->type == TILE_EDGE)) {
               if (maze_tile_data_at(self, row - 1, col + 1)->type != TILE_EDGE) {
-                Tile_set_arc(tile, QUADRANT_3);
+                tile_set_arc(tile, QUADRANT_3);
                 tile->value.edge_value.lines = TILE_LINES_M;
               } else if (maze_tile_data_at(self, row + 1, col + 1)->type != TILE_EDGE) {
-                Tile_set_arc(tile, QUADRANT_2);
+                tile_set_arc(tile, QUADRANT_2);
                 tile->value.edge_value.lines = TILE_LINES_M;
               }
             }
 
             if ((maze_tile_data_at(self, row - 1, col)->type != TILE_EDGE) &&
                 (maze_tile_data_at(self, row + 1, col)->type == TILE_EDGE)) {
-              Tile_set_arc(tile, QUADRANT_2);
+              tile_set_arc(tile, QUADRANT_2);
               tile->value.edge_value.lines = TILE_LINES_M;
             }
 
             if ((maze_tile_data_at(self, row - 1, col)->type == TILE_EDGE) &&
                 (maze_tile_data_at(self, row + 1, col)->type != TILE_EDGE)) {
-              Tile_set_arc(tile, QUADRANT_3);
+              tile_set_arc(tile, QUADRANT_3);
               tile->value.edge_value.lines = TILE_LINES_M;
             }
           }
@@ -277,7 +276,7 @@ void Maze_detail_arc_outer(maze_s *self) {
     { // TOP
       tile = maze_tile_data_at(self, 0, col);
       if (tile->type == TILE_EDGE) {
-        Tile_set_arc(tile, QUADRANT_1);
+        tile_set_arc(tile, QUADRANT_1);
         tile->value.edge_value.lines = TILE_LINES_M;
       }
     }
@@ -285,7 +284,7 @@ void Maze_detail_arc_outer(maze_s *self) {
     { // BOTTOM
       tile = maze_tile_data_at(self, self->dimensions.x - 1, col);
       if (tile->type == TILE_EDGE) {
-        Tile_set_arc(tile, QUADRANT_4);
+        tile_set_arc(tile, QUADRANT_4);
         tile->value.edge_value.lines = TILE_LINES_M;
       }
     }
@@ -299,23 +298,23 @@ void Maze_detail_arc_outer(maze_s *self) {
             if ((maze_tile_data_at(self, row - 1, col)->type == TILE_EDGE) &&
                 (maze_tile_data_at(self, row + 1, col)->type == TILE_EDGE)) {
               if (maze_tile_data_at(self, row - 1, col - 1)->type != TILE_EDGE) {
-                Tile_set_arc(tile, QUADRANT_4);
+                tile_set_arc(tile, QUADRANT_4);
                 tile->value.edge_value.lines = TILE_LINES_M;
               } else if (maze_tile_data_at(self, row + 1, col - 1)->type != TILE_EDGE) {
-                Tile_set_arc(tile, QUADRANT_1);
+                tile_set_arc(tile, QUADRANT_1);
                 tile->value.edge_value.lines = TILE_LINES_M;
               }
             }
 
             if ((maze_tile_data_at(self, row - 1, col)->type != TILE_EDGE) &&
                 (maze_tile_data_at(self, row + 1, col)->type == TILE_EDGE)) {
-              Tile_set_arc(tile, QUADRANT_1);
+              tile_set_arc(tile, QUADRANT_1);
               tile->value.edge_value.lines = TILE_LINES_M;
             }
 
             if ((maze_tile_data_at(self, row - 1, col)->type == TILE_EDGE) &&
                 (maze_tile_data_at(self, row + 1, col)->type != TILE_EDGE)) {
-              Tile_set_arc(tile, QUADRANT_4);
+              tile_set_arc(tile, QUADRANT_4);
               tile->value.edge_value.lines = TILE_LINES_M;
             }
           }
@@ -331,7 +330,7 @@ void Maze_detail_arc_outer(maze_s *self) {
     { // LEFT
       tile = maze_tile_data_at(self, row, 0);
       if (tile->type == TILE_EDGE) {
-        Tile_set_arc(tile, QUADRANT_2);
+        tile_set_arc(tile, QUADRANT_2);
         tile->value.edge_value.lines = TILE_LINES_M;
       }
     }
@@ -339,7 +338,7 @@ void Maze_detail_arc_outer(maze_s *self) {
     { // RIGHT
       tile = maze_tile_data_at(self, row, self->dimensions.y - 1);
       if (tile->type == TILE_EDGE) {
-        Tile_set_arc(tile, QUADRANT_1);
+        tile_set_arc(tile, QUADRANT_1);
         tile->value.edge_value.lines = TILE_LINES_M;
       }
     }
@@ -353,10 +352,10 @@ void Maze_detail_arc_outer(maze_s *self) {
             if ((maze_tile_data_at(self, row, col - 1)->type == TILE_EDGE) &&
                 (maze_tile_data_at(self, row, col + 1)->type == TILE_EDGE)) {
               if (maze_tile_data_at(self, row + 1, col + 1)->type != TILE_EDGE) {
-                Tile_set_arc(tile, QUADRANT_2);
+                tile_set_arc(tile, QUADRANT_2);
                 tile->value.edge_value.lines = TILE_LINES_M;
               } else if (maze_tile_data_at(self, row + 1, col - 1)->type != TILE_EDGE) {
-                Tile_set_arc(tile, QUADRANT_1);
+                tile_set_arc(tile, QUADRANT_1);
                 tile->value.edge_value.lines = TILE_LINES_M;
               }
             }
@@ -373,7 +372,7 @@ void Maze_detail_arc_outer(maze_s *self) {
     { // LEFT
       tile = maze_tile_data_at(self, row, 0);
       if (tile->type == TILE_EDGE) {
-        Tile_set_arc(tile, QUADRANT_3);
+        tile_set_arc(tile, QUADRANT_3);
         tile->value.edge_value.lines = TILE_LINES_M;
       }
     }
@@ -381,7 +380,7 @@ void Maze_detail_arc_outer(maze_s *self) {
     { // RIGHT
       tile = maze_tile_data_at(self, row, self->dimensions.y - 1);
       if (tile->type == TILE_EDGE) {
-        Tile_set_arc(tile, QUADRANT_4);
+        tile_set_arc(tile, QUADRANT_4);
         tile->value.edge_value.lines = TILE_LINES_M;
       }
     }
@@ -395,10 +394,10 @@ void Maze_detail_arc_outer(maze_s *self) {
             if ((maze_tile_data_at(self, row, col - 1)->type == TILE_EDGE) &&
                 (maze_tile_data_at(self, row, col + 1)->type == TILE_EDGE)) {
               if (maze_tile_data_at(self, row - 1, col + 1)->type != TILE_EDGE) {
-                Tile_set_arc(tile, QUADRANT_3);
+                tile_set_arc(tile, QUADRANT_3);
                 tile->value.edge_value.lines = TILE_LINES_M;
               } else if (maze_tile_data_at(self, row - 1, col - 1)->type != TILE_EDGE) {
-                Tile_set_arc(tile, QUADRANT_4);
+                tile_set_arc(tile, QUADRANT_4);
                 tile->value.edge_value.lines = TILE_LINES_M;
               }
             }
@@ -422,42 +421,42 @@ void Maze_detail_arc_inner(maze_s *self) {
         bool edge_w = maze_tile_data_at(self, row, col - 1)->type == TILE_EDGE;
 
         if ((edge_w && edge_s) && (!edge_e && !edge_n)) {
-          Tile_set_arc(tile, QUADRANT_1);
+          tile_set_arc(tile, QUADRANT_1);
           tile->value.edge_value.lines = TILE_LINES_P;
         }
 
         else if ((edge_w && edge_s) && (maze_tile_data_at(self, row + 1, col - 1)->type == TILE_PATH)) {
-          Tile_set_arc(tile, QUADRANT_1);
+          tile_set_arc(tile, QUADRANT_1);
           tile->value.edge_value.lines = TILE_LINES_M;
         }
 
         else if ((edge_e && edge_s) && (!edge_w && !edge_n)) {
-          Tile_set_arc(tile, QUADRANT_2);
+          tile_set_arc(tile, QUADRANT_2);
           tile->value.edge_value.lines = TILE_LINES_P;
         }
 
         else if ((edge_e && edge_s) && (maze_tile_data_at(self, row + 1, col + 1)->type == TILE_PATH)) {
-          Tile_set_arc(tile, QUADRANT_2);
+          tile_set_arc(tile, QUADRANT_2);
           tile->value.edge_value.lines = TILE_LINES_M;
         }
 
         else if ((edge_e && edge_n) && (!edge_w && !edge_s)) {
-          Tile_set_arc(tile, QUADRANT_3);
+          tile_set_arc(tile, QUADRANT_3);
           tile->value.edge_value.lines = TILE_LINES_P;
         }
 
         else if ((edge_e && edge_n) && (maze_tile_data_at(self, row - 1, col + 1)->type == TILE_PATH)) {
-          Tile_set_arc(tile, QUADRANT_3);
+          tile_set_arc(tile, QUADRANT_3);
           tile->value.edge_value.lines = TILE_LINES_M;
         }
 
         else if ((edge_w && edge_n) && (!edge_e && !edge_s)) {
-          Tile_set_arc(tile, QUADRANT_4);
+          tile_set_arc(tile, QUADRANT_4);
           tile->value.edge_value.lines = TILE_LINES_P;
         }
 
         else if ((edge_w && edge_n) && (maze_tile_data_at(self, row - 1, col - 1)->type != TILE_EDGE)) {
-          Tile_set_arc(tile, QUADRANT_4);
+          tile_set_arc(tile, QUADRANT_4);
           tile->value.edge_value.lines = TILE_LINES_M;
         }
       }

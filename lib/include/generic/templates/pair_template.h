@@ -21,6 +21,8 @@ typedef struct {
 
 S_TYPE CAT(S_TYPE, create)(const TYPE x, const TYPE y);
 
+S_TYPE CAT(S_TYPE, set)(S_TYPE *self, const TYPE x, const TYPE y);
+
 size_t CAT(S_TYPE, flatten)(const S_TYPE *self, const TYPE x, const TYPE y);
 
 S_TYPE CAT(S_TYPE, scale)(const S_TYPE *self, const TYPE factor);
@@ -35,6 +37,11 @@ bool CAT(S_TYPE, eq)(const S_TYPE *self, const S_TYPE *other);
 
 S_TYPE CAT(S_TYPE, create)(const TYPE x, const TYPE y) {
   return (S_TYPE){.x = x, .y = y};
+}
+
+S_TYPE CAT(S_TYPE, set)(S_TYPE *self, const TYPE x, const TYPE y) {
+  self->x = x;
+  self->y = y;
 }
 
 size_t CAT(S_TYPE, flatten)(const S_TYPE *self, const TYPE x, const TYPE y) {

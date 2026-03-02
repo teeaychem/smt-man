@@ -41,7 +41,7 @@ struct anima_t {
     /// Parser used to detail a context
     Z3_parser_context parser;
     /// A DSL for solves
-    Lexicon lexicon;
+    lexicon_s lexicon;
 
   } smt;
 };

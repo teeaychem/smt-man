@@ -9,11 +9,11 @@
 
 constexpr size_t PATH_VARIANTS = 4;
 
-struct z3_lexicon_4 {
+struct z3_lexicon_4_t {
 
   struct {
     Z3_sort sort;
-  } u6;
+  } tile_offset_bv_sort;
 
   struct {
     size_t count;
@@ -70,39 +70,38 @@ struct z3_lexicon_4 {
     Z3_func_decl tile_v_f;
   } path;
 };
-typedef struct z3_lexicon_4 Lexicon;
+typedef struct z3_lexicon_4_t lexicon_s;
 
-//
+void lexicon_ctor(lexicon_s *self);
 
-void Lexicon_ctor(Lexicon *self);
-void Lexicon_dtor(Lexicon *self);
+void lexicon_dtor(lexicon_s *self);
 
-void Lexicon_setup_base(Lexicon *lexicon, Z3_context ctx);
-void Lexicon_setup_path(Lexicon *lexicon, Z3_context ctx);
-void Lexicon_setup_animas(Lexicon *lexicon, Z3_context ctx, size_t count);
-void Lexicon_setup_persona(Lexicon *lexicon, Z3_context ctx);
+void lexicon_setup_base_type(lexicon_s *lexicon, Z3_context ctx);
 
-void Lexicon_assert_shortest_path_empty_hints(const Lexicon *lexicon, Z3_context ctx, Z3_optimize optimizer, const maze_s *maze);
+void lexicon_setup_path(lexicon_s *lexicon, Z3_context ctx);
 
-//
+void lexicon_setup_animas(lexicon_s *lexicon, Z3_context ctx, size_t count);
 
-/// Assert the row and column values for each anima
-void Lexicon_assert_anima_location(const Lexicon *lexicon, Z3_context ctx, Z3_optimize otz, const Situation *situation, const uint8_t id);
+void lexicon_setup_persona(lexicon_s *lexicon, Z3_context ctx);
 
-/// For each tile which is not the location of an anima is a link tile.
-void Lexicon_assert_constant_hints(const Lexicon *lexicon, Z3_context ctx, Z3_optimize otz, const maze_s *maze);
+/// Shortest paths are found by placing a penatly on the assignment of a non empty path value to each potentiial path tile.
+/// So long as a path is required and optimisation is enforced, no shorter path can exist on SAT.
+void lexicon_setup_shortest_path_empty_hints(const lexicon_s *lexicon, Z3_context ctx, Z3_optimize optimizer, const maze_s *maze);
 
-//
+// Assert the row and column values for animas
+void lexicon_assert_anima_location(const lexicon_s *lexicon, Z3_context ctx, Z3_optimize otz, const Situation *situation, const uint8_t id);
 
-void Lexicon_assert_persona_location(const Lexicon *lexicon, Z3_context ctx, Z3_optimize otz, const Situation *situation);
+// For each tile which is not the location of an anima is a link tile.
+void lexicon_assert_constant_hints(const lexicon_s *lexicon, Z3_context ctx, Z3_optimize otz, const maze_s *maze);
 
-//
+// Assert the row and column values for persona
+void lexicon_assert_persona_location(const lexicon_s *lexicon, Z3_context ctx, Z3_optimize otz, const Situation *situation);
 
 Z3_context z3_mk_anima_ctx();
 
-/// Static inline
+/// Static inlines
 
-static inline void error_handler(Z3_context ctx, Z3_error_code code) {
+static inline void z3_error_handler(Z3_context ctx, Z3_error_code code) {
   slog_display(SLOG_ERROR, 0, "Z3 Error (#%d): %s\n", code, Z3_get_error_msg(ctx, code));
   exit(3);
 }

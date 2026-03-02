@@ -18,8 +18,8 @@ constexpr size_t ANIMA_COUNT = 1;
 
 pthread_t ANIMA_THREADS[ANIMA_COUNT];
 
-void z3_read_and_display_path(const Lexicon *lexicon, Z3_context ctx, Z3_model model, const maze_s *maze);
-void z3_tmp(Z3_context ctx, Lexicon *lexicon, Z3_optimize optimizer, const maze_s *maze, const Situation *situation, uint8_t anima_id);
+void z3_read_and_display_path(const lexicon_s *lexicon, Z3_context ctx, Z3_model model, const maze_s *maze);
+void z3_tmp(Z3_context ctx, lexicon_s *lexicon, Z3_optimize optimizer, const maze_s *maze, const Situation *situation, uint8_t anima_id);
 
 int main() {
 
@@ -69,17 +69,17 @@ int main() {
 
   Z3_context ctx = z3_mk_anima_ctx();
 
-  Lexicon lexicon = {};
-  Lexicon_ctor(&lexicon);
+  lexicon_s lexicon = {};
+  lexicon_ctor(&lexicon);
 
   Z3_optimize optimizer = Z3_mk_optimize(ctx);
   Z3_optimize_inc_ref(ctx, optimizer);
 
   { // Lexicon foundations
-    Lexicon_setup_base(&lexicon, ctx);
-    Lexicon_setup_path(&lexicon, ctx);
-    Lexicon_setup_animas(&lexicon, ctx, ANIMA_COUNT);
-    Lexicon_setup_persona(&lexicon, ctx);
+    lexicon_setup_base_type(&lexicon, ctx);
+    lexicon_setup_path(&lexicon, ctx);
+    lexicon_setup_animas(&lexicon, ctx, ANIMA_COUNT);
+    lexicon_setup_persona(&lexicon, ctx);
   }
 
   { // Parse
@@ -88,7 +88,7 @@ int main() {
 
     {
 
-      Z3_parser_context_add_sort(ctx, parser, lexicon.u6.sort);
+      Z3_parser_context_add_sort(ctx, parser, lexicon.tile_offset_bv_sort.sort);
 
       {
 
@@ -159,7 +159,7 @@ int main() {
   z3_tmp(ctx, &lexicon, optimizer, &maze, &situation, 0);
 }
 
-void z3_read_and_display_path(const Lexicon *lexicon, const Z3_context ctx, const Z3_model model, const maze_s *maze) {
+void z3_read_and_display_path(const lexicon_s *lexicon, const Z3_context ctx, const Z3_model model, const maze_s *maze) {
 
   maze_path_s maze_path = {};
 
@@ -172,12 +172,12 @@ void z3_read_and_display_path(const Lexicon *lexicon, const Z3_context ctx, cons
   maze_path_dtor(&maze_path);
 }
 
-void z3_tmp(Z3_context ctx, Lexicon *lexicon, Z3_optimize optimizer, const maze_s *maze, const Situation *situation, uint8_t anima_id) {
+void z3_tmp(Z3_context ctx, lexicon_s *lexicon, Z3_optimize optimizer, const maze_s *maze, const Situation *situation, uint8_t anima_id) {
 
-  Lexicon_assert_shortest_path_empty_hints(lexicon, ctx, optimizer, maze);
+  lexicon_setup_shortest_path_empty_hints(lexicon, ctx, optimizer, maze);
 
-  Lexicon_assert_anima_location(lexicon, ctx, optimizer, situation, anima_id);
-  Lexicon_assert_persona_location(lexicon, ctx, optimizer, situation);
+  lexicon_assert_anima_location(lexicon, ctx, optimizer, situation, anima_id);
+  lexicon_assert_persona_location(lexicon, ctx, optimizer, situation);
 
   /* g_log(nullptr, G_LOG_LEVEL_INFO, "\nPre-model:\n%s", Z3_optimize_to_string(ctx, optimizer)); */
   /* exit(0); */

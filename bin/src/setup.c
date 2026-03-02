@@ -65,7 +65,7 @@ void *setup_spirit(void *void_setup_struct) {
     Anima_parse_fundamentals(anima, smt_path);
   }
 
-  Lexicon_assert_shortest_path_empty_hints(&anima->smt.lexicon, anima->smt.ctx, anima->smt.opz, setup_struct->maze);
+  lexicon_setup_shortest_path_empty_hints(&anima->smt.lexicon, anima->smt.ctx, anima->smt.opz, setup_struct->maze);
 
   atomic_store(&anima->contact.flag_suspend, true);
 

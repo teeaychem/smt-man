@@ -5,7 +5,6 @@
 #include <stdio.h>
 
 #include "SML/sprite/anima.h"
-#include "generic/enums.h"
 #include "generic/pairs.h"
 
 void Anima_ctor(Anima *self, const size_t anima_count, const uint8_t id, const maze_s *maze) {
@@ -39,7 +38,7 @@ void Anima_ctor(Anima *self, const size_t anima_count, const uint8_t id, const m
 
   atomic_init(&self->contact.flag_suspend, false);
 
-  Lexicon_ctor(&self->smt.lexicon);
+  lexicon_ctor(&self->smt.lexicon);
 
   maze_path_ctor(&self->path, maze->dimensions);
 }
@@ -60,17 +59,17 @@ void Anima_instinct(Anima *self) {
 
 void Anima_touch(Anima *self, size_t anima_count) {
 
-  Lexicon_setup_base(&self->smt.lexicon, self->smt.ctx);
-  Lexicon_setup_path(&self->smt.lexicon, self->smt.ctx);
-  Lexicon_setup_animas(&self->smt.lexicon, self->smt.ctx, anima_count);
-  Lexicon_setup_persona(&self->smt.lexicon, self->smt.ctx);
+  lexicon_setup_base_type(&self->smt.lexicon, self->smt.ctx);
+  lexicon_setup_path(&self->smt.lexicon, self->smt.ctx);
+  lexicon_setup_animas(&self->smt.lexicon, self->smt.ctx, anima_count);
+  lexicon_setup_persona(&self->smt.lexicon, self->smt.ctx);
 }
 
 void Anima_parse_fundamentals(Anima *self, char *smt_path) {
   {
 
     { // Fundamental setup
-      Z3_parser_context_add_sort(self->smt.ctx, self->smt.parser, self->smt.lexicon.u6.sort);
+      Z3_parser_context_add_sort(self->smt.ctx, self->smt.parser, self->smt.lexicon.tile_offset_bv_sort.sort);
     }
 
     { // Path setup
@@ -138,8 +137,8 @@ Result Anima_deduct(Anima *self, const maze_s *maze) {
 
   auto anima_location = atomic_load(&self->smt.situation.animas.data[self->id].location);
 
-  Lexicon_assert_anima_location(&self->smt.lexicon, self->smt.ctx, self->smt.opz, &self->smt.situation, self->id);
-  Lexicon_assert_persona_location(&self->smt.lexicon, self->smt.ctx, self->smt.opz, &self->smt.situation);
+  lexicon_assert_anima_location(&self->smt.lexicon, self->smt.ctx, self->smt.opz, &self->smt.situation, self->id);
+  lexicon_assert_persona_location(&self->smt.lexicon, self->smt.ctx, self->smt.opz, &self->smt.situation);
 
   switch (Z3_optimize_check(self->smt.ctx, self->smt.opz, 0, nullptr)) {
   case Z3_L_FALSE: {
@@ -166,8 +165,8 @@ Result Anima_deduct(Anima *self, const maze_s *maze) {
   Z3_ast anima_origin_v = nullptr;
 
   Z3_ast row_col[2] = {
-      Z3_mk_int(self->smt.ctx, anima_location.x, self->smt.lexicon.u6.sort),
-      Z3_mk_int(self->smt.ctx, anima_location.y, self->smt.lexicon.u6.sort),
+      Z3_mk_int(self->smt.ctx, anima_location.x, self->smt.lexicon.tile_offset_bv_sort.sort),
+      Z3_mk_int(self->smt.ctx, anima_location.y, self->smt.lexicon.tile_offset_bv_sort.sort),
   };
   auto tile_h = Z3_mk_app(self->smt.ctx, self->smt.lexicon.path.tile_h_f, 2, row_col);
   Z3_model_eval(self->smt.ctx, model, tile_h, false, &anima_origin_h);
