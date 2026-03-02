@@ -19,7 +19,7 @@ struct situation_t {
 
       _Atomic(anima_status_e) status;
 
-    } *states;
+    } *data;
   } animas;
 
   struct persona_state_t {
@@ -37,3 +37,5 @@ typedef struct situation_t Situation;
 void situation_ctor(Situation *self, size_t anima_count);
 
 void situation_dtor(Situation *self);
+
+void situation_reset(Situation *self);

@@ -18,8 +18,7 @@ set(COMPILE_FLAGS
     -Wconversion
     -Wunreachable-code
     -g3
-    -O3
-    # -DDEBUG
+    -DDEBUG
 )
 
 set(COMPILE_AND_LINK_OPTIONS -fno-omit-frame-pointer)

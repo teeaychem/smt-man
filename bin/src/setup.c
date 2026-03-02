@@ -97,12 +97,8 @@ void *setup_spirit(void *void_setup_struct) {
 }
 
 void setup_animas(Anima *animas, pthread_t *threads, const Maze *maze, size_t anima_count, const char *source_path) {
-  static Pair_uint8 locations[] = {{3, 1}, {26, 16}, {12, 21}, {29, 4}};
-  assert(anima_count <= ARRAY_LEN(locations));
 
   for (uint8_t idx = 0; idx < anima_count; ++idx) {
-
-    Pair_uint8 location = Pair_uint8_create(locations[idx].x, locations[idx].y);
 
     spirit_setup_s *setup = malloc(sizeof(*setup));
     // static lifetime, as thread lives until exit
@@ -113,7 +109,7 @@ void setup_animas(Anima *animas, pthread_t *threads, const Maze *maze, size_t an
         .source_path = source_path,
     };
 
-    Anima_ctor(&animas[idx], anima_count, idx, location, CARDINAL_S, maze);
+    Anima_ctor(&animas[idx], anima_count, idx, maze);
 
     pthread_create(&threads[setup->anima->id], nullptr, setup_spirit, (void *)setup);
   }
@@ -121,10 +117,39 @@ void setup_animas(Anima *animas, pthread_t *threads, const Maze *maze, size_t an
 
 void situation_ctor(Situation *self, size_t anima_count) {
 
-  self->animas.count = anima_count,
-  self->animas.states = malloc(anima_count * sizeof(*self->animas.states));
+  *self = (Situation){
+      .animas = {
+          .count = anima_count,
+          .data = malloc(anima_count * sizeof(*self->animas.data)),
+      },
+  };
 }
 
 void situation_dtor(Situation *self) {
+
   // TODO
+  free(self->animas.data);
+  self->animas.count = 0;
+}
+
+void situation_reset(Situation *self) {
+
+  { // animas
+    static Pair_uint8 locations[] = {{11, 13}, {14, 11}, {12, 21}, {29, 4}};
+    assert(self->animas.count <= ARRAY_LEN(locations));
+
+    for (uint8_t idx = 0; idx < self->animas.count; ++idx) {
+      Pair_uint8 location = Pair_uint8_create(locations[idx].x, locations[idx].y);
+      atomic_store(&self->animas.data[idx].location, location);
+      atomic_store(&self->animas.data[idx].direction_actual, CARDINAL_S);
+      atomic_store(&self->animas.data[idx].status, ANIMA_STATUS_SEARCH);
+      atomic_store(&self->animas.data[idx].movement_pattern, 0x552a552a);
+    }
+  }
+  { // persona
+    Pair_uint8 persona_location = {.x = 17, .y = 15};
+    atomic_init(&self->persona.direction_actual, CARDINAL_NONE);
+    atomic_init(&self->persona.location, persona_location);
+    atomic_init(&self->persona.movement_pattern, 0x552a552a);
+  }
 }

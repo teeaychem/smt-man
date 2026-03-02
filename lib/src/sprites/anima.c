@@ -8,7 +8,7 @@
 #include "generic/enums.h"
 #include "generic/pairs.h"
 
-void Anima_ctor(Anima *self, const size_t anima_count, const uint8_t id, const Pair_uint8 location, const cardinal_e direction, const Maze *maze) {
+void Anima_ctor(Anima *self, const size_t anima_count, const uint8_t id, const Maze *maze) {
   slog_display(SLOG_DEBUG, 0, "Creating anima: %d\n", id);
 
   *self = (Anima){
@@ -17,7 +17,6 @@ void Anima_ctor(Anima *self, const size_t anima_count, const uint8_t id, const P
           .mtx_suspend = PTHREAD_MUTEX_INITIALIZER,
       },
       .id = id,
-      .direction_intent = direction,
       .tick_action = 0,
 
       .smt = {
@@ -27,15 +26,10 @@ void Anima_ctor(Anima *self, const size_t anima_count, const uint8_t id, const P
 
   situation_ctor(&self->smt.situation, anima_count);
 
-  assert(0 < self->smt.situation.animas.count);
-
-  atomic_init(&self->smt.situation.animas.states[id].direction_actual, direction);
-
-  atomic_init(&self->smt.situation.animas.states[id].location, location);
-
-  atomic_init(&self->smt.situation.animas.states[id].status, ANIMA_STATUS_SEARCH);
-
-  atomic_init(&self->smt.situation.animas.states[id].movement_pattern, 0x552a552a);
+  /* atomic_init(&self->smt.situation.animas.data[id].direction_actual, direction); */
+  /* atomic_init(&self->smt.situation.animas.data[id].location, location); */
+  /* atomic_init(&self->smt.situation.animas.data[id].status, ANIMA_STATUS_SEARCH); */
+  /* atomic_init(&self->smt.situation.animas.data[id].movement_pattern, 0x552a552a); */
 
   self->smt.opz = Z3_mk_optimize(self->smt.ctx);
   Z3_optimize_inc_ref(self->smt.ctx, self->smt.opz);
@@ -142,7 +136,7 @@ Result Anima_deduct(Anima *self, const Maze *maze) {
 
   Z3_optimize_push(self->smt.ctx, self->smt.opz);
 
-  auto anima_location = atomic_load(&self->smt.situation.animas.states[self->id].location);
+  auto anima_location = atomic_load(&self->smt.situation.animas.data[self->id].location);
 
   Lexicon_assert_anima_location(&self->smt.lexicon, self->smt.ctx, self->smt.opz, &self->smt.situation, self->id);
   Lexicon_assert_persona_location(&self->smt.lexicon, self->smt.ctx, self->smt.opz, &self->smt.situation);

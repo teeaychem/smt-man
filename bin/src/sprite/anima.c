@@ -6,7 +6,7 @@
 void Anima_on_tile(Anima *self, Sprite *sprite, const Maze *maze, Pair_uint8 maze_location) {
 
   /// Update location
-  atomic_store(&self->smt.situation.animas.states[self->id].location, maze_location);
+  atomic_store(&self->smt.situation.animas.data[self->id].location, maze_location);
 }
 
 void Anima_update_direction(Anima *self, const Maze *maze, Pair_uint8 maze_location) {
@@ -16,9 +16,9 @@ void Anima_update_direction(Anima *self, const Maze *maze, Pair_uint8 maze_locat
 
 void Anima_on_frame(Anima *self, Sprite *sprite, const Maze *maze, uint32_t tile_pixels, uint32_t offset_n) {
 
-  uint32_t movement = atomic_load(&self->smt.situation.animas.states[self->id].movement_pattern);
+  uint32_t movement = atomic_load(&self->smt.situation.animas.data[self->id].movement_pattern);
   movement = uint32_rotl1(movement);
-  atomic_store(&self->smt.situation.animas.states[self->id].movement_pattern, movement);
+  atomic_store(&self->smt.situation.animas.data[self->id].movement_pattern, movement);
 
   if ((movement & 0x10000000) == 0) {
     return;
@@ -37,7 +37,7 @@ void Anima_on_frame(Anima *self, Sprite *sprite, const Maze *maze, uint32_t tile
     pthread_mutex_lock(&self->path.access_mutex);
 
     maze_tile_s tile_path = maze_path_at(&self->path, maze_location);
-    cardinal_e direction_actual = atomic_load(&self->smt.situation.animas.states[self->id].direction_actual);
+    cardinal_e direction_actual = atomic_load(&self->smt.situation.animas.data[self->id].direction_actual);
 
     if (Maze_is_intersection(maze, maze_location.x, maze_location.y)) {
 
@@ -127,7 +127,7 @@ void Anima_on_frame(Anima *self, Sprite *sprite, const Maze *maze, uint32_t tile
       } break;
       }
 
-      atomic_store(&self->smt.situation.animas.states[self->id].direction_actual, direction_actual);
+      atomic_store(&self->smt.situation.animas.data[self->id].direction_actual, direction_actual);
 
       /* printf("Direction: "); */
       /* Cardinal_print(direction_actual); */
@@ -159,13 +159,13 @@ void Anima_on_frame(Anima *self, Sprite *sprite, const Maze *maze, uint32_t tile
       }
     }
 
-    atomic_store(&self->smt.situation.animas.states[self->id].direction_actual, direction_actual);
+    atomic_store(&self->smt.situation.animas.data[self->id].direction_actual, direction_actual);
 
     // TODO: Empty fn
     Anima_update_direction(self, maze, maze_location);
   }
 
-  switch (atomic_load(&self->smt.situation.animas.states[self->id].direction_actual)) {
+  switch (atomic_load(&self->smt.situation.animas.data[self->id].direction_actual)) {
   case CARDINAL_NONE: {
     // Do nothing
   } break;

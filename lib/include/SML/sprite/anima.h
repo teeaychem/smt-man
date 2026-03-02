@@ -7,8 +7,6 @@
 #include "SML/logic.h"
 #include "SML/maze.h"
 #include "SML/maze_path.h"
-#include "generic/enums.h"
-#include "generic/pairs.h"
 
 /// Tools for contacting the anima from a different thread
 struct anima_contact_t {
@@ -27,8 +25,7 @@ struct anima_t {
   /// Incremented on each tick an action is performed
   uint8_t tick_action;
 
-  cardinal_e direction_intent;
-  /// Tools for contacting the anima from a different thread
+  /// Communication between threads
   AnimaAtomics contact;
 
   /// Path
@@ -52,7 +49,7 @@ typedef struct anima_t Anima;
 
 // Methods
 
-void Anima_ctor(Anima *self, const size_t anima_count, const uint8_t id, const Pair_uint8 location, const cardinal_e direction, const Maze *maze);
+void Anima_ctor(Anima *self, const size_t anima_count, const uint8_t id, const Maze *maze);
 
 void Anima_dtor(Anima *self);
 
