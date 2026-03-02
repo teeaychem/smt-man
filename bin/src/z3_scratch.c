@@ -36,7 +36,7 @@ int main() {
 
   Situation situation = {};
 
-  Anima animas[ANIMA_COUNT];
+  anima_s animas[ANIMA_COUNT];
 
   for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
     animas[idx].smt.situation.animas.count = ANIMA_COUNT;

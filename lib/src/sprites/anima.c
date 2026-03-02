@@ -7,11 +7,11 @@
 #include "SML/sprite/anima.h"
 #include "generic/pairs.h"
 
-void Anima_ctor(Anima *self, const size_t anima_count, const uint8_t id, const maze_s *maze) {
+void anima_ctor(anima_s *self, const size_t anima_count, const uint8_t id, const maze_s *maze) {
   slog_display(SLOG_DEBUG, 0, "Creating anima: %d\n", id);
 
-  *self = (Anima){
-      .contact = (AnimaAtomics){
+  *self = (anima_s){
+      .contact = (anima_contact_s){
           .cond_resume = PTHREAD_COND_INITIALIZER,
           .mtx_suspend = PTHREAD_MUTEX_INITIALIZER,
       },
@@ -43,7 +43,7 @@ void Anima_ctor(Anima *self, const size_t anima_count, const uint8_t id, const m
   maze_path_ctor(&self->path, maze->dimensions);
 }
 
-void Anima_dtor(Anima *self) {
+void anima_dtor(anima_s *self) {
   assert(self != nullptr);
 
   maze_path_dtor(&self->path);
@@ -53,11 +53,11 @@ void Anima_dtor(Anima *self) {
   Z3_optimize_dec_ref(self->smt.ctx, self->smt.opz);
 }
 
-void Anima_instinct(Anima *self) {
+void anima_instinct(anima_s *self) {
   assert(self != nullptr);
 }
 
-void Anima_touch(Anima *self, size_t anima_count) {
+void anima_touch(anima_s *self, size_t anima_count) {
 
   lexicon_setup_base_type(&self->smt.lexicon, self->smt.ctx);
   lexicon_setup_path(&self->smt.lexicon, self->smt.ctx);
@@ -65,7 +65,7 @@ void Anima_touch(Anima *self, size_t anima_count) {
   lexicon_setup_persona(&self->smt.lexicon, self->smt.ctx);
 }
 
-void Anima_parse_fundamentals(Anima *self, char *smt_path) {
+void anima_parse_fundamentals(anima_s *self, char *smt_path) {
   {
 
     { // Fundamental setup
@@ -131,29 +131,19 @@ void Anima_parse_fundamentals(Anima *self, char *smt_path) {
   }
 }
 
-Result Anima_deduct(Anima *self, const maze_s *maze) {
-
-  Z3_optimize_push(self->smt.ctx, self->smt.opz);
-
-  auto anima_location = atomic_load(&self->smt.situation.animas.data[self->id].location);
+Z3_lbool anima_solve(anima_s *self, const maze_s *maze) {
 
   lexicon_assert_anima_location(&self->smt.lexicon, self->smt.ctx, self->smt.opz, &self->smt.situation, self->id);
   lexicon_assert_persona_location(&self->smt.lexicon, self->smt.ctx, self->smt.opz, &self->smt.situation);
 
-  switch (Z3_optimize_check(self->smt.ctx, self->smt.opz, 0, nullptr)) {
-  case Z3_L_FALSE: {
-    /* slog_display(SLOG_TRACE, 0, "\nStatus:\n%s\n", Z3_optimize_to_string(self->smt.ctx, self->smt.opz)); */
-    slog_display(SLOG_ERROR, 0, "UNSAT deduction %d\n", self->id);
-    return RESULT_KO;
-  } break;
-  case Z3_L_UNDEF: {
-    slog_display(SLOG_ERROR, 0, "UNKNOWN deduction %d\n", self->id);
-    return RESULT_KO;
-  } break;
-  case Z3_L_TRUE: {
-    slog_display(SLOG_INFO, 0, "SAT\n");
-  } break;
-  }
+  Z3_lbool result = Z3_optimize_check(self->smt.ctx, self->smt.opz, 0, nullptr);
+
+  return result;
+}
+
+Result anima_path_from_model(anima_s *self, const maze_s *maze) {
+
+  auto anima_location = atomic_load(&self->smt.situation.animas.data[self->id].location);
 
   Z3_model model = Z3_optimize_get_model(self->smt.ctx, self->smt.opz);
   Z3_model_inc_ref(self->smt.ctx, model);
@@ -212,7 +202,6 @@ Result Anima_deduct(Anima *self, const maze_s *maze) {
   /* } */
 
   Z3_model_dec_ref(self->smt.ctx, model);
-  Z3_optimize_pop(self->smt.ctx, self->smt.opz);
 
   return RESULT_OK;
 }

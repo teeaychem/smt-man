@@ -22,7 +22,7 @@ pthread_t ANIMA_THREADS[ANIMA_COUNT];
 struct core_logic {
   struct {
     size_t count;
-    Anima *data;
+    anima_s *data;
   } animas;
   maze_s maze;
   Persona persona;

@@ -74,9 +74,9 @@ static inline Pair_uint8 Sprite_maze_location(const Pair_uint32 *sprite_location
 
 /// Anima
 
-void Anima_on_frame(Anima *self, Sprite *sprite, const maze_s *maze, uint32_t tile_pixels, uint32_t offset_n);
+void Anima_on_frame(anima_s *self, Sprite *sprite, const maze_s *maze, uint32_t tile_pixels, uint32_t offset_n);
 
-void Anima_handle_event(Anima *self, const SDL_Event *event);
+void Anima_handle_event(anima_s *self, const SDL_Event *event);
 
 /// Persona
 

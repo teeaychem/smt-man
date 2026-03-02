@@ -16,7 +16,7 @@ struct anima_contact_t {
 
   pthread_cond_t cond_resume;
 };
-typedef struct anima_contact_t AnimaAtomics;
+typedef struct anima_contact_t anima_contact_s;
 
 /// Something which performs deductions
 struct anima_t {
@@ -26,7 +26,7 @@ struct anima_t {
   uint8_t tick_action;
 
   /// Communication between threads
-  AnimaAtomics contact;
+  anima_contact_s contact;
 
   /// Path
   maze_path_s path;
@@ -45,22 +45,24 @@ struct anima_t {
 
   } smt;
 };
-typedef struct anima_t Anima;
+typedef struct anima_t anima_s;
 
 // Methods
 
-void Anima_ctor(Anima *self, const size_t anima_count, const uint8_t id, const maze_s *maze);
+void anima_ctor(anima_s *self, const size_t anima_count, const uint8_t id, const maze_s *maze);
 
-void Anima_dtor(Anima *self);
-
-///
-void Anima_touch(Anima *self, size_t anima_count);
+void anima_dtor(anima_s *self);
 
 ///
-void Anima_parse_fundamentals(Anima *self, char *smt_path);
+void anima_touch(anima_s *self, size_t anima_count);
+
+///
+void anima_parse_fundamentals(anima_s *self, char *smt_path);
 
 /// Generate consequences without deduction
-void Anima_instinct(Anima *self);
+void anima_instinct(anima_s *self);
 
 /// Generate consequences from deduction
-Result Anima_deduct(Anima *self, const maze_s *maze);
+Z3_lbool anima_solve(anima_s *self, const maze_s *maze);
+
+Result anima_path_from_model(anima_s *self, const maze_s *maze);

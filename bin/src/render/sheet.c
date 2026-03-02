@@ -17,7 +17,7 @@ SheetOffsets sheet_data = {
     .persona = {.eating = {{134, 1}, {134, 18}, {134, 35}}},
 };
 
-Pair_uint32 Sheet_anima_offset(const Anima *anima) {
+Pair_uint32 Sheet_anima_offset(const anima_s *anima) {
 
   switch (atomic_load(&anima->smt.situation.animas.data[anima->id].direction_actual)) {
   case CARDINAL_NONE: {

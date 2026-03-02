@@ -3,18 +3,18 @@
 #include "random.h"
 #include "render/sprite.h"
 
-void Anima_on_tile(Anima *self, Sprite *sprite, const maze_s *maze, Pair_uint8 maze_location) {
+void Anima_on_tile(anima_s *self, Sprite *sprite, const maze_s *maze, Pair_uint8 maze_location) {
 
   /// Update location
   atomic_store(&self->smt.situation.animas.data[self->id].location, maze_location);
 }
 
-void Anima_update_direction(Anima *self, const maze_s *maze, Pair_uint8 maze_location) {
+void Anima_update_direction(anima_s *self, const maze_s *maze, Pair_uint8 maze_location) {
 
   /// Update direction
 }
 
-void Anima_on_frame(Anima *self, Sprite *sprite, const maze_s *maze, uint32_t tile_pixels, uint32_t offset_n) {
+void Anima_on_frame(anima_s *self, Sprite *sprite, const maze_s *maze, uint32_t tile_pixels, uint32_t offset_n) {
 
   uint32_t movement = atomic_load(&self->smt.situation.animas.data[self->id].movement_pattern);
   movement = uint32_rotl1(movement);
@@ -27,7 +27,7 @@ void Anima_on_frame(Anima *self, Sprite *sprite, const maze_s *maze, uint32_t ti
   self->tick_action += 1;
 
   // Ensure coherence
-  Anima_instinct(self);
+  anima_instinct(self);
 
   if (Sprite_is_centered_on_tile(sprite->location, tile_pixels)) {
     Pair_uint8 maze_location = Sprite_maze_location(&sprite->location, tile_pixels, offset_n);
@@ -184,6 +184,6 @@ void Anima_on_frame(Anima *self, Sprite *sprite, const maze_s *maze, uint32_t ti
   }
 }
 
-void Anima_handle_event(Anima *self, const SDL_Event *event) {
+void Anima_handle_event(anima_s *self, const SDL_Event *event) {
   assert(self != nullptr && event != nullptr);
 }

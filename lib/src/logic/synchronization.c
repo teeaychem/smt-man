@@ -2,7 +2,7 @@
 
 #include "SML/logic/synchronization.h"
 
-void Sync_update_animas(const Situation *situation, Anima *animas) {
+void Sync_update_animas(const Situation *situation, anima_s *animas) {
 
   for (size_t id = 0; id < situation->animas.count; ++id) {
     atomic_store(&animas[id].smt.situation.persona.direction_actual,
@@ -16,7 +16,7 @@ void Sync_update_animas(const Situation *situation, Anima *animas) {
   }
 }
 
-void Sync_update_situation(Situation *situation, const Anima *animas) {
+void Sync_update_situation(Situation *situation, const anima_s *animas) {
 
   for (size_t id = 0; id < situation->animas.count; ++id) {
     atomic_store(&situation->animas.data[id].direction_actual,

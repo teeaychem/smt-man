@@ -45,7 +45,7 @@ void Renderer_render_frame_buffer(Renderer *self);
 
 void Renderer_draw_from_sheet(Renderer *self, const Pair_uint32 destination, const uint32_t size, const Pair_uint32 source, const Pallete pallete);
 
-void Renderer_anima(Renderer *self, const Anima *anima, Sprite *sprite, const RenderAction action);
+void Renderer_anima(Renderer *self, const anima_s *anima, Sprite *sprite, const RenderAction action);
 
 void Renderer_persona(Renderer *self, const Persona *persona, Sprite *sprite, const Situation *situation, const RenderAction action);
 
