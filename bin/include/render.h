@@ -16,7 +16,6 @@
 #include "sprite/anima.h"
 #include "sprite/persona.h"
 
-typedef struct renderer_t Renderer;
 struct renderer_t {
   Surface sheet;
   Surface frame_buffer;
@@ -26,39 +25,40 @@ struct renderer_t {
   SDL_Renderer *renderer;
   SDL_Texture *texture;
 };
+typedef struct renderer_t renderer_s;
 
-enum renderer_action_e {
+enum renderer_action_t {
   RENDER_DRAW,
   RENDER_ERASE,
 };
-typedef enum renderer_action_e RenderAction;
+typedef enum renderer_action_t renderer_action_e;
 
-void Renderer_ctor(Renderer *renderer, const Pair_uint8 maze_size, const char *sheet_path);
+void renderer_ctor(renderer_s *renderer, const Pair_uint8 maze_size, const char *sheet_path);
 
-void Renderer_dtor(Renderer *self);
+void renderer_dtor(renderer_s *self);
 
-void Renderer_clear(Renderer *self);
+void renderer_clear(renderer_s *self);
 
-void Renderer_draw_maze(Renderer *self, const maze_s *maze);
+void renderer_anima(renderer_s *self, const anima_s *anima, const situation_s *situation, Sprite *sprite, const renderer_action_e action);
 
-void Renderer_render_frame_buffer(Renderer *self);
+void renderer_draw_from_sprite_buffer(renderer_s *self, const Pair_uint32 destination, const uint32_t size);
 
-void Renderer_draw_from_sheet(Renderer *self, const Pair_uint32 destination, const uint32_t size, const Pair_uint32 source, const Pallete pallete);
+void renderer_draw_maze(renderer_s *self, const maze_s *maze);
 
-void Renderer_anima(Renderer *self, const anima_s *anima, const situation_s *situation, Sprite *sprite, const RenderAction action);
+void renderer_drawn_from_sheet(renderer_s *self, const Pair_uint32 destination, const uint32_t size, const Pair_uint32 source, const Pallete pallete);
 
-void Renderer_persona(Renderer *self, const persona_s *persona, Sprite *sprite, const situation_s *situation, const RenderAction action);
+void renderer_persona(renderer_s *self, const persona_s *persona, Sprite *sprite, const situation_s *situation, const renderer_action_e action);
 
-void Renderer_sprite_fill(Renderer *self, const Pair_uint32 location, const uint32_t size, const uint32_t colour, const bool edge);
+void renderer_render_frame_buffer(renderer_s *self);
 
-void Renderer_draw_from_sprite_buffer(Renderer *self, const Pair_uint32 destination, const uint32_t size);
+void renderer_sprite_buffer_map_to(renderer_s *self, const Pair_uint32 sprite_offset, const uint8_t size);
 
-void Renderer_sprite_buffer_map_to(Renderer *self, const Pair_uint32 sprite_offset, const uint8_t size);
+void renderer_sprite_fill(renderer_s *self, const Pair_uint32 location, const uint32_t size, const uint32_t colour, const bool edge);
 
 /// Static inline
 
 /// Calculates the pixels to offset a render by in order for the render to be centred on a tile.
-static inline uint32_t Renderer_centre_offset(uint32_t size) {
+static inline uint32_t renderer_centre_offset(uint32_t size) {
   // Cache a handful of common cases
   if (size == TILE_PIXELS * 2) {
     return TILE_PIXELS / 2;

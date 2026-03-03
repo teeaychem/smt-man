@@ -9,14 +9,14 @@
 #include "render.h"
 #include "render/sheet.h"
 
-void Renderer_ctor(Renderer *self, const Pair_uint8 maze_dimensions, const char *sheet_path) {
+void renderer_ctor(renderer_s *self, const Pair_uint8 maze_dimensions, const char *sheet_path) {
 
   Pair_uint32 pixel_dimensions = {
       .x = (maze_dimensions.x + RENDER_TOP + RENDER_BOT) * TILE_PIXELS,
       .y = maze_dimensions.y * TILE_PIXELS,
   };
 
-  *self = (Renderer){
+  *self = (renderer_s){
       .frame_buffer = {
           .size = pixel_dimensions,
           .pixels = malloc(pixel_dimensions.x * pixel_dimensions.y * sizeof(*self->frame_buffer.pixels)),
@@ -58,7 +58,7 @@ void Renderer_ctor(Renderer *self, const Pair_uint8 maze_dimensions, const char 
   SDL_SetRenderTarget(self->renderer, self->texture);
 }
 
-void Renderer_dtor(Renderer *self) {
+void renderer_dtor(renderer_s *self) {
 
   SDL_DestroyTexture(self->texture);
   self->texture = nullptr;
@@ -75,11 +75,11 @@ void Renderer_dtor(Renderer *self) {
   Surface_dtor(&self->sheet);
 }
 
-void Renderer_clear(Renderer *self) {
+void renderer_clear(renderer_s *self) {
   memset(self->frame_buffer.pixels, 0, sizeof(*self->frame_buffer.pixels) * self->frame_buffer.size.x * self->frame_buffer.size.y);
 }
 
-void Renderer_render_frame_buffer(Renderer *self) {
+void renderer_render_frame_buffer(renderer_s *self) {
 
   { // Write out the frame buffer
     int8_t *pixels = nullptr;
@@ -102,7 +102,7 @@ void Renderer_render_frame_buffer(Renderer *self) {
   SDL_RenderPresent(self->renderer);
 }
 
-void Renderer_draw_maze(Renderer *self, const maze_s *maze) {
+void renderer_draw_maze(renderer_s *self, const maze_s *maze) {
 
   for (uint8_t row = 0; row < maze->dimensions.x; ++row) {
     uint32_t row_scaled = ((row + RENDER_TOP) * TILE_PIXELS);
@@ -170,11 +170,11 @@ void Renderer_draw_maze(Renderer *self, const maze_s *maze) {
   }
 }
 
-void Renderer_draw_from_sheet(Renderer *self, const Pair_uint32 destination, const uint32_t size, const Pair_uint32 source, const Pallete pallete) {
+void renderer_drawn_from_sheet(renderer_s *self, const Pair_uint32 destination, const uint32_t size, const Pair_uint32 source, const Pallete pallete) {
 
   uint32_t pixel_fb;
   uint32_t pixel_s;
-  uint32_t centre_offset = Renderer_centre_offset(size);
+  uint32_t centre_offset = renderer_centre_offset(size);
 
   for (uint32_t row = 0; row < size; ++row) {
     for (uint32_t col = 0; col < size; ++col) {
@@ -189,26 +189,26 @@ void Renderer_draw_from_sheet(Renderer *self, const Pair_uint32 destination, con
   }
 }
 
-void Renderer_anima(Renderer *self, const anima_s *anima, const situation_s *situation, Sprite *sprite, const RenderAction action) {
+void renderer_anima(renderer_s *self, const anima_s *anima, const situation_s *situation, Sprite *sprite, const renderer_action_e action) {
 
   switch (action) {
   case RENDER_DRAW: {
-    Renderer_sprite_buffer_map_to(self, Sheet_anima_offset(anima, situation), sprite->size);
+    renderer_sprite_buffer_map_to(self, sheet_offset_anima(anima, situation), sprite->size);
     Surface_apply_pallete(&self->sprite_buffer, sprite->size, DEFAULT_PALLETES.animas[anima->id]);
 
-    Renderer_draw_from_sprite_buffer(self, sprite->location, sprite->size);
+    renderer_draw_from_sprite_buffer(self, sprite->location, sprite->size);
   } break;
   case RENDER_ERASE: {
-    Renderer_sprite_fill(self, sprite->location, sprite->size, 0x00000000, false);
+    renderer_sprite_fill(self, sprite->location, sprite->size, 0x00000000, false);
   } break;
   }
 }
 
-void Renderer_persona(Renderer *self, const persona_s *persona, Sprite *sprite, const situation_s *situation, const RenderAction action) {
+void renderer_persona(renderer_s *self, const persona_s *persona, Sprite *sprite, const situation_s *situation, const renderer_action_e action) {
 
   switch (action) {
   case RENDER_DRAW: {
-    Renderer_sprite_buffer_map_to(self, Sheet_persona_offset(persona, situation), sprite->size);
+    renderer_sprite_buffer_map_to(self, sheet_offset_persona(persona, situation), sprite->size);
 
     switch (situation->persona.direction_actual) {
     case CARDINAL_NONE: {
@@ -230,15 +230,15 @@ void Renderer_persona(Renderer *self, const persona_s *persona, Sprite *sprite, 
     }
 
     Surface_apply_pallete(&self->sprite_buffer, sprite->size, DEFAULT_PALLETES.persona);
-    Renderer_draw_from_sprite_buffer(self, sprite->location, sprite->size);
+    renderer_draw_from_sprite_buffer(self, sprite->location, sprite->size);
   } break;
   case RENDER_ERASE: {
-    Renderer_sprite_fill(self, sprite->location, sprite->size, 0x00000000, false);
+    renderer_sprite_fill(self, sprite->location, sprite->size, 0x00000000, false);
   } break;
   }
 }
 
-void Renderer_sprite_buffer_map_to(Renderer *self, const Pair_uint32 sprite_offset, const uint8_t size) {
+void renderer_sprite_buffer_map_to(renderer_s *self, const Pair_uint32 sprite_offset, const uint8_t size) {
 
   for (uint32_t row = 0; row < size; ++row) {
     size_t buffer_offset = Pair_uint32_flatten(&self->sprite_buffer.size, row, 0);
@@ -248,10 +248,10 @@ void Renderer_sprite_buffer_map_to(Renderer *self, const Pair_uint32 sprite_offs
   }
 }
 
-void Renderer_draw_from_sprite_buffer(Renderer *self, const Pair_uint32 destination, const uint32_t size) {
+void renderer_draw_from_sprite_buffer(renderer_s *self, const Pair_uint32 destination, const uint32_t size) {
   size_t pixel_fb;
   size_t pixel_s;
-  uint32_t centre_offset = Renderer_centre_offset(size);
+  uint32_t centre_offset = renderer_centre_offset(size);
 
   for (uint32_t row = 0; row < size; ++row) {
     for (uint32_t col = 0; col < size; ++col) {
@@ -267,8 +267,8 @@ void Renderer_draw_from_sprite_buffer(Renderer *self, const Pair_uint32 destinat
   }
 }
 
-void Renderer_sprite_fill(Renderer *self, const Pair_uint32 location, const uint32_t size, const uint32_t colour, const bool edge) {
-  uint32_t centre_offset = Renderer_centre_offset(size);
+void renderer_sprite_fill(renderer_s *self, const Pair_uint32 location, const uint32_t size, const uint32_t colour, const bool edge) {
+  uint32_t centre_offset = renderer_centre_offset(size);
 
   Pair_uint32 location_offset = {.x = location.x - centre_offset + (edge ? 0 : 1),
                                  .y = location.y - centre_offset + (edge ? 0 : 1)};

@@ -54,7 +54,7 @@ void core_logic_dtor(core_logic_s *self) {
 }
 
 struct core_render {
-  Renderer renderer;
+  renderer_s renderer;
   Sprites sprites;
 };
 typedef struct core_render core_render_s;
@@ -73,7 +73,7 @@ void core_render_ctor(core_render_s *self, const core_logic_s *core_logic, const
   cwk_path_join(source_path, "resources/sheet.png", path_buffer, FILENAME_MAX);
   slog_display(SLOG_INFO, 0, "Renderer with sheet from: %s\n", path_buffer);
 
-  Renderer_ctor(&self->renderer, core_logic->maze.dimensions, path_buffer);
+  renderer_ctor(&self->renderer, core_logic->maze.dimensions, path_buffer);
 
   { // Sprite block
 
@@ -104,7 +104,7 @@ void game_state(core_logic_s *logic, core_render_s *render) {
     TimerNano_start(&frame_cap_timer);
 
     // Draw the maze only once...
-    Renderer_draw_maze(&render->renderer, &logic->maze);
+    renderer_draw_maze(&render->renderer, &logic->maze);
 
     while (SDL_PollEvent(&event)) {
       if (event.type == SDL_EVENT_QUIT) {
@@ -137,15 +137,15 @@ void game_state(core_logic_s *logic, core_render_s *render) {
       SDL_SetRenderDrawColor(render->renderer.renderer, colour.state[0].value, colour.state[1].value, colour.state[2].value, 0x000000ff);
 
       for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
-        Renderer_anima(&render->renderer, &logic->animas.data[id], &logic->situation, &render->sprites.animas[id], RENDER_DRAW);
+        renderer_anima(&render->renderer, &logic->animas.data[id], &logic->situation, &render->sprites.animas[id], RENDER_DRAW);
       }
-      Renderer_persona(&render->renderer, &logic->persona, &render->sprites.persona, &logic->situation, RENDER_DRAW);
+      renderer_persona(&render->renderer, &logic->persona, &render->sprites.persona, &logic->situation, RENDER_DRAW);
 
-      Renderer_render_frame_buffer(&render->renderer);
+      renderer_render_frame_buffer(&render->renderer);
     }
 
     { /// Post-render block
-      Renderer_clear(&render->renderer);
+      renderer_clear(&render->renderer);
     }
 
     { // wait block
@@ -212,7 +212,7 @@ int main() { // int main(int argc, char *argv[]) {
   }
 
 exit_block: {
-  Renderer_dtor(&core_render.renderer);
+  renderer_dtor(&core_render.renderer);
   SDL_Quit();
 
   for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {

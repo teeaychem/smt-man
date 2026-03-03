@@ -3,7 +3,7 @@
 #include "macro.h"
 #include "render/sheet.h"
 
-SheetOffsets sheet_data = {
+sheet_offset_s sheet_data = {
     .anima = {
         .direction = {
             .e = {{83, 1}, {83, 18}},
@@ -17,7 +17,7 @@ SheetOffsets sheet_data = {
     .persona = {.eating = {{134, 1}, {134, 18}, {134, 35}}},
 };
 
-Pair_uint32 Sheet_anima_offset(const anima_s *anima, const situation_s *situation) {
+Pair_uint32 sheet_offset_anima(const anima_s *anima, const situation_s *situation) {
 
   switch (atomic_load(&situation->animas.data[anima->id].direction_actual)) {
   case CARDINAL_NONE: {
@@ -43,7 +43,7 @@ Pair_uint32 Sheet_anima_offset(const anima_s *anima, const situation_s *situatio
   }
 }
 
-Pair_uint32 Sheet_persona_offset(const persona_s *persona, const situation_s *situation) {
+Pair_uint32 sheet_offset_persona(const persona_s *persona, const situation_s *situation) {
   constexpr size_t eating_frames = ARRAY_LEN(sheet_data.persona.eating);
   return sheet_data.persona.eating[persona->tick_action % eating_frames];
 }

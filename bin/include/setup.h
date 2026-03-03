@@ -23,6 +23,6 @@ typedef struct spirit_setup_t spirit_setup_s;
 
 void source_path_build(char **source_path, int *length);
 
-void setup_renderer(Renderer *renderer, const maze_s *maze, const char *source_path);
+void setup_renderer(renderer_s *renderer, const maze_s *maze, const char *source_path);
 
 void *spirit_ctor(void *void_setup_struct);

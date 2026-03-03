@@ -3,7 +3,6 @@
 #include <stdint.h>
 
 #include <slog.h>
-#include <stdio.h>
 
 #include "generic/bitvec.h"
 #include "generic/pairs.h"

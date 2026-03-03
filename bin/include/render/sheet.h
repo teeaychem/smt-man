@@ -5,7 +5,7 @@
 #include "sprite/anima.h"
 #include "sprite/persona.h"
 
-struct sheet_offsets_t {
+struct sheet_offset_t {
   struct {
     struct {
       Pair_uint32 e[2];
@@ -21,10 +21,10 @@ struct sheet_offsets_t {
 
   } persona;
 };
-typedef struct sheet_offsets_t SheetOffsets;
+typedef struct sheet_offset_t sheet_offset_s;
 
-extern SheetOffsets sheet_data;
+extern sheet_offset_s sheet_data;
 
-Pair_uint32 Sheet_anima_offset(const anima_s *anima, const situation_s *situation);
+Pair_uint32 sheet_offset_anima(const anima_s *anima, const situation_s *situation);
 
-Pair_uint32 Sheet_persona_offset(const persona_s *persona, const situation_s *situation);
+Pair_uint32 sheet_offset_persona(const persona_s *persona, const situation_s *situation);
