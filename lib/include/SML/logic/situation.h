@@ -45,4 +45,6 @@ void situation_dtor(situation_s *self);
 
 void situation_reset(situation_s *self);
 
-void situation_copy(const situation_s *from, situation_s *to);
+void situation_copy(const situation_s *src, situation_s *dst);
+
+void situation_copy_anima(const situation_s *src, situation_s *dst, uint8_t idx);

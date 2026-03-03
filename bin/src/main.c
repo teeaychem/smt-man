@@ -102,10 +102,14 @@ void game_state(core_logic_s *logic, core_render_s *render) {
 
   situation_reset(&logic->situation);
 
+  //
+  situation_s game_situation = {};
+  situation_ctor(&game_situation, ANIMA_COUNT);
+
   while (game_loop) {
     TimerNano_start(&frame_cap_timer);
 
-    // Draw the maze only once...
+    situation_copy(&logic->situation, &game_situation);
     renderer_draw_maze(&render->renderer, &logic->maze);
 
     while (SDL_PollEvent(&event)) {
@@ -128,9 +132,9 @@ void game_state(core_logic_s *logic, core_render_s *render) {
       rgb_momentum_advance(&colour);
 
       for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
-        anima_on_frame(&logic->animas.data[id], &logic->situation, &render->sprites.animas.data[id], &logic->maze, TILE_PIXELS, RENDER_TOP);
+        anima_on_frame(&logic->animas.data[id], &game_situation, &render->sprites.animas.data[id], &logic->maze, TILE_PIXELS, RENDER_TOP);
       }
-      persona_on_frame(&logic->persona, &render->sprites.persona, &logic->maze, &logic->situation, TILE_PIXELS, RENDER_TOP);
+      persona_on_frame(&logic->persona, &render->sprites.persona, &logic->maze, &game_situation, TILE_PIXELS, RENDER_TOP);
     }
 
     { /// Render_block
@@ -139,15 +143,16 @@ void game_state(core_logic_s *logic, core_render_s *render) {
       SDL_SetRenderDrawColor(render->renderer.renderer, colour.state[0].value, colour.state[1].value, colour.state[2].value, 0x000000ff);
 
       for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
-        renderer_anima(&render->renderer, &logic->animas.data[id], &logic->situation, &render->sprites.animas.data[id], RENDER_DRAW);
+        renderer_anima(&render->renderer, &logic->animas.data[id], &game_situation, &render->sprites.animas.data[id], RENDER_DRAW);
       }
-      renderer_persona(&render->renderer, &logic->persona, &render->sprites.persona, &logic->situation, RENDER_DRAW);
+      renderer_persona(&render->renderer, &logic->persona, &render->sprites.persona, &game_situation, RENDER_DRAW);
 
       renderer_render_frame_buffer(&render->renderer);
     }
 
     { /// Post-render block
       renderer_clear(&render->renderer);
+      situation_copy(&game_situation, &logic->situation);
     }
 
     { // wait block
@@ -185,7 +190,7 @@ int main() { // int main(int argc, char *argv[]) {
           .anima_count = ANIMA_COUNT,
           .maze = &core_logic.maze,
           .source_path = source_path,
-          .situation = &core_logic.situation,
+          .the_situation = &core_logic.situation,
           .cond_frame = PTHREAD_COND_INITIALIZER,
           .mtx_spirit = PTHREAD_MUTEX_INITIALIZER,
 

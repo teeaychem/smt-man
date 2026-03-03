@@ -44,22 +44,23 @@ void situation_reset(situation_s *self) {
   }
 }
 
-void situation_copy(const situation_s *from, situation_s *to) {
+void situation_copy(const situation_s *src, situation_s *dst) {
 
   { // animas
-    assert(from->animas.count == to->animas.count);
+    assert(src->animas.count == dst->animas.count);
 
-    for (size_t idx = 0; idx < from->animas.count; ++idx) {
-      atomic_store(&to->animas.data[idx].direction_actual, atomic_load(&from->animas.data[idx].direction_actual));
-      atomic_store(&to->animas.data[idx].location, atomic_load(&from->animas.data[idx].location));
-      atomic_store(&to->animas.data[idx].movement_pattern, atomic_load(&from->animas.data[idx].movement_pattern));
-      atomic_store(&to->animas.data[idx].status, atomic_load(&from->animas.data[idx].status));
+    for (size_t idx = 0; idx < src->animas.count; ++idx) {
+      atomic_store(&dst->animas.data[idx].direction_actual, atomic_load(&src->animas.data[idx].direction_actual));
+      atomic_store(&dst->animas.data[idx].location, atomic_load(&src->animas.data[idx].location));
+      atomic_store(&dst->animas.data[idx].movement_pattern, atomic_load(&src->animas.data[idx].movement_pattern));
+      atomic_store(&dst->animas.data[idx].status, atomic_load(&src->animas.data[idx].status));
     }
   }
 
   { // persona
-    atomic_store(&to->persona.direction_actual, atomic_load(&from->persona.direction_actual));
-    atomic_store(&to->persona.location, atomic_load(&from->persona.location));
-    atomic_store(&to->persona.movement_pattern, atomic_load(&from->persona.movement_pattern));
+    atomic_store(&dst->persona.direction_actual, atomic_load(&src->persona.direction_actual));
+    atomic_store(&dst->persona.location, atomic_load(&src->persona.location));
+    atomic_store(&dst->persona.movement_pattern, atomic_load(&src->persona.movement_pattern));
   }
 }
+

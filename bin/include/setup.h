@@ -12,7 +12,7 @@ struct spirit_setup_t {
   size_t anima_count;
   const maze_s *maze;
   const char *source_path;
-  situation_s *situation;
+  situation_s *the_situation;
   pthread_t *thread;
 };
 typedef struct spirit_setup_t spirit_setup_s;
