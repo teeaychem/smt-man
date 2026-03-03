@@ -43,7 +43,7 @@ void *spirit_ctor(void *void_setup_struct) {
   struct spirit_setup_t *setup_struct = void_setup_struct;
   anima_s *anima = setup_struct->anima;
 
-  anima_touch(anima, setup_struct->anima_count);
+  lexicon_setup(&anima->smt.lexicon, anima->smt.ctx, setup_struct->anima_count);
 
   {
     char constraints_path[32];

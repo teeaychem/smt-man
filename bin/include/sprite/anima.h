@@ -41,9 +41,6 @@ void anima_ctor(anima_s *self, Situation *situation, const uint8_t id, const maz
 void anima_dtor(anima_s *self);
 
 ///
-void anima_touch(anima_s *self, size_t anima_count);
-
-///
 void anima_parse_fundamentals(anima_s *self, char *smt_path);
 
 /// Generate consequences without deduction

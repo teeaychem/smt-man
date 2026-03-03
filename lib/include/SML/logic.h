@@ -91,6 +91,12 @@ void lexicon_assert_constant_hints(const lexicon_s *lexicon, Z3_context ctx, Z3_
 // Assert the row and column values for persona
 void lexicon_assert_persona_location(const lexicon_s *lexicon, Z3_context ctx, Z3_optimize otz, const Situation *situation);
 
+// Establish `parser` and `lexicon` for `ctx`.
+void parser_fundamentals(Z3_context ctx, Z3_parser_context parser, lexicon_s *lexicon);
+
+// Read an smt2 file located at `smt_path` into `ctx` and `opz`, given an establised `parser` and `lexicon`.
+void read_smt2(Z3_context ctx, Z3_optimize opz, Z3_parser_context parser, lexicon_s *lexicon, char *smt_path);
+
 Z3_context z3_mk_anima_ctx();
 
 /// Static inlines
