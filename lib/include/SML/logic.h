@@ -83,13 +83,13 @@ void lexicon_setup(lexicon_s *lexicon, Z3_context ctx, size_t anima_count);
 void lexicon_setup_shortest_path_empty_hints(const lexicon_s *lexicon, Z3_context ctx, Z3_optimize optimizer, const maze_s *maze);
 
 // Assert the row and column values for animas
-void lexicon_assert_anima_location(const lexicon_s *lexicon, Z3_context ctx, Z3_optimize otz, const Situation *situation, const uint8_t id);
+void lexicon_assert_anima_location(const lexicon_s *lexicon, Z3_context ctx, Z3_optimize otz, const situation_s *situation, const uint8_t id);
 
 // For each tile which is not the location of an anima is a link tile.
 void lexicon_assert_constant_hints(const lexicon_s *lexicon, Z3_context ctx, Z3_optimize otz, const maze_s *maze);
 
 // Assert the row and column values for persona
-void lexicon_assert_persona_location(const lexicon_s *lexicon, Z3_context ctx, Z3_optimize otz, const Situation *situation);
+void lexicon_assert_persona_location(const lexicon_s *lexicon, Z3_context ctx, Z3_optimize otz, const situation_s *situation);
 
 // Establish `parser` and `lexicon` for `ctx`.
 void parser_fundamentals(Z3_context ctx, Z3_parser_context parser, lexicon_s *lexicon);

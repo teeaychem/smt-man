@@ -11,7 +11,7 @@
 #include "random.h"
 #include "render/sprite.h"
 
-void anima_ctor(anima_s *self, Situation *situation, const uint8_t id, const maze_s *maze) {
+void anima_ctor(anima_s *self, situation_s *situation, const uint8_t id, const maze_s *maze) {
   slog_display(SLOG_DEBUG, 0, "Creating anima: %d\n", id);
 
   *self = (anima_s){
@@ -55,7 +55,7 @@ void anima_parse_fundamentals(anima_s *self, char *smt_path) {
   read_smt2(self->smt.ctx, self->smt.opz, self->smt.parser, &self->smt.lexicon, smt_path);
 }
 
-Z3_lbool anima_solve(anima_s *self, const Situation *situation) {
+Z3_lbool anima_solve(anima_s *self, const situation_s *situation) {
 
   lexicon_assert_anima_location(&self->smt.lexicon, self->smt.ctx, self->smt.opz, situation, self->id);
   lexicon_assert_persona_location(&self->smt.lexicon, self->smt.ctx, self->smt.opz, situation);
@@ -65,7 +65,7 @@ Z3_lbool anima_solve(anima_s *self, const Situation *situation) {
   return result;
 }
 
-Result anima_path_from_model(anima_s *self, const maze_s *maze, const Situation *situation) {
+Result anima_path_from_model(anima_s *self, const maze_s *maze, const situation_s *situation) {
 
   auto anima_location = atomic_load(&situation->animas.data[self->id].location);
 
@@ -93,7 +93,7 @@ Result anima_path_from_model(anima_s *self, const maze_s *maze, const Situation 
   return RESULT_OK;
 }
 
-void anima_on_tile(anima_s *self, const Situation *situation, Sprite *sprite, const maze_s *maze, Pair_uint8 maze_location) {
+void anima_on_tile(anima_s *self, const situation_s *situation, Sprite *sprite, const maze_s *maze, Pair_uint8 maze_location) {
 
   /// Update location
   atomic_store(&situation->animas.data[self->id].location, maze_location);
@@ -104,7 +104,7 @@ void anima_update_direction(anima_s *self, const maze_s *maze, Pair_uint8 maze_l
   /// Update direction
 }
 
-void anima_on_frame(anima_s *self, const Situation *situation, Sprite *sprite, const maze_s *maze, uint32_t tile_pixels, uint32_t offset_n) {
+void anima_on_frame(anima_s *self, const situation_s *situation, Sprite *sprite, const maze_s *maze, uint32_t tile_pixels, uint32_t offset_n) {
 
   uint32_t movement = atomic_load(&situation->animas.data[self->id].movement_pattern);
   movement = uint32_rotl1(movement);

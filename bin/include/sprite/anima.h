@@ -36,7 +36,7 @@ typedef struct anima_t anima_s;
 
 // Methods
 
-void anima_ctor(anima_s *self, Situation *situation, const uint8_t id, const maze_s *maze);
+void anima_ctor(anima_s *self, situation_s *situation, const uint8_t id, const maze_s *maze);
 
 void anima_dtor(anima_s *self);
 
@@ -47,10 +47,10 @@ void anima_parse_fundamentals(anima_s *self, char *smt_path);
 void anima_instinct(anima_s *self);
 
 /// Generate consequences from deduction
-Z3_lbool anima_solve(anima_s *self, const Situation *situation);
+Z3_lbool anima_solve(anima_s *self, const situation_s *situation);
 
-Result anima_path_from_model(anima_s *self, const maze_s *maze, const Situation *situation);
+Result anima_path_from_model(anima_s *self, const maze_s *maze, const situation_s *situation);
 
-void anima_on_frame(anima_s *self, const Situation *situation, Sprite *sprite, const maze_s *maze, uint32_t tile_pixels, uint32_t offset_n);
+void anima_on_frame(anima_s *self, const situation_s *situation, Sprite *sprite, const maze_s *maze, uint32_t tile_pixels, uint32_t offset_n);
 
 void anima_handle_event(anima_s *self, const SDL_Event *event);

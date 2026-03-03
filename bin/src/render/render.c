@@ -189,7 +189,7 @@ void Renderer_draw_from_sheet(Renderer *self, const Pair_uint32 destination, con
   }
 }
 
-void Renderer_anima(Renderer *self, const anima_s *anima, const Situation *situation, Sprite *sprite, const RenderAction action) {
+void Renderer_anima(Renderer *self, const anima_s *anima, const situation_s *situation, Sprite *sprite, const RenderAction action) {
 
   switch (action) {
   case RENDER_DRAW: {
@@ -204,7 +204,7 @@ void Renderer_anima(Renderer *self, const anima_s *anima, const Situation *situa
   }
 }
 
-void Renderer_persona(Renderer *self, const persona_s *persona, Sprite *sprite, const Situation *situation, const RenderAction action) {
+void Renderer_persona(Renderer *self, const persona_s *persona, Sprite *sprite, const situation_s *situation, const RenderAction action) {
 
   switch (action) {
   case RENDER_DRAW: {

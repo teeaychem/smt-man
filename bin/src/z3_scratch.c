@@ -16,7 +16,7 @@ constexpr size_t ANIMA_COUNT = 1;
 pthread_t ANIMA_THREADS[ANIMA_COUNT];
 
 void z3_read_and_display_path(const lexicon_s *lexicon, Z3_context ctx, Z3_model model, const maze_s *maze);
-void z3_tmp(Z3_context ctx, lexicon_s *lexicon, Z3_optimize optimizer, const maze_s *maze, const Situation *situation, uint8_t anima_id);
+void z3_tmp(Z3_context ctx, lexicon_s *lexicon, Z3_optimize optimizer, const maze_s *maze, const situation_s *situation, uint8_t anima_id);
 
 int main() {
 
@@ -31,7 +31,7 @@ int main() {
     source_path_build(&source_path, &source_path_length);
   }
 
-  Situation situation = {};
+  situation_s situation = {};
 
   situation.animas.count = ANIMA_COUNT;
   situation.animas.data = alloca(ANIMA_COUNT * sizeof(*situation.animas.data));
@@ -96,7 +96,7 @@ void z3_read_and_display_path(const lexicon_s *lexicon, const Z3_context ctx, co
   maze_path_dtor(&maze_path);
 }
 
-void z3_tmp(Z3_context ctx, lexicon_s *lexicon, Z3_optimize optimizer, const maze_s *maze, const Situation *situation, uint8_t anima_id) {
+void z3_tmp(Z3_context ctx, lexicon_s *lexicon, Z3_optimize optimizer, const maze_s *maze, const situation_s *situation, uint8_t anima_id) {
 
   lexicon_setup_shortest_path_empty_hints(lexicon, ctx, optimizer, maze);
 

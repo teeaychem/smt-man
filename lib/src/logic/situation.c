@@ -5,9 +5,9 @@
 #include "SML/logic/situation.h"
 #include "macro.h"
 
-void situation_ctor(Situation *self, size_t anima_count) {
+void situation_ctor(situation_s *self, size_t anima_count) {
 
-  *self = (Situation){
+  *self = (situation_s){
       .animas = {
           .count = anima_count,
           .data = malloc(anima_count * sizeof(*self->animas.data)),
@@ -15,14 +15,14 @@ void situation_ctor(Situation *self, size_t anima_count) {
   };
 }
 
-void situation_dtor(Situation *self) {
+void situation_dtor(situation_s *self) {
 
   // TODO
   free(self->animas.data);
   self->animas.count = 0;
 }
 
-void situation_reset(Situation *self) {
+void situation_reset(situation_s *self) {
 
   { // animas
     static Pair_uint8 locations[] = {{11, 13}, {2, 15}, {12, 21}, {29, 4}};
@@ -44,7 +44,7 @@ void situation_reset(Situation *self) {
   }
 }
 
-void situation_copy(const Situation *from, Situation *to) {
+void situation_copy(const situation_s *from, situation_s *to) {
 
   { // animas
     assert(from->animas.count == to->animas.count);

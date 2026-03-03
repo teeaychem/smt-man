@@ -168,7 +168,7 @@ void lexicon_setup(lexicon_s *self, Z3_context ctx, size_t anima_count) {
   lexicon_setup_persona(self, ctx);
 }
 
-void lexicon_assert_anima_location(const lexicon_s *lexicon, Z3_context ctx, Z3_optimize otz, const Situation *situation, const uint8_t id) {
+void lexicon_assert_anima_location(const lexicon_s *lexicon, Z3_context ctx, Z3_optimize otz, const situation_s *situation, const uint8_t id) {
 
   Pair_uint8 anima_location = atomic_load(&situation->animas.data[id].location);
   slog_display(SLOG_INFO, 0, "Asserted anima %d at %dx%d\n", id, anima_location.x, anima_location.y);
@@ -187,7 +187,7 @@ void lexicon_assert_anima_location(const lexicon_s *lexicon, Z3_context ctx, Z3_
   }
 }
 
-void lexicon_assert_persona_location(const lexicon_s *lexicon, Z3_context ctx, Z3_optimize otz, const Situation *situation) {
+void lexicon_assert_persona_location(const lexicon_s *lexicon, Z3_context ctx, Z3_optimize otz, const situation_s *situation) {
 
   Pair_uint8 persona_location = atomic_load(&situation->persona.location);
 

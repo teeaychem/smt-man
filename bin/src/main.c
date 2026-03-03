@@ -23,7 +23,7 @@ struct core_logic {
   } animas;
   maze_s maze;
   persona_s persona;
-  Situation situation;
+  situation_s situation;
 };
 typedef struct core_logic core_logic_s;
 
