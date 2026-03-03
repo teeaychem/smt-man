@@ -4,10 +4,6 @@
 
 #include "render.h"
 
-/// Setup functions
-///
-/// Called by main.
-
 struct spirit_setup_t {
   pthread_cond_t cond_frame;
   pthread_mutex_t mtx_spirit;

@@ -66,7 +66,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 
 file(GLOB MAIN src/main.c src/setup.c)
 file(GLOB_RECURSE RENDER src/render/*.c)
-file(GLOB_RECURSE SPRITES src/sprite/*.c)
+file(GLOB_RECURSE SPRITES src/sprite.c src/sprite/*.c)
 
 # # main
 

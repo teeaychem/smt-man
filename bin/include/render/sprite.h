@@ -5,7 +5,6 @@
 
 #include <SDL3/SDL_events.h>
 
-#include "consts.h"
 #include "generic/pairs.h"
 
 constexpr int32_t SPRITE_VELOCITY = 1;
@@ -16,52 +15,23 @@ struct sprite_t {
   /// Location of the sprite sprite
   Pair_uint32 location;
 };
-typedef struct sprite_t Sprite;
+typedef struct sprite_t sprite_s;
 
 struct sprites_t {
-  size_t anima_count;
-  Sprite *animas;
-  Sprite persona;
+
+  struct {
+    size_t count;
+    sprite_s *data;
+  } animas;
+
+  sprite_s persona;
 };
 typedef struct sprites_t Sprites;
 
 /// Methods
 
-static inline void Sprite_init(Sprite *self, const uint8_t sprite_size, const Pair_uint8 maze_location, uint32_t offset) {
-  self->size = sprite_size,
-  self->location = (Pair_uint32){
-      .x = (((uint32_t)maze_location.x) + offset) * TILE_PIXELS,
-      .y = (uint32_t)maze_location.y * TILE_PIXELS,
-  };
-}
+void sprite_ctor(sprite_s *self, const uint8_t sprite_size, const Pair_uint8 maze_location, uint32_t offset);
 
-static inline bool Sprite_is_centered_on_tile(Pair_uint32 location, uint32_t tile_pixels) {
-  return location.x % tile_pixels == 0 && location.y % tile_pixels == 0;
-}
+bool sprite_is_centered_on_tile(Pair_uint32 location, uint32_t tile_pixels);
 
-static inline Pair_uint8 Sprite_maze_location(const Pair_uint32 *sprite_location, uint32_t tile_pixels, uint32_t offset_n) {
-
-  uint32_t x_mod = sprite_location->x % tile_pixels;
-
-  Pair_uint8 maze_location = {};
-
-  { // x
-    if (x_mod < tile_pixels / 2) {
-      maze_location.x = (uint8_t)((sprite_location->x - x_mod) / tile_pixels);
-    } else {
-      maze_location.x = (uint8_t)((sprite_location->x + (tile_pixels - x_mod)) / tile_pixels);
-    }
-    maze_location.x -= offset_n;
-  }
-
-  { // y
-    uint32_t y_mod = sprite_location->y % tile_pixels;
-    if (y_mod < tile_pixels / 2) {
-      maze_location.y = (uint8_t)((sprite_location->y - y_mod) / tile_pixels);
-    } else {
-      maze_location.y = (uint8_t)((sprite_location->y + (tile_pixels - y_mod)) / tile_pixels);
-    }
-  }
-
-  return maze_location;
-}
+Pair_uint8 sprite_maze_location(const Pair_uint32 *sprite_location, uint32_t tile_pixels, uint32_t offset_n);

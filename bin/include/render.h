@@ -9,6 +9,7 @@
 #include "SML/logic/situation.h"
 #include "SML/maze.h"
 
+#include "consts.h"
 #include "generic/pairs.h"
 #include "render/palette.h"
 #include "render/sprite.h"
@@ -17,9 +18,9 @@
 #include "sprite/persona.h"
 
 struct renderer_t {
-  Surface sheet;
-  Surface frame_buffer;
-  Surface sprite_buffer;
+  surface_s sheet;
+  surface_s frame_buffer;
+  surface_s sprite_buffer;
 
   SDL_Window *window;
   SDL_Renderer *renderer;
@@ -39,7 +40,7 @@ void renderer_dtor(renderer_s *self);
 
 void renderer_clear(renderer_s *self);
 
-void renderer_anima(renderer_s *self, const anima_s *anima, const situation_s *situation, Sprite *sprite, const renderer_action_e action);
+void renderer_anima(renderer_s *self, const anima_s *anima, const situation_s *situation, sprite_s *sprite, const renderer_action_e action);
 
 void renderer_draw_from_sprite_buffer(renderer_s *self, const Pair_uint32 destination, const uint32_t size);
 
@@ -47,7 +48,7 @@ void renderer_draw_maze(renderer_s *self, const maze_s *maze);
 
 void renderer_drawn_from_sheet(renderer_s *self, const Pair_uint32 destination, const uint32_t size, const Pair_uint32 source, const Pallete pallete);
 
-void renderer_persona(renderer_s *self, const persona_s *persona, Sprite *sprite, const situation_s *situation, const renderer_action_e action);
+void renderer_persona(renderer_s *self, const persona_s *persona, sprite_s *sprite, const situation_s *situation, const renderer_action_e action);
 
 void renderer_render_frame_buffer(renderer_s *self);
 

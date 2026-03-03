@@ -5,7 +5,7 @@
 #include "consts.h"
 #include "render/surface.h"
 
-void Surface_ctor(Surface *self, const char *path) {
+void surface_ctor(surface_s *self, const char *path) {
 
   png_image image;
 
@@ -15,7 +15,7 @@ void Surface_ctor(Surface *self, const char *path) {
   if (png_image_begin_read_from_file(&image, path)) {
     image.format = PNG_FORMAT_RGBA;
 
-    self->size = (Pair_uint32){
+    self->dimensions = (Pair_uint32){
         .x = image.height,
         .y = image.width,
     };
@@ -32,17 +32,17 @@ void Surface_ctor(Surface *self, const char *path) {
   }
 }
 
-void Surface_dtor(Surface *self) {
+void surface_dtor(surface_s *self) {
   free(self->pixels);
 
   self->pixels = nullptr;
-  self->size.x = 0;
-  self->size.y = 0;
+  self->dimensions.x = 0;
+  self->dimensions.y = 0;
 }
 
-void Surface_char_projection(const Surface *self, char **destination, size_t *length) {
+void surface_char_projection(const surface_s *self, char **destination, size_t *length) {
 
-  size_t size = (self->size.x * (self->size.y + 2)) + 1;
+  size_t size = (self->dimensions.x * (self->dimensions.y + 2)) + 1;
   *length = size;
 
   char *buffer = malloc(size * sizeof(*buffer));
@@ -50,9 +50,9 @@ void Surface_char_projection(const Surface *self, char **destination, size_t *le
   buffer[size - 1] = '\0';
 
   size_t idx = 0;
-  for (uint32_t row = 0; row < self->size.x; ++row) {
-    for (uint32_t col = 0; col < self->size.y; ++col, ++idx) {
-      if (self->pixels[Pair_uint32_flatten(&self->size, row, col)] != 0x00000000) {
+  for (uint32_t row = 0; row < self->dimensions.x; ++row) {
+    for (uint32_t col = 0; col < self->dimensions.y; ++col, ++idx) {
+      if (self->pixels[Pair_uint32_flatten(&self->dimensions, row, col)] != 0x00000000) {
         buffer[idx] = '#';
       }
     }
@@ -63,107 +63,107 @@ void Surface_char_projection(const Surface *self, char **destination, size_t *le
   *destination = buffer;
 }
 
-void Surface_stdout(const Surface *self) {
+void surface_stdout(const surface_s *self) {
 
   size_t length = 0;
   char *buffer = nullptr;
-  Surface_char_projection(self, &buffer, &length);
+  surface_char_projection(self, &buffer, &length);
   printf("%s", buffer);
   free(buffer);
 }
 
-void Surface_mirror(Surface *self, const uint32_t size) {
+void surface_mirror(surface_s *self, const uint32_t size) {
   for (uint32_t row = 0; row < size; ++row) {
     for (uint32_t col = 0; col < size / 2; ++col) {
-      uint32_t tmp = self->pixels[Pair_uint32_flatten(&self->size, row, col)];
-      self->pixels[Pair_uint32_flatten(&self->size, row, col)] = self->pixels[Pair_uint32_flatten(&self->size, row, size - col - 1)];
-      self->pixels[Pair_uint32_flatten(&self->size, row, size - col - 1)] = tmp;
+      uint32_t tmp = self->pixels[Pair_uint32_flatten(&self->dimensions, row, col)];
+      self->pixels[Pair_uint32_flatten(&self->dimensions, row, col)] = self->pixels[Pair_uint32_flatten(&self->dimensions, row, size - col - 1)];
+      self->pixels[Pair_uint32_flatten(&self->dimensions, row, size - col - 1)] = tmp;
     }
   }
 }
 
-void Surface_transpose(Surface *self, const uint32_t size) {
+void surface_transpose(surface_s *self, const uint32_t size) {
   for (uint32_t row = 0; row < size; ++row) {
     for (uint32_t col = row + 1; col < size; ++col) {
-      uint32_t tmp = self->pixels[Pair_uint32_flatten(&self->size, row, col)];
-      self->pixels[Pair_uint32_flatten(&self->size, row, col)] = self->pixels[Pair_uint32_flatten(&self->size, col, row)];
-      self->pixels[Pair_uint32_flatten(&self->size, col, row)] = tmp;
+      uint32_t tmp = self->pixels[Pair_uint32_flatten(&self->dimensions, row, col)];
+      self->pixels[Pair_uint32_flatten(&self->dimensions, row, col)] = self->pixels[Pair_uint32_flatten(&self->dimensions, col, row)];
+      self->pixels[Pair_uint32_flatten(&self->dimensions, col, row)] = tmp;
     }
   }
 }
 
-void Surface_apply_pallete(Surface *self, const uint32_t size, const Pallete pallete) {
+void surface_apply_pallete(surface_s *self, const uint32_t size, const Pallete pallete) {
   for (uint32_t row = 0; row < size; ++row) {
     for (uint32_t col = 0; col < size; ++col) {
-      size_t pix = Pair_uint32_flatten(&self->size, row, col);
+      size_t pix = Pair_uint32_flatten(&self->dimensions, row, col);
       Pallete_apply(&self->pixels[pix], pallete);
     }
   }
 }
 
-void Surface_fill_tile(Surface *self, const Pair_uint32 destination, const uint32_t size, const uint32_t colour) {
+void surface_fill_tile(surface_s *self, const Pair_uint32 destination, const uint32_t size, const uint32_t colour) {
   for (uint32_t row = 0; row < size; ++row) {
     for (uint32_t col = 0; col < size; ++col) {
-      self->pixels[Pair_uint32_flatten(&self->size, destination.x + row, destination.y + col)] = colour;
+      self->pixels[Pair_uint32_flatten(&self->dimensions, destination.x + row, destination.y + col)] = colour;
     }
   }
 }
 
-void Surface_tile_line(Surface *self, const uint32_t row, const uint32_t col, const plane_e plane, const uint32_t length, const uint32_t colour) {
+void surface_tile_line(surface_s *self, const uint32_t row, const uint32_t col, const plane_e plane, const uint32_t length, const uint32_t colour) {
 
   switch (plane) {
   case PLANE_H: {
     for (uint32_t idx = 0; idx < length; ++idx) {
-      self->pixels[Pair_uint32_flatten(&self->size, row, col + idx)] = colour;
+      self->pixels[Pair_uint32_flatten(&self->dimensions, row, col + idx)] = colour;
     }
   } break;
   case PLANE_V: {
     for (uint32_t idx = 0; idx < length; ++idx) {
-      self->pixels[Pair_uint32_flatten(&self->size, row + idx, col)] = colour;
+      self->pixels[Pair_uint32_flatten(&self->dimensions, row + idx, col)] = colour;
     }
   } break;
   }
 }
 
-void Surface_circle_draw(Surface *self, const Pair_uint32 *origin, const Pair_uint32 *offset, const quadrant_e quadrant, const uint32_t colour) {
+void surface_circle_draw(surface_s *self, const Pair_uint32 *origin, const Pair_uint32 *offset, const quadrant_e quadrant, const uint32_t colour) {
 
   switch (quadrant) {
 
   case QUADRANT_1: {
-    size_t pixel_a = Pair_uint32_flatten(&self->size, origin->x + offset->x, origin->y - offset->y);
+    size_t pixel_a = Pair_uint32_flatten(&self->dimensions, origin->x + offset->x, origin->y - offset->y);
     self->pixels[pixel_a] = colour;
 
-    size_t pixel_b = Pair_uint32_flatten(&self->size, origin->x + offset->y, origin->y - offset->x);
+    size_t pixel_b = Pair_uint32_flatten(&self->dimensions, origin->x + offset->y, origin->y - offset->x);
     self->pixels[pixel_b] = colour;
   } break;
 
   case QUADRANT_2: {
-    size_t pixel_a = Pair_uint32_flatten(&self->size, origin->x - offset->y, origin->y - offset->x);
+    size_t pixel_a = Pair_uint32_flatten(&self->dimensions, origin->x - offset->y, origin->y - offset->x);
     self->pixels[pixel_a] = colour;
 
-    size_t pixel_b = Pair_uint32_flatten(&self->size, origin->x - offset->x, origin->y - offset->y);
+    size_t pixel_b = Pair_uint32_flatten(&self->dimensions, origin->x - offset->x, origin->y - offset->y);
     self->pixels[pixel_b] = colour;
   } break;
 
   case QUADRANT_3: {
-    size_t pixel_a = Pair_uint32_flatten(&self->size, origin->x - offset->x, origin->y + offset->y);
+    size_t pixel_a = Pair_uint32_flatten(&self->dimensions, origin->x - offset->x, origin->y + offset->y);
     self->pixels[pixel_a] = colour;
 
-    size_t pixel_b = Pair_uint32_flatten(&self->size, origin->x - offset->y, origin->y + offset->x);
+    size_t pixel_b = Pair_uint32_flatten(&self->dimensions, origin->x - offset->y, origin->y + offset->x);
     self->pixels[pixel_b] = colour;
   } break;
 
   case QUADRANT_4: {
-    size_t pixel_a = Pair_uint32_flatten(&self->size, origin->x + offset->x, origin->y + offset->y);
+    size_t pixel_a = Pair_uint32_flatten(&self->dimensions, origin->x + offset->x, origin->y + offset->y);
     self->pixels[pixel_a] = colour;
 
-    size_t pixel_b = Pair_uint32_flatten(&self->size, origin->x + offset->y, origin->y + offset->x);
+    size_t pixel_b = Pair_uint32_flatten(&self->dimensions, origin->x + offset->y, origin->y + offset->x);
     self->pixels[pixel_b] = colour;
   } break;
   }
 }
 
-void Surface_tile_arc(Surface *self, const Pair_uint32 origin, const uint32_t radius, const quadrant_e quadrant, const uint32_t colour) {
+void surface_tile_arc(surface_s *self, const Pair_uint32 origin, const uint32_t radius, const quadrant_e quadrant, const uint32_t colour) {
 
   assert(radius <= INT32_MAX);
 
@@ -193,7 +193,7 @@ void Surface_tile_arc(Surface *self, const Pair_uint32 origin, const uint32_t ra
   int32_t turn_left = 3;
   int32_t turn_right = -((int32_t)radius << 1) + 5;
 
-  Surface_circle_draw(self, &origin_offset, &offset, quadrant, colour);
+  surface_circle_draw(self, &origin_offset, &offset, quadrant, colour);
   while (offset.y > offset.x) {
     if (direction_relative <= 0) {
       direction_relative += turn_left;
@@ -206,11 +206,11 @@ void Surface_tile_arc(Surface *self, const Pair_uint32 origin, const uint32_t ra
     turn_right += 2;
     offset.x += 1;
 
-    Surface_circle_draw(self, &origin_offset, &offset, quadrant, colour);
+    surface_circle_draw(self, &origin_offset, &offset, quadrant, colour);
   }
 }
 
-void Surface_tile_fixed_arc(Surface *self, const Pair_uint32 origin, const tile_data_s *tile_data, const uint32_t colour) {
+void surface_tile_fixed_arc(surface_s *self, const Pair_uint32 origin, const tile_data_s *tile_data, const uint32_t colour) {
 
   uint32_t half_pixels = TILE_PIXELS / 2;
 
@@ -222,27 +222,27 @@ void Surface_tile_fixed_arc(Surface *self, const Pair_uint32 origin, const tile_
 
     switch (tile_data->value.edge_value.edge_arc_quadrant) {
     case QUADRANT_1: {
-      Surface_tile_line(self, origin.x + half_pixels, origin.y, PLANE_H, length, colour);
-      Surface_tile_line(self, origin.x + half_pixels + 2, origin.y + length + 1, PLANE_V, length, colour);
-      Surface_tile_line(self, origin.x + half_pixels + 1, origin.y + length, PLANE_H, 1, colour);
+      surface_tile_line(self, origin.x + half_pixels, origin.y, PLANE_H, length, colour);
+      surface_tile_line(self, origin.x + half_pixels + 2, origin.y + length + 1, PLANE_V, length, colour);
+      surface_tile_line(self, origin.x + half_pixels + 1, origin.y + length, PLANE_H, 1, colour);
     } break;
 
     case QUADRANT_2: {
-      Surface_tile_line(self, origin.x + half_pixels, origin.y + half_pixels + 2, PLANE_H, length, colour);
-      Surface_tile_line(self, origin.x + half_pixels + 2, origin.y + half_pixels, PLANE_V, length, colour);
-      Surface_tile_line(self, origin.x + half_pixels + 1, origin.y + half_pixels + 1, PLANE_H, 1, colour);
+      surface_tile_line(self, origin.x + half_pixels, origin.y + half_pixels + 2, PLANE_H, length, colour);
+      surface_tile_line(self, origin.x + half_pixels + 2, origin.y + half_pixels, PLANE_V, length, colour);
+      surface_tile_line(self, origin.x + half_pixels + 1, origin.y + half_pixels + 1, PLANE_H, 1, colour);
     } break;
 
     case QUADRANT_3: {
-      Surface_tile_line(self, origin.x + half_pixels - 1, origin.y + half_pixels + 2, PLANE_H, length, colour);
-      Surface_tile_line(self, origin.x, origin.y + half_pixels, PLANE_V, length, colour);
-      Surface_tile_line(self, origin.x + half_pixels - 2, origin.y + half_pixels + 1, PLANE_H, 1, colour);
+      surface_tile_line(self, origin.x + half_pixels - 1, origin.y + half_pixels + 2, PLANE_H, length, colour);
+      surface_tile_line(self, origin.x, origin.y + half_pixels, PLANE_V, length, colour);
+      surface_tile_line(self, origin.x + half_pixels - 2, origin.y + half_pixels + 1, PLANE_H, 1, colour);
     } break;
 
     case QUADRANT_4: {
-      Surface_tile_line(self, origin.x + half_pixels - 1, origin.y, PLANE_H, length, colour);
-      Surface_tile_line(self, origin.x, origin.y + half_pixels - 1, PLANE_V, length, colour);
-      Surface_tile_line(self, origin.x + half_pixels - 2, origin.y + 2, PLANE_H, 1, colour);
+      surface_tile_line(self, origin.x + half_pixels - 1, origin.y, PLANE_H, length, colour);
+      surface_tile_line(self, origin.x, origin.y + half_pixels - 1, PLANE_V, length, colour);
+      surface_tile_line(self, origin.x + half_pixels - 2, origin.y + 2, PLANE_H, 1, colour);
     } break;
     }
   } break;
@@ -253,27 +253,27 @@ void Surface_tile_fixed_arc(Surface *self, const Pair_uint32 origin, const tile_
     switch (tile_data->value.edge_value.edge_arc_quadrant) {
 
     case QUADRANT_1: {
-      Surface_tile_line(self, origin.x + half_pixels - 1, origin.y, PLANE_H, length, colour);
-      Surface_tile_line(self, origin.x + half_pixels + 1, origin.y + length + 1, PLANE_V, length, colour);
-      Surface_tile_line(self, origin.x + half_pixels, origin.y + length, PLANE_H, 1, colour);
+      surface_tile_line(self, origin.x + half_pixels - 1, origin.y, PLANE_H, length, colour);
+      surface_tile_line(self, origin.x + half_pixels + 1, origin.y + length + 1, PLANE_V, length, colour);
+      surface_tile_line(self, origin.x + half_pixels, origin.y + length, PLANE_H, 1, colour);
     } break;
 
     case QUADRANT_2: {
-      Surface_tile_line(self, origin.x + half_pixels - 1, origin.y + half_pixels + 1, PLANE_H, length, colour);
-      Surface_tile_line(self, origin.x + half_pixels + 1, origin.y + half_pixels - 1, PLANE_V, length, colour);
-      Surface_tile_line(self, origin.x + half_pixels, origin.y + half_pixels, PLANE_H, 1, colour);
+      surface_tile_line(self, origin.x + half_pixels - 1, origin.y + half_pixels + 1, PLANE_H, length, colour);
+      surface_tile_line(self, origin.x + half_pixels + 1, origin.y + half_pixels - 1, PLANE_V, length, colour);
+      surface_tile_line(self, origin.x + half_pixels, origin.y + half_pixels, PLANE_H, 1, colour);
     } break;
 
     case QUADRANT_3: {
-      Surface_tile_line(self, origin.x + half_pixels, origin.y + half_pixels + 1, PLANE_H, length, colour);
-      Surface_tile_line(self, origin.x, origin.y + half_pixels - 1, PLANE_V, length, colour);
-      Surface_tile_line(self, origin.x + half_pixels - 1, origin.y + half_pixels, PLANE_H, 1, colour);
+      surface_tile_line(self, origin.x + half_pixels, origin.y + half_pixels + 1, PLANE_H, length, colour);
+      surface_tile_line(self, origin.x, origin.y + half_pixels - 1, PLANE_V, length, colour);
+      surface_tile_line(self, origin.x + half_pixels - 1, origin.y + half_pixels, PLANE_H, 1, colour);
     } break;
 
     case QUADRANT_4: {
-      Surface_tile_line(self, origin.x + half_pixels, origin.y, PLANE_H, length, colour);
-      Surface_tile_line(self, origin.x, origin.y + half_pixels, PLANE_V, length, colour);
-      Surface_tile_line(self, origin.x + half_pixels - 1, origin.y + length, PLANE_H, 1, colour);
+      surface_tile_line(self, origin.x + half_pixels, origin.y, PLANE_H, length, colour);
+      surface_tile_line(self, origin.x, origin.y + half_pixels, PLANE_V, length, colour);
+      surface_tile_line(self, origin.x + half_pixels - 1, origin.y + length, PLANE_H, 1, colour);
     } break;
     }
 

@@ -33,7 +33,7 @@ void persona_on_tile(persona_s *self, situation_s *situation, const maze_s *maze
   }
 }
 
-void persona_off_tile(persona_s *self, Sprite *sprite, situation_s *situation, const maze_s *maze, Pair_uint8 maze_location) {
+void persona_off_tile(persona_s *self, sprite_s *sprite, situation_s *situation, const maze_s *maze, Pair_uint8 maze_location) {
 
   if ((self->direction_intent | situation->persona.direction_actual) == (CARDINAL_E | CARDINAL_W) ||
       (self->direction_intent | situation->persona.direction_actual) == (CARDINAL_S | CARDINAL_N)) {
@@ -48,7 +48,7 @@ void persona_off_tile(persona_s *self, Sprite *sprite, situation_s *situation, c
   }
 }
 
-void persona_on_frame(persona_s *self, Sprite *sprite, const maze_s *maze, situation_s *situation, uint32_t tile_pixels, uint32_t offset_n) {
+void persona_on_frame(persona_s *self, sprite_s *sprite, const maze_s *maze, situation_s *situation, uint32_t tile_pixels, uint32_t offset_n) {
 
   uint32_t movement = atomic_load(&situation->persona.movement_pattern);
   movement = uint32_rotl1(movement);
@@ -60,9 +60,9 @@ void persona_on_frame(persona_s *self, Sprite *sprite, const maze_s *maze, situa
 
   self->tick_action += 1;
 
-  Pair_uint8 maze_location = Sprite_maze_location(&sprite->location, tile_pixels, offset_n);
+  Pair_uint8 maze_location = sprite_maze_location(&sprite->location, tile_pixels, offset_n);
 
-  if (Sprite_is_centered_on_tile(sprite->location, tile_pixels)) {
+  if (sprite_is_centered_on_tile(sprite->location, tile_pixels)) {
     persona_on_tile(self, situation, maze, maze_location);
   } else {
     persona_off_tile(self, sprite, situation, maze, maze_location);

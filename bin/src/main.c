@@ -63,8 +63,10 @@ void core_render_ctor(core_render_s *self, const core_logic_s *core_logic, const
 
   *self = (core_render_s){
       .sprites = {
-          .anima_count = core_logic->animas.count,
-          .animas = malloc(core_logic->animas.count * sizeof(Sprite)),
+          .animas = {
+              .count = core_logic->animas.count,
+              .data = malloc(core_logic->animas.count * sizeof(sprite_s)),
+          },
       },
   };
 
@@ -78,11 +80,11 @@ void core_render_ctor(core_render_s *self, const core_logic_s *core_logic, const
   { // Sprite block
 
     // Persona
-    Sprite_init(&self->sprites.persona, 16, atomic_load(&core_logic->situation.persona.location), RENDER_TOP);
+    sprite_ctor(&self->sprites.persona, 16, atomic_load(&core_logic->situation.persona.location), RENDER_TOP);
 
     // Animas
     for (uint8_t idx = 0; idx < ANIMA_COUNT; ++idx) {
-      Sprite_init(&self->sprites.animas[idx], 16, atomic_load(&core_logic->situation.animas.data[idx].location), RENDER_TOP);
+      sprite_ctor(&self->sprites.animas.data[idx], 16, atomic_load(&core_logic->situation.animas.data[idx].location), RENDER_TOP);
     }
   }
 }
@@ -126,7 +128,7 @@ void game_state(core_logic_s *logic, core_render_s *render) {
       rgb_momentum_advance(&colour);
 
       for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
-        anima_on_frame(&logic->animas.data[id], &logic->situation, &render->sprites.animas[id], &logic->maze, TILE_PIXELS, RENDER_TOP);
+        anima_on_frame(&logic->animas.data[id], &logic->situation, &render->sprites.animas.data[id], &logic->maze, TILE_PIXELS, RENDER_TOP);
       }
       persona_on_frame(&logic->persona, &render->sprites.persona, &logic->maze, &logic->situation, TILE_PIXELS, RENDER_TOP);
     }
@@ -137,7 +139,7 @@ void game_state(core_logic_s *logic, core_render_s *render) {
       SDL_SetRenderDrawColor(render->renderer.renderer, colour.state[0].value, colour.state[1].value, colour.state[2].value, 0x000000ff);
 
       for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
-        renderer_anima(&render->renderer, &logic->animas.data[id], &logic->situation, &render->sprites.animas[id], RENDER_DRAW);
+        renderer_anima(&render->renderer, &logic->animas.data[id], &logic->situation, &render->sprites.animas.data[id], RENDER_DRAW);
       }
       renderer_persona(&render->renderer, &logic->persona, &render->sprites.persona, &logic->situation, RENDER_DRAW);
 

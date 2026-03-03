@@ -2,12 +2,14 @@
 
 #include <pthread.h>
 #include <stdint.h>
-#include <z3.h>
 
 #include "SDL3/SDL_events.h"
+#include <z3.h>
+
 #include "SML/logic.h"
 #include "SML/maze.h"
 #include "SML/maze_path.h"
+
 #include "render/sprite.h"
 
 /// Something which performs deductions
@@ -51,6 +53,6 @@ Z3_lbool anima_solve(anima_s *self, const situation_s *situation);
 
 Result anima_path_from_model(anima_s *self, const maze_s *maze, const situation_s *situation);
 
-void anima_on_frame(anima_s *self, const situation_s *situation, Sprite *sprite, const maze_s *maze, uint32_t tile_pixels, uint32_t offset_n);
+void anima_on_frame(anima_s *self, const situation_s *situation, sprite_s *sprite, const maze_s *maze, uint32_t tile_pixels, uint32_t offset_n);
 
 void anima_handle_event(anima_s *self, const SDL_Event *event);

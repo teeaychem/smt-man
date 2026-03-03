@@ -92,7 +92,7 @@ Result anima_path_from_model(anima_s *self, const maze_s *maze, const situation_
   return RESULT_OK;
 }
 
-void anima_on_tile(anima_s *self, const situation_s *situation, Sprite *sprite, const maze_s *maze, Pair_uint8 maze_location) {
+void anima_on_tile(anima_s *self, const situation_s *situation, sprite_s *sprite, const maze_s *maze, Pair_uint8 maze_location) {
 
   /// Update location
   atomic_store(&situation->animas.data[self->id].location, maze_location);
@@ -103,7 +103,7 @@ void anima_update_direction(anima_s *self, const maze_s *maze, Pair_uint8 maze_l
   /// Update direction
 }
 
-void anima_on_frame(anima_s *self, const situation_s *situation, Sprite *sprite, const maze_s *maze, uint32_t tile_pixels, uint32_t offset_n) {
+void anima_on_frame(anima_s *self, const situation_s *situation, sprite_s *sprite, const maze_s *maze, uint32_t tile_pixels, uint32_t offset_n) {
 
   uint32_t movement = atomic_load(&situation->animas.data[self->id].movement_pattern);
   movement = uint32_rotl1(movement);
@@ -118,8 +118,8 @@ void anima_on_frame(anima_s *self, const situation_s *situation, Sprite *sprite,
   // Ensure coherence
   anima_instinct(self);
 
-  if (Sprite_is_centered_on_tile(sprite->location, tile_pixels)) {
-    Pair_uint8 maze_location = Sprite_maze_location(&sprite->location, tile_pixels, offset_n);
+  if (sprite_is_centered_on_tile(sprite->location, tile_pixels)) {
+    Pair_uint8 maze_location = sprite_maze_location(&sprite->location, tile_pixels, offset_n);
 
     anima_on_tile(self, situation, sprite, maze, maze_location);
 
