@@ -64,7 +64,7 @@ find_package(PNG REQUIRED)
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
-file(GLOB MAIN src/main.c src/setup.c)
+file(GLOB MAIN src/*.c)
 file(GLOB_RECURSE RENDER src/render/*.c)
 file(GLOB_RECURSE SPRITES src/sprite.c src/sprite/*.c)
 
@@ -119,7 +119,7 @@ add_dependencies(${PROJECT_NAME} copy_data)
 
 # # # scratch
 
-add_executable(z3_scratch src/z3_scratch.c src/setup.c ${SPRITES})
+add_executable(z3_scratch src/scratch/z3_scratch.c src/setup.c ${SPRITES})
 target_compile_options(z3_scratch PRIVATE ${DEBUG_FLAGS})
 
 # # #

@@ -1,24 +1,24 @@
 #pragma once
 
-#include "SML/maze.h"
+#include <assert.h>
+#include <stdlib.h>
 
-#include "render.h"
+#include <cwalk.h>
+#include <whereami.h>
 
-struct spirit_setup_t {
-  pthread_cond_t cond_frame;
-  pthread_mutex_t mtx_spirit;
+/*
+  Take a copy of the situation for a solve.
+  There's no need to update the situation after, as this is handled by reading from a the anima's path
+ */
 
-  anima_s *anima;
-  size_t anima_count;
-  const maze_s *maze;
-  const char *source_path;
-  situation_s *the_situation;
-  pthread_t *thread;
-};
-typedef struct spirit_setup_t spirit_setup_s;
+// Set the source path for resources, etc.
+static inline void source_path_build(char **source_path, int *length) {
 
-void source_path_build(char **source_path, int *length);
+  *length = wai_getExecutablePath(nullptr, 0, nullptr) + 1;
+  assert(*length >= 0);
+  *source_path = malloc((size_t)*length * sizeof(*source_path));
 
-void setup_renderer(renderer_s *renderer, const maze_s *maze, const char *source_path);
-
-void *spirit_ctor(void *void_setup_struct);
+  int dirname_length;
+  wai_getExecutablePath(*source_path, *length - 1, &dirname_length);
+  (*source_path)[dirname_length] = '\0';
+}

@@ -10,6 +10,7 @@
 
 #include "cwalk.h"
 #include "setup.h"
+#include "sprite/persona.h"
 
 constexpr size_t ANIMA_COUNT = 1;
 

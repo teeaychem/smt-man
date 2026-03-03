@@ -63,4 +63,3 @@ void situation_copy(const situation_s *src, situation_s *dst) {
     atomic_store(&dst->persona.movement_pattern, atomic_load(&src->persona.movement_pattern));
   }
 }
-

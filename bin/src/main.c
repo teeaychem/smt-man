@@ -10,6 +10,8 @@
 #include "render/rgb_momentum.h"
 #include "render/sprite.h"
 #include "render/timer_nano.h"
+#include "spirit.h"
+
 
 constexpr size_t ANIMA_COUNT = 2;
 
@@ -35,9 +37,14 @@ void core_logic_ctor(core_logic_s *self, size_t anima_count, const char *source_
           .data = malloc(anima_count * sizeof(*self->animas.data)),
       },
       .maze = {},
+      .situation = {
+          .animas = {
+              .count = ANIMA_COUNT,
+              .data = alloca(ANIMA_COUNT * sizeof(*self->animas.data)),
+          },
+      },
   };
 
-  situation_ctor(&self->situation, ANIMA_COUNT);
   {
     char path_buffer[FILENAME_MAX];
     cwk_path_join(source_path, "resources/maze/source.txt", path_buffer, FILENAME_MAX);
@@ -103,8 +110,11 @@ void game_state(core_logic_s *logic, core_render_s *render) {
   situation_reset(&logic->situation);
 
   //
-  situation_s game_situation = {};
-  situation_ctor(&game_situation, ANIMA_COUNT);
+  situation_s game_situation = {
+      .animas = {
+          .count = ANIMA_COUNT,
+          .data = alloca(ANIMA_COUNT * sizeof(*game_situation.animas.data)),
+      }};
 
   while (game_loop) {
     TimerNano_start(&frame_cap_timer);
