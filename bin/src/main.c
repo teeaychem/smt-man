@@ -1,4 +1,4 @@
-#include "setup.h"
+
 
 #include <slog.h>
 #include <stdatomic.h>
@@ -6,12 +6,12 @@
 
 #include "cwalk.h"
 
+#include "config.h"
 #include "render.h"
 #include "render/rgb_momentum.h"
 #include "render/sprite.h"
 #include "render/timer_nano.h"
 #include "spirit.h"
-
 
 constexpr size_t ANIMA_COUNT = 2;
 

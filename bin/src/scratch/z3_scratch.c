@@ -8,8 +8,8 @@
 #include "SML/maze.h"
 #include "SML/maze_path.h"
 
-#include "cwalk.h"
-#include "setup.h"
+#include "config.h"
+
 #include "sprite/persona.h"
 
 constexpr size_t ANIMA_COUNT = 1;

@@ -7,6 +7,7 @@
 
 #include "SML/logic/enums.h"
 
+// Persona and anima details
 struct situation_t {
 
   struct {
