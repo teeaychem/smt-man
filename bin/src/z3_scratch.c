@@ -74,7 +74,7 @@ int main() {
     {
       char path_buffer[FILENAME_MAX];
       cwk_path_join(source_path, "resources/anima_0.smt2", path_buffer, FILENAME_MAX);
-      read_smt2(ctx, opz, parser, &lexicon, path_buffer);
+      read_smt2(ctx, opz, parser, path_buffer);
     }
 
     Z3_parser_context_dec_ref(ctx, parser);

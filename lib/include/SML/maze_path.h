@@ -4,9 +4,8 @@
 #include <stddef.h>
 #include <z3.h>
 
+#include "SML/lexicon.h"
 #include "generic/pairs.h"
-
-#include "SML/logic.h"
 
 struct maze_tile_t {
   path_e h;

@@ -1,10 +1,13 @@
+
 #include <limits.h>
 #include <stdatomic.h>
 #include <stdint.h>
 #include <stdio.h>
 
-#include "SML/logic.h"
 #include "generic/pairs.h"
+
+#include "SML/lexicon.h"
+#include "SML/logic.h"
 
 // TODO: Inline
 Z3_context z3_mk_anima_ctx() {

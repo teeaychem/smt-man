@@ -13,20 +13,26 @@
 void anima_ctor(anima_s *self, situation_s *situation, const uint8_t id, const maze_s *maze) {
   slog_display(SLOG_DEBUG, 0, "Creating anima: %d\n", id);
 
+  // Pre construction, z3 setup
+  auto ctx = z3_mk_anima_ctx();
+
+  auto opz = Z3_mk_optimize(ctx);
+  Z3_optimize_inc_ref(ctx, opz);
+
+  auto parser = Z3_mk_parser_context(ctx);
+  Z3_parser_context_inc_ref(ctx, parser);
+
+  // Construction
   *self = (anima_s){
       .id = id,
       .tick_action = 0,
 
       .smt = {
-          .ctx = z3_mk_anima_ctx(),
+          .ctx = ctx,
+          .opz = opz,
+          .parser = parser,
       },
   };
-
-  self->smt.opz = Z3_mk_optimize(self->smt.ctx);
-  Z3_optimize_inc_ref(self->smt.ctx, self->smt.opz);
-
-  self->smt.parser = Z3_mk_parser_context(self->smt.ctx);
-  Z3_parser_context_inc_ref(self->smt.ctx, self->smt.parser);
 
   lexicon_ctor(&self->smt.lexicon);
 
@@ -37,6 +43,8 @@ void anima_dtor(anima_s *self) {
   assert(self != nullptr);
 
   maze_path_dtor(&self->path);
+
+  lexicon_dtor(&self->smt.lexicon);
 
   Z3_parser_context_dec_ref(self->smt.ctx, self->smt.parser);
 
@@ -51,7 +59,7 @@ void anima_parse_fundamentals(anima_s *self, char *smt_path) {
 
   parser_fundamentals(self->smt.ctx, self->smt.parser, &self->smt.lexicon);
 
-  read_smt2(self->smt.ctx, self->smt.opz, self->smt.parser, &self->smt.lexicon, smt_path);
+  read_smt2(self->smt.ctx, self->smt.opz, self->smt.parser, smt_path);
 }
 
 Z3_lbool anima_solve(anima_s *self, const situation_s *situation) {

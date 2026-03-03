@@ -1,6 +1,9 @@
-#include "SML/logic.h"
-#include "z3_api.h"
+
 #include <stdio.h>
+
+#include <z3.h>
+
+#include "SML/lexicon.h"
 
 void parser_fundamentals(Z3_context ctx, Z3_parser_context parser, lexicon_s *lexicon) {
 
@@ -29,7 +32,7 @@ void parser_fundamentals(Z3_context ctx, Z3_parser_context parser, lexicon_s *le
   }
 }
 
-void read_smt2(Z3_context ctx, Z3_optimize opz, Z3_parser_context parser, lexicon_s *lexicon, char *smt_path) {
+void read_smt2(Z3_context ctx, Z3_optimize opz, Z3_parser_context parser, char *smt_path) {
   FILE *file_ptr;
   char *line_buffer = nullptr;
   size_t buffer_size = 0;
