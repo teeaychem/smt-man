@@ -1,8 +1,5 @@
 #pragma once
 
-// TODO: Relocate
-#include <stdint.h>
-
 #include "generic/enums.h"
 
 #define TYPE uint32_t
@@ -16,6 +13,8 @@
 #include "generic/templates/pair_template.h"
 #undef SUFFIX
 #undef TYPE
+
+#include <stdint.h>
 
 Pair_uint8 Pair_uint8_steps_in_direction(const Pair_uint8 *origin, cardinal_e direction, uint8_t steps);
 

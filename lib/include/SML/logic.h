@@ -12,7 +12,7 @@ void parser_fundamentals(Z3_context ctx, Z3_parser_context parser, lexicon_s *le
 // Read an smt2 file located at `smt_path` into `ctx` and `opz`, given an establised `parser` and `lexicon`.
 void read_smt2(Z3_context ctx, Z3_optimize opz, Z3_parser_context parser, char *smt_path);
 
-Z3_context z3_mk_anima_ctx();
+Z3_context smt_mk_ctx();
 
 /// Static inlines
 

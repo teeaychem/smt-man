@@ -113,7 +113,7 @@ void game_state(core_logic_s *logic, core_render_s *render) {
         game_loop = false;
       }
 
-      persona_handle_event(&logic->persona, &logic->situation, &event);
+      persona_handle_event(&logic->persona, &event);
     }
 
     { // logic block

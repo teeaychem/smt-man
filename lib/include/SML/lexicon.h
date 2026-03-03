@@ -11,7 +11,7 @@ constexpr size_t PATH_VARIANTS = 4;
 
 struct z3_lexicon_4_t {
 
-  struct {
+  struct lexicon_anima_s {
     Z3_sort sort;
   } tile_offset_bv_sort;
 
@@ -20,9 +20,9 @@ struct z3_lexicon_4_t {
 
     Z3_sort sort;
 
-    Z3_symbol *enum_names;
-    Z3_func_decl *enum_consts;
-    Z3_func_decl *enum_testers;
+    Z3_symbol *names;
+    Z3_func_decl *consts;
+    Z3_func_decl *testers;
 
     /// anima -> u8
     Z3_func_decl tile_row_f;
@@ -31,12 +31,12 @@ struct z3_lexicon_4_t {
     Z3_func_decl tile_col_f;
   } anima;
 
-  struct {
+  struct lexicon_persona_s {
     Z3_sort sort;
 
-    Z3_symbol enum_name[1];
-    Z3_func_decl enum_const[1];
-    Z3_func_decl enum_tester[1];
+    Z3_symbol names[1];
+    Z3_func_decl consts[1];
+    Z3_func_decl testers[1];
 
     /// persona -> u8
     Z3_func_decl tile_row_f;
@@ -45,13 +45,13 @@ struct z3_lexicon_4_t {
     Z3_func_decl tile_col_f;
   } persona;
 
-  struct {
+  struct lexicon_path_s {
     Z3_sort sort;
     Z3_symbol penatly;
 
-    Z3_symbol enum_names[PATH_VARIANTS];
-    Z3_func_decl enum_consts[PATH_VARIANTS];
-    Z3_func_decl enum_testers[PATH_VARIANTS];
+    Z3_symbol names[PATH_VARIANTS];
+    Z3_func_decl consts[PATH_VARIANTS];
+    Z3_func_decl testers[PATH_VARIANTS];
 
     struct {
       /// PATH_ON

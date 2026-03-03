@@ -35,7 +35,7 @@ void maze_path_dtor(maze_path_s *self) {
   self->dimensions = (Pair_uint8){.x = 0, .y = 0};
 }
 
-void maze_path_display(maze_path_s *self, const lexicon_s *lexicon) {
+void maze_path_display(maze_path_s *self) {
 
   char *line_buffer = malloc(self->dimensions.y * sizeof(*line_buffer));
 

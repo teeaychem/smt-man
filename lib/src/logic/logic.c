@@ -13,7 +13,7 @@ void parser_fundamentals(Z3_context ctx, Z3_parser_context parser, lexicon_s *le
 
   { // Path setup
     for (size_t idx = 0; idx < PATH_VARIANTS; ++idx) {
-      Z3_parser_context_add_decl(ctx, parser, lexicon->path.enum_consts[idx]);
+      Z3_parser_context_add_decl(ctx, parser, lexicon->path.consts[idx]);
     }
     Z3_parser_context_add_decl(ctx, parser, lexicon->path.tile_h_f);
     Z3_parser_context_add_decl(ctx, parser, lexicon->path.tile_v_f);

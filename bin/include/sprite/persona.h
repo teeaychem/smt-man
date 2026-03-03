@@ -23,4 +23,4 @@ void persona_dtor(persona_s *self);
 
 void persona_on_frame(persona_s *self, sprite_s *sprite, const maze_s *maze, situation_s *situation, uint32_t tile_pixels, uint32_t offset_n);
 
-void persona_handle_event(persona_s *self, situation_s *situation, const SDL_Event *event);
+void persona_handle_event(persona_s *self, const SDL_Event *event);

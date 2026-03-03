@@ -1,4 +1,4 @@
-#include "sprite/anima.h"
+
 #include <stdatomic.h>
 #include <stdint.h>
 
@@ -7,14 +7,17 @@
 #include "generic/bitvec.h"
 #include "generic/pairs.h"
 
+#include "SML/logic.h"
+
 #include "random.h"
 #include "render/sprite.h"
+#include "sprite/anima.h"
 
-void anima_ctor(anima_s *self, situation_s *situation, const uint8_t id, const maze_s *maze) {
+void anima_ctor(anima_s *self, __attribute__((__unused__)) situation_s *situation, const uint8_t id, const maze_s *maze) {
   slog_display(SLOG_DEBUG, 0, "Creating anima: %d\n", id);
 
   // Pre construction, z3 setup
-  auto ctx = z3_mk_anima_ctx();
+  auto ctx = smt_mk_ctx();
 
   auto opz = Z3_mk_optimize(ctx);
   Z3_optimize_inc_ref(ctx, opz);
@@ -100,15 +103,10 @@ Result anima_path_from_model(anima_s *self, const maze_s *maze, const situation_
   return RESULT_OK;
 }
 
-void anima_on_tile(anima_s *self, const situation_s *situation, sprite_s *sprite, const maze_s *maze, Pair_uint8 maze_location) {
+void anima_on_tile(anima_s *self, const situation_s *situation, Pair_uint8 maze_location) {
 
   /// Update location
   atomic_store(&situation->animas.data[self->id].location, maze_location);
-}
-
-void anima_update_direction(anima_s *self, const maze_s *maze, Pair_uint8 maze_location) {
-
-  /// Update direction
 }
 
 void anima_on_frame(anima_s *self, const situation_s *situation, sprite_s *sprite, const maze_s *maze, uint32_t tile_pixels, uint32_t offset_n) {
@@ -129,7 +127,7 @@ void anima_on_frame(anima_s *self, const situation_s *situation, sprite_s *sprit
   if (sprite_is_centered_on_tile(sprite->location, tile_pixels)) {
     Pair_uint8 maze_location = sprite_maze_location(&sprite->location, tile_pixels, offset_n);
 
-    anima_on_tile(self, situation, sprite, maze, maze_location);
+    anima_on_tile(self, situation, maze_location);
 
     pthread_mutex_lock(&self->path.access_mutex);
 
@@ -229,7 +227,6 @@ void anima_on_frame(anima_s *self, const situation_s *situation, sprite_s *sprit
 
     pthread_mutex_unlock(&self->path.access_mutex);
 
-    // TODO:
     while (!maze_tile_in_direction_is_path(maze, maze_location, direction_actual)) {
       int random_c = random_in_range(0, 4);
       switch (random_c) {
@@ -251,9 +248,6 @@ void anima_on_frame(anima_s *self, const situation_s *situation, sprite_s *sprit
     }
 
     atomic_store(&situation->animas.data[self->id].direction_actual, direction_actual);
-
-    // TODO: Empty fn
-    anima_update_direction(self, maze, maze_location);
   }
 
   switch (atomic_load(&situation->animas.data[self->id].direction_actual)) {

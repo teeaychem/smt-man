@@ -37,7 +37,7 @@ void maze_path_clear(maze_path_s *self);
 
 void maze_path_read(maze_path_s *self, const lexicon_s *lexicon, const Z3_context ctx, const Z3_model model, const maze_s *maze);
 
-void maze_path_display(maze_path_s *self, const lexicon_s *lexicon);
+void maze_path_display(maze_path_s *self);
 
 static inline maze_tile_s maze_path_at(maze_path_s *self, const Pair_uint8 location) {
 

@@ -6,7 +6,6 @@
 #include "SDL3/SDL_events.h"
 #include <z3.h>
 
-#include "SML/logic.h"
 #include "SML/maze.h"
 #include "SML/maze_path.h"
 

@@ -55,7 +55,7 @@ int main() {
   printf("%s", maze_string);
   free(maze_string);
 
-  Z3_context ctx = z3_mk_anima_ctx();
+  Z3_context ctx = smt_mk_ctx();
 
   lexicon_s lexicon = {};
   lexicon_ctor(&lexicon);
@@ -91,7 +91,7 @@ void z3_read_and_display_path(const lexicon_s *lexicon, const Z3_context ctx, co
 
   maze_path_read(&maze_path, lexicon, ctx, model, maze);
 
-  maze_path_display(&maze_path, lexicon);
+  maze_path_display(&maze_path);
 
   maze_path_dtor(&maze_path);
 }
