@@ -4,6 +4,8 @@
 #include "sprite/persona.h"
 
 struct state {
+  bool hold;
+
   struct {
     size_t count;
     anima_s *data;

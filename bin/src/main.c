@@ -27,7 +27,10 @@ void game_state(state_s *logic, interface_s *render) {
 
   RGBMomentum colour = {};
 
+  printf("New game\n");
+  logic->hold = false;
   situation_reset(&logic->situation);
+  interface_reset(render, logic);
 
   //
   situation_s game_situation = {
@@ -44,6 +47,7 @@ void game_state(state_s *logic, interface_s *render) {
 
     while (SDL_PollEvent(&event)) {
       if (event.type == SDL_EVENT_QUIT) {
+        exit(101);
         game_loop = false;
       }
 
@@ -51,7 +55,6 @@ void game_state(state_s *logic, interface_s *render) {
     }
 
     { // logic block
-
       for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
         pthread_cond_broadcast(&ANIMA_SPIRITS[id].cond_frame);
       }
@@ -85,6 +88,17 @@ void game_state(state_s *logic, interface_s *render) {
       situation_copy(&game_situation, &logic->situation);
     }
 
+    if (logic->hold) {
+      for (size_t idx = 0; idx < logic->animas.count; ++idx) {
+        pthread_mutex_lock(&ANIMA_SPIRITS[idx].mtx_held);
+        pthread_cond_wait(&ANIMA_SPIRITS[idx].cond_held, &ANIMA_SPIRITS[idx].mtx_held);
+        printf("Held\n");
+        pthread_mutex_unlock(&ANIMA_SPIRITS[idx].mtx_held);
+      }
+
+      game_loop = false;
+    }
+
     { // wait block
       frame_nanoseconds = TimerNano_get_ticks(&frame_cap_timer);
       if (frame_nanoseconds < NS_PER_FRAME) {
@@ -116,6 +130,7 @@ int main() { // int main(int argc, char *argv[]) {
     for (uint8_t idx = 0; idx < ANIMA_COUNT; ++idx) {
 
       ANIMA_SPIRITS[idx] = (spirit_setup_s){
+          .hold = &core_logic.hold,
           .anima = &core_logic.animas.data[idx],
           .anima_count = ANIMA_COUNT,
           .maze = &core_logic.maze,
@@ -123,7 +138,6 @@ int main() { // int main(int argc, char *argv[]) {
           .the_situation = &core_logic.situation,
           .cond_frame = PTHREAD_COND_INITIALIZER,
           .mtx_spirit = PTHREAD_MUTEX_INITIALIZER,
-
       };
 
       anima_ctor(&core_logic.animas.data[idx], &core_logic.situation, idx, &core_logic.maze);
@@ -143,9 +157,9 @@ int main() { // int main(int argc, char *argv[]) {
   { // core block
     bool core_loop = true;
 
-    /* while (core_loop) { */
-    game_state(&core_logic, &core_render);
-    /* } */
+    while (core_loop) {
+      game_state(&core_logic, &core_render);
+    }
   }
 
 exit_block: {

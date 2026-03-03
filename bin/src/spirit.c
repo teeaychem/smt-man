@@ -35,6 +35,10 @@ void *spirit_ctor(void *void_setup_struct) {
 
   pthread_mutex_lock(&setup_struct->mtx_spirit);
   while (sat) {
+    if (*setup_struct->hold) {
+      printf("Hold prior to wait %d\n", setup_struct->anima->id);
+      pthread_cond_broadcast(&setup_struct->cond_held);
+    }
 
     pthread_cond_wait(&setup_struct->cond_frame, &setup_struct->mtx_spirit);
 
@@ -54,9 +58,9 @@ void *spirit_ctor(void *void_setup_struct) {
     case Z3_L_FALSE: { // UNSAT
       /* slog_display(SLOG_TRACE, 0, "\nStatus:\n%s\n", Z3_optimize_to_string(self->smt.ctx, self->smt.opz)); */
       slog_display(SLOG_ERROR, 0, "UNSAT deduction %d\n", anima->id);
-      sat = false;
-      exit(222);
-
+      *setup_struct->hold = true;
+      printf("Hold on UNSAT %d\n", setup_struct->anima->id);
+      pthread_cond_broadcast(&setup_struct->cond_held);
     } break;
     case Z3_L_UNDEF: { // UNKNOWN
       slog_display(SLOG_ERROR, 0, "UNKNOWN deduction %d\n", anima->id);
@@ -64,7 +68,6 @@ void *spirit_ctor(void *void_setup_struct) {
 
     } break;
     case Z3_L_TRUE: { // SAT
-
       slog_display(SLOG_INFO, 0, "SAT\n");
     } break;
     }

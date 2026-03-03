@@ -19,7 +19,7 @@ typedef struct sprite_t sprite_s;
 
 /// Methods
 
-void sprite_ctor(sprite_s *self, const uint8_t sprite_size, const Pair_uint8 maze_location, uint32_t offset);
+void sprite_ctor(sprite_s *self, const uint8_t sprite_size, const Pair_uint8 maze_location);
 
 bool sprite_is_centered_on_tile(Pair_uint32 location, uint32_t tile_pixels);
 

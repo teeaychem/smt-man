@@ -18,3 +18,5 @@ struct interface {
 typedef struct interface interface_s;
 
 void interface_ctor(interface_s *self, const state_s *core_logic, const char *source_path);
+
+void interface_reset(interface_s *self, const state_s *state);

@@ -5,6 +5,8 @@
 void state_ctor(state_s *self, size_t anima_count, const char *source_path) {
 
   *self = (state_s){
+      .hold = false,
+
       .animas = {
           .count = anima_count,
           .data = malloc(anima_count * sizeof(*self->animas.data)),

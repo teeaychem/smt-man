@@ -2,12 +2,12 @@
 #include "render/sprite.h"
 #include "consts.h"
 
-void sprite_ctor(sprite_s *self, const uint8_t sprite_size, const Pair_uint8 maze_location, uint32_t offset) {
+void sprite_ctor(sprite_s *self, const uint8_t sprite_size, const Pair_uint8 maze_location) {
 
   *self = (sprite_s){
       .size = sprite_size,
       .location = {
-          .x = (((uint32_t)maze_location.x) + offset) * TILE_PIXELS,
+          .x = (((uint32_t)maze_location.x) + RENDER_TOP) * TILE_PIXELS,
           .y = (uint32_t)maze_location.y * TILE_PIXELS,
       },
   };
