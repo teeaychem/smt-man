@@ -64,11 +64,11 @@ void *spirit_ctor(void *void_setup_struct) {
     pthread_cond_wait(&setup_struct->cond_frame, &setup_struct->mtx_spirit);
 
     Z3_optimize_push(anima->smt.ctx, anima->smt.opz);
-    Z3_lbool result = anima_solve(anima);
+    Z3_lbool result = anima_solve(anima, setup_struct->situation);
 
     // Other work within the push / pop
     if (result == Z3_L_TRUE) {
-      anima_path_from_model(anima, setup_struct->maze);
+      anima_path_from_model(anima, setup_struct->maze, setup_struct->situation);
     }
 
     Z3_optimize_pop(anima->smt.ctx, anima->smt.opz);

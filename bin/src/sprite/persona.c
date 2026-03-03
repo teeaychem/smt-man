@@ -1,7 +1,11 @@
-#include "sprite/persona.h"
+#include <assert.h>
+
 #include "generic/bitvec.h"
 
+#include "SML/maze.h"
+
 #include "render/sprite.h"
+#include "sprite/persona.h"
 
 void persona_ctor(persona_s *self, Situation *situation) {
   *self = (persona_s){

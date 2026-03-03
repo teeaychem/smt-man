@@ -33,12 +33,8 @@ int main() {
 
   Situation situation = {};
 
-  anima_s animas[ANIMA_COUNT];
-
-  for (size_t idx = 0; idx < ANIMA_COUNT; ++idx) {
-    animas[idx].smt.situation->animas.count = ANIMA_COUNT;
-    animas[idx].smt.situation->animas.data = alloca(ANIMA_COUNT * sizeof(*situation.animas.data));
-  }
+  situation.animas.count = ANIMA_COUNT;
+  situation.animas.data = alloca(ANIMA_COUNT * sizeof(*situation.animas.data));
 
   persona_s persona;
 

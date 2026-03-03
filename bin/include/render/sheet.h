@@ -25,6 +25,6 @@ typedef struct sheet_offsets_t SheetOffsets;
 
 extern SheetOffsets sheet_data;
 
-Pair_uint32 Sheet_anima_offset(const anima_s *anima);
+Pair_uint32 Sheet_anima_offset(const anima_s *anima, const Situation *situation);
 
 Pair_uint32 Sheet_persona_offset(const persona_s *persona, const Situation *situation);

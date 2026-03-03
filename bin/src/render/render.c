@@ -189,11 +189,11 @@ void Renderer_draw_from_sheet(Renderer *self, const Pair_uint32 destination, con
   }
 }
 
-void Renderer_anima(Renderer *self, const anima_s *anima, Sprite *sprite, const RenderAction action) {
+void Renderer_anima(Renderer *self, const anima_s *anima, const Situation *situation, Sprite *sprite, const RenderAction action) {
 
   switch (action) {
   case RENDER_DRAW: {
-    Renderer_sprite_buffer_map_to(self, Sheet_anima_offset(anima), sprite->size);
+    Renderer_sprite_buffer_map_to(self, Sheet_anima_offset(anima, situation), sprite->size);
     Surface_apply_pallete(&self->sprite_buffer, sprite->size, DEFAULT_PALLETES.animas[anima->id]);
 
     Renderer_draw_from_sprite_buffer(self, sprite->location, sprite->size);

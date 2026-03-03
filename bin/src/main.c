@@ -82,7 +82,7 @@ void core_render_ctor(core_render_s *self, const core_logic_s *core_logic, const
 
     // Animas
     for (uint8_t idx = 0; idx < ANIMA_COUNT; ++idx) {
-      Sprite_init(&self->sprites.animas[idx], 16, atomic_load(&core_logic->animas.data[idx].smt.situation->animas.data[idx].location), RENDER_TOP);
+      Sprite_init(&self->sprites.animas[idx], 16, atomic_load(&core_logic->situation.animas.data[idx].location), RENDER_TOP);
     }
   }
 }
@@ -126,7 +126,7 @@ void game_state(core_logic_s *logic, core_render_s *render) {
       rgb_momentum_advance(&colour);
 
       for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
-        anima_on_frame(&logic->animas.data[id], &render->sprites.animas[id], &logic->maze, TILE_PIXELS, RENDER_TOP);
+        anima_on_frame(&logic->animas.data[id], &logic->situation, &render->sprites.animas[id], &logic->maze, TILE_PIXELS, RENDER_TOP);
       }
       persona_on_frame(&logic->persona, &render->sprites.persona, &logic->maze, &logic->situation, TILE_PIXELS, RENDER_TOP);
     }
@@ -137,7 +137,7 @@ void game_state(core_logic_s *logic, core_render_s *render) {
       SDL_SetRenderDrawColor(render->renderer.renderer, colour.state[0].value, colour.state[1].value, colour.state[2].value, 0x000000ff);
 
       for (uint8_t id = 0; id < ANIMA_COUNT; ++id) {
-        Renderer_anima(&render->renderer, &logic->animas.data[id], &render->sprites.animas[id], RENDER_DRAW);
+        Renderer_anima(&render->renderer, &logic->animas.data[id], &logic->situation, &render->sprites.animas[id], RENDER_DRAW);
       }
       Renderer_persona(&render->renderer, &logic->persona, &render->sprites.persona, &logic->situation, RENDER_DRAW);
 
@@ -183,7 +183,7 @@ int main() { // int main(int argc, char *argv[]) {
           .anima_count = ANIMA_COUNT,
           .maze = &core_logic.maze,
           .source_path = source_path,
-
+          .situation = &core_logic.situation,
           .cond_frame = PTHREAD_COND_INITIALIZER,
           .mtx_spirit = PTHREAD_MUTEX_INITIALIZER,
 
@@ -192,10 +192,6 @@ int main() { // int main(int argc, char *argv[]) {
       anima_ctor(&core_logic.animas.data[idx], &core_logic.situation, idx, &core_logic.maze);
 
       pthread_create(&ANIMA_THREADS[ANIMA_SPIRITS[idx].anima->id], nullptr, spirit_ctor, (void *)&ANIMA_SPIRITS[idx]);
-    }
-
-    for (size_t idx = 0; idx < core_logic.animas.count; ++idx) {
-      situation_copy(&core_logic.situation, core_logic.animas.data[idx].smt.situation);
     }
   }
 

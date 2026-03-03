@@ -13,6 +13,8 @@
 #include "render/palette.h"
 #include "render/sprite.h"
 #include "render/surface.h"
+#include "sprite/anima.h"
+#include "sprite/persona.h"
 
 typedef struct renderer_t Renderer;
 struct renderer_t {
@@ -43,7 +45,7 @@ void Renderer_render_frame_buffer(Renderer *self);
 
 void Renderer_draw_from_sheet(Renderer *self, const Pair_uint32 destination, const uint32_t size, const Pair_uint32 source, const Pallete pallete);
 
-void Renderer_anima(Renderer *self, const anima_s *anima, Sprite *sprite, const RenderAction action);
+void Renderer_anima(Renderer *self, const anima_s *anima, const Situation *situation, Sprite *sprite, const RenderAction action);
 
 void Renderer_persona(Renderer *self, const persona_s *persona, Sprite *sprite, const Situation *situation, const RenderAction action);
 

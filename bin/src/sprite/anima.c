@@ -1,3 +1,4 @@
+#include "sprite/anima.h"
 #include <stdatomic.h>
 #include <stdint.h>
 
@@ -18,7 +19,6 @@ void anima_ctor(anima_s *self, Situation *situation, const uint8_t id, const maz
       .tick_action = 0,
 
       .smt = {
-          .situation = situation,
           .ctx = z3_mk_anima_ctx(),
       },
   };
@@ -55,19 +55,19 @@ void anima_parse_fundamentals(anima_s *self, char *smt_path) {
   read_smt2(self->smt.ctx, self->smt.opz, self->smt.parser, &self->smt.lexicon, smt_path);
 }
 
-Z3_lbool anima_solve(anima_s *self) {
+Z3_lbool anima_solve(anima_s *self, const Situation *situation) {
 
-  lexicon_assert_anima_location(&self->smt.lexicon, self->smt.ctx, self->smt.opz, self->smt.situation, self->id);
-  lexicon_assert_persona_location(&self->smt.lexicon, self->smt.ctx, self->smt.opz, self->smt.situation);
+  lexicon_assert_anima_location(&self->smt.lexicon, self->smt.ctx, self->smt.opz, situation, self->id);
+  lexicon_assert_persona_location(&self->smt.lexicon, self->smt.ctx, self->smt.opz, situation);
 
   Z3_lbool result = Z3_optimize_check(self->smt.ctx, self->smt.opz, 0, nullptr);
 
   return result;
 }
 
-Result anima_path_from_model(anima_s *self, const maze_s *maze) {
+Result anima_path_from_model(anima_s *self, const maze_s *maze, const Situation *situation) {
 
-  auto anima_location = atomic_load(&self->smt.situation->animas.data[self->id].location);
+  auto anima_location = atomic_load(&situation->animas.data[self->id].location);
 
   Z3_model model = Z3_optimize_get_model(self->smt.ctx, self->smt.opz);
   Z3_model_inc_ref(self->smt.ctx, model);
@@ -93,10 +93,10 @@ Result anima_path_from_model(anima_s *self, const maze_s *maze) {
   return RESULT_OK;
 }
 
-void anima_on_tile(anima_s *self, Sprite *sprite, const maze_s *maze, Pair_uint8 maze_location) {
+void anima_on_tile(anima_s *self, const Situation *situation, Sprite *sprite, const maze_s *maze, Pair_uint8 maze_location) {
 
   /// Update location
-  atomic_store(&self->smt.situation->animas.data[self->id].location, maze_location);
+  atomic_store(&situation->animas.data[self->id].location, maze_location);
 }
 
 void anima_update_direction(anima_s *self, const maze_s *maze, Pair_uint8 maze_location) {
@@ -104,11 +104,11 @@ void anima_update_direction(anima_s *self, const maze_s *maze, Pair_uint8 maze_l
   /// Update direction
 }
 
-void anima_on_frame(anima_s *self, Sprite *sprite, const maze_s *maze, uint32_t tile_pixels, uint32_t offset_n) {
+void anima_on_frame(anima_s *self, const Situation *situation, Sprite *sprite, const maze_s *maze, uint32_t tile_pixels, uint32_t offset_n) {
 
-  uint32_t movement = atomic_load(&self->smt.situation->animas.data[self->id].movement_pattern);
+  uint32_t movement = atomic_load(&situation->animas.data[self->id].movement_pattern);
   movement = uint32_rotl1(movement);
-  atomic_store(&self->smt.situation->animas.data[self->id].movement_pattern, movement);
+  atomic_store(&situation->animas.data[self->id].movement_pattern, movement);
 
   if ((movement & 0x10000000) == 0) {
     return;
@@ -122,12 +122,12 @@ void anima_on_frame(anima_s *self, Sprite *sprite, const maze_s *maze, uint32_t 
   if (Sprite_is_centered_on_tile(sprite->location, tile_pixels)) {
     Pair_uint8 maze_location = Sprite_maze_location(&sprite->location, tile_pixels, offset_n);
 
-    anima_on_tile(self, sprite, maze, maze_location);
+    anima_on_tile(self, situation, sprite, maze, maze_location);
 
     pthread_mutex_lock(&self->path.access_mutex);
 
     maze_tile_s tile_path = maze_path_at(&self->path, maze_location);
-    cardinal_e direction_actual = atomic_load(&self->smt.situation->animas.data[self->id].direction_actual);
+    cardinal_e direction_actual = atomic_load(&situation->animas.data[self->id].direction_actual);
 
     if (maze_is_intersection(maze, maze_location.x, maze_location.y)) {
 
@@ -217,7 +217,7 @@ void anima_on_frame(anima_s *self, Sprite *sprite, const maze_s *maze, uint32_t 
       } break;
       }
 
-      atomic_store(&self->smt.situation->animas.data[self->id].direction_actual, direction_actual);
+      atomic_store(&situation->animas.data[self->id].direction_actual, direction_actual);
     }
 
     pthread_mutex_unlock(&self->path.access_mutex);
@@ -243,13 +243,13 @@ void anima_on_frame(anima_s *self, Sprite *sprite, const maze_s *maze, uint32_t 
       }
     }
 
-    atomic_store(&self->smt.situation->animas.data[self->id].direction_actual, direction_actual);
+    atomic_store(&situation->animas.data[self->id].direction_actual, direction_actual);
 
     // TODO: Empty fn
     anima_update_direction(self, maze, maze_location);
   }
 
-  switch (atomic_load(&self->smt.situation->animas.data[self->id].direction_actual)) {
+  switch (atomic_load(&situation->animas.data[self->id].direction_actual)) {
   case CARDINAL_NONE: {
     // Do nothing
   } break;

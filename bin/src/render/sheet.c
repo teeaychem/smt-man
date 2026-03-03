@@ -17,9 +17,9 @@ SheetOffsets sheet_data = {
     .persona = {.eating = {{134, 1}, {134, 18}, {134, 35}}},
 };
 
-Pair_uint32 Sheet_anima_offset(const anima_s *anima) {
+Pair_uint32 Sheet_anima_offset(const anima_s *anima, const Situation *situation) {
 
-  switch (atomic_load(&anima->smt.situation->animas.data[anima->id].direction_actual)) {
+  switch (atomic_load(&situation->animas.data[anima->id].direction_actual)) {
   case CARDINAL_NONE: {
     constexpr size_t thinking_frames = ARRAY_LEN(sheet_data.anima.thinking);
     return sheet_data.anima.thinking[anima->tick_action % thinking_frames];

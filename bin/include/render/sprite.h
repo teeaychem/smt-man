@@ -5,14 +5,8 @@
 
 #include <SDL3/SDL_events.h>
 
-#include "SML/maze.h"
-
-
-
 #include "consts.h"
 #include "generic/pairs.h"
-#include "sprite/anima.h"
-#include "sprite/persona.h"
 
 constexpr int32_t SPRITE_VELOCITY = 1;
 
@@ -71,17 +65,3 @@ static inline Pair_uint8 Sprite_maze_location(const Pair_uint32 *sprite_location
 
   return maze_location;
 }
-
-/// Rendering related sprite methods
-
-/// Anima
-
-void anima_on_frame(anima_s *self, Sprite *sprite, const maze_s *maze, uint32_t tile_pixels, uint32_t offset_n);
-
-void anima_handle_event(anima_s *self, const SDL_Event *event);
-
-/// Persona
-
-void persona_on_frame(persona_s *self, Sprite *sprite, const maze_s *maze, Situation *situation, uint32_t tile_pixels, uint32_t offset_n);
-
-void persona_handle_event(persona_s *self, Situation *situation, const SDL_Event *event);
