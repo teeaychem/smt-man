@@ -1,102 +1,22 @@
-
-
-#include <slog.h>
 #include <stdatomic.h>
 #include <stdint.h>
 
-#include "cwalk.h"
+#include <slog.h>
 
 #include "config.h"
-#include "render.h"
+#include "interface.h"
 #include "render/rgb_momentum.h"
-#include "render/sprite.h"
 #include "render/timer_nano.h"
+#include "renderer.h"
 #include "spirit.h"
+#include "state.h"
 
 constexpr size_t ANIMA_COUNT = 2;
 
 pthread_t ANIMA_THREADS[ANIMA_COUNT];
 spirit_setup_s ANIMA_SPIRITS[ANIMA_COUNT];
 
-struct core_logic {
-  struct {
-    size_t count;
-    anima_s *data;
-  } animas;
-  maze_s maze;
-  persona_s persona;
-  situation_s situation;
-};
-typedef struct core_logic core_logic_s;
-
-void core_logic_ctor(core_logic_s *self, size_t anima_count, const char *source_path) {
-
-  *self = (core_logic_s){
-      .animas = {
-          .count = anima_count,
-          .data = malloc(anima_count * sizeof(*self->animas.data)),
-      },
-      .maze = {},
-      .situation = {
-          .animas = {
-              .count = ANIMA_COUNT,
-              .data = alloca(ANIMA_COUNT * sizeof(*self->animas.data)),
-          },
-      },
-  };
-
-  {
-    char path_buffer[FILENAME_MAX];
-    cwk_path_join(source_path, "resources/maze/source.txt", path_buffer, FILENAME_MAX);
-    maze_ctor_from_path(&self->maze, path_buffer);
-  }
-  situation_reset(&self->situation);
-
-  persona_ctor(&self->persona, &self->situation);
-}
-
-void core_logic_dtor(core_logic_s *self) {
-  assert(self != nullptr);
-  // TODO
-}
-
-struct core_render {
-  renderer_s renderer;
-  Sprites sprites;
-};
-typedef struct core_render core_render_s;
-
-void core_render_ctor(core_render_s *self, const core_logic_s *core_logic, const char *source_path) {
-
-  *self = (core_render_s){
-      .sprites = {
-          .animas = {
-              .count = core_logic->animas.count,
-              .data = malloc(core_logic->animas.count * sizeof(sprite_s)),
-          },
-      },
-  };
-
-  char path_buffer[FILENAME_MAX];
-
-  cwk_path_join(source_path, "resources/sheet.png", path_buffer, FILENAME_MAX);
-  slog_display(SLOG_INFO, 0, "Renderer with sheet from: %s\n", path_buffer);
-
-  renderer_ctor(&self->renderer, core_logic->maze.dimensions, path_buffer);
-
-  { // Sprite block
-
-    // Persona
-    sprite_ctor(&self->sprites.persona, 16, atomic_load(&core_logic->situation.persona.location), RENDER_TOP);
-
-    // Animas
-    for (uint8_t idx = 0; idx < ANIMA_COUNT; ++idx) {
-      sprite_ctor(&self->sprites.animas.data[idx], 16, atomic_load(&core_logic->situation.animas.data[idx].location), RENDER_TOP);
-    }
-  }
-}
-
-void game_state(core_logic_s *logic, core_render_s *render) {
+void game_state(state_s *logic, interface_s *render) {
   SDL_Event event;
   SDL_zero(event);
 
@@ -179,7 +99,7 @@ int main() { // int main(int argc, char *argv[]) {
   int exit_code = 0;
 
   { // slog setup
-    uint16_t slog_level_flags = SLOG_DEBUG;
+    uint16_t slog_level_flags = SLOG_ERROR | SLOG_WARN | SLOG_DEBUG;
     slog_init("logfile", slog_level_flags, 1);
   }
 
@@ -189,8 +109,8 @@ int main() { // int main(int argc, char *argv[]) {
     source_path_build(&source_path, &source_path_length);
   }
 
-  core_logic_s core_logic = {};
-  core_logic_ctor(&core_logic, ANIMA_COUNT, source_path);
+  state_s core_logic = {};
+  state_ctor(&core_logic, ANIMA_COUNT, source_path);
 
   { // Core logic
     for (uint8_t idx = 0; idx < ANIMA_COUNT; ++idx) {
@@ -212,8 +132,8 @@ int main() { // int main(int argc, char *argv[]) {
     }
   }
 
-  core_render_s core_render = {};
-  core_render_ctor(&core_render, &core_logic, source_path);
+  interface_s core_render = {};
+  interface_ctor(&core_render, &core_logic, source_path);
 
   if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
     exit_code = 1;

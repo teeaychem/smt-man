@@ -6,8 +6,8 @@
 
 #include "err.h"
 #include "generic/pairs.h"
-#include "render.h"
 #include "render/sheet.h"
+#include "renderer.h"
 
 void renderer_ctor(renderer_s *self, const Pair_uint8 maze_dimensions, const char *sheet_path) {
 

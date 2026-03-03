@@ -73,16 +73,16 @@ void persona_on_frame(persona_s *self, sprite_s *sprite, const maze_s *maze, sit
     // Do nothing
   } break;
   case CARDINAL_N: {
-    sprite->location.x -= SPRITE_VELOCITY;
+    sprite->location.x -= SPRITE_FRAME_VELOCITY;
   } break;
   case CARDINAL_E: {
-    sprite->location.y += SPRITE_VELOCITY;
+    sprite->location.y += SPRITE_FRAME_VELOCITY;
   } break;
   case CARDINAL_S: {
-    sprite->location.x += SPRITE_VELOCITY;
+    sprite->location.x += SPRITE_FRAME_VELOCITY;
   } break;
   case CARDINAL_W: {
-    sprite->location.y -= SPRITE_VELOCITY;
+    sprite->location.y -= SPRITE_FRAME_VELOCITY;
   } break;
   }
 }

@@ -7,7 +7,7 @@
 
 #include "generic/pairs.h"
 
-constexpr int32_t SPRITE_VELOCITY = 1;
+constexpr int32_t SPRITE_FRAME_VELOCITY = 1;
 
 struct sprite_t {
   /// Size of the associated sprite, as a square
@@ -16,17 +16,6 @@ struct sprite_t {
   Pair_uint32 location;
 };
 typedef struct sprite_t sprite_s;
-
-struct sprites_t {
-
-  struct {
-    size_t count;
-    sprite_s *data;
-  } animas;
-
-  sprite_s persona;
-};
-typedef struct sprites_t Sprites;
 
 /// Methods
 

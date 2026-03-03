@@ -46,8 +46,12 @@ void CAT(S_TYPE, set)(S_TYPE *self, const TYPE x, const TYPE y) {
 
 size_t CAT(S_TYPE, flatten)(const S_TYPE *self, const TYPE x, const TYPE y) {
   if (!(x < self->x && y < self->y)) {
-    slog_display(SLOG_ERROR, 0, "Invalid x: %d !< %d\n", x, self->x);
-    slog_display(SLOG_ERROR, 0, "Invalid y: %d !< %d\n", y, self->y);
+    if (!(x < self->x)) {
+      slog_display(SLOG_ERROR, 0, "Invalid x: %u !< %d\n", x, self->x);
+    }
+    if (!(y < self->y)) {
+      slog_display(SLOG_ERROR, 0, "Invalid y: %u !< %d\n", y, self->y);
+    }
     assert(false);
   };
 

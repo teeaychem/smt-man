@@ -1,9 +1,11 @@
 #pragma once
 
+#include <pthread.h>
+
+#include "SML/logic/situation.h"
 #include "SML/maze.h"
 
-#include "render.h"
-
+#include "sprite/anima.h"
 
 struct spirit_setup_t {
   pthread_cond_t cond_frame;
@@ -17,8 +19,5 @@ struct spirit_setup_t {
   pthread_t *thread;
 };
 typedef struct spirit_setup_t spirit_setup_s;
-
-
-void setup_renderer(renderer_s *renderer, const maze_s *maze, const char *source_path);
 
 void *spirit_ctor(void *void_setup_struct);
